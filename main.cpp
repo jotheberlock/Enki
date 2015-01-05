@@ -358,5 +358,6 @@ int main(int argc, char ** argv)
     destroyTypes();
 
     fclose(log_file);
+    printf("Result: %ld\n", result);
     return result;
 }
