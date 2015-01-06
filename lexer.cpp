@@ -118,7 +118,7 @@ ReadChar Lexer::eatWhitespace()
     do 
     {
         ch = next();
-        if (ch.val != ' ' && ch.val != '\t' && ch.val != '\r')
+        if (ch.val != ' ' && ch.val != '\t')
             break;
     } while (true);
     return ch;
@@ -449,7 +449,7 @@ void Lexer::lex(Chars & input)
         {
             for (unsigned int loopc=0; loopc<indentations.size(); loopc++)
             {
-	        simpleToken(begin, END);
+                simpleToken(begin, END);
             }
             return;
         }
@@ -458,7 +458,12 @@ void Lexer::lex(Chars & input)
             begin = eatLine();
             val = begin.val;
         }
-
+        if  (val == '\r')
+        {
+                // ignore
+            continue;
+        }
+        
         int oll = oldline;
         oldline = begin.line;
         
@@ -467,7 +472,7 @@ void Lexer::lex(Chars & input)
             int occ = oldcol;
             oldcol = begin.col;
 
-	    fprintf(log_file, "Zor %d %d %d\n", begin.col, occ, indentations.top());
+            fprintf(log_file, "Zor %d %d %d\n", begin.col, occ, indentations.top());
 
             if (begin.col > indentations.top())
             {

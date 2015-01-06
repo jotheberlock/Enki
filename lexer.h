@@ -186,7 +186,11 @@ public:
             {
                 line++;
                 col=0;
-            }  
+            }
+            else if (ret.val == '\r')
+            {
+                    // Ignore
+            }
             else if (!isCombining(ret.val))
             {
                 col++;
