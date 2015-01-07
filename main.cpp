@@ -75,6 +75,55 @@ void dump_codegen(Codegen * cg)
     }
 }
 
+uint32_t getUtf8(FILE * f)
+{   
+    uint32_t val = fgetc(f);
+    if (val == EOF)
+    {
+        return 0;
+    }
+    
+    if (!(val & 0x80))
+        return val;
+    
+    val &= ~0x80;
+    int nobytes = 0;
+    if (val & 0x40)
+    {
+        nobytes++;
+        val &= ~0x40;
+    }
+    if (val & 0x20)
+    {
+        nobytes++;
+        val &= ~0x20;
+    }
+    if (val & 0x10)
+    {
+        printf("Invalid UTF-8! Too many bytes\n");
+        return 0;
+    }
+
+    uint32_t ret = val;
+    
+    for (int loopc=0; loopc<nobytes; loopc++)
+    {
+        val = fgetc(f);
+
+        if ((!val & 0x80) || (val & 0x40))
+        {
+            printf("Invalid UTF-8! Wrong succeeding byte %x, nobytes %d\n", val, nobytes);
+            return 0;
+        }
+
+        ret = ret << 6;
+        ret |= val;
+    }
+
+    return ret;
+}
+
+    
 int main(int argc, char ** argv)
 {
     uint64_t result = 1;
@@ -120,9 +169,11 @@ int main(int argc, char ** argv)
     Chars input;
     while (!feof(f))
     {
-        int val = getc(f);
-        if (val > -1)
-            input.push_back(val);
+        uint32_t v = getUtf8(f);
+        if (v)
+        {
+            input.push_back(v);
+        }
     }
     fclose(f);
 
