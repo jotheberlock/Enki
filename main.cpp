@@ -75,13 +75,10 @@ void dump_codegen(Codegen * cg)
     }
 }
 
-uint32_t getUtf8(FILE * f)
+uint32_t getUtf8(char * & f)
 {   
-    uint32_t val = fgetc(f);
-    if (val == EOF)
-    {
-        return 0;
-    }
+    uint32_t val = *f;
+    f++;
     
     if (!(val & 0x80))
         return val;
@@ -108,8 +105,9 @@ uint32_t getUtf8(FILE * f)
     
     for (int loopc=0; loopc<nobytes; loopc++)
     {
-        val = fgetc(f);
-
+        val = *f;
+        f++;
+        
         if ((!val & 0x80) || (val & 0x40))
         {
             printf("Invalid UTF-8! Wrong succeeding byte %x, nobytes %d\n", val, nobytes);
@@ -167,15 +165,23 @@ int main(int argc, char ** argv)
     }
 
     Chars input;
-    while (!feof(f))
+
+    fseek(f, 0, SEEK_END);
+    int len = ftell(f);
+    char * text = new char[len];
+    fseek(f, 0, SEEK_SET);
+    fread(text, len, 1, f);
+    fclose(f);
+    
+    char * ptr = text;
+    while (ptr < text+len)
     {
-        uint32_t v = getUtf8(f);
+        uint32_t v = getUtf8(ptr);
         if (v)
         {
             input.push_back(v);
         }
     }
-    fclose(f);
 
     lex.setFile(flange ? "../test.e" : "test.e");
     lex.lex(input);
