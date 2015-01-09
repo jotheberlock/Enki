@@ -182,7 +182,8 @@ int main(int argc, char ** argv)
             input.push_back(v);
         }
     }
-
+    delete[] text;
+    
     lex.setFile(flange ? "../test.e" : "test.e");
     lex.lex(input);
 
