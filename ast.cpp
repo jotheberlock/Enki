@@ -1215,7 +1215,8 @@ Value * BinaryExpr::codegen(Codegen * c)
     uint64_t inequality_op = (((uint64_t)'=' << 32) | '!');
     uint64_t lte_op = (((uint64_t)'=' << 32) | '<');
     uint64_t gte_op = (((uint64_t)'=' << 32) | '>');
-
+    uint64_t eval_op = (((uint64_t)':' << 32) | '=');
+    
     if (token.toString() == "and")
     {
         Value * lh = lhs->codegen(c);
@@ -1360,7 +1361,11 @@ Value * BinaryExpr::codegen(Codegen * c)
         Value * v = c->getTemporary(register_type, "axor");
         c->block()->add(Insn(XOR, v, lh, rh));
         return v;
-    }    
+    }
+    else if (op == eval_op)
+    {
+            // Do eval here
+    }
     else if (op == '=')
     {
         fprintf(log_file, ">>>> Checking assign\n");
