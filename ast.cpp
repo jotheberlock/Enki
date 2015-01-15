@@ -1365,6 +1365,36 @@ Value * BinaryExpr::codegen(Codegen * c)
     else if (op == eval_op)
     {
             // Do eval here
+        VarRefExpr * vre = dynamic_cast<VarRefExpr *>(lhs);
+        if (!vre)
+        {
+            addError(Error(&token, "Expected varrefexpr"));
+            fprintf(log_file, "Expected varrefexpr!\n");
+            return 0;
+        }
+
+         GeneratorType * rhgt = dynamic_cast<GeneratorType *>(rh->type);
+         if (!rhgt)
+         {
+             addError(Error(&token, "Eval only works with generator type"));
+             return 0;
+         }
+         
+         BasicBlock * eval_return = c->newBlock("eval_return");
+         Value * ipvar = c->getIp();
+         if (!ipvar)
+         {
+             fprintf(log_file, "Can't find __ipvar in return!\n");
+             return 0;
+         }
+         c->block()->add(Insn(MOVE, ipvar, eval_return));
+         Value * jaddr = c->getTemporary(register_type, "jaddr");
+         c->block()->add(Insn(LOAD, jaddr, rh, Operand::usigc(8)));  // __ip
+         c->block()->add(Insn(CALL, jaddr));
+         c->setBlock(eval_return);
+         Value * ret = c->getTemporary(register_type, "ret");
+         c->block()->add(Insn(LOAD, ret, jaddr, Operand::usigc(0))); // __ret
+         return ret;
     }
     else if (op == '=')
     {
@@ -1488,7 +1518,7 @@ Value * Yield::codegen(Codegen * c)
     Value * ipvar = c->getIp();
     if (!ipvar)
     {
-        fprintf(log_file, "Can't find __ret in return!\n");
+        fprintf(log_file, "Can't find __ipvar in return!\n");
         return 0;
     }
     
@@ -1659,12 +1689,6 @@ Value * VarRefExpr::codegen(Codegen * c)
         Value * ret = c->getTemporary(etype, "deref_ret");
         c->block()->add(Insn(loadForType(etype), ret, r));
         return ret;
-    }
-
-    GeneratorType * gt = dynamic_cast<GeneratorType *>(value->type);
-    if (gt && (!evil_hack))
-    {
-        printf("Doing generator!\n");
     }
         
     return value;
