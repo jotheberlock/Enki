@@ -111,9 +111,14 @@ void StructType::calcAddress(Codegen * c, Value * a, Expr * i)
     IdentifierExpr * ie = (IdentifierExpr *)i;
     if (siz == 0)
     {
-	calc();
+        calc();
     }
 
+    if (is_union)
+    {
+        return;
+    }
+    
     for (unsigned int loopc=0; loopc<members.size(); loopc++)
     {
         if (members[loopc].name == ie->getString())
@@ -131,7 +136,15 @@ void StructType::calc()
     for (unsigned int loopc=0; loopc<members.size(); loopc++)
     {
         members[loopc].offset = siz;
-        siz += members[loopc].type->size();
+        if (is_union)
+        {
+            siz = (siz < members[loopc].type->size()) ?
+                members[loopc].type->size() : siz;
+        }
+        else
+        {
+            siz += members[loopc].type->size();
+        }
     }
 }
 
@@ -145,7 +158,7 @@ Type * StructType::fieldType(std::string n)
             return members[loopc].type;
         }
     }
-
+    
     return 0;
 }
 

@@ -377,10 +377,11 @@ class StructType : public Type
 {
   public:
 
-    StructType(std::string n)
+    StructType(std::string n, bool u)
     {
         nam=n;
         siz=0;
+        is_union=u;
     }
 
     std::string display(unsigned char *);
@@ -428,6 +429,7 @@ class StructType : public Type
     std::vector<StructElement> members;
     std::string nam;
     int siz;
+    bool is_union;
     
 };
 

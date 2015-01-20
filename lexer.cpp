@@ -48,6 +48,7 @@ Lexer::Lexer()
     keywords["continue"] = CONTINUE;
     keywords["yield"] = YIELD;
     keywords["struct"] = STRUCT;
+    keywords["union"] = UNION;
     keywords["def"] = DEF;
     keywords["macro"] = MACRO;
     keywords["const"] = CONST;

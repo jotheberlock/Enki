@@ -57,7 +57,7 @@ typedef std::vector<uint32_t> Chars;
 
 #define FUNCVAR 44
 #define MACRO 45
-
+#define UNION 46
 
 class Token
 {

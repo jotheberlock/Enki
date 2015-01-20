@@ -316,7 +316,7 @@ Expr * Parser::parseBodyLine()
     { 
         return parseReturn();
     }
-    else if (current.type == STRUCT)
+    else if (current.type == STRUCT || current.type == UNION)
     {
         return parseStruct();
     }
@@ -679,6 +679,8 @@ Expr * Parser::parseBlock()
 
 Expr * Parser::parseStruct()
 {
+    int type = current.type;
+    
     next();
     if (current.type != IDENTIFIER)
     {
@@ -695,7 +697,7 @@ Expr * Parser::parseStruct()
         return 0;
     }
 
-    StructType * st = new StructType(sname);
+    StructType * st = new StructType(sname, type == UNION);
     addType(st, sname); // Add here so it can reference itself
 
     next();
