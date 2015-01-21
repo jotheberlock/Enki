@@ -416,9 +416,9 @@ class StructType : public Type
 
     int align()
     {
-        return 64;
+        return (size()/8)*8;
     }
-
+    
     std::string name()
     {
         return nam;
