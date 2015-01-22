@@ -164,6 +164,11 @@ class Codegen
     {
         return ipvar;
     }
+
+    Value * getStaticLink()
+    {
+        return staticlink;
+    }
     
 	bool extCall()   // C calling convention
 	{
@@ -299,6 +304,7 @@ class Codegen
     Value * retvar;
     Value * stackptrvar;
     Value * ipvar;
+    Value * staticlink;
     
 };
 

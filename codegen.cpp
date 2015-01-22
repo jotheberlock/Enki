@@ -15,6 +15,7 @@ Codegen::Codegen(Expr * e, FunctionScope * fs)
     retvar = 0;
     stackptrvar = 0;
     ipvar = 0;
+    staticlink = 0;
 }
 
 Codegen::~Codegen()
@@ -58,6 +59,10 @@ void Codegen::generate()
         {
             ipvar = locals[loopc];
         }
+        else if (locals[loopc]->name == "__staticlink")
+        {
+            staticlink = locals[loopc];
+        }        
     }
     
     base->codegen(this);
