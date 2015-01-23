@@ -108,15 +108,17 @@ class IdentifierExpr : public Expr
 
   virtual Value * codegen(Codegen *);
 
-  void setValue(Value * v)
+  void setValue(Value * v, int s)
   {
       value=v;
+      static_depth=s;
   }
   
  protected:
 
   std::string val;
   Value * value;
+  int static_depth;
   
 };
 

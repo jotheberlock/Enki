@@ -19,12 +19,26 @@ void SymbolScope::addFunction(FunctionScope * f)
     functions[f->name()] = f;
 }
 
-Value * SymbolScope::lookup(std::string n)
+Value * SymbolScope::lookup(std::string n, int & nest)
 {
     std::map<std::string, Value *>::iterator it = contents.find(n);
     if (it == contents.end())
     {
-        return parent() ? parent()->lookup(n) : 0;
+        if (parent())
+        {
+            if (isFunction())
+            {
+                // Leaving this function's scope so static depth
+                // goes up.
+                nest++;
+            }
+            
+            return parent()->lookup(n, nest);
+        }
+        else
+        {
+            return 0;
+        }
     }
     return (*it).second;
 }

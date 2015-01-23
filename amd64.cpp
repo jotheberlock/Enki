@@ -996,11 +996,11 @@ void Amd64WindowsCallingConvention::generatePrologue(BasicBlock * b, FunctionSco
     r13_backup=addRegStore("r13",b,f);
     r14_backup=addRegStore("r14",b,f);
 
-    Value * v = f->lookup("__activation");
+    Value * v = f->lookupLocal("__activation");
     assert(v);
     b->add(Insn(MOVE, Operand(v), Operand::reg(assembler->framePointer())));
     
-    v = f->lookup("__stackptr");
+    v = f->lookupLocal("__stackptr");
     assert(v);
     b->add(Insn(MOVE, Operand(v), Operand::reg(assembler->framePointer())));
     
@@ -1021,8 +1021,8 @@ void Amd64WindowsCallingConvention::generateEpilogue(BasicBlock * b, FunctionSco
     b->add(Insn(MOVE, Operand::reg("r12"), r12_backup));
     b->add(Insn(MOVE, Operand::reg("r13"), r13_backup));
     b->add(Insn(MOVE, Operand::reg("r14"), r14_backup));
-    
-    Value * v = f->lookup("__ret");
+
+    Value * v = f->lookupLocal("__ret");
     assert(v);
     
     b->add(Insn(MOVE, Operand::reg("rax"), v));
@@ -1290,8 +1290,8 @@ void Amd64UnixCallingConvention::generateEpilogue(BasicBlock * b, FunctionScope 
     b->add(Insn(MOVE, Operand::reg("r12"), r12_backup));
     b->add(Insn(MOVE, Operand::reg("r13"), r13_backup));
     b->add(Insn(MOVE, Operand::reg("r14"), r14_backup));
-    
-    Value * v = f->lookup("__ret");
+
+    Value * v = f->lookupLocal("__ret");
     assert(v);
     
     b->add(Insn(MOVE, Operand::reg("rax"), v));

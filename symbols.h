@@ -40,7 +40,15 @@ class SymbolScope
     }
     
     void add(Value *);
-    Value * lookup(std::string);
+    Value * lookup(std::string,int &);
+
+    Value * lookupLocal(std::string n)
+    {
+        int static_depth = 0;
+        Value * ret = lookup(n, static_depth);
+        assert(static_depth == 0);
+        return ret;
+    }
     
     FunctionScope * lookup_function(std::string);
     virtual FunctionScope * currentFunction();

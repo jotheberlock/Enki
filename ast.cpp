@@ -40,6 +40,8 @@ IdentifierExpr::IdentifierExpr(Token * t)
     buf[loopc] = 0;
 
     val = buf;
+    static_depth = 0;
+    value = 0;
 }
 
 StringLiteralExpr::StringLiteralExpr(Token * t)
@@ -91,8 +93,9 @@ Expr * Parser::parseIdentifier()
 {
     IdentifierExpr * ret = new IdentifierExpr(&current);
     next();
-    Value * v = current_scope->lookup(ret->getString());
-    ret->setValue(v);
+    int depth = 0;
+    Value * v = current_scope->lookup(ret->getString(),depth);
+    ret->setValue(v,depth);
     return ret;
 }
 
@@ -757,7 +760,8 @@ Expr * Parser::parseVarRef(Expr * e)
     vre->scope = current_scope;
 
     std::string name = ((IdentifierExpr *)ie)->getString();
-    vre->value = vre->scope->lookup(name);
+    int depth = 0;
+    vre->value = vre->scope->lookup(name, depth);
     if (!vre->value)
     {
         addError(Error(&current, "Unknown variable", name));
