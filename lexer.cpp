@@ -239,6 +239,10 @@ void Lexer::readStringLiteral(uint32_t term)
              {
                  current_token.value.push_back(7);
              }
+             else if (val2 == 'b')
+             {
+                 current_token.value.push_back(8);  // Backspace
+             }
              else if (val2 == 't')
              {
                  current_token.value.push_back(9);
