@@ -55,7 +55,7 @@ void * dumpstacker(void *)
     return 0;
 }
 
-void segv_handler(int signo)
+void segv_handler(int signo, siginfo_t * info, void * ctx)
 {
     printf("Segfault!\n");
     pthread_mutex_unlock(&dumper);
@@ -381,7 +381,15 @@ int main(int argc, char ** argv)
         
 #ifdef POSIX_SIGNALS
         pthread_mutex_lock(&dumper);
-        signal(SIGSEGV, segv_handler);
+        
+        struct sigaction sa;
+        sa.sa_sigaction = segv_handler;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_flags = SA_RESTART | SA_SIGINFO; 
+        if (!sigaction(SIGSEGV, &sa, NULL))
+        {
+            printf("Failure to install signal handler!\n");
+        }
 
         pthread_t tid;
         pthread_create(&tid, 0, dumpstacker, 0);
