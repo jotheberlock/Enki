@@ -47,17 +47,52 @@ void dumpstack()
 
 pthread_mutex_t dumper = PTHREAD_MUTEX_INITIALIZER;
 
+ucontext * the_ucontext = 0;
+
+void write_reg(const char * rn, uint64_t rv)
+{
+    char buf[8];
+    write(1, rn, strlen(rn));
+    write(1, ": ", 2);
+    for (int loopc=0; loopc<8; loopc++)
+    {
+       unsigned char val = rv & 0xff00000000000000;
+       if (val < 10) 
+       { 
+            buf[loopc] = '0' + val;
+       }
+       else
+       {
+            buf[loopc] = 'a' + (val-10);
+       }
+       val <<= 8;
+    }
+
+    write(1, buf, 8);
+    write(1, "\n", 1);
+}
+
 void * dumpstacker(void *)
 {
     printf("Waiting\n");
     pthread_mutex_lock(&dumper);
     dumpstack();
+    if (the_ucontext)
+    {
+        write_reg("rax", the_ucontext->rax);
+    }
+    else
+    {
+        write(1, "No ucontext\n", 11);
+    }
+
     return 0;
 }
 
 void segv_handler(int signo, siginfo_t * info, void * ctx)
 {
-    printf("Segfault!\n");
+    printf("Segfault! %x\n", ctx);
+    the_ucontext = (ucontext *)ctx;
     pthread_mutex_unlock(&dumper);
     sleep(100);
     exit(0);
@@ -382,11 +417,11 @@ int main(int argc, char ** argv)
 #ifdef POSIX_SIGNALS
         pthread_mutex_lock(&dumper);
         
-        struct sigaction sa;
+        struct sigaction sa, oldact;
         sa.sa_sigaction = segv_handler;
         sigemptyset(&sa.sa_mask);
         sa.sa_flags = SA_RESTART | SA_SIGINFO; 
-        if (!sigaction(SIGSEGV, &sa, NULL))
+        if (sigaction(SIGSEGV, &sa, &oldact))
         {
             printf("Failure to install signal handler!\n");
         }
