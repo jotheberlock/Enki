@@ -91,7 +91,7 @@ void * dumpstacker(void *)
 
 void segv_handler(int signo, siginfo_t * info, void * ctx)
 {
-    printf("Segfault! IP is %p\n", info->si_addr);
+    printf("Segfault! IP is %p signal %d\n", info->si_addr, info->si_signo);
     the_ucontext = (ucontext *)ctx;
     pthread_mutex_unlock(&dumper);
     sleep(100);
@@ -423,9 +423,17 @@ int main(int argc, char ** argv)
         sa.sa_flags = SA_RESTART | SA_SIGINFO; 
         if (sigaction(SIGSEGV, &sa, &oldact))
         {
-            printf("Failure to install signal handler!\n");
+            printf("Failure to install segv signal handler!\n");
         }
-
+        if (sigaction(SIGILL, &sa, &oldact))
+        {
+            printf("Failure to install sigill signal handler!\n");
+        }
+        if (sigaction(SIGBUS, &sa, &oldact))
+        {
+            printf("Failure to install sigbus signal handler!\n");
+        }
+        
         pthread_t tid;
         pthread_create(&tid, 0, dumpstacker, 0);
         pthread_detach(tid); 
