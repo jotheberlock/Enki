@@ -365,6 +365,11 @@ class Assembler
         current = mb.ptr;
         limit = current+mb.len;
     }
+
+    int staticLinkOffset()
+    {
+        return (pointerSize() * 3) / 8;
+    }
     
     virtual int regnum(std::string) = 0;
     virtual bool assemble(BasicBlock *, BasicBlock * next) = 0;

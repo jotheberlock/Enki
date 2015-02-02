@@ -258,8 +258,16 @@ void AddressOfPass::processInsn()
 {
     if (insn.ins == GETADDR)
     {
+        int depth = insn.ops[2].getUsigc();
         Insn mover(MOVE, insn.ops[0], Operand::reg(assembler->framePointer()));
         prepend(mover);
+        while (depth > 0)
+        {
+            Insn updoer(LOAD, insn.ops[0], insn.ops[0], Operand::sigc(assembler->staticLinkOffset()));
+            prepend(updoer);  // Check ordering...
+            depth--;
+        }
+
         Value * v = insn.ops[1].getValue();
         Insn adder(ADD, insn.ops[0], insn.ops[0], Operand::sigc(v->stackOffset()));
         change(adder);

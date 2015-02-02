@@ -641,6 +641,8 @@ class VarRefExpr : public Expr
     VarRefExpr()
     {
          value=0;
+         scope=0;
+         depth=0;
     }
 
     ~VarRefExpr()
@@ -663,6 +665,7 @@ class VarRefExpr : public Expr
     std::vector<VarRefElement> elements;
     SymbolScope * scope;
     Token token;
+    int depth;
     
 };
 

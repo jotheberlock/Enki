@@ -760,8 +760,7 @@ Expr * Parser::parseVarRef(Expr * e)
     vre->scope = current_scope;
 
     std::string name = ((IdentifierExpr *)ie)->getString();
-    int depth = 0;
-    vre->value = vre->scope->lookup(name, depth);
+    vre->value = vre->scope->lookup(name, vre->depth);
     if (!vre->value)
     {
         addError(Error(&current, "Unknown variable", name));
@@ -1474,7 +1473,7 @@ Value * UnaryExpr::codegen(Codegen * c)
     else if (op == '@')
     {
         Value * v = c->getTemporary(register_type, "addrof");
-        c->block()->add(Insn(GETADDR, v, e));
+        c->block()->add(Insn(GETADDR, v, e, Operand::usigc(0)));  // FIXME
         return v; 
     }
     else if (op == '!')
@@ -1653,13 +1652,13 @@ Value * If::codegen(Codegen * c)
 Value * VarRefExpr::codegen(Codegen * c)
 {
         // FIXME: fill this in properly
-    if (elements.size() > 0)
+    if (elements.size() > 0 || depth > 0)
     {
         Type * etype = value->type;
     
         Value * r = c->getTemporary(register_type, "refaddr");
 
-        c->block()->add(Insn(GETADDR, r, value));
+        c->block()->add(Insn(GETADDR, r, value, Operand::usigc(depth)));
     
         for (unsigned int loopc=0; loopc<elements.size(); loopc++)
         {
@@ -1719,7 +1718,7 @@ void VarRefExpr::store(Codegen * c, Value * v)
     
     Value * r = c->getTemporary(register_type, "refaddr");
 
-    c->block()->add(Insn(GETADDR, r, i));
+    c->block()->add(Insn(GETADDR, r, i, Operand::usigc(depth)));
     Type * etype = i->type;
     
     for (unsigned int loopc=0; loopc<elements.size(); loopc++)
