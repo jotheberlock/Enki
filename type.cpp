@@ -355,7 +355,7 @@ std::string StructType::display(unsigned char * addr)
 // d) get result
 // e) dispose of stack frame
 
-// frame is old_framepointer, old_ip, return, args, locals
+// frame is old_framepointer, old_ip, static link, return, args, locals
 
 Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
                                       std::vector<Value *> & args)
@@ -382,7 +382,11 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
     c->block()->add(Insn(MOVE, ip_holder, return_block));
     c->block()->add(Insn(STORE, new_frame,
                          Operand::sigc(assembler->pointerSize()/8), ip_holder));
-    
+        // Needs expanding
+    c->block()->add(Insn(STORE, new_frame,
+                         Operand::sigc(assembler->staticLinkOffset()),
+                         Operand::reg(assembler->framePointer())));
+                         
     RegSet res;
     res.set(0);
     c->block()->setReservedRegs(res);
