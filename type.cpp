@@ -382,11 +382,25 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
     c->block()->add(Insn(MOVE, ip_holder, return_block));
     c->block()->add(Insn(STORE, new_frame,
                          Operand::sigc(assembler->pointerSize()/8), ip_holder));
-        // Needs expanding
-    c->block()->add(Insn(STORE, new_frame,
-                         Operand::sigc(assembler->staticLinkOffset()),
-                         Operand::reg(assembler->framePointer())));
-                         
+
+     // Needs expanding
+    if (c->getScope() == f->getScope())
+    {
+            // Recursive
+        Value * static_link = c->getStaticLink();
+        assert(static_link);
+        
+        c->block()->add(Insn(STORE, new_frame,
+                             Operand::sigc(assembler->staticLinkOffset()),
+                             static_link));
+    }
+    else
+    {
+        c->block()->add(Insn(STORE, new_frame,
+                             Operand::sigc(assembler->staticLinkOffset()),
+                             Operand::reg(assembler->framePointer())));
+    }
+    
     RegSet res;
     res.set(0);
     c->block()->setReservedRegs(res);
