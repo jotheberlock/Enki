@@ -413,8 +413,7 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
         // Call returns here
     c->setBlock(return_block);
     
-        // Fix type
-    Value * ret = c->getTemporary(register_type, "ret");
+    Value * ret = c->getTemporary(c->getScope()->getType()->getReturns()[0], "ret");
     c->block()->add(Insn(LOAD, ret, new_frame, Operand::sigc(
                              (assembler->pointerSize()/8)*2)));
 

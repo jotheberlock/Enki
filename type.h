@@ -469,6 +469,11 @@ class FunctionType : public Type
         returns.push_back(t);
     }
 
+    std::vector<Type *> & getReturns()
+    {
+        return returns;
+    }
+    
     void calc();
 
     bool canFuncall()
