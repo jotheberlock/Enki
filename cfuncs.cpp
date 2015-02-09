@@ -54,6 +54,12 @@ int read(char * c, int l)
 	return strlen(c);
 }
 
+int crash()
+{
+    unsigned char * ptr = 0;
+    *ptr = 0;
+}
+
 CFuncs::CFuncs()
 {
     table = new uint64_t[4096/8];
@@ -65,6 +71,7 @@ CFuncs::CFuncs()
     add((uint64_t)print, "print");
     add((uint64_t)read, "read");
     add((uint64_t)numbers, "numbers");
+    add((uint64_t)crash, "crash");
 }
 
 CFuncs::~CFuncs()
