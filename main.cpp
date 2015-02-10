@@ -97,6 +97,11 @@ void segv_handler(int signo, siginfo_t * info, void * ctx)
     sleep(100);
     exit(0);
 }
+
+void dumpstack_unlocker()
+{
+    pthread_mutex_unlock(&dumper);
+}
 #endif
 
 void dump_codegen(Codegen * cg)
@@ -182,6 +187,9 @@ int main(int argc, char ** argv)
     
     cfuncs = new CFuncs();
     cfuncs->add((uint64_t)dumpstack, "dumpstack");
+#ifdef POSIX_SIGNALS
+    cfuncs->add((uint64_t)dumpstack_unlocker, "dumpstack_unlocker");
+#endif
     
     Lexer lex;
     FILE * f = fopen("test.e", "rb"); 
