@@ -91,7 +91,7 @@ void * dumpstacker(void *)
 
 void segv_handler(int signo, siginfo_t * info, void * ctx)
 {
-    printf("Segfault! IP is %p signal %d\n", info->si_addr, info->si_signo);
+    printf("Segfault! IP is %p signal %d code %d\n", info->si_addr, info->si_signo, info->si_code);
     the_ucontext = (ucontext *)ctx;
     pthread_mutex_unlock(&dumper);
     sleep(100);
