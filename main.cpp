@@ -89,6 +89,31 @@ void * dumpstacker(void *)
     return 0;
 }
 
+uint64_t text_base = 0;
+uint64_t text_len = 0;
+uint64_t data_base = 0;
+uint64_t data_len = 0;
+uint64_t rodata_base = 0;
+uint64_t rodata_len = 0;
+
+bool valid_pointer(unsigned char * ptr)
+{
+    uint64_t val = (uint64_t)ptr;
+    if (val >= text_base && val < (text_base+text_len))
+    {
+        return true;
+    }
+    if (val >= data_base && val < (data_base+data_len))
+    {
+        return true;
+    }
+    if (val >= rodata_base && val < (rodata_base+rodata_len))
+    {
+        return true;
+    }
+    return false;
+}
+
 void segv_handler(int signo, siginfo_t * info, void * ctx)
 {
     printf("Segfault! IP is %p signal %d code %d\n", info->si_addr, info->si_signo, info->si_code);
@@ -192,7 +217,7 @@ int main(int argc, char ** argv)
 #endif
     
     Lexer lex;
-    FILE * f = fopen("test.e", "rb"); 
+    FILE * f = fopen((argc > 1) ? argv[1] : "test.e", "rb"); 
 	bool flange = false;
 
 	if(!f)
@@ -314,6 +339,8 @@ int main(int argc, char ** argv)
     fprintf(log_file, "Constant pool is %ld bytes at %p\n",
             constants->getSize(), constantbuf);
     constants->fillPool(constantbuf);
+    rodata_base = (uint64_t)constantbuf;
+    rodata_len = constants->getSize();
     
     for(std::list<Codegen *>::iterator cit = codegens->begin();
         cit != codegens->end(); cit++)
@@ -369,6 +396,9 @@ int main(int argc, char ** argv)
 
     if (!mb.isNull())
     {
+        text_base = (uint64_t)mb.ptr;
+        text_len = 4096;
+        
         uint32_t * fillptr = (uint32_t *)mb.ptr;
         for (int loopc=0; loopc<4096/4; loopc++)
         {
@@ -409,6 +439,9 @@ int main(int argc, char ** argv)
             *fillptr = 0xdeadbeef;
             fillptr++;
         }
+
+        data_base = (uint64_t)buf;
+        data_len = 4096;
         
         FILE * f = fopen("out.bin", "w");
         fwrite(mb.ptr, (size_t)assembler->len(), 1, f);
