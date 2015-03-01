@@ -1559,7 +1559,7 @@ Value * Return::codegen(Codegen * c)
 
         Value * to_ret = ret->codegen(c);
         
-        c->block()->add(Insn(MOVE, returnvar, to_ret));
+		c->block()->add(Insn(STORE, Operand::reg(assembler->framePointer()), Operand::sigc(assembler->returnOffset()), to_ret));
     }
 
     if (!c->extCall())
