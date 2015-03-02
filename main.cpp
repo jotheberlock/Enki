@@ -53,7 +53,7 @@ void write_reg(const char * rn, uint64_t rv)
 {
     char buf[8];
     write(1, rn, strlen(rn));
-    write(1, ": ", 2);
+    write(1, ": 0x", 2);
     for (int loopc=0; loopc<8; loopc++)
     {
        unsigned char val = rv & 0xff00000000000000;
@@ -80,6 +80,12 @@ void * dumpstacker(void *)
     if (the_ucontext)
     {
         write_reg("rax", the_ucontext->rax);
+        write_reg("rbx", the_ucontext->rbx);
+        write_reg("rcx", the_ucontext->rcx);
+        write_reg("rdx", the_ucontext->rdx);
+        write_reg("r15", the_ucontext->r15);
+        write_reg("rsp", the_ucontext->rsp);
+        write_reg("rsi", the_ucontext->rsi);
     }
     else
     {
@@ -116,7 +122,9 @@ bool valid_pointer(unsigned char * ptr)
 
 void segv_handler(int signo, siginfo_t * info, void * ctx)
 {
-    printf("Segfault! IP is %p signal %d code %d\n", info->si_addr, info->si_signo, info->si_code);
+    printf("Segfault! IP is %p (%s) signal %d code %d\n", info->si_addr,
+           valid_pointer((unsigned char *)info->si_addr) ? "valid" : "invalid",
+           info->si_signo, info->si_code);
     the_ucontext = (ucontext *)ctx;
     pthread_mutex_unlock(&dumper);
     sleep(100);
@@ -215,15 +223,16 @@ int main(int argc, char ** argv)
 #ifdef POSIX_SIGNALS
     cfuncs->add((uint64_t)dumpstack_unlocker, "dumpstack_unlocker");
 #endif
+
+    const char * fname = (argc > 1) ? argv[1] : "test.e";
     
     Lexer lex;
-    FILE * f = fopen((argc > 1) ? argv[1] : "test.e", "rb"); 
-	bool flange = false;
+    FILE * f = fopen(fname, "rb");
 
-	if(!f)
+	if(!f && argc == 1)
 	{
-		f = fopen("../test.e", "rb");
-		flange = true;
+        fname = "../test.e";
+		f = fopen(fname, "rb");
 	}
 
     if(!f)
@@ -252,7 +261,7 @@ int main(int argc, char ** argv)
     }
     delete[] text;
     
-    lex.setFile(flange ? "../test.e" : "test.e");
+    lex.setFile(fname);
     lex.lex(input);
 
     if (errors.size() != 0)
