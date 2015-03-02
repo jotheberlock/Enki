@@ -92,10 +92,15 @@ class FunctionScope : public SymbolScope
     virtual FunctionScope * currentFunction();
     virtual FunctionScope * parentFunction();
 
-    std::vector<Value *> args()
+    void addArg(Value * s)
     {
-        std::vector<Value *> ret;
-        return ret;
+        add(s);
+        args_list.push_back(s);
+    }
+    
+    std::vector<Value *> & args()
+    {
+        return args_list;
     }
     
     FunctionType * getType()
@@ -137,6 +142,7 @@ class FunctionScope : public SymbolScope
     
   protected:
 
+    std::vector<Value *> args_list;
     std::string function_name;
     FunctionScope * function;
     FunctionType * type;

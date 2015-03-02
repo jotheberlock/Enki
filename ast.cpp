@@ -914,6 +914,7 @@ Expr * Parser::parseDef()
             
             IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
             ft->addParam(ie->getString(), t);
+            fs->addArg(new Value(ie->getString(), t));
         }
     }
 
@@ -1798,7 +1799,14 @@ Value * Funcall::codegen(Codegen * c)
     std::vector<Value *> evaled_args;
     for (unsigned int loopc=0; loopc<args.size(); loopc++)
     {
-        evaled_args.push_back(args[loopc]->codegen(c));
+        Value * v = args[loopc]->codegen(c);
+        if (v->is_number)
+        {
+            Value * v2 = c->getTemporary(register_type, "funintcopy");
+            c->block()->add(Insn(MOVE, v2, v));
+            v = v2;
+        }
+        evaled_args.push_back(v);
     }
 
     return fs->getType()->generateFuncall(c, this, evaled_args);
