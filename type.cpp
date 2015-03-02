@@ -403,12 +403,12 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
     
 	int current_offset = assembler->returnOffset();
 	std::vector<Type *> rets = c->getScope()->getType()->getReturns();
-	for (int loopc=0; loopc<rets.size(); loopc++)
+	for (unsigned int loopc=0; loopc<rets.size(); loopc++)
 	{
 		current_offset += rets[loopc]->align();
 	}
 
-	for (int loopc=0; loopc<args.size(); loopc++)
+	for (unsigned int loopc=0; loopc<args.size(); loopc++)
 	{
 		c->block()->add(Insn(STORE, new_frame, Operand::sigc(current_offset), Operand(args[loopc])));
 		current_offset += args[loopc]->type->align();
@@ -425,16 +425,21 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
     c->block()->add(Insn(BRA, Operand::reg(0)));
         // Call returns here
     c->setBlock(return_block);
-    
-    Value * ret = c->getTemporary(c->getScope()->getType()->getReturns()[0], "ret");
-	c->block()->add(Insn(LOAD, ret, new_frame, Operand::sigc(assembler->returnOffset())));
 
+    Value * ret = c->getTemporary(rets.size() > 0 ? rets[0] : register_type,
+                                  "ret");
+    if (rets.size() > 0)
+    {
+        Value * ret = c->getTemporary(rets[0], "ret");
+        c->block()->add(Insn(LOAD, ret, new_frame, Operand::sigc(assembler->returnOffset())));
+    }
+    
     Value * next_frame_ptr = c->getStackPtr();
     Value * would_be_next = c->getTemporary(register_type, "__notstackptr");
     c->block()->add(Insn(MOVE, would_be_next, next_frame_ptr));
     c->block()->add(Insn(SUB, would_be_next, would_be_next,
                          to_add));
-    
+
     return ret;
 }
 

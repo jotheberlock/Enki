@@ -58,6 +58,7 @@ int crash()
 {
     unsigned char * ptr = 0;
     *ptr = 0;
+    return 0;
 }
 
 CFuncs::CFuncs()
