@@ -39,6 +39,32 @@ void dumpstack()
     }
 }
 
+uint64_t text_base = 0;
+uint64_t text_len = 0;
+uint64_t data_base = 0;
+uint64_t data_len = 0;
+uint64_t rodata_base = 0;
+uint64_t rodata_len = 0;
+
+bool valid_pointer(unsigned char * ptr)
+{
+    uint64_t val = (uint64_t)ptr;
+    if (val >= text_base && val < (text_base+text_len))
+    {
+        return true;
+    }
+    if (val >= data_base && val < (data_base+data_len))
+    {
+        return true;
+    }
+    if (val >= rodata_base && val < (rodata_base+rodata_len))
+    {
+        return true;
+    }
+    return false;
+}
+
+
 #ifdef POSIX_SIGNALS
 #include <signal.h>
 #include <unistd.h>
@@ -93,31 +119,6 @@ void * dumpstacker(void *)
     }
 
     return 0;
-}
-
-uint64_t text_base = 0;
-uint64_t text_len = 0;
-uint64_t data_base = 0;
-uint64_t data_len = 0;
-uint64_t rodata_base = 0;
-uint64_t rodata_len = 0;
-
-bool valid_pointer(unsigned char * ptr)
-{
-    uint64_t val = (uint64_t)ptr;
-    if (val >= text_base && val < (text_base+text_len))
-    {
-        return true;
-    }
-    if (val >= data_base && val < (data_base+data_len))
-    {
-        return true;
-    }
-    if (val >= rodata_base && val < (rodata_base+rodata_len))
-    {
-        return true;
-    }
-    return false;
 }
 
 void segv_handler(int signo, siginfo_t * info, void * ctx)
@@ -181,7 +182,7 @@ uint32_t getUtf8(char * & f)
         val = *f;
         f++;
         
-        if ((!val & 0x80) || (val & 0x40))
+        if ((!(val & 0x80)) || (val & 0x40))
         {
             printf("Invalid UTF-8! Wrong succeeding byte %x, nobytes %d\n", val, nobytes);
             return 0;
@@ -518,5 +519,5 @@ int main(int argc, char ** argv)
 
     fclose(log_file);
     printf("Result: %ld\n", result);
-    return result;
+    return (int)result;
 }

@@ -371,6 +371,11 @@ class Assembler
         return (pointerSize() * 3) / 8;
     }
     
+	int returnOffset()
+	{
+		return (pointerSize() * 4) / 8;
+	}
+
     virtual int regnum(std::string) = 0;
     virtual bool assemble(BasicBlock *, BasicBlock * next) = 0;
     virtual std::string transReg(uint32_t) = 0;

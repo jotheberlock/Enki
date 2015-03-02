@@ -401,6 +401,19 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
                              Operand::reg(assembler->framePointer())));
     }
     
+	int current_offset = assembler->returnOffset();
+	std::vector<Type *> rets = c->getScope()->getType()->getReturns();
+	for (int loopc=0; loopc<rets.size(); loopc++)
+	{
+		current_offset += rets[loopc]->align();
+	}
+
+	for (int loopc=0; loopc<args.size(); loopc++)
+	{
+		c->block()->add(Insn(STORE, new_frame, Operand::sigc(current_offset), Operand(args[loopc])));
+		current_offset += args[loopc]->type->align();
+	}
+
     RegSet res;
     res.set(0);
     c->block()->setReservedRegs(res);
@@ -414,8 +427,7 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
     c->setBlock(return_block);
     
     Value * ret = c->getTemporary(c->getScope()->getType()->getReturns()[0], "ret");
-    c->block()->add(Insn(LOAD, ret, new_frame, Operand::sigc(
-                             (assembler->pointerSize()/8)*2)));
+	c->block()->add(Insn(LOAD, ret, new_frame, Operand::sigc(assembler->returnOffset())));
 
     Value * next_frame_ptr = c->getStackPtr();
     Value * would_be_next = c->getTemporary(register_type, "__notstackptr");
