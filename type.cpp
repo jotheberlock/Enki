@@ -403,15 +403,22 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
     
 	int current_offset = assembler->returnOffset();
 	std::vector<Type *> rets = c->getScope()->getType()->getReturns();
+
+    if (rets.size() == 0)
+    {
+        printf("Function has no return types!\n");
+        return 0;
+    }
+    
 	for (unsigned int loopc=0; loopc<rets.size(); loopc++)
 	{
-		current_offset += rets[loopc]->align();
+		current_offset += rets[loopc]->align() / 8;
 	}
 
 	for (unsigned int loopc=0; loopc<args.size(); loopc++)
 	{
 		c->block()->add(Insn(STORE, new_frame, Operand::sigc(current_offset), Operand(args[loopc])));
-		current_offset += args[loopc]->type->align();
+		current_offset += args[loopc]->type->align() / 8;
 	}
 
     RegSet res;
@@ -426,13 +433,8 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
         // Call returns here
     c->setBlock(return_block);
 
-    Value * ret = c->getTemporary(rets.size() > 0 ? rets[0] : register_type,
-                                  "ret");
-    if (rets.size() > 0)
-    {
-        Value * ret = c->getTemporary(rets[0], "ret");
-        c->block()->add(Insn(LOAD, ret, new_frame, Operand::sigc(assembler->returnOffset())));
-    }
+    Value * ret = c->getTemporary(rets[0]);
+    c->block()->add(Insn(LOAD, ret, new_frame, Operand::sigc(assembler->returnOffset())));
     
     Value * next_frame_ptr = c->getStackPtr();
     Value * would_be_next = c->getTemporary(register_type, "__notstackptr");

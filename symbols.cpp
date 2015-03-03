@@ -106,9 +106,9 @@ FunctionScope::FunctionScope(SymbolScope * p, std::string n, FunctionType * ft)
     
     add(new Value("__oldframe", byteptr));
     add(new Value("__oldip", byteptr));
-    add(new Value("__ret", lookupType("Uint64")));
     add(new Value("__ip", byteptr));
     add(new Value("__staticlink", byteptr));
+    add(new Value("__ret", lookupType("Uint64")));
 }
 
 FunctionScope * FunctionScope::currentFunction()

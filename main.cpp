@@ -211,7 +211,10 @@ int main(int argc, char ** argv)
     codegens = new std::list<Codegen *>;
     assembler = new Amd64();
     initialiseTypes();
-    root_scope = new FunctionScope(0, "@root", new FunctionType("@root", false));
+    FunctionType * root_type = new FunctionType("@root", false);
+    root_type->addReturn(register_type);
+    
+    root_scope = new FunctionScope(0, "@root", root_type);
     
 #ifdef WINDOWS_CC
     calling_convention = new Amd64WindowsCallingConvention();

@@ -860,6 +860,7 @@ Expr * Parser::parseDef()
                 Type * t = parseType();
                 if (t)
                 {
+                    printf("Return type found!\n");
                     ft->addReturn(t);
                     if (current.type != EOL)
                     {
