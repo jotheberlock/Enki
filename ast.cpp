@@ -1704,11 +1704,20 @@ Value * VarRefExpr::codegen(Codegen * c)
 void VarRefExpr::store(Codegen * c, Value * v)
 {
     Value * i = value;
-
+    
     if (!v->type)
     {
-        fprintf(log_file, "Null value type to store!\n");
-        return;
+        if (!v->is_number)
+        {
+            fprintf(log_file, "Null value type to store!\n");
+            return;
+        }
+        else
+        {
+            Value * v2 = c->getTemporary(register_type, "varrefintcopy");
+            c->block()->add(Insn(MOVE, v2, v));
+            v = v2;
+        }
     }
     
     if (i->type->inRegister() && v->type->inRegister() && elements.size() == 0)
