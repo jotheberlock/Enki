@@ -66,6 +66,13 @@ void Codegen::generate()
     }
     
     base->codegen(this);
+    
+        // Todo, extract out calling convention stuff
+    if (!extCall())
+    {
+        Return * ret = new Return(0);
+        ret->codegen(this);
+    }
 }
 
 Constants::~Constants()

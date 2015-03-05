@@ -1720,7 +1720,8 @@ void VarRefExpr::store(Codegen * c, Value * v)
         }
     }
     
-    if (i->type->inRegister() && v->type->inRegister() && elements.size() == 0)
+    if (i->type->inRegister() && v->type->inRegister() && elements.size() == 0
+        && depth == 0)
     {
         fprintf(log_file, ">>> Adding a move\n");
         c->block()->add(Insn(MOVE, i, v));
@@ -1839,6 +1840,7 @@ Value * DefExpr::codegen(Codegen * c)
     }
     
     ch->generate();
+    
     return 0;
 }
 

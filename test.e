@@ -1,5 +1,14 @@
-return numbers(1,2,3,4,5,6,7,8)
+Uint64 a
+Uint64 b
+a = 1
 
+def foo() Uint64
+    a = 3
+    Uint64 c
+    c = 5
+
+b = foo()
+return b
 
 
 
