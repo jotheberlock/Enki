@@ -369,7 +369,7 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
 
     Value * fp = getFunctionPointer(c,f);
     Value * to_add = 0;
-    Value * new_frame = initStackFrame(c, fp, to_add);
+    Value * new_frame = initStackFrame(c, fp, to_add, f);
 
         // Get to the actual code
     c->block()->add(Insn(ADD, fp, fp,
@@ -435,13 +435,6 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
 
     Value * ret = c->getTemporary(rets[0]);
     c->block()->add(Insn(LOAD, ret, new_frame, Operand::sigc(assembler->returnOffset())));
-    
-    Value * next_frame_ptr = c->getStackPtr();
-    Value * would_be_next = c->getTemporary(register_type, "__notstackptr");
-    c->block()->add(Insn(MOVE, would_be_next, next_frame_ptr));
-    c->block()->add(Insn(SUB, would_be_next, would_be_next,
-                         to_add));
-
     return ret;
 }
 
@@ -456,14 +449,24 @@ Value * FunctionType::getFunctionPointer(Codegen * c, Funcall *f)
 }
 
 Value * FunctionType::initStackFrame(Codegen * c, Value * faddr,
-                                     Value * & to_add)
+                                     Value * & to_add, Funcall * f)
 {
     to_add = c->getTemporary(register_type, "to_add");
     c->block()->add(Insn(LOAD, to_add, faddr));
-    Value * next_frame_ptr = c->getStackPtr();
+
+    int depth = 0;
+    Value * next_frame_ptr = c->getScope()->lookup("__stackptr", depth);
     assert(next_frame_ptr);
+
+    Value * addrof = c->getTemporary(register_type, "addr_of_stackptr");
+    c->block()->add(Insn(GETADDR, addrof, next_frame_ptr, Operand::usigc(depth)));
+    
     Value * new_ptr = c->getTemporary(register_type, "new_ptr");
-    c->block()->add(Insn(MOVE, new_ptr, next_frame_ptr));
-    c->block()->add(Insn(ADD, next_frame_ptr, next_frame_ptr, to_add));
+    c->block()->add(Insn(LOAD, new_ptr, addrof));
+
+    Value * adder = c->getTemporary(register_type, "stackptr_add");
+    c->block()->add(Insn(LOAD, adder, addrof));
+    c->block()->add(Insn(ADD, adder, adder, to_add));
+    c->block()->add(Insn(STORE, addrof, Operand::sigc(0), adder));
     return new_ptr;
 }

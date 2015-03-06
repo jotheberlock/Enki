@@ -13,7 +13,6 @@ Codegen::Codegen(Expr * e, FunctionScope * fs)
 	ext_call = false;
     scope = fs;
     retvar = 0;
-    stackptrvar = 0;
     ipvar = 0;
     staticlink = 0;
 }
@@ -50,10 +49,6 @@ void Codegen::generate()
         if (locals[loopc]->name == "__ret")
         {
             retvar = locals[loopc];
-        }
-        else if (locals[loopc]->name == "__stackptr")
-        {
-            stackptrvar = locals[loopc];
         }
         else if (locals[loopc]->name == "__ip")
         {

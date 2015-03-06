@@ -500,7 +500,7 @@ class FunctionType : public Type
     }
 
     Value * getFunctionPointer(Codegen *, Funcall *);
-    Value * initStackFrame(Codegen *, Value *, Value *&);
+    Value * initStackFrame(Codegen *, Value *, Value *&, Funcall *);
     
   protected:
 

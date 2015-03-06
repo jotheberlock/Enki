@@ -155,11 +155,6 @@ class Codegen
         return retvar;
     }
 
-    Value * getStackPtr()
-    {
-        return stackptrvar;
-    }
-
     Value * getIp()
     {
         return ipvar;
@@ -302,7 +297,6 @@ class Codegen
     FunctionScope * scope;
 
     Value * retvar;
-    Value * stackptrvar;
     Value * ipvar;
     Value * staticlink;
     

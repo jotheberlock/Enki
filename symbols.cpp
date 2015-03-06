@@ -21,6 +21,7 @@ void SymbolScope::addFunction(FunctionScope * f)
 
 Value * SymbolScope::lookup(std::string n, int & nest)
 {
+    nest = 0;
     std::map<std::string, Value *>::iterator it = contents.find(n);
     if (it == contents.end())
     {
