@@ -107,6 +107,237 @@ ValidRegs Amd64::validRegs(Insn & i)
     return ret;
 }
 
+int Amd64::size(BasicBlock * b)
+{
+    int ret = 0;
+    std::list<Insn> & code = b->getCode();
+    
+    for (std::list<Insn>::iterator it = code.begin(); it != code.end();
+         it++)
+    {
+        Insn & i = *it;
+        i.addr = address+len();
+        switch (i.ins)
+        {
+            case STORE8:
+            case STORE16:
+            {
+                if (i.ins == STORE16)
+                {
+                    ret++;
+                }
+
+                ret++;
+
+                if (i.ins == STORE8)
+                {
+                    ret++;
+                }
+                else if (i.ins == STORE16)
+                {
+                    ret++;
+                }
+
+                ret+= 6;  // Conservative estimates for now
+                break;
+            }
+            case LOAD8:
+            case LOAD16:
+            case LOADS8:
+            case LOADS16:
+            {
+                ret += 9;
+                break;
+            }
+            case LOAD32:
+            case STORE32:
+            case LOAD64:
+            case STORE64:
+            case LOAD:
+            case STORE:
+            case LOADS32:
+            {
+                ret += 7;
+                break;
+            }
+            case MOVE:
+            {
+                if (i.ops[1].isUsigc() || i.ops[1].isSigc() ||
+                    i.ops[1].isFunction() || i.ops[1].isBlock())
+                {
+                    ret++;
+                    if (i.ops[1].isFunction())
+                    {
+                        ret += 9;
+                    }
+                    else if (i.ops[1].isBlock())
+                    {
+                        ret += 9;
+                    }
+                    else
+                    {
+                        uint64_t val;
+                        if (i.ops[1].isUsigc())
+                        {
+                            val = i.ops[1].getUsigc();
+                        }
+                        else
+                        {
+                            int64_t tmp = i.ops[1].getSigc();
+                            val = *((uint64_t *)&tmp);
+                        }
+                        
+                        bool big = (val > 0xffffffff);
+                        if (big)
+                        {
+                            ret += 9;
+                        }
+                        else
+                        {
+                            ret += 6;
+                        }
+                    }
+                }
+                else
+                {
+                    ret += 3;
+                }
+                
+                break;
+            }
+            case ADD:
+            case SUB:
+            case AND:
+            case OR:
+            case XOR:
+            {
+                if (i.ops[2].isUsigc() || i.ops[2].isSigc())
+                {                    
+                    ret += 7;
+                }
+                else
+                {
+                    ret += 3;
+                }
+                break;
+            }
+            case NOT:
+            {
+                ret += 3;
+                break;
+            }
+            case SHL:
+            case SHR:
+            case SAR:
+            case RCL:
+            case RCR:
+            case ROL:
+            case ROR:
+            {
+                ret += 3;
+                break;
+            }
+            case RET:
+            {
+                ret++;
+                break;
+            }
+            case MUL:
+            {
+                ret += 3;
+                break;
+            }
+            case CMP:
+            {
+                if (i.ops[1].isReg())
+                {
+                    ret += 3;
+                }
+                else
+                {   
+                    ret += 7;
+                }
+                
+                break;
+            }
+            case BRA:
+            case CALL:
+            {
+                if (i.ops[0].isReg())
+                {
+                    if (i.ops[0].getReg() > 7)
+                    {
+                        ret++;
+                    }
+                    ret += 3;
+                }               
+                else
+                {
+                    ret += 5;
+                }
+                
+                break;
+            }
+            case BNE:
+            case BEQ:
+            case BG:
+            case BLE:
+            case BL:
+            case BGE:
+            {
+                ret += 6;
+                break;
+            }
+            case SYSCALL:
+            {
+                ret += 2;
+                break;
+            }
+            case BREAKP:
+            {
+                ret++;
+                break;
+            }
+            case DIV:
+            case IDIV:
+            case REM:
+            case IREM:
+            {
+                ret += 3;
+                if (i.ins == REM || i.ins == IREM)
+                {
+                        // hack MOV RAX RDX
+                    ret += 3;
+                }
+                
+                break;
+            }
+            case SELEQ:
+            case SELGE:
+            case SELGT:
+            case SELGES:
+            case SELGTS:
+            {
+                ret += 8;
+                break;
+            }
+            default:
+            {
+                fprintf(log_file, "Don't know how to turn %ld into amd64!\n", i.ins);
+                assert(false);
+            }
+        }
+
+        if (current >= limit)
+        {
+            fprintf(log_file, "Ran out of space to assemble into\n");
+            return false;
+        }
+    }
+    
+    return true;  
+}
+
 bool Amd64::assemble(BasicBlock * b, BasicBlock * next)
 {
     std::list<Insn> & code = b->getCode();
