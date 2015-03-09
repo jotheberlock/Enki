@@ -412,13 +412,23 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
     
 	for (unsigned int loopc=0; loopc<rets.size(); loopc++)
 	{
-		current_offset += rets[loopc]->align() / 8;
+        int align = rets[loopc]->align() / 8;
+        while (current_offset % align)
+        {
+            current_offset++;
+        }
+		current_offset += rets[loopc]->size() / 8;
 	}
 
 	for (unsigned int loopc=0; loopc<args.size(); loopc++)
 	{
+        int align = rets[loopc]->align() / 8;
+        while (current_offset % align)
+        {
+            current_offset++;
+        }
 		c->block()->add(Insn(STORE, new_frame, Operand::sigc(current_offset), Operand(args[loopc])));
-		current_offset += args[loopc]->type->align() / 8;
+		current_offset += args[loopc]->type->size() / 8;
 	}
 
     RegSet res;
