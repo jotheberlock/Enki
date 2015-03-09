@@ -13,6 +13,7 @@ class Amd64 : public Assembler
     }
     
     int regnum(std::string);
+    int size(BasicBlock *);
     bool assemble(BasicBlock *, BasicBlock *);
     std::string transReg(uint32_t);
 

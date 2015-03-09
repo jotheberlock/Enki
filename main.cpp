@@ -105,6 +105,7 @@ void * dumpstacker(void *)
     dumpstack();
     if (the_ucontext)
     {
+#ifdef CYGWIN_HOST
         write_reg("rax", the_ucontext->rax);
         write_reg("rbx", the_ucontext->rbx);
         write_reg("rcx", the_ucontext->rcx);
@@ -112,6 +113,7 @@ void * dumpstacker(void *)
         write_reg("r15", the_ucontext->r15);
         write_reg("rsp", the_ucontext->rsp);
         write_reg("rsi", the_ucontext->rsi);
+#endif
     }
     else
     {
