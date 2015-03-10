@@ -138,7 +138,7 @@ int Amd64::size(BasicBlock * b)
                     ret++;
                 }
 
-                ret+= 6;  // Conservative estimates for now
+                ret+= (i.oc == 3) ? 6 : 3;  // Conservative estimates for now
                 break;
             }
             case LOAD8:
@@ -146,7 +146,7 @@ int Amd64::size(BasicBlock * b)
             case LOADS8:
             case LOADS16:
             {
-                ret += 9;
+                ret += (i.oc == 3) ? 9 : 6;
                 break;
             }
             case LOAD32:
@@ -157,7 +157,7 @@ int Amd64::size(BasicBlock * b)
             case STORE:
             case LOADS32:
             {
-                ret += 7;
+                ret += (i.oc == 3) ? 8 : 5;
                 break;
             }
             case MOVE:
