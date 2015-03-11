@@ -404,10 +404,30 @@ int main(int argc, char ** argv)
         }
         
     }
+
+    int code_size = 0;
+    
+    for(std::list<Codegen *>::iterator cit = codegens->begin();
+        cit != codegens->end(); cit++)
+    {
+        while (code_size % 8)
+        {
+            code_size++;
+        }
+        
+        std::vector<BasicBlock *> & bbs = (*cit)->getBlocks();
+        
+        for (unsigned int loopc=0; loopc<bbs.size(); loopc++)
+        {
+            code_size += assembler->size(bbs[loopc]);
+        }    
+    }
+
+    printf("Code size is %d bytes\n", code_size);
     
     Mem mem;
 
-    MemBlock mb = mem.getBlock(4096, MEM_READ | MEM_WRITE);
+    MemBlock mb = mem.getBlock(code_size, MEM_READ | MEM_WRITE);
 
     if (!mb.isNull())
     {

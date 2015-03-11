@@ -327,15 +327,9 @@ int Amd64::size(BasicBlock * b)
                 assert(false);
             }
         }
-
-        if (current >= limit)
-        {
-            fprintf(log_file, "Ran out of space to assemble into\n");
-            return false;
-        }
     }
     
-    return true;  
+    return ret;  
 }
 
 bool Amd64::assemble(BasicBlock * b, BasicBlock * next)
