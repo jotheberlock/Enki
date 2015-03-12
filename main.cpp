@@ -432,10 +432,10 @@ int main(int argc, char ** argv)
     if (!mb.isNull())
     {
         text_base = (uint64_t)mb.ptr;
-        text_len = 4096;
+        text_len = code_size;
         
         uint32_t * fillptr = (uint32_t *)mb.ptr;
-        for (int loopc=0; loopc<4096/4; loopc++)
+        for (int loopc=0; loopc<code_size/4; loopc++)
         {
             *fillptr = 0xdeadbeef;
             fillptr++;
@@ -476,7 +476,7 @@ int main(int argc, char ** argv)
         }
 
         data_base = (uint64_t)buf;
-        data_len = 4096;
+        data_len = code_size;
         
         FILE * f = fopen("out.bin", "w");
         fwrite(mb.ptr, (size_t)assembler->len(), 1, f);
