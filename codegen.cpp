@@ -17,6 +17,19 @@ Codegen::Codegen(Expr * e, FunctionScope * fs)
     staticlink = 0;
 }
 
+Codegen * Codegen::copy()
+{
+    Codegen * ret = new Codegen(base, scope);
+    for (std::vector<BasicBlock *>::iterator it = blocks.begin();
+         it != blocks.end(); it++)
+    {
+        BasicBlock * bb = *it;
+        BasicBlock * nb = new BasicBlock(bb->name());
+        nb->setCode(bb->getCode());
+    }
+    return ret;
+}
+
 Codegen::~Codegen()
 {
     for (unsigned int loopc=0; loopc<blocks.size(); loopc++)

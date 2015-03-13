@@ -142,6 +142,8 @@ class Codegen
 
     Codegen(Expr *, FunctionScope *);
     ~Codegen();
+
+    Codegen * copy();
     
     void generate();
 

@@ -226,6 +226,11 @@ class BasicBlock
     }
     
     std::string toString();
+
+    void setCode(std::list<Insn> ins)
+    {
+        insns = ins;
+    }
     
     void append(BasicBlock & b)
     {
