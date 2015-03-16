@@ -41,6 +41,11 @@ class Value
         is_const=true;
     }
 
+    Value(Value * c)
+    {
+        *this = *c;
+    }
+    
     bool onStack()
     {
         return on_stack;

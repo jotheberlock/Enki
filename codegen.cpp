@@ -26,7 +26,54 @@ Codegen * Codegen::copy()
         BasicBlock * bb = *it;
         BasicBlock * nb = new BasicBlock(bb->name());
         nb->setCode(bb->getCode());
+        ret->blocks.push_back(nb);
+        
+        for (std::list<BasicBlock *>::iterator it2 = break_targets.begin();
+             it2 != break_targets.end(); it2++)
+        {
+            if (*it2 == bb)
+            {
+                ret->break_targets.push_back(nb);
+            }
+        }
+        
+        for (std::list<BasicBlock *>::iterator it2 = continue_targets.begin();
+             it2 != continue_targets.end(); it2++)
+        {
+            if (*it2 == bb)
+            {
+                ret->continue_targets.push_back(nb);
+            }
+        }
     }
+    
+    for (std::vector<Value *>::iterator it = locals.begin();
+         it != locals.end(); it++)
+    {
+        Value * v = new Value(*it);
+        ret->locals.push_back(v);
+        if (*it == retvar)
+        {
+            ret->retvar = v;
+        }
+        else if (*it == ipvar)
+        {
+            ret->ipvar = v;
+        }
+        else if (*it == staticlink)
+        {
+            ret->staticlink = v;
+        }
+    }
+
+    ret->base = base;
+    ret->scope = scope;
+    ret->stack_size = stack_size;
+    ret->allocated_slots = allocated_slots;
+    ret->ext_call = ext_call;
+    ret->count = count;
+    ret->bbcount = bbcount;
+    
     return ret;
 }
 
