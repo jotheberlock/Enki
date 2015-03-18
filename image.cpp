@@ -8,6 +8,32 @@ Image::Image()
         bases[loopc] = 0;
         sizes[loopc] = 0;
     }
+    current_offset = 0;
+    align = 8;
+}
+
+void Image::addFunction(std::string name, uint64_t size)
+{
+    fnames.push_back(name);
+    foffsets.push_back(current_offset);
+    current_offset += size;
+    while (current_offset % align)
+    {
+        current_offset++;
+    }
+}
+
+uint64_t Image::functionAddress(std::string name)
+{
+    for (unsigned int loopc=0; loopc<fnames.size(); loopc++)
+    {
+        if (fnames[loopc] == name)
+        {
+            return foffsets[loopc] + getAddr(IMAGE_CODE);
+        }
+    }
+
+    return INVALID_ADDRESS;
 }
 
 void Image::setSectionSize(int t, uint64_t l)
