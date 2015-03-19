@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "image.h"
 
 Image::Image()
@@ -36,6 +37,24 @@ uint64_t Image::functionAddress(std::string name)
     return INVALID_ADDRESS;
 }
 
+void Image::addImport(std::string name)
+{
+    import_names.push_back(name);
+ }
+
+uint64_t MemoryImage::importAddress(std::string name)
+{
+    for (unsigned int loopc=0; loopc<fnames.size(); loopc++)
+    {
+        if (fnames[loopc] == name)
+        {
+            return  (uint64_t)(&import_pointers[loopc]);
+        }
+    }
+
+    return INVALID_ADDRESS;
+}
+
 void Image::setSectionSize(int t, uint64_t l)
 {
     sizes[t] = l;
@@ -60,6 +79,19 @@ MemoryImage::~MemoryImage()
     }
 }
 
+void MemoryImage::setImport(std::string name, uint64_t addr)
+{    
+    for (unsigned int loopc=0; loopc<fnames.size(); loopc++)
+    {
+        if (fnames[loopc] == name)
+        {
+            import_pointers[loopc] = addr;
+        }
+    }
+
+    printf("Couldn't set address for import %s!\n", name.c_str());
+}
+
 void MemoryImage::materialise()
 {
     Mem mem;
@@ -69,6 +101,8 @@ void MemoryImage::materialise()
         bases[loopc] = (uint64_t)mems[loopc].ptr;
         sections[loopc] = mems[loopc].ptr;
     }
+
+    import_pointers = new uint64_t[import_names.size()];
 }
 
 void MemoryImage::finalise()
@@ -79,3 +113,4 @@ void MemoryImage::finalise()
     mem.changePerms(mems[IMAGE_CONST_DATA], MEM_READ);
     mem.changePerms(mems[IMAGE_UNALLOCED_DATA], MEM_READ | MEM_WRITE);
 }
+

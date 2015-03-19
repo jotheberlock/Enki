@@ -29,6 +29,8 @@ class Image
     virtual void finalise() = 0;
     void addFunction(std::string, uint64_t);
     uint64_t functionAddress(std::string);
+    void addImport(std::string);
+    virtual uint64_t importAddress(std::string) = 0;
     
   protected:
 
@@ -37,6 +39,8 @@ class Image
     uint64_t sizes[4];
     std::vector<std::string> fnames;
     std::vector<uint64_t> foffsets;
+    std::vector<std::string> import_names;
+    
     uint64_t current_offset;
     uint64_t align;
     
@@ -46,13 +50,21 @@ class MemoryImage : public Image
 {
   public:
 
+    MemoryImage()
+    {
+        import_pointers=0;
+    }
+    
     ~MemoryImage();
     void materialise();
     void finalise();
+    void setImport(std::string, uint64_t);
+    uint64_t importAddress(std::string);
     
   protected:
 
     MemBlock mems[4];
+    uint64_t * import_pointers;
     
 };
 
