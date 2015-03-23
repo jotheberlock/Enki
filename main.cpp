@@ -13,6 +13,7 @@
 #include "pass.h"
 #include "cfuncs.h"
 #include "symbols.h"
+#include "image.h"
 
 Assembler * assembler = 0;
 CallingConvention * calling_convention = 0;
@@ -201,6 +202,8 @@ uint32_t getUtf8(char * & f)
 int main(int argc, char ** argv)
 {
     uint64_t result = 1;
+
+    MemoryImage * image = new MemoryImage();
     
     log_file = fopen("log.txt", "w");
     if (!log_file)
@@ -349,11 +352,12 @@ int main(int argc, char ** argv)
     gc->block()->add(Insn(BRA, epilogue));
     calling_convention->generateEpilogue(epilogue, root_scope);
 
+    image->setSectionSize(IMAGE_CONST_DATA, constants->getSize());
     unsigned char * constantbuf = new unsigned char[constants->getSize()];
-    constants->setAddress((uint64_t)constantbuf);
+    constants->setAddress(image->getAddr(IMAGE_CONST_DATA));
     fprintf(log_file, "Constant pool is %ld bytes at %p\n",
             constants->getSize(), constantbuf);
-    constants->fillPool(constantbuf);
+    constants->fillPool(image->getPtr(IMAGE_CONST_DATA));
     rodata_base = (uint64_t)constantbuf;
     rodata_len = constants->getSize();
     
@@ -424,107 +428,100 @@ int main(int argc, char ** argv)
     }
 
     printf("Code size is %d bytes\n", code_size);
-    
-    Mem mem;
 
-    MemBlock mb = mem.getBlock(code_size, MEM_READ | MEM_WRITE);
-
-    if (!mb.isNull())
-    {
-        text_base = (uint64_t)mb.ptr;
-        text_len = code_size;
+    image->setSectionSize(IMAGE_CODE, code_size);
+    text_base = image->getAddr(IMAGE_CODE);
+    text_len = code_size;
         
-        uint32_t * fillptr = (uint32_t *)mb.ptr;
-        for (int loopc=0; loopc<code_size/4; loopc++)
-        {
-            *fillptr = 0xdeadbeef;
+    uint32_t * fillptr = (uint32_t *)text_base;
+    for (int loopc=0; loopc<code_size/4; loopc++)
+    {
+        *fillptr = 0xdeadbeef;
             fillptr++;
+    }
+        
+    assembler->setMem(image->getMemBlock(IMAGE_CODE));
+    assembler->setAddr(image->getAddr(IMAGE_CODE));
+        
+    for(std::list<Codegen *>::iterator cit = codegens->begin();
+        cit != codegens->end(); cit++)
+    {
+        assembler->align(8);
+        (*cit)->getScope()->setAddr(assembler->currentAddr());
+        assembler->newFunction(*cit);
+        std::vector<BasicBlock *> & bbs = (*cit)->getBlocks();
+        for (unsigned int loopc=0; loopc<bbs.size(); loopc++)
+        {
+            assembler->assemble(bbs[loopc], 0);
         }
         
-        assembler->setMem(mb);
-        assembler->setAddr((uint64_t)mb.ptr);
-        
-        for(std::list<Codegen *>::iterator cit = codegens->begin();
-        cit != codegens->end(); cit++)
-        {
-			assembler->align(8);
-            (*cit)->getScope()->setAddr(assembler->currentAddr());
-			assembler->newFunction(*cit);
-            std::vector<BasicBlock *> & bbs = (*cit)->getBlocks();
-            for (unsigned int loopc=0; loopc<bbs.size(); loopc++)
-            {
-                assembler->assemble(bbs[loopc], 0);
-            }
-            
-            FILE * keep_log = log_file;
-            char buf[4096];
-            sprintf(buf, "%s_codegen.txt",(*cit)->getScope()->name().c_str());
+        FILE * keep_log = log_file;
+        char buf[4096];
+        sprintf(buf, "%s_codegen.txt",(*cit)->getScope()->name().c_str());
             log_file = fopen(buf, "w");
             dump_codegen(*cit);
             fclose(log_file);
             log_file = keep_log;
-        }
-
-        assembler->applyRelocs();
-        
-        unsigned char * buf = new unsigned char[4096];
-        fillptr = (uint32_t *)buf;
-        for (int loopc=0; loopc<4096/4; loopc++)
-        {
-            *fillptr = 0xdeadbeef;
-            fillptr++;
-        }
-
-        data_base = (uint64_t)buf;
-        data_len = code_size;
-        
-        FILE * f = fopen("out.bin", "w");
-        fwrite(mb.ptr, (size_t)assembler->len(), 1, f);
-        fclose(f);
-        
-        mem.changePerms(mb, MEM_READ | MEM_EXEC);
-
-        fprintf(log_file, "TestFunc is at %p buf at %p\n", mb.ptr, buf);
-
-        fflush(log_file);
-
-        root_buf = buf;
-        
-#ifdef POSIX_SIGNALS
-        pthread_mutex_lock(&dumper);
-        
-        struct sigaction sa, oldact;
-        sa.sa_sigaction = segv_handler;
-        sigemptyset(&sa.sa_mask);
-        sa.sa_flags = SA_RESTART | SA_SIGINFO; 
-        if (sigaction(SIGSEGV, &sa, &oldact))
-        {
-            printf("Failure to install segv signal handler!\n");
-        }
-        if (sigaction(SIGILL, &sa, &oldact))
-        {
-            printf("Failure to install sigill signal handler!\n");
-        }
-        if (sigaction(SIGBUS, &sa, &oldact))
-        {
-            printf("Failure to install sigbus signal handler!\n");
-        }
-        
-        pthread_t tid;
-        pthread_create(&tid, 0, dumpstacker, 0);
-        pthread_detach(tid); 
-#endif
-
-        TestFunc tf = (TestFunc)mb.ptr;
-        result = tf((uint64_t)buf);
-        fprintf(log_file, ">>> Result %ld %lx\n", result, result);
-
-        fprintf(log_file, "Stack:\n%s\n", gc->display(buf).c_str());
-        delete[] buf;
     }
     
-    mem.releaseBlock(mb);
+    assembler->applyRelocs();
 
+    image->setSectionSize(IMAGE_DATA, 4096);
+    fillptr = (uint32_t *)image->getPtr(IMAGE_DATA);
+    for (int loopc=0; loopc<4096/4; loopc++)
+    {
+        *fillptr = 0xdeadbeef;
+        fillptr++;
+    }
+    
+    data_base = image->getAddr(IMAGE_DATA);
+    data_len = 4096;
+        
+    FILE * dump = fopen("out.bin", "w");
+    fwrite(image->getPtr(IMAGE_CODE), (size_t)assembler->len(), 1, dump);
+    fclose(dump);
+
+    image->finalise();
+
+    fprintf(log_file, "TestFunc is at %lx buf at %lx\n",
+            image->getAddr(IMAGE_CODE), image->getAddr(IMAGE_DATA));
+    
+    fflush(log_file);
+    
+    root_buf = image->getPtr(IMAGE_DATA);
+    
+#ifdef POSIX_SIGNALS
+    pthread_mutex_lock(&dumper);
+    
+    struct sigaction sa, oldact;
+    sa.sa_sigaction = segv_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART | SA_SIGINFO; 
+    if (sigaction(SIGSEGV, &sa, &oldact))
+    {
+        printf("Failure to install segv signal handler!\n");
+    }
+    if (sigaction(SIGILL, &sa, &oldact))
+    {
+        printf("Failure to install sigill signal handler!\n");
+    }
+    if (sigaction(SIGBUS, &sa, &oldact))
+    {
+        printf("Failure to install sigbus signal handler!\n");
+    }
+    
+    pthread_t tid;
+    pthread_create(&tid, 0, dumpstacker, 0);
+    pthread_detach(tid); 
+#endif
+    
+    TestFunc tf = (TestFunc)(image->getAddr(IMAGE_CODE));
+    result = tf(image->getAddr(IMAGE_DATA));
+    fprintf(log_file, ">>> Result %ld %lx\n", result, result);
+    
+    fprintf(log_file, "Stack:\n%s\n",
+            gc->display(image->getPtr(IMAGE_DATA)).c_str());
+    
     delete calling_convention;
     delete cfuncs;
     delete assembler;
@@ -535,7 +532,6 @@ int main(int argc, char ** argv)
         delete (*cdit);
     }
 
-    delete[] constantbuf;
     delete codegens;
     delete constants;
     delete root_scope;

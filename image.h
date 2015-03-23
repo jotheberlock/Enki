@@ -23,14 +23,13 @@ class Image
     void setSectionSize(int, uint64_t);
     uint64_t getAddr(int);
     unsigned char * getPtr(int);
-        // Make memory accessible
-    virtual void materialise() = 0;
         // Fix up perms
     virtual void finalise() = 0;
     void addFunction(std::string, uint64_t);
     uint64_t functionAddress(std::string);
     void addImport(std::string);
     virtual uint64_t importAddress(std::string) = 0;
+    virtual void materialiseSection(int) = 0;
     
   protected:
 
@@ -56,13 +55,19 @@ class MemoryImage : public Image
     }
     
     ~MemoryImage();
-    void materialise();
     void finalise();
     void setImport(std::string, uint64_t);
     uint64_t importAddress(std::string);
+
+        // TODO remove
+    MemBlock & getMemBlock(int i)
+    {
+        return mems[i];
+    }
     
   protected:
 
+    void materialiseSection(int s);
     MemBlock mems[4];
     uint64_t * import_pointers;
     

@@ -62,11 +62,21 @@ void Image::setSectionSize(int t, uint64_t l)
 
 uint64_t Image::getAddr(int t)
 {
+    if (!bases[t])
+    {
+        materialiseSection(t);
+    }
+    
     return bases[t];
 }
 
 unsigned char * Image::getPtr(int t)
 {
+    if (!bases[t])
+    {
+        materialiseSection(t);
+    }
+    
     return sections[t];
 }
 
@@ -77,6 +87,14 @@ MemoryImage::~MemoryImage()
     {
         mem.releaseBlock(mems[loopc]);
     }
+}
+
+void MemoryImage::materialiseSection(int s)
+{
+    Mem mem;
+    mems[s] = mem.getBlock(sizes[s], MEM_READ | MEM_WRITE);
+    bases[s] = (uint64_t)mems[s].ptr;
+    sections[s] = mems[s].ptr;
 }
 
 void MemoryImage::setImport(std::string name, uint64_t addr)
@@ -92,21 +110,9 @@ void MemoryImage::setImport(std::string name, uint64_t addr)
     printf("Couldn't set address for import %s!\n", name.c_str());
 }
 
-void MemoryImage::materialise()
-{
-    Mem mem;
-    for (int loopc=0; loopc<4; loopc++)
-    {
-        mems[loopc] = mem.getBlock(sizes[loopc], MEM_READ | MEM_WRITE);
-        bases[loopc] = (uint64_t)mems[loopc].ptr;
-        sections[loopc] = mems[loopc].ptr;
-    }
-
-    import_pointers = new uint64_t[import_names.size()];
-}
-
 void MemoryImage::finalise()
 {
+    import_pointers = new uint64_t[import_names.size()];
     Mem mem;
     mem.changePerms(mems[IMAGE_CODE], MEM_READ | MEM_EXEC);
     mem.changePerms(mems[IMAGE_DATA], MEM_READ | MEM_WRITE);
