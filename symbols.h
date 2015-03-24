@@ -118,6 +118,8 @@ class FunctionScope : public SymbolScope
         return function_name;
     }
 
+    std::string fqName();
+    
     uint64_t getAddr()
     {
         assert(addr);

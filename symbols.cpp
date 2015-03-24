@@ -121,3 +121,15 @@ FunctionScope * FunctionScope::parentFunction()
 {
     return parent() ? parent()->parentFunction() : 0;
 }
+
+std::string FunctionScope::fqName()
+{
+    std::string ret = function_name;
+    FunctionScope * fs = parentFunction();
+    while (fs)
+    {
+        ret = ret + fs->name()+"::"+ret;
+        fs = fs->parentFunction();
+    }
+    return ret;
+}

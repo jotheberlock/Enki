@@ -420,11 +420,16 @@ int main(int argc, char ** argv)
         }
         
         std::vector<BasicBlock *> & bbs = (*cit)->getBlocks();
-        
+
+        int func_size = 0;
         for (unsigned int loopc=0; loopc<bbs.size(); loopc++)
         {
-            code_size += assembler->size(bbs[loopc]);
-        }    
+            int siz = assembler->size(bbs[loopc]);
+            code_size += siz;
+            func_size += siz;
+        }
+        image->addFunction((*cit)->getScope()->fqName(), func_size);
+        
     }
 
     printf("Code size is %d bytes\n", code_size);
