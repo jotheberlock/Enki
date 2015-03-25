@@ -451,7 +451,9 @@ int main(int argc, char ** argv)
     for(std::list<Codegen *>::iterator cit = codegens->begin();
         cit != codegens->end(); cit++)
     {
-        assembler->align(8);
+        std::string fname = (*cit)->getScope()->fqName();
+        assembler->setAddr(image->functionAddress(fname));
+        assembler->setPtr(image->functionPtr(fname));
         (*cit)->getScope()->setAddr(assembler->currentAddr());
         assembler->newFunction(*cit);
         std::vector<BasicBlock *> & bbs = (*cit)->getBlocks();
@@ -519,8 +521,14 @@ int main(int argc, char ** argv)
     pthread_create(&tid, 0, dumpstacker, 0);
     pthread_detach(tid); 
 #endif
+
+    unsigned char * fptr = image->functionPtr(gc->getScope()->fqName());
+    if (!fptr)
+    {
+        printf("Can't find root function!\n");
+    }
     
-    TestFunc tf = (TestFunc)(image->getAddr(IMAGE_CODE));
+    TestFunc tf = (TestFunc)fptr;
     result = tf(image->getAddr(IMAGE_DATA));
     fprintf(log_file, ">>> Result %ld %lx\n", result, result);
     

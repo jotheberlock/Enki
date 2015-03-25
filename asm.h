@@ -371,6 +371,11 @@ class Assembler
         limit = current+mb.len;
     }
 
+    void setPtr(unsigned char * ptr)
+    {
+        current = ptr;
+    }
+    
     int staticLinkOffset()
     {
         return (pointerSize() * 3) / 8;

@@ -27,6 +27,8 @@ class Image
     virtual void finalise() = 0;
     void addFunction(std::string, uint64_t);
     uint64_t functionAddress(std::string);
+    unsigned char * functionPtr(std::string);
+    
     void addImport(std::string);
     virtual uint64_t importAddress(std::string) = 0;
     virtual void materialiseSection(int) = 0;

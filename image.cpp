@@ -24,6 +24,20 @@ void Image::addFunction(std::string name, uint64_t size)
     }
 }
 
+unsigned char * Image::functionPtr(std::string name)
+{
+    for (unsigned int loopc=0; loopc<fnames.size(); loopc++)
+    {
+        if (fnames[loopc] == name)
+        {
+            return foffsets[loopc] + getPtr(IMAGE_CODE);
+        }
+    }
+
+    printf("Can't find function [%s]!\n", name.c_str());
+    return 0;
+}
+
 uint64_t Image::functionAddress(std::string name)
 {
     for (unsigned int loopc=0; loopc<fnames.size(); loopc++)
