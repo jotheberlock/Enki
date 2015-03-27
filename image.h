@@ -29,7 +29,7 @@ class Image
     uint64_t functionAddress(std::string);
     unsigned char * functionPtr(std::string);
     
-    void addImport(std::string);
+    void addImport(std::string, std::string);
     virtual uint64_t importAddress(std::string) = 0;
     virtual void materialiseSection(int) = 0;
     
@@ -41,6 +41,7 @@ class Image
     std::vector<std::string> fnames;
     std::vector<uint64_t> foffsets;
     std::vector<std::string> import_names;
+    std::vector<std::string> import_libraries;
     
     uint64_t current_offset;
     uint64_t align;

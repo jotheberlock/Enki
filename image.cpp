@@ -51,9 +51,10 @@ uint64_t Image::functionAddress(std::string name)
     return INVALID_ADDRESS;
 }
 
-void Image::addImport(std::string name)
+void Image::addImport(std::string lib, std::string name)
 {
     import_names.push_back(name);
+    import_libraries.push_back(lib);
  }
 
 uint64_t MemoryImage::importAddress(std::string name)
