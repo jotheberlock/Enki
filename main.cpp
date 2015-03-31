@@ -204,6 +204,7 @@ int main(int argc, char ** argv)
     uint64_t result = 1;
 
     MemoryImage * image = new MemoryImage();
+    MemoryImage * macros = new MemoryImage();
     
     log_file = fopen("log.txt", "w");
     if (!log_file)
@@ -410,13 +411,21 @@ int main(int argc, char ** argv)
     }
 
     int code_size = 0;
+    int macro_size = 0;
     
     for(std::list<Codegen *>::iterator cit = codegens->begin();
         cit != codegens->end(); cit++)
     {
+        bool is_macro = (*cit)->getScope()->getType()->isMacro();
+        
         while (code_size % 8)
         {
             code_size++;
+        }
+
+        while (macro_size % 8)
+        {
+            macro_size++;
         }
         
         std::vector<BasicBlock *> & bbs = (*cit)->getBlocks();
@@ -428,13 +437,23 @@ int main(int argc, char ** argv)
             code_size += siz;
             func_size += siz;
         }
-        image->addFunction((*cit)->getScope()->fqName(), func_size);
-        
+
+        if (is_macro)
+        {
+            macros->addFunction((*cit)->getScope()->fqName(), func_size);
+        }
+        else
+        {
+            image->addFunction((*cit)->getScope()->fqName(), func_size);
+        }
     }
 
     printf("Code size is %d bytes\n", code_size);
-
+    printf("Macro size is %d bytes\n", macro_size);
+    
     image->setSectionSize(IMAGE_CODE, code_size);
+    macros->setSectionSize(IMAGE_CODE, macro_size);
+    
     text_base = image->getAddr(IMAGE_CODE);
     text_len = code_size;
         
@@ -451,9 +470,12 @@ int main(int argc, char ** argv)
     for(std::list<Codegen *>::iterator cit = codegens->begin();
         cit != codegens->end(); cit++)
     {
+        bool is_macro = (*cit)->getScope()->getType()->isMacro();
+        Image * the_image = is_macro ? macros : image;
+        
         std::string fname = (*cit)->getScope()->fqName();
-        assembler->setAddr(image->functionAddress(fname));
-        assembler->setPtr(image->functionPtr(fname));
+        assembler->setAddr(the_image->functionAddress(fname));
+        assembler->setPtr(the_image->functionPtr(fname));
         (*cit)->getScope()->setAddr(assembler->currentAddr());
         assembler->newFunction(*cit);
         std::vector<BasicBlock *> & bbs = (*cit)->getBlocks();
@@ -474,6 +496,7 @@ int main(int argc, char ** argv)
     assembler->applyRelocs();
 
     image->setSectionSize(IMAGE_DATA, 4096);
+    macros->setSectionSize(IMAGE_DATA, 4096);
     fillptr = (uint32_t *)image->getPtr(IMAGE_DATA);
     for (int loopc=0; loopc<4096/4; loopc++)
     {
@@ -551,6 +574,9 @@ int main(int argc, char ** argv)
     
     destroyTypes();
 
+    delete image;
+    delete macros;
+    
     fclose(log_file);
     printf("Result: %ld\n", result);
     return (int)result;
