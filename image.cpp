@@ -75,6 +75,11 @@ void Image::setSectionSize(int t, uint64_t l)
     sizes[t] = l;
 }
 
+uint64_t Image::sectionSize(int t)
+{
+    return sizes[t];
+}
+
 uint64_t Image::getAddr(int t)
 {
     if (!bases[t])

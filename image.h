@@ -21,6 +21,8 @@ class Image
     virtual ~Image() {}
 
     void setSectionSize(int, uint64_t);
+    uint64_t sectionSize(int);
+    
     uint64_t getAddr(int);
     unsigned char * getPtr(int);
         // Fix up perms

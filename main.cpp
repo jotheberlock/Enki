@@ -487,10 +487,10 @@ int main(int argc, char ** argv)
         FILE * keep_log = log_file;
         char buf[4096];
         sprintf(buf, "%s_codegen.txt",(*cit)->getScope()->name().c_str());
-            log_file = fopen(buf, "w");
-            dump_codegen(*cit);
-            fclose(log_file);
-            log_file = keep_log;
+        log_file = fopen(buf, "w");
+        dump_codegen(*cit);
+        fclose(log_file);
+        log_file = keep_log;
     }
     
     assembler->applyRelocs();
@@ -504,11 +504,18 @@ int main(int argc, char ** argv)
         fillptr++;
     }
     
+    fillptr = (uint32_t *)macros->getPtr(IMAGE_DATA);
+    for (int loopc=0; loopc<4096/4; loopc++)
+    {
+        *fillptr = 0xdeadbeef;
+        fillptr++;
+    }
+    
     data_base = image->getAddr(IMAGE_DATA);
     data_len = 4096;
         
     FILE * dump = fopen("out.bin", "w");
-    fwrite(image->getPtr(IMAGE_CODE), (size_t)assembler->len(), 1, dump);
+    fwrite(image->getPtr(IMAGE_CODE), image->sectionSize(IMAGE_CODE), 1, dump);
     fclose(dump);
 
     image->finalise();
