@@ -517,6 +517,11 @@ int main(int argc, char ** argv)
     FILE * dump = fopen("out.bin", "w");
     fwrite(image->getPtr(IMAGE_CODE), image->sectionSize(IMAGE_CODE), 1, dump);
     fclose(dump);
+    
+    dump = fopen("macros.bin", "w");
+    fwrite(macros->getPtr(IMAGE_CODE), macros->sectionSize(IMAGE_CODE), 1, dump);
+    fclose(dump);
+    
 
     image->finalise();
 
