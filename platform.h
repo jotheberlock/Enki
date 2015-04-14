@@ -29,6 +29,20 @@ void wles16(unsigned char *&, int16_t);
 void wles32(unsigned char *&, int32_t);
 void wles64(unsigned char *&, int64_t);
 
+void wbe16(unsigned char *&, uint16_t);
+void wbe32(unsigned char *&, uint32_t);
+void wbe64(unsigned char *&, uint64_t);
+void wbes16(unsigned char *&, int16_t);
+void wbes32(unsigned char *&, int32_t);
+void wbes64(unsigned char *&, int64_t);
+
+void wee16(bool, unsigned char *&, uint16_t);
+void wee32(bool, unsigned char *&, uint32_t);
+void wee64(bool, unsigned char *&, uint64_t);
+void wees16(bool, unsigned char *&, int16_t);
+void wees32(bool, unsigned char *&, int32_t);
+void wees64(bool, unsigned char *&, int64_t);
+
 extern FILE * log_file;
 
 #endif
