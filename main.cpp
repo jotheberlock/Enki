@@ -28,6 +28,8 @@ typedef uint64_t (*TestFunc)(uint64_t);
 Codegen * root_gc = 0;
 unsigned char * root_buf = 0;
 
+#define HEAP_SIZE 4096
+
 void dumpstack()
 {
     if (root_buf && root_gc)
@@ -276,7 +278,7 @@ int main(int argc, char ** argv)
 
     if (errors.size() != 0)
     {
-        printf("Lex errors:\n");
+        printf("Lexer errors:\n\n");
         for(std::list<Error>::iterator it = errors.begin();
             it != errors.end(); it++)
         {
@@ -296,7 +298,7 @@ int main(int argc, char ** argv)
 
     if (errors.size() != 0)
     {
-        printf("Parse errors:\n");
+        printf("Parse errors:\n\n");
         for(std::list<Error>::iterator it = errors.begin();
 	    it != errors.end(); it++)
         {
@@ -339,7 +341,7 @@ int main(int argc, char ** argv)
 
     if (errors.size() != 0)
     {
-        printf("Codegen errors:\n");
+        printf("Codegen errors:\n\n");
         for(std::list<Error>::iterator it = errors.begin();
 	    it != errors.end(); it++)
         {
@@ -354,12 +356,9 @@ int main(int argc, char ** argv)
     calling_convention->generateEpilogue(epilogue, root_scope);
 
     image->setSectionSize(IMAGE_CONST_DATA, constants->getSize());
-    unsigned char * constantbuf = new unsigned char[constants->getSize()];
     constants->setAddress(image->getAddr(IMAGE_CONST_DATA));
-    fprintf(log_file, "Constant pool is %ld bytes at %p\n",
-            constants->getSize(), constantbuf);
     constants->fillPool(image->getPtr(IMAGE_CONST_DATA));
-    rodata_base = (uint64_t)constantbuf;
+    rodata_base = image->getAddr(IMAGE_CONST_DATA);
     rodata_len = constants->getSize();
     
     for(std::list<Codegen *>::iterator cit = codegens->begin();
@@ -461,7 +460,7 @@ int main(int argc, char ** argv)
     for (int loopc=0; loopc<code_size/4; loopc++)
     {
         *fillptr = 0xdeadbeef;
-            fillptr++;
+        fillptr++;
     }
         
     assembler->setMem(image->getMemBlock(IMAGE_CODE));
@@ -495,17 +494,17 @@ int main(int argc, char ** argv)
     
     assembler->applyRelocs();
 
-    image->setSectionSize(IMAGE_DATA, 4096);
-    macros->setSectionSize(IMAGE_DATA, 4096);
+    image->setSectionSize(IMAGE_DATA, HEAP_SIZE);
+    macros->setSectionSize(IMAGE_DATA, HEAP_SIZe);
     fillptr = (uint32_t *)image->getPtr(IMAGE_DATA);
-    for (int loopc=0; loopc<4096/4; loopc++)
+    for (int loopc=0; loopc<HEAP_SIZE/4; loopc++)
     {
         *fillptr = 0xdeadbeef;
         fillptr++;
     }
     
     fillptr = (uint32_t *)macros->getPtr(IMAGE_DATA);
-    for (int loopc=0; loopc<4096/4; loopc++)
+    for (int loopc=0; loopc<HEAP_SIZE/4; loopc++)
     {
         *fillptr = 0xdeadbeef;
         fillptr++;
