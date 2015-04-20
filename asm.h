@@ -347,6 +347,7 @@ class Relocation
 class Function;
 class Funcall;
 class Codegen;
+class Image;
 
 class Assembler
 {
@@ -388,7 +389,7 @@ class Assembler
 
     virtual int regnum(std::string) = 0;
     virtual int size(BasicBlock *) = 0;  // Size in bytes of machine code
-    virtual bool assemble(BasicBlock *, BasicBlock * next) = 0;
+    virtual bool assemble(BasicBlock *, BasicBlock * next, Image * image) = 0;
     virtual std::string transReg(uint32_t) = 0;
     virtual ValidRegs validRegs(Insn &) = 0;
     virtual bool validConst(Insn &, int) = 0;

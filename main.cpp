@@ -480,7 +480,7 @@ int main(int argc, char ** argv)
         std::vector<BasicBlock *> & bbs = (*cit)->getBlocks();
         for (unsigned int loopc=0; loopc<bbs.size(); loopc++)
         {
-            assembler->assemble(bbs[loopc], 0);
+            assembler->assemble(bbs[loopc], 0, the_image);
         }
         
         FILE * keep_log = log_file;
@@ -495,7 +495,7 @@ int main(int argc, char ** argv)
     assembler->applyRelocs();
 
     image->setSectionSize(IMAGE_DATA, HEAP_SIZE);
-    macros->setSectionSize(IMAGE_DATA, HEAP_SIZe);
+    macros->setSectionSize(IMAGE_DATA, HEAP_SIZE);
     fillptr = (uint32_t *)image->getPtr(IMAGE_DATA);
     for (int loopc=0; loopc<HEAP_SIZE/4; loopc++)
     {

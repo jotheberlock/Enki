@@ -14,7 +14,7 @@ class Amd64 : public Assembler
     
     int regnum(std::string);
     int size(BasicBlock *);
-    bool assemble(BasicBlock *, BasicBlock *);
+    bool assemble(BasicBlock *, BasicBlock *, Image *);
     std::string transReg(uint32_t);
 
     ValidRegs validRegs(Insn &);

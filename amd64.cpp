@@ -5,6 +5,7 @@
 #include "ast.h"
 #include "cfuncs.h"
 #include "symbols.h"
+#include "image.h"
 
 const char * regnames[] =
 {
@@ -332,7 +333,7 @@ int Amd64::size(BasicBlock * b)
     return ret;  
 }
 
-bool Amd64::assemble(BasicBlock * b, BasicBlock * next)
+bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 {
     std::list<Insn> & code = b->getCode();
 
