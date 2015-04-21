@@ -13,6 +13,8 @@
 
 #define INVALID_ADDRESS 0xdeadbeefdeadbeef
 
+class FunctionScope;
+
 class Image
 {
   public:
@@ -27,9 +29,9 @@ class Image
     unsigned char * getPtr(int);
         // Fix up perms
     virtual void finalise() = 0;
-    void addFunction(std::string, uint64_t);
-    uint64_t functionAddress(std::string);
-    unsigned char * functionPtr(std::string);
+    void addFunction(FunctionScope *, uint64_t);
+    uint64_t functionAddress(FunctionScope *);
+    unsigned char * functionPtr(FunctionScope *);
     
     void addImport(std::string, std::string);
     virtual uint64_t importAddress(std::string) = 0;
@@ -40,8 +42,10 @@ class Image
     unsigned char * sections[4];
     uint64_t bases[4];
     uint64_t sizes[4];
-    std::vector<std::string> fnames;
+
     std::vector<uint64_t> foffsets;
+    std::vector<FunctionScope *> fptrs;
+    
     std::vector<std::string> import_names;
     std::vector<std::string> import_libraries;
     

@@ -437,13 +437,14 @@ int main(int argc, char ** argv)
             func_size += siz;
         }
 
+        FunctionScope * fs = (*cit)->getScope();
         if (is_macro)
         {
-            macros->addFunction((*cit)->getScope()->fqName(), func_size);
+            macros->addFunction(fs, func_size);
         }
         else
         {
-            image->addFunction((*cit)->getScope()->fqName(), func_size);
+            image->addFunction(fs, func_size);
         }
     }
 
@@ -471,10 +472,10 @@ int main(int argc, char ** argv)
     {
         bool is_macro = (*cit)->getScope()->getType()->isMacro();
         Image * the_image = is_macro ? macros : image;
-        
-        std::string fname = (*cit)->getScope()->fqName();
-        assembler->setAddr(the_image->functionAddress(fname));
-        assembler->setPtr(the_image->functionPtr(fname));
+
+        FunctionScope * fs = (*cit)->getScope();
+        assembler->setAddr(the_image->functionAddress(fs));
+        assembler->setPtr(the_image->functionPtr(fs));
         (*cit)->getScope()->setAddr(assembler->currentAddr());
         assembler->newFunction(*cit);
         std::vector<BasicBlock *> & bbs = (*cit)->getBlocks();
@@ -556,7 +557,7 @@ int main(int argc, char ** argv)
     pthread_detach(tid); 
 #endif
 
-    unsigned char * fptr = image->functionPtr(gc->getScope()->fqName());
+    unsigned char * fptr = image->functionPtr(gc->getScope());
     if (!fptr)
     {
         printf("Can't find root function!\n");

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "image.h"
+#include "symbols.h"
 
 Image::Image()
 {
@@ -13,10 +14,11 @@ Image::Image()
     align = 8;
 }
 
-void Image::addFunction(std::string name, uint64_t size)
+void Image::addFunction(FunctionScope * ptr, uint64_t size)
 {
-    fnames.push_back(name);
     foffsets.push_back(current_offset);
+    fptrs.push_back(ptr);
+    
     current_offset += size;
     while (current_offset % align)
     {
@@ -24,25 +26,25 @@ void Image::addFunction(std::string name, uint64_t size)
     }
 }
 
-unsigned char * Image::functionPtr(std::string name)
+unsigned char * Image::functionPtr(FunctionScope * ptr)
 {
-    for (unsigned int loopc=0; loopc<fnames.size(); loopc++)
+    for (unsigned int loopc=0; loopc<fptrs.size(); loopc++)
     {
-        if (fnames[loopc] == name)
+        if (fptrs[loopc] == ptr)
         {
             return foffsets[loopc] + getPtr(IMAGE_CODE);
         }
     }
 
-    printf("Can't find function [%s]!\n", name.c_str());
+    printf("Can't find function [%s]!\n", ptr->name().c_str());
     return 0;
 }
 
-uint64_t Image::functionAddress(std::string name)
+uint64_t Image::functionAddress(FunctionScope * ptr)
 {
-    for (unsigned int loopc=0; loopc<fnames.size(); loopc++)
+    for (unsigned int loopc=0; loopc<fptrs.size(); loopc++)
     {
-        if (fnames[loopc] == name)
+        if (fptrs[loopc] == ptr)
         {
             return foffsets[loopc] + getAddr(IMAGE_CODE);
         }
@@ -59,9 +61,9 @@ void Image::addImport(std::string lib, std::string name)
 
 uint64_t MemoryImage::importAddress(std::string name)
 {
-    for (unsigned int loopc=0; loopc<fnames.size(); loopc++)
+    for (unsigned int loopc=0; loopc<import_names.size(); loopc++)
     {
-        if (fnames[loopc] == name)
+        if (import_names[loopc] == name)
         {
             return  (uint64_t)(&import_pointers[loopc]);
         }
@@ -119,9 +121,9 @@ void MemoryImage::materialiseSection(int s)
 
 void MemoryImage::setImport(std::string name, uint64_t addr)
 {    
-    for (unsigned int loopc=0; loopc<fnames.size(); loopc++)
+    for (unsigned int loopc=0; loopc<import_names.size(); loopc++)
     {
-        if (fnames[loopc] == name)
+        if (import_names[loopc] == name)
         {
             import_pointers[loopc] = addr;
         }
