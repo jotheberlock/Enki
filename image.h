@@ -36,6 +36,10 @@ class Image
     void addImport(std::string, std::string);
     virtual uint64_t importAddress(std::string) = 0;
     virtual void materialiseSection(int) = 0;
+    bool littleEndian()
+    {
+        return true;
+    }
     
   protected:
 
@@ -79,6 +83,30 @@ class MemoryImage : public Image
     void materialiseSection(int s);
     MemBlock mems[4];
     uint64_t * import_pointers;
+    
+};
+
+class BaseRelocation
+{
+  public:
+
+    virtual void apply(Image *) = 0;
+    
+};
+
+class FunctionRelocation : public BaseRelocation
+{
+  public:
+
+  protected:
+
+    FunctionRelocation(FunctionScope *, uint64_t, FunctionScope *, uint64_t);
+    void apply(Image *);
+    
+    FunctionScope * to_patch;
+    FunctionScope * to_link;
+    uint64_t patch_offset;
+    uint64_t link_offset;
     
 };
 

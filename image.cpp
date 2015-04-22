@@ -2,6 +2,25 @@
 #include "image.h"
 #include "symbols.h"
 
+FunctionRelocation::FunctionRelocation(FunctionScope * p, uint64_t po, FunctionScope * l, uint64_t lo)
+{
+    to_patch = p;
+    patch_offset = po;
+    to_link = l;
+    link_offset = lo;
+}
+
+void FunctionRelocation::apply(Image * i)
+{
+    uint64_t paddr = i->functionAddress(to_patch);
+    paddr += patch_offset;
+    paddr -= i->getAddr(IMAGE_CODE);
+    uint64_t * patch_site = (uint64_t *)(i->getPtr(IMAGE_CODE)+paddr);
+    uint64_t laddr = i->functionAddress(to_link);
+    laddr += link_offset;
+    *patch_site = laddr;
+}
+    
 Image::Image()
 {
     for (int loopc=0; loopc<4; loopc++)
