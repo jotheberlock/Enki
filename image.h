@@ -90,7 +90,11 @@ class BaseRelocation
 {
   public:
 
-    virtual void apply(Image *) = 0;
+    virtual void apply() = 0;
+
+  protected:
+
+    Image * image;
     
 };
 
@@ -98,10 +102,11 @@ class FunctionRelocation : public BaseRelocation
 {
   public:
 
+    FunctionRelocation(Image *,
+                       FunctionScope *, uint64_t, FunctionScope *, uint64_t);
+    void apply();
+    
   protected:
-
-    FunctionRelocation(FunctionScope *, uint64_t, FunctionScope *, uint64_t);
-    void apply(Image *);
     
     FunctionScope * to_patch;
     FunctionScope * to_link;
