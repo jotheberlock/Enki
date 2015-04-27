@@ -14,6 +14,7 @@
 #define INVALID_ADDRESS 0xdeadbeefdeadbeef
 
 class FunctionScope;
+class BasicBlock;
 
 class Image
 {
@@ -114,5 +115,23 @@ class FunctionRelocation : public BaseRelocation
     uint64_t link_offset;
     
 };
+
+
+class BasicBlockRelocation : public BaseRelocation
+{
+  public:
+
+    BasicBlockRelocation(Image *,
+                         FunctionScope *, uint64_t, BasicBlock *);
+    void apply();
+    
+  protected:
+    
+    FunctionScope * to_patch;
+    BasicBlock * to_link;
+    uint64_t patch_offset;
+    
+};
+
 
 #endif

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "image.h"
 #include "symbols.h"
+#include "asm.h"
+#include "platform.h"
 
 FunctionRelocation::FunctionRelocation(Image * i, FunctionScope * p, uint64_t po, FunctionScope * l, uint64_t lo)
 {
@@ -20,6 +22,36 @@ void FunctionRelocation::apply()
     uint64_t laddr = image->functionAddress(to_link);
     laddr += link_offset;
     *patch_site = laddr;
+}
+
+BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_t po, BasicBlock * l)
+{
+    image = i;
+    to_patch = p;
+    patch_offset = po;
+    to_link = l;
+}
+
+void BasicBlockRelocation::apply()
+{
+    uint64_t baddr = to_link->getAddr();
+    uint64_t oaddr = image->functionAddress(to_patch) + patch_offset;
+            
+    int32_t diff;
+    if (oaddr > baddr)
+    {
+        diff = -((int32_t)(oaddr-baddr));
+    }
+    else
+    {
+        diff = (int32_t)(baddr-oaddr);
+    }
+    
+    uint64_t paddr = image->functionAddress(to_patch);
+    paddr += patch_offset;
+    paddr -= image->getAddr(IMAGE_CODE);
+    int32_t * patch_site = (int32_t *)(image->getPtr(IMAGE_CODE)+paddr);
+    *patch_site = diff;    
 }
     
 Image::Image()
