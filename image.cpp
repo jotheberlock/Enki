@@ -18,10 +18,10 @@ void FunctionRelocation::apply()
     uint64_t paddr = image->functionAddress(to_patch);
     paddr += patch_offset;
     paddr -= image->getAddr(IMAGE_CODE);
-    uint64_t * patch_site = (uint64_t *)(image->getPtr(IMAGE_CODE)+paddr);
+    unsigned char * patch_site = image->getPtr(IMAGE_CODE)+paddr;
     uint64_t laddr = image->functionAddress(to_link);
     laddr += link_offset;
-    *patch_site = laddr;
+    wee64(image->littleEndian(),patch_site,laddr);
 }
 
 BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_t po, BasicBlock * l)
@@ -50,8 +50,8 @@ void BasicBlockRelocation::apply()
     uint64_t paddr = image->functionAddress(to_patch);
     paddr += patch_offset;
     paddr -= image->getAddr(IMAGE_CODE);
-    int32_t * patch_site = (int32_t *)(image->getPtr(IMAGE_CODE)+paddr);
-    *patch_site = diff;    
+    unsigned char * patch_site = image->getPtr(IMAGE_CODE)+paddr;
+    wees32(image->littleEndian(), patch_site, diff);
 }
     
 Image::Image()
