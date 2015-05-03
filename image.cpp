@@ -5,6 +5,7 @@
 #include "platform.h"
 
 FunctionRelocation::FunctionRelocation(Image * i, FunctionScope * p, uint64_t po, FunctionScope * l, uint64_t lo)
+	: BaseRelocation(i)
 {
     image = i;
     to_patch = p;
@@ -15,27 +16,45 @@ FunctionRelocation::FunctionRelocation(Image * i, FunctionScope * p, uint64_t po
 
 void FunctionRelocation::apply()
 {
-    uint64_t paddr = image->functionAddress(to_patch);
-    paddr += patch_offset;
-    paddr -= image->getAddr(IMAGE_CODE);
-    unsigned char * patch_site = image->getPtr(IMAGE_CODE)+paddr;
+    unsigned char * patch_site = image->functionPtr(to_patch)+patch_offset;
     uint64_t laddr = image->functionAddress(to_link);
     laddr += link_offset;
     wee64(image->littleEndian(),patch_site,laddr);
 }
 
-BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_t po, BasicBlock * l)
+BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_t po, uint64_t pr, BasicBlock * l)
+	: BaseRelocation(i)
 {
     image = i;
     to_patch = p;
     patch_offset = po;
-    to_link = l;
+	patch_relative = pr;
+	to_link = l;
+	absolute = false;
+}
+
+BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_t po, BasicBlock * l)
+	: BaseRelocation(i)
+{
+    image = i;
+    to_patch = p;
+    patch_offset = po;
+	patch_relative = po;
+	to_link = l;
+	absolute = true;
 }
 
 void BasicBlockRelocation::apply()
 {
+    unsigned char * patch_site = image->getPtr(IMAGE_CODE)+patch_offset;
+	if (absolute)
+	{
+		wees64(image->littleEndian(), patch_site, to_link->getAddr());
+		return;
+	}
+
     uint64_t baddr = to_link->getAddr();
-    uint64_t oaddr = image->functionAddress(to_patch) + patch_offset;
+    uint64_t oaddr = image->functionAddress(to_patch) + patch_relative;
             
     int32_t diff;
     if (oaddr > baddr)
@@ -50,7 +69,9 @@ void BasicBlockRelocation::apply()
     uint64_t paddr = image->functionAddress(to_patch);
     paddr += patch_offset;
     paddr -= image->getAddr(IMAGE_CODE);
-    unsigned char * patch_site = image->getPtr(IMAGE_CODE)+paddr;
+
+	fflush(stdout);
+
     wees32(image->littleEndian(), patch_site, diff);
 }
     
@@ -64,6 +85,16 @@ Image::Image()
     }
     current_offset = 0;
     align = 8;
+}
+
+void Image::relocate()
+{
+	for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
+	{
+		relocs[loopc]->apply();
+		delete relocs[loopc];
+	}
+	relocs.clear();
 }
 
 void Image::addFunction(FunctionScope * ptr, uint64_t size)
@@ -88,7 +119,7 @@ unsigned char * Image::functionPtr(FunctionScope * ptr)
         }
     }
 
-    printf("Can't find function [%s]!\n", ptr->name().c_str());
+    printf("Can't find function [%s]!\n", ptr ? ptr->name().c_str() : "<null>");
     return 0;
 }
 
@@ -101,7 +132,8 @@ uint64_t Image::functionAddress(FunctionScope * ptr)
             return foffsets[loopc] + getAddr(IMAGE_CODE);
         }
     }
-
+	
+    printf("Can't find function [%s]!\n", ptr ? ptr->name().c_str() : "<null>");
     return INVALID_ADDRESS;
 }
 

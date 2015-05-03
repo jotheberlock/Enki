@@ -643,8 +643,10 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         r |= reg(i.ops[0].getReg() & 0x7);
                         *current++ = r;
                         
-                        relocs.push_back(Relocation(REL_A64, len()+8, len(),
-                                                    i.ops[1].getFunction()));
+						assert(current_function);
+						new FunctionRelocation(image, current_function, len(), i.ops[1].getFunction(), 0);
+                        //relocs.push_back(Relocation(REL_A64, len()+8, len(),
+                        //                            i.ops[1].getFunction()));
                         wle64(current, reloc);
                     }
                     else if (i.ops[1].isBlock())
@@ -654,8 +656,9 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         r |= reg(i.ops[0].getReg() & 0x7);
                         *current++ = r;
                         
-                        relocs.push_back(Relocation(REL_A64, len()+8, len(),
-                                                    i.ops[1].getBlock()));
+						new BasicBlockRelocation(image, current_function, len(), i.ops[1].getBlock());
+                        //relocs.push_back(Relocation(REL_A64, len()+8, len(),
+                        //                            i.ops[1].getBlock()));
                         wle64(current, reloc);
                     }
                     else
@@ -935,8 +938,10 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 {
                     assert(i.ins == BRA);
                     *current++ = 0xe9;
-                    relocs.push_back(Relocation(REL_S32, currentAddr()+4, len(),
-                                                i.ops[0].getBlock()));
+					new BasicBlockRelocation(image, current_function, len(), len()+4, i.ops[0].getBlock());
+
+                    //relocs.push_back(Relocation(REL_S32, currentAddr()+4, len(),
+                    //                            i.ops[0].getBlock()));
                     wle32(current, 0xdeadbeef);
                 }
                 
@@ -976,8 +981,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         assert(false);
                 }
                 
-                relocs.push_back(Relocation(REL_S32, currentAddr()+4, len(),
-                                            i.ops[0].getBlock()));
+				new BasicBlockRelocation(image, current_function, len(), len()+4, i.ops[0].getBlock());
                 wle32(current, 0xdeadbeef);
                 break;
             }
@@ -1148,6 +1152,7 @@ std::string Amd64::transReg(uint32_t r)
 
 void Amd64::newFunction(Codegen * c)
 {
+	Assembler::newFunction(c);
 	if (!c->extCall())
 	{
 		uint64_t addr = c->stackSize();

@@ -148,6 +148,7 @@
     <ClInclude Include="..\cfuncs.h" />
     <ClInclude Include="..\codegen.h" />
     <ClInclude Include="..\error.h" />
+    <ClInclude Include="..\image.h" />
     <ClInclude Include="..\lexer.h" />
     <ClInclude Include="..\mem.h" />
     <ClInclude Include="..\pass.h" />
@@ -165,6 +166,7 @@
     <ClCompile Include="..\cfuncs.cpp" />
     <ClCompile Include="..\codegen.cpp" />
     <ClCompile Include="..\error.cpp" />
+    <ClCompile Include="..\image.cpp" />
     <ClCompile Include="..\lexer.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\mem.cpp" />

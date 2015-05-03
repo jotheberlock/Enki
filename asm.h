@@ -302,48 +302,6 @@ class ValidRegs
     RegSet clobbers;
 };
 
-#define REL_S32 1
-#define REL_A64 2
-
-class Relocation
-{
-  public:
-
-    Relocation()
-    {
-        type=0;
-        offset=0;
-        address=0;
-        destination=0;
-        fdestination=0;
-    }
-    
-    Relocation(int t, uint64_t o, uint64_t a, BasicBlock * b)
-    {
-        type=t;
-        offset=o;
-        address=a;
-        destination=b;
-        fdestination=0;
-    }
-    
-    Relocation(int t, uint64_t o, uint64_t a, FunctionScope * f)
-    {
-        type=t;
-        offset=0;
-        address=a;
-        destination=0;
-        fdestination=f;
-    }
-    
-    int type;
-    uint64_t offset;   // To calculate branch from
-    uint64_t address;  // Where to write relocation
-    BasicBlock * destination;
-    FunctionScope * fdestination;
-    
-};
-
 class Function;
 class Funcall;
 class Codegen;
@@ -407,23 +365,22 @@ class Assembler
         return address+len();
     }
     
-    void applyRelocs();
     void setAddr(uint64_t a)
     {
         address=a;
     }
     
 	virtual void align(uint64_t a) = 0;  // Pads with NOPs
-	virtual void newFunction(Codegen *) = 0;
+	virtual void newFunction(Codegen *);
 
   protected:
 
     MemBlock mb;
     unsigned char * current;
     unsigned char * limit;
-    std::list<Relocation> relocs;
     uint64_t address;
     int psize;
+	FunctionScope * current_function;
     
 };
 

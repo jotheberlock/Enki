@@ -15,6 +15,7 @@
 
 class FunctionScope;
 class BasicBlock;
+class BaseRelocation;
 
 class Image
 {
@@ -30,6 +31,7 @@ class Image
     unsigned char * getPtr(int);
         // Fix up perms
     virtual void finalise() = 0;
+	void relocate();
     void addFunction(FunctionScope *, uint64_t);
     uint64_t functionAddress(FunctionScope *);
     unsigned char * functionPtr(FunctionScope *);
@@ -42,6 +44,11 @@ class Image
         return true;
     }
     
+	void addReloc(BaseRelocation * b)
+	{
+		relocs.push_back(b);
+	}
+
   protected:
 
     unsigned char * sections[4];
@@ -56,6 +63,9 @@ class Image
     
     uint64_t current_offset;
     uint64_t align;
+	
+    std::vector<BaseRelocation *> relocs;
+
     
 };
 
@@ -84,12 +94,17 @@ class MemoryImage : public Image
     void materialiseSection(int s);
     MemBlock mems[4];
     uint64_t * import_pointers;
-    
+
 };
 
 class BaseRelocation
 {
   public:
+
+	BaseRelocation(Image * i)
+	{
+		i->addReloc(this);
+	}
 
     virtual void apply() = 0;
 
@@ -122,6 +137,10 @@ class BasicBlockRelocation : public BaseRelocation
   public:
 
     BasicBlockRelocation(Image *,
+                         FunctionScope *, uint64_t, uint64_t, BasicBlock *);
+
+	
+    BasicBlockRelocation(Image *,
                          FunctionScope *, uint64_t, BasicBlock *);
     void apply();
     
@@ -130,7 +149,9 @@ class BasicBlockRelocation : public BaseRelocation
     FunctionScope * to_patch;
     BasicBlock * to_link;
     uint64_t patch_offset;
-    
+    uint64_t patch_relative;
+	bool absolute;
+
 };
 
 

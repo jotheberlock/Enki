@@ -493,8 +493,6 @@ int main(int argc, char ** argv)
         log_file = keep_log;
     }
     
-    assembler->applyRelocs();
-
     image->setSectionSize(IMAGE_DATA, HEAP_SIZE);
     macros->setSectionSize(IMAGE_DATA, HEAP_SIZE);
     fillptr = (uint32_t *)image->getPtr(IMAGE_DATA);
@@ -513,7 +511,10 @@ int main(int argc, char ** argv)
     
     data_base = image->getAddr(IMAGE_DATA);
     data_len = 4096;
-        
+    
+	macros->relocate();
+	image->relocate();
+
     FILE * dump = fopen("out.bin", "w");
     fwrite(image->getPtr(IMAGE_CODE), image->sectionSize(IMAGE_CODE), 1, dump);
     fclose(dump);
@@ -522,7 +523,6 @@ int main(int argc, char ** argv)
     fwrite(macros->getPtr(IMAGE_CODE), macros->sectionSize(IMAGE_CODE), 1, dump);
     fclose(dump);
     
-
     image->finalise();
 
     fprintf(log_file, "TestFunc is at %lx buf at %lx\n",

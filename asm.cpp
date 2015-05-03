@@ -398,56 +398,6 @@ bool Insn::isOut(int i)
     return (i == 0);
 }
 
-void Assembler::applyRelocs()
-{
-    for (std::list<Relocation>::iterator it = relocs.begin();
-         it != relocs.end(); it++)
-    {
-        Relocation & rl = *it;
-        if (rl.type == REL_S32)
-        {
-            uint64_t baddr = rl.destination->getAddr();
-            uint64_t oaddr = rl.offset;
-
-            fprintf(log_file, "Baddr %ld %lx oaddr %ld %lx\n", baddr, baddr,
-                    oaddr, oaddr);
-            
-            int32_t diff;
-            if (oaddr > baddr)
-            {
-                diff = -((int32_t)(oaddr-baddr));
-            }
-            else
-            {
-                diff = (int32_t)(baddr-oaddr);
-            }
-
-            fprintf(log_file, "Diff [%d]\n", diff);
-            
-            unsigned char * ptr = mb.ptr + rl.address;
-            wles32(ptr, diff);
-        }
-        else if (rl.type == REL_A64)
-        {
-            unsigned char * ptr = mb.ptr + rl.address;
-            if (rl.fdestination)
-            {
-                wles64(ptr, rl.fdestination->getAddr());
-            }
-            else
-            {
-                printf("Got abs64 %lx!\n", rl.destination->getAddr());
-            
-                wles64(ptr, rl.destination->getAddr());
-            }
-        }
-        else
-        {
-            assert(false);
-        }        
-    }
-}
-
 int storeForType(Type * t) 
 {
     if (t->size() == 8)
@@ -500,5 +450,8 @@ int loadForType(Type * t)
 	return LOAD;
 }
 
-
-
+void Assembler::newFunction(Codegen * c)
+{
+	current_function = c->getScope();
+	assert(current_function);
+}
