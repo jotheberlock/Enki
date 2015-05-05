@@ -73,11 +73,7 @@ class MemoryImage : public Image
 {
   public:
 
-    MemoryImage()
-    {
-        import_pointers=0;
-    }
-    
+    MemoryImage();
     ~MemoryImage();
     void finalise();
     void setImport(std::string, uint64_t);

@@ -186,6 +186,12 @@ unsigned char * Image::getPtr(int t)
     return sections[t];
 }
 
+MemoryImage::MemoryImage()
+{
+    import_pointers=0;
+    addImport("", "testfunc");
+}
+    
 MemoryImage::~MemoryImage()
 {
     Mem mem;
