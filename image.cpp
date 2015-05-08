@@ -70,8 +70,6 @@ void BasicBlockRelocation::apply()
     paddr += patch_offset;
     paddr -= image->getAddr(IMAGE_CODE);
 
-	fflush(stdout);
-
     wees32(image->littleEndian(), patch_site, diff);
 }
     
@@ -139,8 +137,31 @@ uint64_t Image::functionAddress(FunctionScope * ptr)
 
 void Image::addImport(std::string lib, std::string name)
 {
-    import_names.push_back(name);
-    import_libraries.push_back(lib);
+    bool namefound = false;
+    for  (unsigned int loopc=0; loopc<import_names.size(); loopc++)
+    {
+        if (imports_names[loopc] == name)
+        {
+            namefound = true;
+        }
+    }
+    if (!namefound)
+    {
+        import_names.push_back(name);
+    }
+
+    bool libfound = false;
+    for  (unsigned int loopc=0; loopc<import_libraries.size(); loopc++)
+    {
+        if (import_libraries[loopc] == lib)
+        {
+            libfound = true;
+        }
+    }
+    if (!libfound)
+    {
+        import_libraries.push_back(lib);
+    }
  }
 
 uint64_t MemoryImage::importAddress(std::string name)
