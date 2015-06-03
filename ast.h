@@ -17,36 +17,36 @@ class Expr
 
     virtual void print(int i) = 0;
 
-  virtual void printOp(uint64_t val)
-  {
-      uint32_t first = val & 0xffffffff;
-      uint32_t second = (val & 0xffffffff00000000) >> 32;
-      fprintf(log_file, "%c", (char)first);
-      if (second)
-      {
-          fprintf(log_file, "%c", (char)second);
-      }
-  }
+    virtual void printOp(uint64_t val)
+    {
+        uint32_t first = val & 0xffffffff;
+        uint32_t second = (val & 0xffffffff00000000) >> 32;
+        fprintf(log_file, "%c", (char)first);
+        if (second)
+        {
+            fprintf(log_file, "%c", (char)second);
+        }
+    }
 
-  virtual Value * codegen(Codegen *)
-  {
-      fprintf(log_file, "Null codegen called!\n");
-      return 0;
-  }
+    virtual Value * codegen(Codegen *)
+    {
+        fprintf(log_file, "Null codegen called!\n");
+        return 0;
+    }
 
-  virtual ~Expr()
-  {
-  }
+    virtual ~Expr()
+    {
+    }
   
- protected:
+  protected:
 
-  void indent(int i)
-  {
-      for(int loopc=0; loopc<i; loopc++)
-      {
-          fprintf(log_file, "  ");
-      }
-  }
+    void indent(int i)
+    {
+        for(int loopc=0; loopc<i; loopc++)
+        {
+            fprintf(log_file, "  ");
+        }
+    }
 
 };
 
