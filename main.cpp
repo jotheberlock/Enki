@@ -150,7 +150,7 @@ void dump_codegen(Codegen * cg)
     for (unsigned int loopc=0; loopc<bbs.size(); loopc++)
     {
         std::string bp = bbs[loopc]->toString();
-        fprintf(log_file, "%s\n", bp.c_str());
+        fprintf(log_file, "\n%s\n", bp.c_str());
     }
 }
 
@@ -302,8 +302,8 @@ int main(int argc, char ** argv)
         for(std::list<Error>::iterator it = errors.begin();
 	    it != errors.end(); it++)
         {
-            printf("\n");
             (*it).print();
+            printf("\n");
         }
         return 3;
     }
@@ -502,10 +502,10 @@ int main(int argc, char ** argv)
         fillptr++;
     }
     
-    fillptr = (uint32_t *)macros->getPtr(IMAGE_DATA);
-    for (int loopc=0; loopc<HEAP_SIZE/4; loopc++)
+    fillptr = (uint64_t *)macros->getPtr(IMAGE_DATA);
+    for (int loopc=0; loopc<HEAP_SIZE/8; loopc++)
     {
-        *fillptr = 0xdeadbeef;
+        *fillptr = 0xdeadbeefdeadbeef;
         fillptr++;
     }
     
