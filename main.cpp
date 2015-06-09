@@ -536,6 +536,7 @@ int main(int argc, char ** argv)
     pthread_mutex_lock(&dumper);
     
     struct sigaction sa, oldact;
+    memset(&sa, 0, sizeof(sa));
     sa.sa_sigaction = segv_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART | SA_SIGINFO; 

@@ -1136,13 +1136,13 @@ std::string Amd64::transReg(uint32_t r)
 {
     std::string ret;
     
-    char buf[4096];
     if (r < 16)
     {
         ret = regnames[r];
     }
     else
     {
+        char buf[16];
         sprintf(buf, "???%u", r);
         ret = buf;
     }
@@ -1164,7 +1164,6 @@ void Amd64::align(uint64_t a)
 {
 	while (currentAddr() % a)
 	{
-		fprintf(log_file, "%llx %llu!!\n", currentAddr(), a);
 		*current = 0x90;
 		current++;
 	}
