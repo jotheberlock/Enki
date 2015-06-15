@@ -27,6 +27,10 @@ Codegen * Codegen::copy()
         BasicBlock * nb = new BasicBlock(bb->name());
         nb->setCode(bb->getCode());
         ret->blocks.push_back(nb);
+        if (bb == current_block)
+        {
+            ret->current_block = nb;
+        }
         
         for (std::list<BasicBlock *>::iterator it2 = break_targets.begin();
              it2 != break_targets.end(); it2++)
