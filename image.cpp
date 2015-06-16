@@ -140,7 +140,7 @@ void Image::addImport(std::string lib, std::string name)
     bool namefound = false;
     for  (unsigned int loopc=0; loopc<import_names.size(); loopc++)
     {
-        if (imports_names[loopc] == name)
+        if (import_names[loopc] == name)
         {
             namefound = true;
         }

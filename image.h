@@ -102,6 +102,10 @@ class BaseRelocation
 		i->addReloc(this);
 	}
 
+    virtual ~BaseRelocation()
+    {
+    }
+    
     virtual void apply() = 0;
 
   protected:

@@ -457,10 +457,10 @@ int main(int argc, char ** argv)
     text_base = image->getAddr(IMAGE_CODE);
     text_len = code_size;
         
-    uint32_t * fillptr = (uint32_t *)text_base;
-    for (int loopc=0; loopc<code_size/4; loopc++)
+    uint64_t * fillptr = (uint64_t *)text_base;
+    for (int loopc=0; loopc<code_size/8; loopc++)
     {
-        *fillptr = 0xdeadbeef;
+        *fillptr = 0xdeadbeefdeadbeef;
         fillptr++;
     }
         
@@ -495,10 +495,10 @@ int main(int argc, char ** argv)
     
     image->setSectionSize(IMAGE_DATA, HEAP_SIZE);
     macros->setSectionSize(IMAGE_DATA, HEAP_SIZE);
-    fillptr = (uint32_t *)image->getPtr(IMAGE_DATA);
-    for (int loopc=0; loopc<HEAP_SIZE/4; loopc++)
+    fillptr = (uint64_t *)image->getPtr(IMAGE_DATA);
+    for (int loopc=0; loopc<HEAP_SIZE/8; loopc++)
     {
-        *fillptr = 0xdeadbeef;
+        *fillptr = 0xdeadbeefdeadbeef;
         fillptr++;
     }
     
