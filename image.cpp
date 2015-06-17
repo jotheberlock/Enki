@@ -83,6 +83,12 @@ Image::Image()
     }
     current_offset = 0;
     align = 8;
+    root_function = 0;
+}
+
+void Image::setRootFunction(FunctionScope * f)
+{
+    root_function = f;
 }
 
 void Image::relocate()

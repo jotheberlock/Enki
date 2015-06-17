@@ -13,6 +13,8 @@
 
 #define INVALID_ADDRESS 0xdeadbeefdeadbeef
 
+#define ARCH_AMD64 1
+
 class FunctionScope;
 class BasicBlock;
 class BaseRelocation;
@@ -35,6 +37,7 @@ class Image
     void addFunction(FunctionScope *, uint64_t);
     uint64_t functionAddress(FunctionScope *);
     unsigned char * functionPtr(FunctionScope *);
+    void setRootFunction(FunctionScope *);
     
     void addImport(std::string, std::string);
     virtual uint64_t importAddress(std::string) = 0;
@@ -65,7 +68,7 @@ class Image
     uint64_t align;
 	
     std::vector<BaseRelocation *> relocs;
-
+    FunctionScope * root_function;
     
 };
 

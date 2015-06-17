@@ -14,6 +14,7 @@
 #include "cfuncs.h"
 #include "symbols.h"
 #include "image.h"
+#include "elf.h"
 
 Assembler * assembler = 0;
 CallingConvention * calling_convention = 0;
@@ -204,6 +205,18 @@ uint32_t getUtf8(char * & f)
 int main(int argc, char ** argv)
 {
     uint64_t result = 1;
+
+        /*  Needs memblock removal
+    Image * image = 0;
+    if (getenv("MAKE_EXE"))
+    {
+        image = new ElfImage("a.out", true, true, ARCH_AMD64);
+    }
+    else
+    {
+        image = new MemoryImage();
+    }
+        */
 
     MemoryImage * image = new MemoryImage();
     MemoryImage * macros = new MemoryImage();
@@ -522,7 +535,8 @@ int main(int argc, char ** argv)
     dump = fopen("macros.bin", "w");
     fwrite(macros->getPtr(IMAGE_CODE), macros->sectionSize(IMAGE_CODE), 1, dump);
     fclose(dump);
-    
+
+    image->setRootFunction(gc->getScope());
     image->finalise();
 
     fprintf(log_file, "TestFunc is at %lx buf at %lx\n",
