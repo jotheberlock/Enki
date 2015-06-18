@@ -63,13 +63,13 @@ void ElfImage::finalise()
     {
         wee64(le, ptr, functionAddress(root_function));
         wee64(le, ptr, 0x40);  // Program header offset
-        wee64(le, ptr, 0x40+(56*no_pheaders));  // End of program headers; section headers
+        wee64(le, ptr, 0x40+(56*no_pheaders));  // End of program headers; start of section headers
     }
     else
     {
         wee32(le, ptr, functionAddress(root_function) & 0xffffffff);
         wee64(le, ptr, 0x34);  // Program header offset
-        wee64(le, ptr, 0x40+(32*no_pheaders));  // End of program headers; section headers
+        wee64(le, ptr, 0x40+(32*no_pheaders));  // End of program headers; start of section headers
     }
     wee32(le, ptr, 0x0); // Flags
     wee16(le, ptr, sf_bit ? 64 : 52); // This header size
