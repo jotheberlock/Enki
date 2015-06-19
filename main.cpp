@@ -206,10 +206,13 @@ int main(int argc, char ** argv)
 {
     uint64_t result = 1;
 
+    bool jit = true;
+    
     Image * image = 0;
     if (getenv("MAKE_EXE"))
     {
         image = new ElfImage("a.out", true, true, ARCH_AMD64);
+        jit = false;
     }
     else
     {
@@ -462,17 +465,23 @@ int main(int argc, char ** argv)
     
     image->setSectionSize(IMAGE_CODE, code_size);
     macros->setSectionSize(IMAGE_CODE, macro_size);
+
     
     text_base = image->getAddr(IMAGE_CODE);
     text_len = code_size;
-        
-    uint64_t * fillptr = (uint64_t *)text_base;
-    for (int loopc=0; loopc<code_size/8; loopc++)
-    {
-        *fillptr = 0xdeadbeefdeadbeef;
-        fillptr++;
-    }
 
+    uint64_t * fillptr = 0;
+    
+    if (jit)
+    {
+        fillptr = (uint64_t *)text_base;
+        for (int loopc=0; loopc<code_size/8; loopc++)
+        {
+            *fillptr = 0xdeadbeefdeadbeef;
+            fillptr++;
+        }
+    }
+    
     assembler->setAddr(image->getAddr(IMAGE_CODE));
     assembler->setMem(image->getPtr(IMAGE_CODE),
                       image->getPtr(IMAGE_CODE)+
@@ -537,6 +546,11 @@ int main(int argc, char ** argv)
     image->setRootFunction(gc->getScope());
     image->finalise();
 
+    if (!jit)
+    {
+        exit(0);
+    }
+    
     fprintf(log_file, "TestFunc is at %lx buf at %lx\n",
             image->getAddr(IMAGE_CODE), image->getAddr(IMAGE_DATA));
     

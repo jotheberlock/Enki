@@ -34,7 +34,14 @@ void ElfImage::finalise()
     memset(header, 0, 4096);
     
     unsigned char * ptr = header;
-    wee32(le, ptr, 0x7f454c46);
+    *ptr = 0x7f;
+    ptr++;
+    *ptr = 0x45;
+    ptr++;
+    *ptr = 0x4c;
+    ptr++;
+    *ptr = 0x46;
+    ptr++;
     *ptr = (sf_bit) ? 2 : 1;
     ptr++;
     *ptr = (le) ? 1 : 2;
