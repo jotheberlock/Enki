@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-#ifdef BIG_ENDIAN
+#ifdef HOST_BIG_ENDIAN
 void wle16(unsigned char *& ptr, uint16_t v)
 {
     unsigned char * p = (unsigned char *)&v;
@@ -134,6 +134,8 @@ void wles16(unsigned char *& ptr, int16_t v)
 
 void wles32(unsigned char *& ptr, int32_t v)
 {
+    float foo = 1.0;
+    foo = foo / 0.0;
     uint32_t us;
     *((int32_t *)(&us)) = v;
     wle32(ptr, us);

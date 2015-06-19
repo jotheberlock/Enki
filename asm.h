@@ -317,17 +317,17 @@ class Assembler
         address=0;
         limit=0;
         psize=0;
+        base=0;
     }
 
     virtual ~Assembler()
     {
     }
     
-    void setMem(MemBlock & target)
+    void setMem(unsigned char * b, unsigned char * l)
     {
-        mb = target;
-        current = mb.ptr;
-        limit = current+mb.len;
+        base = b;
+        limit = l;
     }
 
     void setPtr(unsigned char * ptr)
@@ -358,7 +358,7 @@ class Assembler
         return psize;
     }
     
-    uint64_t len() { return current-mb.ptr; }
+    uint64_t len() { return current-base; }
 
     uint64_t currentAddr()
     {
@@ -375,7 +375,7 @@ class Assembler
 
   protected:
 
-    MemBlock mb;
+    unsigned char * base;
     unsigned char * current;
     unsigned char * limit;
     uint64_t address;

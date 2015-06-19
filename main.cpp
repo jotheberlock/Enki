@@ -206,7 +206,6 @@ int main(int argc, char ** argv)
 {
     uint64_t result = 1;
 
-        /*  Needs memblock removal
     Image * image = 0;
     if (getenv("MAKE_EXE"))
     {
@@ -216,9 +215,6 @@ int main(int argc, char ** argv)
     {
         image = new MemoryImage();
     }
-        */
-
-    MemoryImage * image = new MemoryImage();
     MemoryImage * macros = new MemoryImage();
     
     log_file = fopen("log.txt", "w");
@@ -476,10 +472,12 @@ int main(int argc, char ** argv)
         *fillptr = 0xdeadbeefdeadbeef;
         fillptr++;
     }
-        
-    assembler->setMem(image->getMemBlock(IMAGE_CODE));
+
     assembler->setAddr(image->getAddr(IMAGE_CODE));
-        
+    assembler->setMem(image->getPtr(IMAGE_CODE),
+                      image->getPtr(IMAGE_CODE)+
+                      image->sectionSize(IMAGE_CODE));
+    
     for(std::list<Codegen *>::iterator cit = codegens->begin();
         cit != codegens->end(); cit++)
     {
