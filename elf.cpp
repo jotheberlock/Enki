@@ -11,6 +11,9 @@ ElfImage::ElfImage(const char * f, bool s, bool l, int a)
     sf_bit = s;
     le = l;
     arch = a;
+
+    bases[3] = 0x800000;
+    sizes[3] = 4096;
 }
 
 ElfImage::~ElfImage()
@@ -64,7 +67,7 @@ void ElfImage::finalise()
     wee16(le, ptr, elf_arch);
     wee32(le, ptr, 0x1);
 
-    int no_pheaders = 4;
+    int no_pheaders = 5;
     
     if (sf_bit)
     {
@@ -83,16 +86,33 @@ void ElfImage::finalise()
     wee16(le, ptr, sf_bit ? 56 : 32); // pheader size
     wee16(le, ptr, no_pheaders);
     wee16(le, ptr, sf_bit ? 64 : 40); // section header size
-    wee16(le, ptr, no_pheaders);
-    wee16(le, ptr, 0);  // String header
+    wee16(le, ptr, 0);  // Number of sections
     wee16(le, ptr, 0);  // Section with strings
-    fwrite(header, 4096, 1, f);
-    delete[] header;
+
+        // Program header for image header
+    wee32(le, ptr, 0x1);
+    wee32(le, ptr, 0x0);
+    if (sf_bit)
+    {
+        wee64(le, ptr, base_addr);
+        wee64(le, ptr, base_addr);
+        wee64(le, ptr, 4096);
+        wee64(le, ptr, 4096);
+        wee64(le, ptr, 0);
+        wee64(le, ptr, 0x4);
+    }
+    else
+    {
+        wee32(le, ptr, base_addr);
+        wee32(le, ptr, base_addr);
+        wee32(le, ptr, 4096);
+        wee32(le, ptr, 4096);
+        wee32(le, ptr, 0);
+        wee32(le, ptr, 0x4);
+    }
 
     for (int loopc=0; loopc<4; loopc++)
     {
-        header = new unsigned char[56];
-        ptr = header;
         wee32(le, ptr, 0x1);  // Loadable
 
         int flags = 0;
@@ -132,9 +152,10 @@ void ElfImage::finalise()
             wee32(le, ptr, sizes[loopc]);
             wee32(le, ptr, 4096);
         }
-        fwrite(header, sf_bit ? 56 : 32, 1, f);
-        delete[] header;
     }
+
+    fwrite(header, 4096, 1, f);
+    delete[] header;
     
     for (int loopc=0; loopc<4; loopc++)
     {
@@ -153,6 +174,9 @@ void ElfImage::materialiseSection(int s)
     bases[s] = next_addr;
     next_addr += sizes[s];
     next_addr += 4096;
-    next_addr &= ~4096;
+    while (next_addr % 4096)
+    {
+        next_addr++;
+    }
 }
 
