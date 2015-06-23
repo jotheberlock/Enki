@@ -11,6 +11,11 @@ class ElfImage : public Image
     ~ElfImage();
     void finalise();
 
+    virtual uint64_t importAddress(std::string)
+    {
+        return 0;
+    }
+    
   protected:
     
     void materialiseSection(int s);

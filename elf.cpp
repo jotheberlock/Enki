@@ -65,7 +65,7 @@ void ElfImage::finalise()
         printf("Unknown arch for ELF! %d\n", arch);
     }
     wee16(le, ptr, elf_arch);
-    wee32(le, ptr, 0x1);
+    wee32(le, ptr, 0x1);  // Version
 
     int no_pheaders = 5;
     
@@ -78,15 +78,15 @@ void ElfImage::finalise()
     else
     {
         wee32(le, ptr, functionAddress(root_function) & 0xffffffff);
-        wee64(le, ptr, 0x34);  // Program header offset
-        wee64(le, ptr, 0x40+(32*no_pheaders));  // End of program headers; start of section headers
+        wee32(le, ptr, 0x34);  // Program header offset
+        wee32(le, ptr, 0x40+(32*no_pheaders));  // End of program headers; start of section headers
     }
     wee32(le, ptr, 0x0); // Flags
     wee16(le, ptr, sf_bit ? 64 : 52); // This header size
     wee16(le, ptr, sf_bit ? 56 : 32); // pheader size
     wee16(le, ptr, no_pheaders);
     wee16(le, ptr, sf_bit ? 64 : 40); // section header size
-    wee16(le, ptr, 0);  // Number of sections
+    wee16(le, ptr, 1);  // Number of sections
     wee16(le, ptr, 0);  // Section with strings
 
         // Program header for image header
@@ -110,7 +110,7 @@ void ElfImage::finalise()
         wee32(le, ptr, 0);
         wee32(le, ptr, 0x4);
     }
-
+    
     for (int loopc=0; loopc<4; loopc++)
     {
         wee32(le, ptr, 0x1);  // Loadable
@@ -154,6 +154,35 @@ void ElfImage::finalise()
         }
     }
 
+    wee32(le, ptr, 0);  // name
+    wee32(le, ptr, 0);  // type - NULL
+    if (sf_bit)
+    {
+        wee64(le, ptr, 0);  // flags
+        wee64(le, ptr, 0);  // addr
+        wee64(le, ptr, 0);  // ofset
+        wee64(le, ptr, 0);  // size
+    }
+    else
+    {
+        wee32(le, ptr, 0);  // flags
+        wee32(le, ptr, 0);  // addr
+        wee32(le, ptr, 0);  // ofset
+        wee32(le, ptr, 0);  // size
+    }
+    wee32(le, ptr, 0);  // link - UNDEF
+    wee32(le, ptr, 0);  // info
+    if (sf_bit)
+    {
+        wee64(le, ptr, 0);   // align
+        wee64(le, ptr, 0);   // entsize
+    }
+    else
+    {
+        wee32(le, ptr, 0);   // align
+        wee32(le, ptr, 0);   // entsize
+    }
+    
     fwrite(header, 4096, 1, f);
     delete[] header;
     
