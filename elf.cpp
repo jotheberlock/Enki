@@ -86,7 +86,7 @@ void ElfImage::finalise()
     wee16(le, ptr, sf_bit ? 56 : 32); // pheader size
     wee16(le, ptr, no_pheaders);
     wee16(le, ptr, sf_bit ? 64 : 40); // section header size
-    wee16(le, ptr, 1);  // Number of sections
+    wee16(le, ptr, 5);  // Number of sections
     wee16(le, ptr, 0);  // Section with strings
 
         // Program header for image header
@@ -181,6 +181,62 @@ void ElfImage::finalise()
     {
         wee32(le, ptr, 0);   // align
         wee32(le, ptr, 0);   // entsize
+    }
+
+    for (int loopc=0; loopc<4; loopc++)
+    {
+        wee32(le, ptr, 0);  // name
+        
+        int type = 0;
+        int flags = 0;
+        if (loopc == IMAGE_CODE)
+        {
+            flags = 0x6;
+            type = 1;
+        }
+        else if (loopc == IMAGE_DATA)
+        {
+            flags = 0x3;
+            type = 1;
+        }
+        else if (loopc == IMAGE_CONST_DATA)
+        {
+            flags = 0x2;
+            type = 1;
+        }
+        else if (loopc == IMAGE_UNALLOCED_DATA)
+        {
+            flags = 0x3;
+            type = 8;
+        }
+        
+        wee32(le, ptr, type);  // type
+        if (sf_bit)
+        {
+            wee64(le, ptr, flags);  // flags
+            wee64(le, ptr, bases[loopc]);  // addr
+            wee64(le, ptr, bases[loopc]-base_addr);  // offset
+            wee64(le, ptr, sizes[loopc]);  // size
+        }
+        else
+        {
+            wee32(le, ptr, flags);  // flags
+            wee32(le, ptr, bases[loopc]);  // addr
+            wee32(le, ptr, bases[loopc]-base_addr);  // offset
+            wee32(le, ptr, sizes[loopc]);  // size
+        }
+        wee32(le, ptr, 0);  // link - UNDEF
+        wee32(le, ptr, 0);  // info
+        if (sf_bit)
+        {
+            wee64(le, ptr, 0);   // align
+            wee64(le, ptr, 0);   // entsize
+        }
+        else
+        {
+            wee32(le, ptr, 0);   // align
+            wee32(le, ptr, 0);   // entsize
+        }
     }
     
     fwrite(header, 4096, 1, f);
