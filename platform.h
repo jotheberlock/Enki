@@ -7,7 +7,7 @@
 #if defined(__CYGWIN__)
 #define HAVE_MPROTECT 1
 #define WINDOWS_CC 1
-#define POSIX_SIGNALS 1
+// #define POSIX_SIGNALS 1
 #define CYGWIN_HOST 1
 #elif defined(__linux__)
 #define HAVE_MPROTECT 1
