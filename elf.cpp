@@ -6,7 +6,7 @@
 ElfImage::ElfImage(const char * f, bool s, bool l, int a)
 {
     base_addr = 0x400000;
-    next_addr = base_addr + 4096;
+    next_addr = base_addr + 8192;
     fname = f;
     sf_bit = s;
     le = l;
@@ -24,8 +24,24 @@ ElfImage::~ElfImage()
     }
 }
 
+int ElfImage::stringOffset(const char * c)
+{
+    int ret=0;
+    int tmpid=stringtable.getID(c);
+    if(tmpid>0) {
+		ret=stringtable.offsetOf(tmpid)+1;
+    }
+    return ret;
+}
+
 void ElfImage::finalise()
 {
+    stringtable.clear();
+    stringtable.add(".text");
+    stringtable.add(".rodata");
+    stringtable.add(".data");
+    stringtable.add(".bss");
+    
     FILE * f = fopen(fname, "w+");
     if (!f)
     {
@@ -86,8 +102,8 @@ void ElfImage::finalise()
     wee16(le, ptr, sf_bit ? 56 : 32); // pheader size
     wee16(le, ptr, no_pheaders);
     wee16(le, ptr, sf_bit ? 64 : 40); // section header size
-    wee16(le, ptr, 5);  // Number of sections
-    wee16(le, ptr, 0);  // Section with strings
+    wee16(le, ptr, 6);  // Number of sections
+    wee16(le, ptr, 1);  // Section with strings
 
         // Program header for image header
     wee32(le, ptr, 0x1);
@@ -96,8 +112,8 @@ void ElfImage::finalise()
     {
         wee64(le, ptr, base_addr);
         wee64(le, ptr, base_addr);
-        wee64(le, ptr, 4096);
-        wee64(le, ptr, 4096);
+        wee64(le, ptr, 8192);
+        wee64(le, ptr, 8192);
         wee64(le, ptr, 0);
         wee64(le, ptr, 0x4);
     }
@@ -105,8 +121,8 @@ void ElfImage::finalise()
     {
         wee32(le, ptr, base_addr);
         wee32(le, ptr, base_addr);
-        wee32(le, ptr, 4096);
-        wee32(le, ptr, 4096);
+        wee32(le, ptr, 8192);
+        wee32(le, ptr, 8192);
         wee32(le, ptr, 0);
         wee32(le, ptr, 0x4);
     }
@@ -183,33 +199,72 @@ void ElfImage::finalise()
         wee32(le, ptr, 0);   // entsize
     }
 
+    int stringtablesize = stringtable.dataSize()+1;
+    while (stringtablesize % 8)
+    {
+        stringtablesize++;
+    }
+    
+    wee32(le, ptr, 0);  // name
+    wee32(le, ptr, 3);  // type - string table
+    if (sf_bit)
+    {
+        wee64(le, ptr, 0);  // flags
+        wee64(le, ptr, 0);  // addr
+        wee64(le, ptr, 4096);  // offset
+        wee64(le, ptr, stringtablesize);  // size
+    }
+    else
+    {
+        wee32(le, ptr, 0);  // flags
+        wee32(le, ptr, 0);  // addr
+        wee32(le, ptr, 4096);  // offset
+        wee32(le, ptr, stringtablesize);  // size
+    }
+    wee32(le, ptr, 0);  // link - UNDEF
+    wee32(le, ptr, 0);  // info
+    if (sf_bit)
+    {
+        wee64(le, ptr, 0);   // align
+        wee64(le, ptr, 0);   // entsize
+    }
+    else
+    {
+        wee32(le, ptr, 0);   // align
+        wee32(le, ptr, 0);   // entsize
+    }
+
     for (int loopc=0; loopc<4; loopc++)
     {
-        wee32(le, ptr, 0);  // name
-        
+        int name = 0;
         int type = 0;
         int flags = 0;
         if (loopc == IMAGE_CODE)
         {
+            name = stringOffset(".text");
             flags = 0x6;
             type = 1;
         }
         else if (loopc == IMAGE_DATA)
         {
+            name = stringOffset(".data");
             flags = 0x3;
             type = 1;
         }
         else if (loopc == IMAGE_CONST_DATA)
         {
+            name = stringOffset(".rodata");
             flags = 0x2;
             type = 1;
         }
         else if (loopc == IMAGE_UNALLOCED_DATA)
         {
+            name = stringOffset(".bss");
             flags = 0x3;
             type = 8;
         }
-        
+
+        wee32(le, ptr, name);  // name        
         wee32(le, ptr, type);  // type
         if (sf_bit)
         {
@@ -241,7 +296,10 @@ void ElfImage::finalise()
     
     fwrite(header, 4096, 1, f);
     delete[] header;
-    
+
+    fseek(f, 4096, SEEK_SET);
+    fwrite(stringtable.getData(), stringtable.dataSize(), 1, f);
+        
     for (int loopc=0; loopc<4; loopc++)
     {
         if (loopc != IMAGE_UNALLOCED_DATA)
