@@ -28,8 +28,9 @@ int ElfImage::stringOffset(const char * c)
 {
     int ret=0;
     int tmpid=stringtable.getID(c);
-    if(tmpid>0) {
-		ret=stringtable.offsetOf(tmpid)+1;
+    if(tmpid>0)
+    {
+        ret=stringtable.offsetOf(tmpid);
     }
     return ret;
 }
@@ -37,6 +38,7 @@ int ElfImage::stringOffset(const char * c)
 void ElfImage::finalise()
 {
     stringtable.clear();
+    stringtable.add(".dummy");
     stringtable.add(".text");
     stringtable.add(".rodata");
     stringtable.add(".data");
