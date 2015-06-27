@@ -97,12 +97,14 @@ class Operand
     Value * getValue();
     BasicBlock * getBlock();
     FunctionScope * getFunction();
-    
+    uint64_t getSection(int &);   // e.g. 'data segment address'
+        
     static Operand sigc(int64_t);
     static Operand usigc(uint64_t);
     static Operand reg(int32_t);
     static Operand reg(std::string);
-
+    static Operand section(int, uint64_t);
+    
     bool eq(Operand &);
     
     std::string toString();
@@ -113,6 +115,7 @@ class Operand
     bool isValue();
     bool isBlock();
     bool isFunction();
+    bool isSection();
     
   protected:
 
@@ -125,6 +128,7 @@ class Operand
         BasicBlock * b;
         uint32_t r;
         FunctionScope * f;
+        uint64_t s;
     } contents;
 };
 

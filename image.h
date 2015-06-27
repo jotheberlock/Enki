@@ -102,6 +102,7 @@ class BaseRelocation
 
 	BaseRelocation(Image * i)
 	{
+        image=i;
 		i->addReloc(this);
 	}
 
@@ -157,5 +158,20 @@ class BasicBlockRelocation : public BaseRelocation
 
 };
 
+class SectionRelocation : public BaseRelocation
+{
+  public:
+
+    SectionRelocation(Image *, int, uint64_t, int, uint64_t);
+    void apply();
+
+  protected:
+
+    int patch_section;
+    uint64_t patch_offset;
+    int dest_section;
+    uint64_t dest_offset;
+    
+};
 
 #endif

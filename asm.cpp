@@ -12,6 +12,7 @@
 #define OPERAND_BASICBLOCK 4
 #define OPERAND_REGISTER 5
 #define OPERAND_FUNCTION 6
+#define OPERAND_SECTION 7
 
 bool Operand::eq(Operand & o)
 {
@@ -36,6 +37,8 @@ bool Operand::eq(Operand & o)
             return contents.r == o.contents.r;
         case OPERAND_FUNCTION:
             return contents.f == o.contents.f;
+        case OPERAND_SECTION:
+            return contents.s == o.contents.s;
         default:
             assert(false);
     }
@@ -71,6 +74,11 @@ bool Operand::isBlock()
 bool Operand::isFunction()
 {
     return (type == OPERAND_FUNCTION);
+}
+
+bool Operand::isSection()
+{
+    return (type == OPERAND_SECTION);
 }
 
 Operand::Operand(Value * v)
@@ -151,6 +159,12 @@ FunctionScope * Operand::getFunction()
     return contents.f;
 }
 
+uint64_t Operand::getSection(int & sec)
+{
+    sec = contents.s & 0xff;
+    return contents.s >> 8;
+}
+
 Operand Operand::sigc(int64_t s)
 {
     Operand ret;
@@ -178,6 +192,14 @@ Operand Operand::reg(int32_t r)
 Operand Operand::reg(std::string s)
 {
     return reg(assembler->regnum(s));
+}
+
+Operand Operand::section(int s, uint64_t o)
+{
+    Operand ret;
+    ret.type = OPERAND_SECTION;
+    ret.contents.s = (o << 8) | s;
+    return ret;
 }
 
 std::string Operand::toString()
@@ -224,6 +246,12 @@ std::string Operand::toString()
     {
         char buf[4096];
         sprintf(buf, "(%s)", (contents.f)->name().c_str());
+        ret = buf;
+    }
+    else if (type == OPERAND_SECTION)
+    {
+        char buf[4096];
+        sprintf(buf, "{%d:%lx}", contents.s & 0xff, contents.s >> 8);
         ret = buf;
     }
     else

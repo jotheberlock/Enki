@@ -141,6 +141,11 @@ class Constants
     
 };
 
+#define CCONV_STANDARD 0
+#define CCONV_C 1
+#define CCONV_RAW 2
+#define CCONV_MACRO 3
+
 class Codegen
 {
   public:
@@ -172,14 +177,14 @@ class Codegen
         return staticlink;
     }
     
-	bool extCall()   // C calling convention
+	int callConvention()  
 	{
-		return ext_call;
+		return cconv;
 	}
 	
-	void setExtCall()
+	void setCallConvention(int c)
 	{
-		ext_call = true;
+		cconv = c;
 	}
 
     void allocateStackSlots();
@@ -299,7 +304,7 @@ class Codegen
     uint64_t stack_size;
 
     bool allocated_slots;
-    bool ext_call;
+    bool cconv;
 
     FunctionScope * scope;
 

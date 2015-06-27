@@ -10,7 +10,7 @@ Codegen::Codegen(Expr * e, FunctionScope * fs)
     stack_size = 0xdeadbeef;
     current_block = newBlock("prologue");
     allocated_slots = false;
-	ext_call = false;
+	cconv = CCONV_STANDARD;
     scope = fs;
     retvar = 0;
     ipvar = 0;
@@ -74,7 +74,7 @@ Codegen * Codegen::copy()
     ret->scope = scope;
     ret->stack_size = stack_size;
     ret->allocated_slots = allocated_slots;
-    ret->ext_call = ext_call;
+    ret->cconv = cconv;
     ret->count = count;
     ret->bbcount = bbcount;
     
@@ -127,7 +127,7 @@ void Codegen::generate()
     base->codegen(this);
     
         // Todo, extract out calling convention stuff
-    if (!extCall())
+    if (callConvention() == CCONV_STANDARD)
     {
         Return * ret = new Return(0);
         ret->codegen(this);

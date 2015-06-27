@@ -164,7 +164,8 @@ int Amd64::size(BasicBlock * b)
             case MOVE:
             {
                 if (i.ops[1].isUsigc() || i.ops[1].isSigc() ||
-                    i.ops[1].isFunction() || i.ops[1].isBlock())
+                    i.ops[1].isFunction() || i.ops[1].isBlock() ||
+                    i.ops[1].isSection())
                 {
                     ret++;
                     if (i.ops[1].isFunction())
@@ -172,6 +173,10 @@ int Amd64::size(BasicBlock * b)
                         ret += 9;
                     }
                     else if (i.ops[1].isBlock())
+                    {
+                        ret += 9;
+                    }
+                    else if (i.ops[1].isSection())
                     {
                         ret += 9;
                     }
@@ -624,10 +629,11 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 assert (i.ops[0].isReg());
                 assert (i.ops[1].isUsigc() || i.ops[1].isSigc() ||
                         i.ops[1].isFunction() || i.ops[1].isReg() ||
-                        i.ops[1].isBlock());
+                        i.ops[1].isBlock() || i.ops[1].isSection());
                 
                 if (i.ops[1].isUsigc() || i.ops[1].isSigc() ||
-                    i.ops[1].isFunction() || i.ops[1].isBlock())
+                    i.ops[1].isFunction() || i.ops[1].isBlock() ||
+                    i.ops[1].isSection())
                 {
                     unsigned char rex = 0x48;
                     if (i.ops[0].getReg() > 7)
@@ -657,6 +663,20 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         *current++ = r;
                         
 						new BasicBlockRelocation(image, current_function, len(), i.ops[1].getBlock());
+                        //relocs.push_back(Relocation(REL_A64, len()+8, len(),
+                        //                            i.ops[1].getBlock()));
+                        wle64(current, reloc);
+                    }
+                    else if (i.ops[1].isSection())
+                    {
+                        uint64_t reloc = 0xdeadbeefdeadbeef;
+                        unsigned char r = 0xb8;
+                        r |= reg(i.ops[0].getReg() & 0x7);
+                        *current++ = r;
+
+                        int s;
+                        uint64_t o = i.ops[1].getSection(s);
+						new SectionRelocation(image, IMAGE_CODE, len(), s, o);
                         //relocs.push_back(Relocation(REL_A64, len()+8, len(),
                         //                            i.ops[1].getBlock()));
                         wle64(current, reloc);
@@ -1153,7 +1173,7 @@ std::string Amd64::transReg(uint32_t r)
 void Amd64::newFunction(Codegen * c)
 {
 	Assembler::newFunction(c);
-	if (!c->extCall())
+	if (c->callConvention() == CCONV_STANDARD)
 	{
 		uint64_t addr = c->stackSize();
 		wle64(current, addr);
@@ -1183,6 +1203,7 @@ Value * Amd64WindowsCallingConvention::addRegStore(const char * rname, BasicBloc
 void Amd64WindowsCallingConvention::generatePrologue(BasicBlock * b, FunctionScope * f)
 {
     b->add(Insn(MOVE, Operand::reg("r11"), Operand::reg(assembler->framePointer())));
+    
     b->add(Insn(MOVE, Operand::reg(assembler->framePointer()), Operand::reg("rcx")));
     
     int count = 0;
@@ -1456,8 +1477,9 @@ Value * Amd64UnixCallingConvention::addRegStore(const char * rname, BasicBlock *
 void Amd64UnixCallingConvention::generatePrologue(BasicBlock * b, FunctionScope * f)
 {
     b->add(Insn(MOVE, Operand::reg("r11"), Operand::reg(assembler->framePointer())));
-    b->add(Insn(MOVE, Operand::reg(assembler->framePointer()), Operand::reg("rdi")));
-    
+        //b->add(Insn(MOVE, Operand::reg(assembler->framePointer()), Operand::reg("rdi")));
+    b->add(Insn(MOVE, Operand::reg(assembler->framePointer()),
+                Operand::section(IMAGE_DATA, 0)));
     int count = 0;
 
     std::vector<Value *> args = f->args();

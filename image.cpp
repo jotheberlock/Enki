@@ -72,7 +72,30 @@ void BasicBlockRelocation::apply()
 
     wees32(image->littleEndian(), patch_site, diff);
 }
-    
+
+SectionRelocation::SectionRelocation(Image * i,
+                                     int p, uint64_t po,
+                                     int d, uint64_t dof)
+    : BaseRelocation(i)
+{
+    printf("Image here %lx\n", i);
+    patch_section = p;
+    patch_offset = po;
+    dest_section = d;
+    dest_offset = dof;
+}
+
+void SectionRelocation::apply()
+{
+    printf("And here %lx\n", image);
+    unsigned char * patch_site = image->getPtr(patch_section)+patch_offset;
+    uint64_t addr = image->getAddr(dest_section)+dest_offset;
+    printf("Section offset %lx %lx %d gets %d %lx %lx image %lx\n",
+           image->getPtr(patch_section), patch_offset, patch_section,
+           dest_section, image->getAddr(dest_section), dest_offset, image);
+    wee64(image->littleEndian(), patch_site, addr);
+}
+
 Image::Image()
 {
     for (int loopc=0; loopc<4; loopc++)

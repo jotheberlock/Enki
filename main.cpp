@@ -340,14 +340,24 @@ int main(int argc, char ** argv)
     root_scope->add(new Value("__stackptr", byteptr));
     
     Codegen * gc = new Codegen(parse.tree(), root_scope);
-    gc->setExtCall();
     cfuncs->addToCodegen(gc);
     codegens->push_back(gc);
         
     root_gc = gc;
-        
-    BasicBlock * prologue = gc->block();
-    calling_convention->generatePrologue(prologue, root_scope);
+
+    if (jit)
+    {   
+        gc->setCallConvention(CCONV_STANDARD);
+        BasicBlock * prologue = gc->block();
+        calling_convention->generatePrologue(prologue, root_scope);
+    }
+    else
+    {
+        gc->setCallConvention(CCONV_RAW);
+        gc->block()->add(Insn(MOVE, Operand::reg(assembler->framePointer()),
+                              Operand::section(IMAGE_DATA, 0)));
+    }
+    
     BasicBlock * body = gc->newBlock("body");
     gc->setBlock(body);
     gc->generate();
@@ -365,9 +375,19 @@ int main(int argc, char ** argv)
     }
     
     BasicBlock * epilogue = gc->newBlock("epilogue");
-    gc->block()->add(Insn(BRA, epilogue));
-    calling_convention->generateEpilogue(epilogue, root_scope);
 
+    if (jit)
+    {
+        gc->block()->add(Insn(BRA, epilogue));
+        calling_convention->generateEpilogue(epilogue, root_scope);
+    }
+    else
+    {
+            // Temp
+        gc->block()->add(Insn(MOVE, Operand::reg(7), root_scope->lookupLocal("__ret")));
+        gc->block()->add(Insn(SYSCALL));
+    }
+    
     image->setSectionSize(IMAGE_CONST_DATA, constants->getSize());
     constants->setAddress(image->getAddr(IMAGE_CONST_DATA));
     constants->fillPool(image->getPtr(IMAGE_CONST_DATA));
@@ -502,6 +522,7 @@ int main(int argc, char ** argv)
         std::vector<BasicBlock *> & bbs = (*cit)->getBlocks();
         for (unsigned int loopc=0; loopc<bbs.size(); loopc++)
         {
+            printf(">> The_image %lx\n", the_image);
             assembler->assemble(bbs[loopc], 0, the_image);
         }
         
@@ -532,29 +553,31 @@ int main(int argc, char ** argv)
     
     data_base = image->getAddr(IMAGE_DATA);
     data_len = 4096;
-    
+
+    printf(">>> Data base %lx\n", data_base);
 	macros->relocate();
 	image->relocate();
 
-    FILE * dump = fopen("out.bin", "w");
-    fwrite(image->getPtr(IMAGE_CODE), image->sectionSize(IMAGE_CODE), 1, dump);
-    fclose(dump);
-    
-    dump = fopen("macros.bin", "w");
+    FILE * dump = fopen("macros.bin", "w");
     fwrite(macros->getPtr(IMAGE_CODE), macros->sectionSize(IMAGE_CODE), 1, dump);
     fclose(dump);
 
     image->setRootFunction(gc->getScope());
     image->finalise();
 
+    dump = fopen("out.bin", "w");
+    fwrite(image->getPtr(IMAGE_CODE), image->sectionSize(IMAGE_CODE), 1, dump);
+    fclose(dump);
+    
     if (!jit)
     {
         exit(0);
     }
     
-    fprintf(log_file, "TestFunc is at %lx buf at %lx\n",
-            image->getAddr(IMAGE_CODE), image->getAddr(IMAGE_DATA));
-    
+    fprintf(log_file, "TestFunc is at %lx buf at %lx macro %lx image %p\n",
+            image->getAddr(IMAGE_CODE), image->getAddr(IMAGE_DATA),
+            macros->getAddr(IMAGE_DATA), image);
+    printf("Image %lx\n", image);
     fflush(log_file);
     
     root_buf = image->getPtr(IMAGE_DATA);
@@ -566,7 +589,8 @@ int main(int argc, char ** argv)
     memset(&sa, 0, sizeof(sa));
     sa.sa_sigaction = segv_handler;
     sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART | SA_SIGINFO; 
+    sa.sa_flags = SA_RESTART | SA_SIGINFO;
+
     if (sigaction(SIGSEGV, &sa, &oldact))
     {
         printf("Failure to install segv signal handler!\n");

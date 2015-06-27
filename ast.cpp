@@ -1564,7 +1564,7 @@ Value * Return::codegen(Codegen * c)
 		c->block()->add(Insn(STORE, Operand::reg(assembler->framePointer()), Operand::sigc(assembler->returnOffset()), to_ret));
     }
 
-    if (!c->extCall())
+    if (c->callConvention() == CCONV_STANDARD)
     {
         BasicBlock * retblock = c->newBlock("ret");
         c->setBlock(retblock);
@@ -1831,7 +1831,7 @@ Value * DefExpr::codegen(Codegen * c)
     Codegen * ch = new Codegen(body, scope);
     if (is_macro)
     {
-        ch->setExtCall();
+        ch->setCallConvention(CCONV_MACRO);
         macros.push_back(c);
     }
     else
