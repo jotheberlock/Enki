@@ -128,25 +128,40 @@ void ElfImage::finalise()
         wee32(le, ptr, 0);
         wee32(le, ptr, 0x4);
     }
+
+    uint64_t prev_base = 0;
     
     for (int loopc=0; loopc<4; loopc++)
     {
+        int the_one = 0;
+        uint64_t lowest_diff = 0xffffffff;
+        for (int loopc2=0; loopc2<4; loopc2++)
+        {
+            uint64_t diff = bases[loopc2] - prev_base;
+            if ((bases[loopc2] > prev_base) && (diff < lowest_diff))
+            {
+                lowest_diff = diff;
+                the_one = loopc2;
+            }
+        }
+        prev_base = bases[the_one];
+        
         wee32(le, ptr, 0x1);  // Loadable
 
         int flags = 0;
-        if (loopc == IMAGE_CODE)
+        if (the_one == IMAGE_CODE)
         {
             flags = 0x5;
         }
-        else if (loopc == IMAGE_DATA)
+        else if (the_one == IMAGE_DATA)
         {
             flags = 0x6;
         }
-        else if (loopc == IMAGE_CONST_DATA)
+        else if (the_one == IMAGE_CONST_DATA)
         {
             flags = 0x4;
         }
-        else if (loopc == IMAGE_UNALLOCED_DATA)
+        else if (the_one == IMAGE_UNALLOCED_DATA)
         {
             flags = 0x6;
         }
@@ -154,20 +169,20 @@ void ElfImage::finalise()
         wee32(le, ptr, flags);  // Flags
         if (sf_bit)
         {
-            wee64(le, ptr, bases[loopc]-base_addr);
-            wee64(le, ptr, bases[loopc]);
-            wee64(le, ptr, bases[loopc]);
-            wee64(le, ptr, (loopc == IMAGE_UNALLOCED_DATA) ? 0 : sizes[loopc]);
-            wee64(le, ptr, sizes[loopc]);
+            wee64(le, ptr, bases[the_one]-base_addr);
+            wee64(le, ptr, bases[the_one]);
+            wee64(le, ptr, bases[the_one]);
+            wee64(le, ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : sizes[the_one]);
+            wee64(le, ptr, sizes[the_one]);
             wee64(le, ptr, 4096);
         }
         else
         {
-            wee32(le, ptr, bases[loopc]-base_addr);
-            wee32(le, ptr, bases[loopc]);
-            wee32(le, ptr, bases[loopc]);
-            wee32(le, ptr, (loopc == IMAGE_UNALLOCED_DATA) ? 0 : sizes[loopc]);
-            wee32(le, ptr, sizes[loopc]);
+            wee32(le, ptr, bases[the_one]-base_addr);
+            wee32(le, ptr, bases[the_one]);
+            wee32(le, ptr, bases[the_one]);
+            wee32(le, ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : sizes[the_one]);
+            wee32(le, ptr, sizes[the_one]);
             wee32(le, ptr, 4096);
         }
     }
