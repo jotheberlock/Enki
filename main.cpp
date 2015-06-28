@@ -385,6 +385,7 @@ int main(int argc, char ** argv)
     {
             // Temp
         gc->block()->add(Insn(MOVE, Operand::reg(7), root_scope->lookupLocal("__ret")));
+        gc->block()->add(Insn(MOVE, Operand::reg(0), Operand::usigc(0x3c)));
         gc->block()->add(Insn(SYSCALL));
     }
     

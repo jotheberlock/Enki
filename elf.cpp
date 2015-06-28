@@ -85,7 +85,7 @@ void ElfImage::finalise()
     wee16(le, ptr, elf_arch);
     wee32(le, ptr, 0x1);  // Version
 
-    int no_pheaders = 5;
+    int no_pheaders = 4;
     
     if (sf_bit)
     {
@@ -107,28 +107,30 @@ void ElfImage::finalise()
     wee16(le, ptr, 6);  // Number of sections
     wee16(le, ptr, 1);  // Section with strings
 
+        /*
         // Program header for image header
     wee32(le, ptr, 0x1);
-    wee32(le, ptr, 0x0);
+    wee32(le, ptr, 0x4);
     if (sf_bit)
     {
+        wee64(le, ptr, 0);
         wee64(le, ptr, base_addr);
         wee64(le, ptr, base_addr);
-        wee64(le, ptr, 8192);
         wee64(le, ptr, 8192);
         wee64(le, ptr, 0);
         wee64(le, ptr, 0x4);
     }
     else
     {
+        wee32(le, ptr, 0);
         wee32(le, ptr, base_addr);
         wee32(le, ptr, base_addr);
-        wee32(le, ptr, 8192);
         wee32(le, ptr, 8192);
         wee32(le, ptr, 0);
         wee32(le, ptr, 0x4);
     }
-
+        */
+    
     uint64_t prev_base = 0;
     
     for (int loopc=0; loopc<4; loopc++)
@@ -165,7 +167,7 @@ void ElfImage::finalise()
         {
             flags = 0x6;
         }
-        
+       
         wee32(le, ptr, flags);  // Flags
         if (sf_bit)
         {
@@ -174,7 +176,7 @@ void ElfImage::finalise()
             wee64(le, ptr, bases[the_one]);
             wee64(le, ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : sizes[the_one]);
             wee64(le, ptr, sizes[the_one]);
-            wee64(le, ptr, 4096);
+            wee64(le, ptr, 0);
         }
         else
         {
@@ -183,7 +185,7 @@ void ElfImage::finalise()
             wee32(le, ptr, bases[the_one]);
             wee32(le, ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : sizes[the_one]);
             wee32(le, ptr, sizes[the_one]);
-            wee32(le, ptr, 4096);
+            wee32(le, ptr, 0);
         }
     }
 
