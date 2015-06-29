@@ -453,7 +453,7 @@ class BinaryExpr : public Expr
       fprintf(log_file, "binop ");
       if (op == 0)
       {
-          fprintf(log_file, token.toString().c_str());
+          fputs(token.toString().c_str(), log_file);
       }
       else
       {

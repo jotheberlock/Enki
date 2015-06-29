@@ -119,6 +119,25 @@ void * dumpstacker(void *)
         write_reg("rsp", the_ucontext->rsp);
         write_reg("rsi", the_ucontext->rsi);
 #endif
+#ifdef LINUX_HOST
+        printf("rax: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RAX]);
+        printf("rbx: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RBX]);
+        printf("rcx: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RCX]);
+        printf("rdx: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RDX]);
+        printf("rsp: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RSP]);
+        printf("rbp: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RBP]);
+        printf("rsi: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RSI]);
+        printf("rdi: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RDI]);
+        printf("r8: %llx\n", the_ucontext->uc_mcontext.gregs[REG_R8]);
+        printf("r9: %llx\n", the_ucontext->uc_mcontext.gregs[REG_R9]);
+        printf("r10: %llx\n", the_ucontext->uc_mcontext.gregs[REG_R10]);
+        printf("r11: %llx\n", the_ucontext->uc_mcontext.gregs[REG_R11]);
+        printf("r12: %llx\n", the_ucontext->uc_mcontext.gregs[REG_R12]);
+        printf("r13: %llx\n", the_ucontext->uc_mcontext.gregs[REG_R13]);
+        printf("r14: %llx\n", the_ucontext->uc_mcontext.gregs[REG_R14]);
+        printf("r15: %llx\n", the_ucontext->uc_mcontext.gregs[REG_R15]);
+        printf("rip: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RIP]);
+#endif
     }
     else
     {
@@ -554,7 +573,6 @@ int main(int argc, char ** argv)
     data_base = image->getAddr(IMAGE_DATA);
     data_len = 4096;
 
-    printf(">>> Data base %lx\n", data_base);
 	macros->relocate();
 	image->relocate();
 
@@ -577,7 +595,6 @@ int main(int argc, char ** argv)
     fprintf(log_file, "TestFunc is at %lx buf at %lx macro %lx image %p\n",
             image->getAddr(IMAGE_CODE), image->getAddr(IMAGE_DATA),
             macros->getAddr(IMAGE_DATA), image);
-    printf("Image %lx\n", image);
     fflush(log_file);
     
     root_buf = image->getPtr(IMAGE_DATA);
