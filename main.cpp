@@ -347,7 +347,7 @@ int main(int argc, char ** argv)
 
     if (jit)
     {   
-        gc->setCallConvention(CCONV_STANDARD);
+        gc->setCallConvention(CCONV_C);
         BasicBlock * prologue = gc->block();
         calling_convention->generatePrologue(prologue, root_scope);
     }
