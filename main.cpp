@@ -523,7 +523,6 @@ int main(int argc, char ** argv)
         std::vector<BasicBlock *> & bbs = (*cit)->getBlocks();
         for (unsigned int loopc=0; loopc<bbs.size(); loopc++)
         {
-            printf(">> The_image %lx\n", the_image);
             assembler->assemble(bbs[loopc], 0, the_image);
         }
         
