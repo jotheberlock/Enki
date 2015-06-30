@@ -1,12 +1,13 @@
 #include "elf.h"
 #include "platform.h"
+#include "symbols.h"
 #include <stdio.h>
 #include <string.h>
 
 ElfImage::ElfImage(const char * f, bool s, bool l, int a)
 {
     base_addr = 0x400000;
-    next_addr = base_addr + 8192;
+    next_addr = base_addr + 12288;
     fname = f;
     sf_bit = s;
     le = l;
@@ -38,11 +39,16 @@ int ElfImage::stringOffset(const char * c)
 void ElfImage::finalise()
 {
     stringtable.clear();
-    stringtable.add(".dummy");
+    stringtable.add(""); // Null byte at start
     stringtable.add(".text");
     stringtable.add(".rodata");
     stringtable.add(".data");
     stringtable.add(".bss");
+    stringtable.add(".symtab");
+    for (unsigned int loopc=0; loopc<fptrs.size(); loopc++)
+    {
+        stringtable.add(fptrs[loopc]->name().c_str());
+    }
     
     FILE * f = fopen(fname, "w+");
     if (!f)
@@ -104,7 +110,7 @@ void ElfImage::finalise()
     wee16(le, ptr, sf_bit ? 56 : 32); // pheader size
     wee16(le, ptr, no_pheaders);
     wee16(le, ptr, sf_bit ? 64 : 40); // section header size
-    wee16(le, ptr, 6);  // Number of sections
+    wee16(le, ptr, 7);  // Number of sections
     wee16(le, ptr, 1);  // Section with strings
 
         /*
@@ -252,6 +258,35 @@ void ElfImage::finalise()
         wee32(le, ptr, 0);   // align
         wee32(le, ptr, 0);   // entsize
     }
+    
+    wee32(le, ptr, stringOffset(".symtab"));  // name
+    wee32(le, ptr, 2);  // type - symtab
+    if (sf_bit)
+    {
+        wee64(le, ptr, 0);  // flags
+        wee64(le, ptr, 0);  // addr
+        wee64(le, ptr, 8192);  // offset
+        wee64(le, ptr, (fptrs.size()+1)*24);  // size
+    }
+    else
+    {
+        wee32(le, ptr, 0);  // flags
+        wee32(le, ptr, 0);  // addr
+        wee32(le, ptr, 8192);  // offset
+        wee32(le, ptr, (fptrs.size()+1)*16);  // size
+    }
+    wee32(le, ptr, 1);  // link - string table
+    wee32(le, ptr, 0);  // info - last local symbol
+    if (sf_bit)
+    {
+        wee64(le, ptr, 0);   // align
+        wee64(le, ptr, 24);   // entsize
+    }
+    else
+    {
+        wee32(le, ptr, 0);   // align
+        wee32(le, ptr, 16);   // entsize
+    }
 
     for (int loopc=0; loopc<4; loopc++)
     {
@@ -316,9 +351,53 @@ void ElfImage::finalise()
     fwrite(header, 4096, 1, f);
     delete[] header;
 
+    unsigned char * symtab = new unsigned char[4096];
+    memset(symtab, 0, 4096);
+    ptr = symtab;
+
+    if (sf_bit)
+    {
+        ptr += 24;  // STN_UNDEF
+    }
+    else
+    {
+        ptr += 16;  // STN_UNDEF
+    }
+        
+    for (unsigned int loopc=0; loopc<fptrs.size(); loopc++)
+    {
+        int idx = stringOffset(fptrs[loopc]->name().c_str());
+        if (sf_bit)
+        {
+            wee32(le, ptr, idx);
+            *ptr = 0x12;
+            ptr++;
+            *ptr = 0;
+            ptr++;
+            wee16(le, ptr, 3);
+            wee64(le, ptr, foffsets[loopc]+bases[IMAGE_CODE]);
+            wee64(le, ptr, fsizes[loopc]);
+        }
+        else
+        {
+            wee32(le, ptr, idx);
+            wee32(le, ptr, foffsets[loopc]+bases[IMAGE_CODE]);
+            wee32(le, ptr, fsizes[loopc]);
+            *ptr = 0x12; // info - function, global
+            ptr++;
+            *ptr = 0;
+            ptr++;
+            wee16(le, ptr, 3);  // section - .text
+        }
+    }
+    
+    fseek(f, 8192, SEEK_SET);
+    fwrite(symtab, 4096, 1, f);
+    delete[] symtab;
+
     fseek(f, 4096, SEEK_SET);
     fwrite(stringtable.getData(), stringtable.dataSize(), 1, f);
-        
+    
     for (int loopc=0; loopc<4; loopc++)
     {
         if (loopc != IMAGE_UNALLOCED_DATA)

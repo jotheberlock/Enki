@@ -123,6 +123,7 @@ void Image::addFunction(FunctionScope * ptr, uint64_t size)
 {
     foffsets.push_back(current_offset);
     fptrs.push_back(ptr);
+    fsizes.push_back(size);
     
     current_offset += size;
     while (current_offset % align)
@@ -157,6 +158,20 @@ uint64_t Image::functionAddress(FunctionScope * ptr)
 	
     printf("Can't find function [%s]!\n", ptr ? ptr->name().c_str() : "<null>");
     return INVALID_ADDRESS;
+}
+
+uint64_t Image::functionSize(FunctionScope * ptr)
+{
+    for (unsigned int loopc=0; loopc<fptrs.size(); loopc++)
+    {
+        if (fptrs[loopc] == ptr)
+        {
+            return fsizes[loopc];
+        }
+    }
+	
+    printf("Can't find function [%s]!\n", ptr ? ptr->name().c_str() : "<null>");
+    return 0;
 }
 
 void Image::addImport(std::string lib, std::string name)

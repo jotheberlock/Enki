@@ -36,6 +36,7 @@ class Image
 	void relocate();
     void addFunction(FunctionScope *, uint64_t);
     uint64_t functionAddress(FunctionScope *);
+    uint64_t functionSize(FunctionScope *);
     unsigned char * functionPtr(FunctionScope *);
     void setRootFunction(FunctionScope *);
     
@@ -59,6 +60,7 @@ class Image
     uint64_t sizes[4];
 
     std::vector<uint64_t> foffsets;
+    std::vector<uint64_t> fsizes;
     std::vector<FunctionScope *> fptrs;
     
     std::vector<std::string> import_names;
