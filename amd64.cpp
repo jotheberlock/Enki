@@ -1477,9 +1477,9 @@ Value * Amd64UnixCallingConvention::addRegStore(const char * rname, BasicBlock *
 void Amd64UnixCallingConvention::generatePrologue(BasicBlock * b, FunctionScope * f)
 {
     b->add(Insn(MOVE, Operand::reg("r11"), Operand::reg(assembler->framePointer())));
-        //b->add(Insn(MOVE, Operand::reg(assembler->framePointer()), Operand::reg("rdi")));
-    b->add(Insn(MOVE, Operand::reg(assembler->framePointer()),
-                Operand::section(IMAGE_DATA, 0)));
+    b->add(Insn(MOVE, Operand::reg(assembler->framePointer()), Operand::reg("rdi")));
+        // b->add(Insn(MOVE, Operand::reg(assembler->framePointer()),
+        //        Operand::section(IMAGE_DATA, 0)));
     int count = 0;
 
     std::vector<Value *> args = f->args();
@@ -1496,7 +1496,7 @@ void Amd64UnixCallingConvention::generatePrologue(BasicBlock * b, FunctionScope 
         }
         else if (count == 2)
         {
-            b->add(Insn(MOVE, Operand(args[loopc]), Operand::reg("rcx")));
+           b->add(Insn(MOVE, Operand(args[loopc]), Operand::reg("rcx")));
         }
         else if (count == 3)
         {
@@ -1549,4 +1549,74 @@ void Amd64UnixCallingConvention::generateEpilogue(BasicBlock * b, FunctionScope 
     b->add(Insn(MOVE, Operand::reg("rax"), v));
     b->add(Insn(MOVE, Operand::reg(assembler->framePointer()), r15_backup));
     b->add(Insn(RET));
+}
+
+
+Value * Amd64UnixSyscallCallingConvention::generateCall(Codegen * c,
+                                                 Funcall * f,
+                                                 std::vector<Value *> & args)
+{
+    BasicBlock * current = c->block();
+    RegSet res;
+        // kernel destroys rcx, r11
+    res.set(assembler->regnum("rcx"));
+    res.set(assembler->regnum("r11"));
+    res.set(assembler->regnum("rax"));
+    res.set(assembler->regnum("rdi"));
+    res.set(assembler->regnum("rsi"));
+    res.set(assembler->regnum("rdx"));
+    res.set(assembler->regnum("r8"));
+    res.set(assembler->regnum("r9"));
+    
+    current->setReservedRegs(res);
+    
+    if (args.size() > 7)
+    {
+        fprintf(log_file, "Warning, syscall passed more than 6 args!\n");
+    }
+    else if (args.size() < 1)
+    {
+        fprintf(log_file, "No syscall number passed!\n");
+    }
+    
+    for (unsigned int loopc=1; loopc<args.size(); loopc++)
+    {
+        int dest = 9999;
+        if (loopc == 0)
+        {
+                // Syscall number
+            dest = assembler->regnum("rax");
+        }
+        else if (loopc == 1)
+        {
+            dest = assembler->regnum("rdi");
+        }
+        else if (loopc == 2)
+        {
+            dest = assembler->regnum("rsi");
+        }
+        else if (loopc == 3)
+        {
+            dest = assembler->regnum("rdx");
+        }
+        else if (loopc == 4)
+        {
+            dest = assembler->regnum("rcx");
+        }
+        else if (loopc == 5)
+        {
+            dest = assembler->regnum("r8");
+        }
+        else if (loopc == 6)
+        {
+            dest = assembler->regnum("r9");
+        }
+        current->add(Insn(MOVE, Operand::reg(dest), args[loopc]));
+    }
+
+    current->add(Insn(SYSCALL));
+    Value * ret = c->getTemporary(register_type, "ret");
+    current->add(Insn(MOVE, ret, Operand::reg("rax")));
+
+    return ret;
 }

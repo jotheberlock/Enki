@@ -88,6 +88,21 @@ class Amd64WindowsCallingConvention : public CallingConvention
     
 };
 
+class Amd64UnixSyscallCallingConvention : public CallingConvention
+{
+  public:
+
+    virtual void generatePrologue(BasicBlock *, FunctionScope *) 
+    {}
+
+    virtual void generateEpilogue(BasicBlock *, FunctionScope *)
+    {}
+
+    virtual Value * generateCall(Codegen *, Funcall *, std::vector<Value *> &);
+    
+};
+
+    
 class Amd64UnixCallingConvention : public CallingConvention
 {
   public:
