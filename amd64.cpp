@@ -1579,7 +1579,7 @@ Value * Amd64UnixSyscallCallingConvention::generateCall(Codegen * c,
         fprintf(log_file, "No syscall number passed!\n");
     }
     
-    for (unsigned int loopc=1; loopc<args.size(); loopc++)
+    for (unsigned int loopc=0; loopc<args.size(); loopc++)
     {
         int dest = 9999;
         if (loopc == 0)

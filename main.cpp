@@ -255,6 +255,12 @@ int main(int argc, char ** argv)
     root_type->addReturn(register_type);
     
     root_scope = new FunctionScope(0, "@root", root_type);
+
+    FunctionType * syscall_type = new ExternalFunctionType("__syscall",
+                                                           new Amd64UnixSyscallCallingConvention());
+    syscall_type->addReturn(register_type);
+    FunctionScope * fs_syscall = new FunctionScope(root_scope, "__syscall",
+                                                   syscall_type);
     
 #ifdef WINDOWS_CC
     calling_convention = new Amd64WindowsCallingConvention();
