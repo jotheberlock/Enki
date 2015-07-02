@@ -381,6 +381,20 @@ int main(int argc, char ** argv)
         gc->setCallConvention(CCONV_RAW);
         gc->block()->add(Insn(MOVE, Operand::reg(assembler->framePointer()),
                               Operand::section(IMAGE_DATA, 0)));
+        
+        Value * v = root_scope->lookupLocal("__activation");
+        assert(v);
+        gc->block()->add(Insn(MOVE, Operand(v), Operand::reg(assembler->framePointer())));
+    
+        v = root_scope->lookupLocal("__stackptr");
+        assert(v);
+        gc->block()->add(Insn(MOVE, Operand(v), Operand::reg(assembler->framePointer())));
+    
+        Value * stacksize = new Value("__stacksize", register_type);
+        stacksize->setOnStack(true);
+        root_scope->add(stacksize);
+        gc->block()->add(Insn(GETSTACKSIZE, stacksize));
+        gc->block()->add(Insn(ADD, Operand(v), Operand(v), stacksize));
     }
     
     BasicBlock * body = gc->newBlock("body");

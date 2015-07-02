@@ -1519,6 +1519,20 @@ void Amd64UnixCallingConvention::generatePrologue(BasicBlock * b, FunctionScope 
     r13_backup=addRegStore("r13",b,f);
     r14_backup=addRegStore("r14",b,f);
     r15_backup=addRegStore("r11",b,f);
+
+    Value * v = f->lookupLocal("__activation");
+    assert(v);
+    b->add(Insn(MOVE, Operand(v), Operand::reg(assembler->framePointer())));
+    
+    v = f->lookupLocal("__stackptr");
+    assert(v);
+    b->add(Insn(MOVE, Operand(v), Operand::reg(assembler->framePointer())));
+    
+    Value * stacksize = new Value("__stacksize", register_type);
+    stacksize->setOnStack(true);
+    f->add(stacksize);
+    b->add(Insn(GETSTACKSIZE, stacksize));
+    b->add(Insn(ADD, Operand(v), Operand(v), stacksize));
 }
 
 void Amd64UnixCallingConvention::generateEpilogue(BasicBlock * b, FunctionScope * f)

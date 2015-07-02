@@ -176,8 +176,8 @@ void Codegen::allocateStackSlots()
         Value * v = locals[loopc];
         if (v->onStack())
         {
-            fprintf(log_file, ">>> Putting %s at stack offset %ld\n",
-                   v->name.c_str(), stack_size);
+            fprintf(log_file, ">>> Putting %s at stack offset %ld %lx\n",
+                    v->name.c_str(), stack_size, stack_size);
             
             while (stack_size % (v->type->align()/8))
             {
@@ -197,9 +197,10 @@ std::string Codegen::display(unsigned char * addr)
     for (unsigned int loopc=0; loopc<locals.size(); loopc++)
     {
         char buf[4096];
-        sprintf(buf, "%p %-20s %4ld: %s\n",
+        sprintf(buf, "%p %-20s %4ld/%4lx: %s\n",
                 addr+locals[loopc]->stackOffset(),
                 locals[loopc]->name.c_str(),
+                locals[loopc]->stackOffset(),
                 locals[loopc]->stackOffset(),
                 locals[loopc]->type->display
                 (addr+locals[loopc]->stackOffset()).c_str());
