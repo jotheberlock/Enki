@@ -1561,7 +1561,7 @@ Value * Return::codegen(Codegen * c)
 
         Value * to_ret = ret->codegen(c);
         
-		c->block()->add(Insn(STORE, Operand::reg(assembler->framePointer()), Operand::sigc(assembler->returnOffset()), to_ret));
+	c->block()->add(Insn(STORE, Operand::reg(assembler->framePointer()), Operand::sigc(assembler->returnOffset()), to_ret));
     }
 
     if (c->callConvention() == CCONV_STANDARD)
@@ -1589,7 +1589,13 @@ Value * Return::codegen(Codegen * c)
                              Operand::reg(assembler->framePointer())));
         c->block()->add(Insn(BRA, Operand::reg(0)));
     }
-
+    else if (c->callConvention() == CCONV_C)
+    {
+        BasicBlock * ret = c->newBlock("ret");
+	c->block()->add(Insn(BRA, ret));
+	calling_convention->generateEpilogue(ret, c->getScope());
+    }
+    
     return 0;
 }
 

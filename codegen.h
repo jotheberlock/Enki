@@ -177,15 +177,15 @@ class Codegen
         return staticlink;
     }
     
-	int callConvention()  
-	{
-		return cconv;
-	}
-	
-	void setCallConvention(int c)
-	{
-		cconv = c;
-	}
+    int callConvention()  
+    { 
+        return cconv;
+    }
+    
+    void setCallConvention(int c)
+    {
+        cconv = c;
+    }
 
     void allocateStackSlots();
     uint64_t stackSize()
@@ -244,7 +244,7 @@ class Codegen
     {
         current_block = b;
     }
-
+    
     std::vector<BasicBlock *> & getBlocks()
     {
         return blocks;
