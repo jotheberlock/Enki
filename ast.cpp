@@ -1838,6 +1838,8 @@ Value * DefExpr::codegen(Codegen * c)
     if (is_macro)
     {
         ch->setCallConvention(CCONV_MACRO);
+        BasicBlock * prologue = ch->block();
+        calling_convention->generatePrologue(prologue, root_scope);
         macros.push_back(c);
     }
     else
@@ -1846,6 +1848,13 @@ Value * DefExpr::codegen(Codegen * c)
     }
     
     ch->generate();
+
+    if (is_macro)
+    {
+        BasicBlock * epilogue = ch->newBlock("epilogue");
+        ch->block()->add(Insn(BRA, epilogue));
+        calling_convention->generateEpilogue(epilogue, root_scope);
+    }
     
     return 0;
 }
