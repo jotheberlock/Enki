@@ -398,7 +398,7 @@ class CallingConvention
     
     virtual void generatePrologue(BasicBlock *, FunctionScope *) = 0;
     virtual void generateEpilogue(BasicBlock *, FunctionScope *) = 0;
-    virtual Value * generateCall(Codegen *, Funcall *,
+    virtual Value * generateCall(Codegen *, Value *,
                                  std::vector<Value *> &) = 0;
     
 };

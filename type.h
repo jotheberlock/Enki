@@ -526,10 +526,7 @@ class ExternalFunctionType : public FunctionType
     }
     
     virtual Value * generateFuncall(Codegen * c, Funcall * f,
-                            std::vector<Value *> & args)
-    {
-        return convention->generateCall(c,f,args);
-    }
+				    std::vector<Value *> & args);
     
     int size()
     {

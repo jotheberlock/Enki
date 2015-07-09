@@ -70,7 +70,7 @@ class Amd64WindowsCallingConvention : public CallingConvention
 
     virtual void generatePrologue(BasicBlock *, FunctionScope *);
     virtual void generateEpilogue(BasicBlock *, FunctionScope *);
-    virtual Value * generateCall(Codegen *, Funcall *, std::vector<Value *> &);
+    virtual Value * generateCall(Codegen *, Value *, std::vector<Value *> &);
     
   protected:
 
@@ -98,7 +98,7 @@ class Amd64UnixSyscallCallingConvention : public CallingConvention
     virtual void generateEpilogue(BasicBlock *, FunctionScope *)
     {}
 
-    virtual Value * generateCall(Codegen *, Funcall *, std::vector<Value *> &);
+    virtual Value * generateCall(Codegen *, Value *, std::vector<Value *> &);
     
 };
 
@@ -109,7 +109,7 @@ class Amd64UnixCallingConvention : public CallingConvention
 
     virtual void generatePrologue(BasicBlock *, FunctionScope *);
     virtual void generateEpilogue(BasicBlock *, FunctionScope *);
-    virtual Value * generateCall(Codegen *, Funcall *, std::vector<Value *> &);
+    virtual Value * generateCall(Codegen *, Value *, std::vector<Value *> &);
     
   protected:
 

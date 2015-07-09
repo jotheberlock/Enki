@@ -1295,7 +1295,7 @@ void Amd64WindowsCallingConvention::generateEpilogue(BasicBlock * b, FunctionSco
 }
 
 Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
-                                                    Funcall * f,
+                                                    Value * fptr,
                                                     std::vector<Value *> & args)
 {
     BasicBlock * current = c->block();
@@ -1344,20 +1344,9 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
         current->add(Insn(MOVE, Operand::reg(dest), args[loopc]));
     }
 
-    uint64_t offset;
-    bool found = cfuncs->find(f->name(), offset);
-    assert(found == true);
-
-        // Location where function address is stored
-    Value * jaddr = c->getTemporary(register_type, "jaddr");
-    current->add(Insn(MOVE, jaddr, Operand::usigc(cfuncs->base())));
-    current->add(Insn(ADD, jaddr, jaddr, Operand::usigc(offset)));
-    Value * to_jump = c->getTemporary(register_type, "to_jump");
-    
     current->add(Insn(SUB, Operand::reg("rsp"), Operand::reg("rsp"),
                       Operand::usigc(stack_size)));
-    current->add(Insn(LOAD, to_jump, jaddr));
-    current->add(Insn(CALL, to_jump));
+    current->add(Insn(CALL, fptr));
     
     Value * ret = c->getTemporary(register_type, "ret");
     current->add(Insn(MOVE, ret, Operand::reg("rax")));
@@ -1369,7 +1358,7 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 
 
 Value * Amd64UnixCallingConvention::generateCall(Codegen * c,
-                                                 Funcall * f,
+                                                 Value * fptr,
                                                  std::vector<Value *> & args)
 {
     BasicBlock * current = c->block();
@@ -1432,24 +1421,13 @@ Value * Amd64UnixCallingConvention::generateCall(Codegen * c,
         current->add(Insn(MOVE, Operand::reg(dest), args[loopc]));
     }
 
-    uint64_t offset;
-    bool found = cfuncs->find(f->name(), offset);
-    assert(found == true);
-
-        // Location where function address is stored
-    Value * jaddr = c->getTemporary(register_type, "jaddr");
-    current->add(Insn(MOVE, jaddr, Operand::usigc(cfuncs->base())));
-    current->add(Insn(ADD, jaddr, jaddr, Operand::usigc(offset)));
-    Value * to_jump = c->getTemporary(register_type, "to_jump");
-
     if (stack_size>0)
     {
         current->add(Insn(SUB, Operand::reg("rsp"), Operand::reg("rsp"),
                           Operand::usigc(stack_size)));
     }
     
-    current->add(Insn(LOAD, to_jump, jaddr));
-    current->add(Insn(CALL, to_jump));
+    current->add(Insn(CALL, fptr));
 
     if (stack_size>0)
     {
@@ -1567,7 +1545,7 @@ void Amd64UnixCallingConvention::generateEpilogue(BasicBlock * b, FunctionScope 
 
 
 Value * Amd64UnixSyscallCallingConvention::generateCall(Codegen * c,
-                                                 Funcall * f,
+                                                 Value *,
                                                  std::vector<Value *> & args)
 {
     BasicBlock * current = c->block();

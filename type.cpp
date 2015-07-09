@@ -480,3 +480,13 @@ Value * FunctionType::initStackFrame(Codegen * c, Value * faddr,
     c->block()->add(Insn(STORE, addrof, Operand::sigc(0), adder));
     return new_ptr;
 }
+
+Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f,
+					      std::vector<Value *> & args)
+{
+    Value * addr_of_extfunc = c->getTemporary(register_type, "addr_of_"+f->name());
+    Value * fptr = c->getTemporary(register_type, "fptr_to_"+f->name());
+    // Insert code to figure out addr_of_extfunc here
+    c->block()->add(Insn(LOAD, fptr, addr_of_extfunc));
+    return convention->generateCall(c,fptr,args);
+}

@@ -42,16 +42,17 @@ class Image
     
     void addImport(std::string, std::string);
     virtual uint64_t importAddress(std::string) = 0;
+
     virtual void materialiseSection(int) = 0;
     bool littleEndian()
     {
         return true;
     }
     
-	void addReloc(BaseRelocation * b)
-	{
-		relocs.push_back(b);
-	}
+    void addReloc(BaseRelocation * b)
+    {
+        relocs.push_back(b);
+    }
 
   protected:
 
@@ -83,6 +84,7 @@ class MemoryImage : public Image
     void finalise();
     void setImport(std::string, uint64_t);
     uint64_t importAddress(std::string);
+    uint64_t importOffset(std::string);
 
         // TODO remove
     MemBlock & getMemBlock(int i)
@@ -136,7 +138,6 @@ class FunctionRelocation : public BaseRelocation
     uint64_t link_offset;
     
 };
-
 
 class BasicBlockRelocation : public BaseRelocation
 {

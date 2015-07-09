@@ -17,6 +17,11 @@ class ElfImage : public Image
         return 0;
     }
     
+    virtual uint64_t importOffset(std::string)
+    {
+        return 0;
+    }
+    
   protected:
     
     int stringOffset(const char * c);
