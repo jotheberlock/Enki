@@ -486,7 +486,7 @@ Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f,
 {
     Value * addr_of_extfunc = c->getTemporary(register_type, "addr_of_"+f->name());
     Value * fptr = c->getTemporary(register_type, "fptr_to_"+f->name());
-    // Insert code to figure out addr_of_extfunc here
+    c->block()->add(Insn(MOVE, addr_of_extfunc, Operand::extFunction(f->name())));
     c->block()->add(Insn(LOAD, fptr, addr_of_extfunc));
     return convention->generateCall(c,fptr,args);
 }

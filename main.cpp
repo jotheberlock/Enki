@@ -19,7 +19,6 @@
 
 Assembler * assembler = 0;
 CallingConvention * calling_convention = 0;
-CFuncs * cfuncs = 0;
 std::list<Codegen *> * codegens = 0;
 FILE * log_file = 0;
 Constants * constants = 0;
@@ -221,9 +220,10 @@ uint32_t getUtf8(char * & f)
     return ret;
 }
 
-    
 int main(int argc, char ** argv)
 {
+  printf("Party time\n");
+  
     uint64_t result = 1;
 
     bool jit = true;
@@ -239,7 +239,7 @@ int main(int argc, char ** argv)
         image = new MemoryImage();
     }
     MemoryImage * macros = new MemoryImage();
-    
+
     log_file = fopen("log.txt", "w");
     if (!log_file)
     {
@@ -255,7 +255,7 @@ int main(int argc, char ** argv)
     root_type->addReturn(register_type);
     
     root_scope = new FunctionScope(0, "@root", root_type);
-
+    
     FunctionType * syscall_type = new ExternalFunctionType("__syscall",
                                                            new Amd64UnixSyscallCallingConvention());
     syscall_type->addReturn(register_type);
@@ -267,23 +267,22 @@ int main(int argc, char ** argv)
 #else
     calling_convention = new Amd64UnixCallingConvention();
 #endif
-    
-    cfuncs = new CFuncs();
-    cfuncs->add((uint64_t)dumpstack, "dumpstack");
-#ifdef POSIX_SIGNALS
-    cfuncs->add((uint64_t)dumpstack_unlocker, "dumpstack_unlocker");
-#endif
 
+    if (jit)
+    {
+      	set_cfuncs((MemoryImage *)image);
+    }
+    
     const char * fname = (argc > 1) ? argv[1] : "test.e";
     
     Lexer lex;
     FILE * f = fopen(fname, "rb");
 
-	if(!f && argc == 1)
-	{
+    if(!f && argc == 1)
+    {
         fname = "../test.e";
-		f = fopen(fname, "rb");
-	}
+	f = fopen(fname, "rb");
+    }
 
     if(!f)
     {
@@ -365,7 +364,6 @@ int main(int argc, char ** argv)
     root_scope->add(new Value("__stackptr", byteptr));
     
     Codegen * gc = new Codegen(parse.tree(), root_scope);
-    cfuncs->addToCodegen(gc);
     codegens->push_back(gc);
         
     root_gc = gc;
@@ -593,14 +591,22 @@ int main(int argc, char ** argv)
     data_base = image->getAddr(IMAGE_DATA);
     data_len = 4096;
 
-	macros->relocate();
-	image->relocate();
+    image->endOfImports();
+    if (jit)
+    {
+        register_cfuncs((MemoryImage *)image);
+    }
+    
+    macros->relocate();
+    image->relocate();
 
     FILE * dump = fopen("macros.bin", "w");
     fwrite(macros->getPtr(IMAGE_CODE), macros->sectionSize(IMAGE_CODE), 1, dump);
     fclose(dump);
 
     image->setRootFunction(gc->getScope());
+
+    
     image->finalise();
 
     dump = fopen("out.bin", "w");
@@ -611,7 +617,7 @@ int main(int argc, char ** argv)
     {
         exit(0);
     }
-    
+
     fprintf(log_file, "TestFunc is at %lx buf at %lx macro %lx image %p\n",
             image->getAddr(IMAGE_CODE), image->getAddr(IMAGE_DATA),
             macros->getAddr(IMAGE_DATA), image);
@@ -660,7 +666,6 @@ int main(int argc, char ** argv)
             gc->display(image->getPtr(IMAGE_DATA)).c_str());
     
     delete calling_convention;
-    delete cfuncs;
     delete assembler;
 
     for (std::list<Codegen *>::iterator cdit = codegens->begin();

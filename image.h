@@ -33,7 +33,7 @@ class Image
     unsigned char * getPtr(int);
         // Fix up perms
     virtual void finalise() = 0;
-	void relocate();
+    void relocate();
     void addFunction(FunctionScope *, uint64_t);
     uint64_t functionAddress(FunctionScope *);
     uint64_t functionSize(FunctionScope *);
@@ -54,6 +54,9 @@ class Image
         relocs.push_back(b);
     }
 
+    virtual void endOfImports()
+    {}
+    
   protected:
 
     unsigned char * sections[4];
@@ -85,12 +88,7 @@ class MemoryImage : public Image
     void setImport(std::string, uint64_t);
     uint64_t importAddress(std::string);
     uint64_t importOffset(std::string);
-
-        // TODO remove
-    MemBlock & getMemBlock(int i)
-    {
-        return mems[i];
-    }
+    void endOfImports();
     
   protected:
 
@@ -104,11 +102,11 @@ class BaseRelocation
 {
   public:
 
-	BaseRelocation(Image * i)
-	{
-        image=i;
-		i->addReloc(this);
-	}
+    BaseRelocation(Image * i)
+    {
+      image=i;
+      i->addReloc(this);
+    }
 
     virtual ~BaseRelocation()
     {
@@ -175,6 +173,21 @@ class SectionRelocation : public BaseRelocation
     int dest_section;
     uint64_t dest_offset;
     
+};
+
+class ExtFunctionRelocation : public BaseRelocation
+{
+   public:
+ 
+    ExtFunctionRelocation(Image *, FunctionScope *, uint64_t, std::string);
+    void apply();
+    
+   protected:
+
+    FunctionScope * to_patch;
+    uint64_t patch_offset;
+    std::string fname;
+  
 };
 
 #endif

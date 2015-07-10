@@ -13,6 +13,7 @@
 #define OPERAND_REGISTER 5
 #define OPERAND_FUNCTION 6
 #define OPERAND_SECTION 7
+#define OPERAND_EXTFUNCTION 8
 
 bool Operand::eq(Operand & o)
 {
@@ -39,6 +40,8 @@ bool Operand::eq(Operand & o)
             return contents.f == o.contents.f;
         case OPERAND_SECTION:
             return contents.s == o.contents.s;
+        case OPERAND_EXTFUNCTION:
+            return *contents.e == *o.contents.e;
         default:
             assert(false);
     }
@@ -79,6 +82,11 @@ bool Operand::isFunction()
 bool Operand::isSection()
 {
     return (type == OPERAND_SECTION);
+}
+
+bool Operand::isExtFunction()
+{
+    return (type == OPERAND_EXTFUNCTION);
 }
 
 Operand::Operand(Value * v)
@@ -161,8 +169,15 @@ FunctionScope * Operand::getFunction()
 
 uint64_t Operand::getSection(int & sec)
 {
+    assert(type == OPERAND_SECTION);
     sec = contents.s & 0xff;
     return contents.s >> 8;
+}
+
+std::string Operand::getExtFunction()
+{
+    assert(type == OPERAND_EXTFUNCTION);
+    return *contents.e;
 }
 
 Operand Operand::sigc(int64_t s)
@@ -199,6 +214,14 @@ Operand Operand::section(int s, uint64_t o)
     Operand ret;
     ret.type = OPERAND_SECTION;
     ret.contents.s = (o << 8) | s;
+    return ret;
+}
+
+Operand Operand::extFunction(std::string e)
+{
+    Operand ret;
+    ret.type = OPERAND_EXTFUNCTION;
+    ret.contents.e = new std::string(e);
     return ret;
 }
 
@@ -253,6 +276,10 @@ std::string Operand::toString()
         char buf[4096];
         sprintf(buf, "{%d:%lx}", contents.s & 0xff, contents.s >> 8);
         ret = buf;
+    }
+    else if (type == OPERAND_EXTFUNCTION)
+    {
+	return "("+*(contents.e)+") ext";
     }
     else
     {

@@ -91,6 +91,23 @@ void SectionRelocation::apply()
     wee64(image->littleEndian(), patch_site, addr);
 }
 
+ExtFunctionRelocation::ExtFunctionRelocation(Image * i,
+					     FunctionScope * f, uint64_t o,
+					     std::string n)
+  : BaseRelocation(i)
+{
+    to_patch = f;
+    patch_offset = o;
+    fname = n;
+}
+
+void ExtFunctionRelocation::apply()
+{
+    unsigned char * patch_site = image->getPtr(IMAGE_CODE)+patch_offset;
+    uint64_t addr = image->importAddress(fname);
+    wee64(image->littleEndian(), patch_site, addr);
+}
+
 Image::Image()
 {
     for (int loopc=0; loopc<4; loopc++)
@@ -249,7 +266,6 @@ unsigned char * Image::getPtr(int t)
 MemoryImage::MemoryImage()
 {
     import_pointers=0;
-    addImport("", "testfunc");
 }
     
 MemoryImage::~MemoryImage()
@@ -273,18 +289,24 @@ void MemoryImage::setImport(std::string name, uint64_t addr)
 {    
     for (unsigned int loopc=0; loopc<import_names.size(); loopc++)
     {
+        printf(">>> [%s] [%s]\n", import_names[loopc].c_str(), name.c_str());
         if (import_names[loopc] == name)
         {
             import_pointers[loopc] = addr;
+	    return;
         }
     }
 
     printf("Couldn't set address for import %s!\n", name.c_str());
 }
 
-void MemoryImage::finalise()
+void MemoryImage::endOfImports()
 {
     import_pointers = new uint64_t[import_names.size()];
+}
+
+void MemoryImage::finalise()
+{
     Mem mem;
     mem.changePerms(mems[IMAGE_CODE], MEM_READ | MEM_EXEC);
     mem.changePerms(mems[IMAGE_DATA], MEM_READ | MEM_WRITE);

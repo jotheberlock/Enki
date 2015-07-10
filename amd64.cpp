@@ -165,7 +165,7 @@ int Amd64::size(BasicBlock * b)
             {
                 if (i.ops[1].isUsigc() || i.ops[1].isSigc() ||
                     i.ops[1].isFunction() || i.ops[1].isBlock() ||
-                    i.ops[1].isSection())
+                    i.ops[1].isSection() || i.ops[1].isExtFunction())
                 {
                     ret++;
                     if (i.ops[1].isFunction())
@@ -180,6 +180,10 @@ int Amd64::size(BasicBlock * b)
                     {
                         ret += 9;
                     }
+		    else if (i.ops[1].isExtFunction())
+		    {
+			ret += 9;
+		    }
                     else
                     {
                         uint64_t val;
@@ -629,11 +633,11 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 assert (i.ops[0].isReg());
                 assert (i.ops[1].isUsigc() || i.ops[1].isSigc() ||
                         i.ops[1].isFunction() || i.ops[1].isReg() ||
-                        i.ops[1].isBlock() || i.ops[1].isSection());
+                        i.ops[1].isBlock() || i.ops[1].isSection() || i.ops[1].isExtFunction());
                 
                 if (i.ops[1].isUsigc() || i.ops[1].isSigc() ||
                     i.ops[1].isFunction() || i.ops[1].isBlock() ||
-                    i.ops[1].isSection())
+                    i.ops[1].isSection() || i.ops[1].isExtFunction())
                 {
                     unsigned char rex = 0x48;
                     if (i.ops[0].getReg() > 7)
@@ -676,7 +680,18 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
                         int s;
                         uint64_t o = i.ops[1].getSection(s);
-						new SectionRelocation(image, IMAGE_CODE, len(), s, o);
+			new SectionRelocation(image, IMAGE_CODE, len(), s, o);
+                        //relocs.push_back(Relocation(REL_A64, len()+8, len(),
+                        //                            i.ops[1].getBlock()));
+                        wle64(current, reloc);
+                    }
+                    else if (i.ops[1].isExtFunction())
+                    {
+                        uint64_t reloc = 0xdeadbeefdeadbeef;
+                        unsigned char r = 0xb8;
+                        r |= reg(i.ops[0].getReg() & 0x7);
+                        *current++ = r;
+			new ExtFunctionRelocation(image, current_function, len(), i.ops[1].getExtFunction());
                         //relocs.push_back(Relocation(REL_A64, len()+8, len(),
                         //                            i.ops[1].getBlock()));
                         wle64(current, reloc);
