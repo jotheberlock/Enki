@@ -222,8 +222,6 @@ uint32_t getUtf8(char * & f)
 
 int main(int argc, char ** argv)
 {
-  printf("Party time\n");
-  
     uint64_t result = 1;
 
     bool jit = true;

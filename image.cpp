@@ -289,7 +289,6 @@ void MemoryImage::setImport(std::string name, uint64_t addr)
 {    
     for (unsigned int loopc=0; loopc<import_names.size(); loopc++)
     {
-        printf(">>> [%s] [%s]\n", import_names[loopc].c_str(), name.c_str());
         if (import_names[loopc] == name)
         {
             import_pointers[loopc] = addr;
