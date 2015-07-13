@@ -436,6 +436,7 @@ void Lexer::readNumber()
             else
             {	
                 current_token.value.push_back(ch.val);
+		hex_prefixed = true;
             }
         }
         else
