@@ -373,6 +373,7 @@ void Lexer::readNumber()
 {
     bool first = true;
     bool a_dot = false;
+    bool is_hex = false;
     
     while(true)
     {
@@ -396,6 +397,11 @@ void Lexer::readNumber()
         else if (ch.val >= '0' && ch.val <= '9')
         {
             current_token.value.push_back(ch.val);
+        }
+	else if (is_hex && ((ch.val >= 'a' && ch.val <= 'f') ||
+			    (ch.val >= 'A' && ch.val <= 'F')))
+	{
+	    current_token.value.push_back(ch.val);
         }
         else if (ch.val == '.')
         {
@@ -424,6 +430,7 @@ void Lexer::readNumber()
             else
             {	
                 current_token.value.push_back(ch.val);
+		is_hex=true;
             }
         }
         else
@@ -586,6 +593,7 @@ void Lexer::lex(Chars & input)
         {
             beginToken(begin, INTEGER_LITERAL);
             current_token.value.push_back(begin.val);
+	    printf("Reading number!!!\n");
             readNumber();
         }
             // After 0-9 so numbers get caught first
