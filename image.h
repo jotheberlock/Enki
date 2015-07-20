@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "mem.h"
+#include "component.h"
 
 #define IMAGE_CODE 0
 #define IMAGE_DATA 1
@@ -19,7 +20,7 @@ class FunctionScope;
 class BasicBlock;
 class BaseRelocation;
 
-class Image
+class Image : public Component
 {
   public:
 
@@ -56,7 +57,9 @@ class Image
 
     virtual void endOfImports()
     {}
-    
+
+    virtual std::string name() = 0;
+
   protected:
 
     unsigned char * sections[4];
@@ -89,6 +92,8 @@ class MemoryImage : public Image
     uint64_t importAddress(std::string);
     uint64_t importOffset(std::string);
     void endOfImports();
+
+    std::string name() { return "memory"; }
     
   protected:
 

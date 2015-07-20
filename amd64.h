@@ -16,7 +16,8 @@ class Amd64 : public Assembler
     int size(BasicBlock *);
     bool assemble(BasicBlock *, BasicBlock *, Image *);
     std::string transReg(uint32_t);
-
+    std::string name() { return "amd64"; }
+    
     ValidRegs validRegs(Insn &);
     int framePointer()
     {

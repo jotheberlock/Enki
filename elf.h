@@ -8,6 +8,7 @@ class ElfImage : public Image
 {
   public:
 
+    ElfImage();
     ElfImage(const char *, bool, bool, int);
     ~ElfImage();
     void finalise();
@@ -21,6 +22,8 @@ class ElfImage : public Image
     {
         return 0;
     }
+
+    std::string name() { return "elf"; }
     
   protected:
     

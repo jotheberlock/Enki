@@ -16,6 +16,7 @@
 #include "symbols.h"
 #include "image.h"
 #include "elf.h"
+#include "component.h"
 
 Assembler * assembler = 0;
 CallingConvention * calling_convention = 0;
@@ -23,6 +24,7 @@ std::list<Codegen *> * codegens = 0;
 FILE * log_file = 0;
 Constants * constants = 0;
 FunctionScope * root_scope = 0;
+ComponentFactory * component_factory = 0;
 
 typedef uint64_t (*TestFunc)(uint64_t);
 
@@ -225,6 +227,8 @@ int main(int argc, char ** argv)
     uint64_t result = 1;
 
     bool jit = true;
+
+    component_factory = new ComponentFactory();
     
     Image * image = 0;
     if (getenv("MAKE_EXE"))

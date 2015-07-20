@@ -4,17 +4,26 @@
 #include <stdio.h>
 #include <string.h>
 
-ElfImage::ElfImage(const char * f, bool s, bool l, int a)
+ElfImage::ElfImage()
 {
     base_addr = 0x400000;
     next_addr = base_addr + 12288;
+    fname = 0;
+    sf_bit = false;
+    le = true;
+    arch = 0;
+
+    bases[3] = 0x800000;
+    sizes[3] = 4096;    
+}
+
+ElfImage::ElfImage(const char * f, bool s, bool l, int a)
+  : ElfImage()
+{
     fname = f;
     sf_bit = s;
     le = l;
     arch = a;
-
-    bases[3] = 0x800000;
-    sizes[3] = 4096;
 }
 
 ElfImage::~ElfImage()
@@ -419,5 +428,6 @@ void ElfImage::materialiseSection(int s)
     {
         next_addr++;
     }
+    next_addr += 4096;   // Create a guard page
 }
 
