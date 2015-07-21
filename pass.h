@@ -3,8 +3,9 @@
 
 #include "codegen.h"
 #include "regset.h"
+#include "component.h"
 
-class OptimisationPass
+class OptimisationPass : public Component
 {
   public:
 
@@ -175,10 +176,9 @@ class StackSizePass :  public OptimisationPass
 {
   public:
 
-    StackSizePass(Codegen * c)
+    StackSizePass()
         : OptimisationPass()
     {
-        gc = c;
     }
     
     virtual std::string name()
@@ -187,10 +187,6 @@ class StackSizePass :  public OptimisationPass
     }
     
     virtual void processInsn();
-
-  protected:
-    
-    Codegen * gc;
     
 };
 

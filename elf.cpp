@@ -3,12 +3,13 @@
 #include "symbols.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 ElfImage::ElfImage()
 {
     base_addr = 0x400000;
     next_addr = base_addr + 12288;
-    fname = 0;
+    fname = "a.out";
     sf_bit = false;
     le = true;
     arch = 0;
@@ -24,6 +25,54 @@ ElfImage::ElfImage(const char * f, bool s, bool l, int a)
     sf_bit = s;
     le = l;
     arch = a;
+}
+
+bool ElfImage::configure(std::string param, std::string val)
+{
+  if (param == "file")
+  {
+      fname = val;
+  }
+  else if (param == "bits")
+  {
+      if (val == "64")
+      {
+  	  sf_bit = true;
+      }
+      else if (val == "32")
+      {
+  	  sf_bit = false;
+      }
+      else
+      {
+	  return false;
+      }
+  }
+  else if (param == "endian")
+  {
+      if (val == "little")
+      {
+  	  le = true;
+      }
+      else if (val == "big")
+      {
+	  le = false;
+      }
+      else
+      {
+	  return false;
+      }
+  }
+  else if (param == "arch")
+  {
+      arch = strtol(val.c_str(), 0, 10);
+  }
+  else
+  {
+      return false;
+  }
+
+  return true;
 }
 
 ElfImage::~ElfImage()
@@ -59,10 +108,10 @@ void ElfImage::finalise()
         stringtable.add(fptrs[loopc]->name().c_str());
     }
     
-    FILE * f = fopen(fname, "w+");
+    FILE * f = fopen(fname.c_str(), "w+");
     if (!f)
     {
-        printf("Can't open %s\n", fname);
+        printf("Can't open %s\n", fname.c_str());
         return;
     }
 

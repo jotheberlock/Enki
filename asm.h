@@ -9,6 +9,7 @@
 
 #include "mem.h"
 #include "regset.h"
+#include "component.h"
 
 #define LOAD 1
 #define STORE 2
@@ -315,7 +316,7 @@ class Funcall;
 class Codegen;
 class Image;
 
-class Assembler
+class Assembler : public Component
 {
   public:
 
@@ -380,8 +381,6 @@ class Assembler
     
     virtual void align(uint64_t a) = 0;  // Pads with NOPs
     virtual void newFunction(Codegen *);
-
-    virtual std::string name() = 0;
     
   protected:
 
@@ -394,8 +393,8 @@ class Assembler
     
 };
 
-class CallingConvention
-{
+class CallingConvention : public Component
+{ 
   public:
 
     virtual ~CallingConvention()
