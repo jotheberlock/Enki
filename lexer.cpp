@@ -599,7 +599,6 @@ void Lexer::lex(Chars & input)
         {
             beginToken(begin, INTEGER_LITERAL);
             current_token.value.push_back(begin.val);
-	    printf("Reading number!!!\n");
             readNumber();
         }
             // After 0-9 so numbers get caught first

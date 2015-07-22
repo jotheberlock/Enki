@@ -17,6 +17,7 @@
 #include "image.h"
 #include "elf.h"
 #include "component.h"
+#include "configfile.h"
 
 Assembler * assembler = 0;
 CallingConvention * calling_convention = 0;
@@ -224,6 +225,10 @@ uint32_t getUtf8(char * & f)
 
 int main(int argc, char ** argv)
 {
+    FILE * cfile = fopen("test.ini", "r");
+    ConfigFile cf(cfile);
+    cf.process();
+  
     uint64_t result = 1;
 
     bool jit = true;
@@ -450,7 +455,7 @@ int main(int argc, char ** argv)
         passes.push_back(new ConditionalBranchSplitter);
         passes.push_back(new BranchRemover);
         passes.push_back(new SillyRegalloc);
-        passes.push_back(new StackSizePass(cg));
+        passes.push_back(new StackSizePass);
 
         int count = 0;
         for(std::vector<OptimisationPass *>::iterator it = passes.begin();

@@ -1,5 +1,5 @@
-parsey: main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o
-	g++ -o parse main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o -lpthread
+parsey: main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o
+	g++ -o parse main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o -lpthread
 
 main.o : main.cpp lexer.h ast.h type.h codegen.h
 	g++ -g -c -Wall main.cpp
@@ -51,6 +51,12 @@ elf.o : elf.cpp elf.h
 
 stringbox.o : stringbox.cpp stringbox.h
 	g++ -g -c -Wall stringbox.cpp
+
+component.o : component.cpp component.h
+	g++ -g -c -Wall component.cpp
+
+configfile.o : configfile.cpp configfile.h
+	g++ -g -c -Wall configfile.cpp
 
 clean:
 	rm *.o parsey parsey.exe *~
