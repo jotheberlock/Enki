@@ -1,17 +1,18 @@
 #include "configfile.h"
+#include "component.h"
+#include "image.h"
 #include <list>
 #include <string.h>
 
-static std::list<std::string> paths;
-
-ConfigFile::ConfigFile(FILE * f)
+ConfigFile::ConfigFile(FILE * f, Configuration * c)
 {
     file = f;
+    config = c;
 }
 
 void ConfigFile::addPath(std::string p)
 {
-    paths.push_back(p);
+    config->paths.push_back(p);
 }
 
 void ConfigFile::process()
@@ -50,7 +51,7 @@ void ConfigFile::process()
 	        FILE * f = open(val);
 		if (f)
 		{
-  		    ConfigFile cf(f);
+		    ConfigFile cf(f, config);
 		    cf.process();
 		}
 		else
@@ -60,7 +61,36 @@ void ConfigFile::process()
 	    }
 	    else if (command == "path")
 	    {
-		paths.push_back(val);
+		config->paths.push_back(val);
+	    }
+	    else if (command == "image")
+	    {
+	        delete config->image;
+	        config->image = (Image *)component_factory->make("image", val);
+		config->components["image"] = config->image;
+	    }
+	    else if (command == "set")
+	    {
+	        std::string cname;
+		std::string setter;
+		if (!split(val, ".", cname, setter))
+	        {
+		    printf("Invalid param syntax %s\n", val.c_str());
+		    continue;
+         	}
+		
+	        std::string param;
+	        std::string paramval;
+		if (!split(setter, "=", param, paramval))
+		{
+		    printf("Invalid param syntax %s\n", setter.c_str());
+		    continue;
+		}
+		Component * c = config->components[cname];
+		if (!c->configure(param, paramval))
+		{
+  		    printf("Couldn't set %s to %s on %s\n", param.c_str(), paramval.c_str(), cname.c_str());
+		}
 	    }
 	    else
 	    {
@@ -89,8 +119,8 @@ bool ConfigFile::split(std::string i, std::string s, std::string & o1,
 
 FILE * ConfigFile::open(std::string n)
 {
-    for (std::list<std::string>::iterator it = paths.begin();
-         it != paths.end(); it++)
+    for (std::list<std::string>::iterator it = config->paths.begin();
+         it != config->paths.end(); it++)
     {
         std::string path = *it + n;
 	FILE * f = fopen(path.c_str(), "r");

@@ -225,15 +225,16 @@ uint32_t getUtf8(char * & f)
 
 int main(int argc, char ** argv)
 {
+    component_factory = new ComponentFactory();
+    
     FILE * cfile = fopen("test.ini", "r");
-    ConfigFile cf(cfile);
+    Configuration config;
+    ConfigFile cf(cfile, &config);
     cf.process();
   
     uint64_t result = 1;
 
     bool jit = true;
-
-    component_factory = new ComponentFactory();
     
     Image * image = 0;
     if (getenv("MAKE_EXE"))
