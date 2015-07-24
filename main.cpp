@@ -226,8 +226,18 @@ uint32_t getUtf8(char * & f)
 int main(int argc, char ** argv)
 {
     component_factory = new ComponentFactory();
+
+    FILE * hfile = fopen(ConfigFile::hostConfig().c_str(), "r");
+    if (!hfile)
+    {
+        printf("Can't find host config [%s]\n", ConfigFile::hostConfig().c_str());
+	return 1;
+    }
+    Configuration hostconfig;
+    ConfigFile hcf(hfile, &hostconfig);
+    hcf.process();
     
-    FILE * cfile = fopen("test.ini", "r");
+    FILE * cfile = fopen(argc > 1 ? argv[1] : "linux_amd64_target.ini", "r");
     Configuration config;
     ConfigFile cf(cfile, &config);
     cf.process();

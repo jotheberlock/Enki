@@ -1,8 +1,21 @@
 #include "configfile.h"
 #include "component.h"
 #include "image.h"
+#include "asm.h"
+#include "pass.h"
 #include <list>
 #include <string.h>
+
+std::string ConfigFile::hostConfig()
+{
+#ifdef CYGWIN_HOST
+    return "cygwin_host.ini";
+#endif
+#ifdef LINUX_HOST
+    return "linux_host.ini";
+#endif
+    return "unknown host";
+}
 
 ConfigFile::ConfigFile(FILE * f, Configuration * c)
 {
@@ -69,6 +82,30 @@ void ConfigFile::process()
 	        config->image = (Image *)component_factory->make("image", val);
 		config->components["image"] = config->image;
 	    }
+	    else if (command == "asm")
+	    {
+	        delete config->assembler;
+	        config->assembler = (Assembler *)component_factory->make("asm", val);
+		config->components["asm"] = config->assembler;
+	    }
+	    else if (command == "cconv")
+	    {
+	        delete config->cconv;
+	        config->cconv = (CallingConvention *)component_factory->make("cconv", val);
+		config->components["cconv"] = config->cconv;
+	    }
+	    else if (command == "syscall")
+	    {
+	        delete config->syscall;
+	        config->syscall = (CallingConvention *)component_factory->make("cconv", val);
+		config->components["syscall"] = config->syscall;
+	    }
+	    else if (command == "pass")
+	    {
+	        OptimisationPass * op =
+		  (OptimisationPass *)component_factory->make("pass", val);
+		config->passes.push_back(op);
+	    }
 	    else if (command == "set")
 	    {
 	        std::string cname;
@@ -87,7 +124,11 @@ void ConfigFile::process()
 		    continue;
 		}
 		Component * c = config->components[cname];
-		if (!c->configure(param, paramval))
+		if (!c)
+		{
+  		    printf("Couldn't find object %s\n", cname.c_str());
+		}
+		else if (!c->configure(param, paramval))
 		{
   		    printf("Couldn't set %s to %s on %s\n", param.c_str(), paramval.c_str(), cname.c_str());
 		}
