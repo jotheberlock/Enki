@@ -147,6 +147,9 @@
     <ClInclude Include="..\ast.h" />
     <ClInclude Include="..\cfuncs.h" />
     <ClInclude Include="..\codegen.h" />
+    <ClInclude Include="..\component.h" />
+    <ClInclude Include="..\configfile.h" />
+    <ClInclude Include="..\elf.h" />
     <ClInclude Include="..\error.h" />
     <ClInclude Include="..\image.h" />
     <ClInclude Include="..\lexer.h" />
@@ -154,6 +157,7 @@
     <ClInclude Include="..\pass.h" />
     <ClInclude Include="..\platform.h" />
     <ClInclude Include="..\regset.h" />
+    <ClInclude Include="..\stringbox.h" />
     <ClInclude Include="..\symbols.h" />
     <ClInclude Include="..\type.h" />
     <ClInclude Include="stdafx.h" />
@@ -165,6 +169,9 @@
     <ClCompile Include="..\ast.cpp" />
     <ClCompile Include="..\cfuncs.cpp" />
     <ClCompile Include="..\codegen.cpp" />
+    <ClCompile Include="..\component.cpp" />
+    <ClCompile Include="..\configfile.cpp" />
+    <ClCompile Include="..\elf.cpp" />
     <ClCompile Include="..\error.cpp" />
     <ClCompile Include="..\image.cpp" />
     <ClCompile Include="..\lexer.cpp" />
@@ -173,6 +180,7 @@
     <ClCompile Include="..\pass.cpp" />
     <ClCompile Include="..\platform.cpp" />
     <ClCompile Include="..\regset.cpp" />
+    <ClCompile Include="..\stringbox.cpp" />
     <ClCompile Include="..\symbols.cpp" />
     <ClCompile Include="..\type.cpp" />
   </ItemGroup>
