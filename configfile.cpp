@@ -14,6 +14,9 @@ std::string ConfigFile::hostConfig()
 #ifdef LINUX_HOST
     return "linux_host.ini";
 #endif
+#ifdef WINDOWS_HOST
+	return "cygwin_host.ini"; // Until something needs changes
+#endif
     return "unknown host";
 }
 
