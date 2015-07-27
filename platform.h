@@ -43,6 +43,8 @@ void wees16(bool, unsigned char *&, int16_t);
 void wees32(bool, unsigned char *&, int32_t);
 void wees64(bool, unsigned char *&, int64_t);
 
+uint32_t checked_32(uint64_t);
+
 extern FILE * log_file;
 
 #endif

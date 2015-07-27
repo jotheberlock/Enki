@@ -1,6 +1,7 @@
 #include "platform.h"
 
 #include <stdio.h>
+#include <assert.h>
 
 #ifdef HOST_BIG_ENDIAN
 void wle16(unsigned char *& ptr, uint16_t v)
@@ -241,4 +242,10 @@ void wees32(bool b, unsigned char *& c, int32_t v)
 void wees64(bool b, unsigned char *& c, int64_t v)
 {
     b ? wles64(c,v) : wbes64(c,v);
+}
+
+uint32_t checked_32(uint64_t v)
+{
+	assert(v < 0x100000000);
+	return v & 0xffffffff;
 }
