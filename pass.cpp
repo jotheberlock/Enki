@@ -258,7 +258,7 @@ void AddressOfPass::processInsn()
 {
     if (insn.ins == GETADDR)
     {
-        int depth = insn.ops[2].getUsigc();
+        uint64_t depth = insn.ops[2].getUsigc();
         Insn mover(MOVE, insn.ops[0], Operand::reg(assembler->framePointer()));
         prepend(mover);
         while (depth > 0)

@@ -146,7 +146,7 @@ void ConfigFile::process()
 bool ConfigFile::split(std::string i, std::string s, std::string & o1,
 		       std::string & o2)
 {
-    unsigned int pos = i.find(s);
+    size_t pos = i.find(s);
     if (pos == std::string::npos)
     {
         return false;

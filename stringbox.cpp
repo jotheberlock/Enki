@@ -74,8 +74,8 @@ int StringBox::add(const char * c)
     int t=getID(c);
     if(t)
 		return t;
-    int l=strlen(c)+1;
-    int newsize=datap+l;
+    size_t l=strlen(c)+1;
+    size_t newsize=datap+l;
     if(!data) {
 		data=(char *)malloc(newsize);
     } else {

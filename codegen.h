@@ -304,7 +304,7 @@ class Codegen
     uint64_t stack_size;
 
     bool allocated_slots;
-    bool cconv;
+    int cconv;
 
     FunctionScope * scope;
 

@@ -15,7 +15,7 @@ public:
     void dump();
     void clear();
 	
-    int dataSize() { return datap; }
+    size_t dataSize() { return datap; }
     char * getData() { return data; }
     int offsetOf(int i) {  return ids[i-1]; }
 	
@@ -23,7 +23,7 @@ protected:
     
     int idp;
     int internal_idp;
-    int datap;
+    size_t datap;
     int * ids;
     char * data;
 	

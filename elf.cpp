@@ -19,8 +19,17 @@ ElfImage::ElfImage()
 }
 
 ElfImage::ElfImage(const char * f, bool s, bool l, int a)
-  : ElfImage()
 {
+    base_addr = 0x400000;
+    next_addr = base_addr + 12288;
+    fname = "a.out";
+    sf_bit = false;
+    le = true;
+    arch = 0;
+
+    bases[3] = 0x800000;
+    sizes[3] = 4096;    
+
     fname = f;
     sf_bit = s;
     le = l;
@@ -244,11 +253,11 @@ void ElfImage::finalise()
         }
         else
         {
-            wee32(le, ptr, bases[the_one]-base_addr);
-            wee32(le, ptr, bases[the_one]);
-            wee32(le, ptr, bases[the_one]);
-            wee32(le, ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : sizes[the_one]);
-            wee32(le, ptr, sizes[the_one]);
+            wee32(le, ptr, bases[the_one]-base_addr & 0xffffffff);
+            wee32(le, ptr, bases[the_one] & 0xffffffff);
+            wee32(le, ptr, bases[the_one] & 0xffffffff);
+            wee32(le, ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : sizes[the_one] & 0xffffffff);
+            wee32(le, ptr, sizes[the_one] & 0xffffffff);
             wee32(le, ptr, 0);
         }
     }
@@ -282,7 +291,7 @@ void ElfImage::finalise()
         wee32(le, ptr, 0);   // entsize
     }
 
-    int stringtablesize = stringtable.dataSize()+1;
+    size_t stringtablesize = stringtable.dataSize()+1;
     while (stringtablesize % 8)
     {
         stringtablesize++;
@@ -302,7 +311,7 @@ void ElfImage::finalise()
         wee32(le, ptr, 0);  // flags
         wee32(le, ptr, 0);  // addr
         wee32(le, ptr, 4096);  // offset
-        wee32(le, ptr, stringtablesize);  // size
+        wee32(le, ptr, stringtablesize & 0xffffffff);  // size
     }
     wee32(le, ptr, 0);  // link - UNDEF
     wee32(le, ptr, 0);  // info
@@ -331,7 +340,7 @@ void ElfImage::finalise()
         wee32(le, ptr, 0);  // flags
         wee32(le, ptr, 0);  // addr
         wee32(le, ptr, 8192);  // offset
-        wee32(le, ptr, (fptrs.size()+1)*16);  // size
+        wee32(le, ptr, ((fptrs.size()+1)*16) & 0xffffffff);  // size
     }
     wee32(le, ptr, 1);  // link - string table
     wee32(le, ptr, 0);  // info - last local symbol
@@ -388,9 +397,9 @@ void ElfImage::finalise()
         else
         {
             wee32(le, ptr, flags);  // flags
-            wee32(le, ptr, bases[loopc]);  // addr
-            wee32(le, ptr, bases[loopc]-base_addr);  // offset
-            wee32(le, ptr, sizes[loopc]);  // size
+            wee32(le, ptr, bases[loopc] & 0xffffffff);  // addr
+            wee32(le, ptr, bases[loopc]-base_addr & 0xffffffff);  // offset
+            wee32(le, ptr, sizes[loopc] & 0xffffffff);  // size
         }
         wee32(le, ptr, 0);  // link - UNDEF
         wee32(le, ptr, 0);  // info
@@ -439,8 +448,8 @@ void ElfImage::finalise()
         else
         {
             wee32(le, ptr, idx);
-            wee32(le, ptr, foffsets[loopc]+bases[IMAGE_CODE]);
-            wee32(le, ptr, fsizes[loopc]);
+            wee32(le, ptr, foffsets[loopc]+bases[IMAGE_CODE]  & 0xffffffff);
+            wee32(le, ptr, fsizes[loopc] & 0xffffffff);
             *ptr = 0x12; // info - function, global
             ptr++;
             *ptr = 0;
