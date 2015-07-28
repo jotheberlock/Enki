@@ -244,18 +244,9 @@ int main(int argc, char ** argv)
   
     uint64_t result = 1;
 
-    bool jit = true;
+    bool jit = false;
     
-    Image * image = 0;
-    if (getenv("MAKE_EXE"))
-    {
-        image = new ElfImage("a.out", true, true, ARCH_AMD64);
-        jit = false;
-    }
-    else
-    {
-        image = new MemoryImage();
-    }
+    Image * image = config.image;
     MemoryImage * macros = new MemoryImage();
 
     log_file = fopen("log.txt", "w");
@@ -267,7 +258,7 @@ int main(int argc, char ** argv)
 
     constants = new Constants();
     codegens = new std::list<Codegen *>;
-    assembler = new Amd64();
+    assembler = config.assembler;
     initialiseTypes();
     FunctionType * root_type = new FunctionType("@root", false);
     root_type->addReturn(register_type);
@@ -275,16 +266,12 @@ int main(int argc, char ** argv)
     root_scope = new FunctionScope(0, "@root", root_type);
     
     FunctionType * syscall_type = new ExternalFunctionType("__syscall",
-                                                           new Amd64UnixSyscallCallingConvention());
+                                                           config.syscall);
     syscall_type->addReturn(register_type);
     FunctionScope * fs_syscall = new FunctionScope(root_scope, "__syscall",
                                                    syscall_type);
-    
-#ifdef WINDOWS_CC
-    calling_convention = new Amd64WindowsCallingConvention();
-#else
-    calling_convention = new Amd64UnixCallingConvention();
-#endif
+
+    calling_convention = config.cconv;
 
     if (jit)
     {
@@ -458,7 +445,9 @@ int main(int argc, char ** argv)
 
         BasicBlock::calcRelationships(cg->getBlocks());
         
-        std::vector<OptimisationPass *> passes;
+        std::vector<OptimisationPass *> passes = config.passes;
+
+	/*
         passes.push_back(new ResolveConstAddr);
         passes.push_back(new ConstMover);
         passes.push_back(new AddressOfPass);
@@ -467,7 +456,8 @@ int main(int argc, char ** argv)
         passes.push_back(new BranchRemover);
         passes.push_back(new SillyRegalloc);
         passes.push_back(new StackSizePass);
-
+	*/
+	
         int count = 0;
         for(std::vector<OptimisationPass *>::iterator it = passes.begin();
             it != passes.end(); it++)

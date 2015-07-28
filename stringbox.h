@@ -1,6 +1,8 @@
 #ifndef _STRINGBOX_
 #define _STRINGBOX_
 
+#include <stdlib.h>
+
 class StringBox {
 	
 public:
