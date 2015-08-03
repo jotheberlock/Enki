@@ -18,6 +18,7 @@
 #include "elf.h"
 #include "component.h"
 #include "configfile.h"
+#include "backend.h"
 
 Assembler * assembler = 0;
 CallingConvention * calling_convention = 0;
@@ -367,6 +368,11 @@ int main(int argc, char ** argv)
 
     root_scope->add(new Value("__activation", byteptr));
     root_scope->add(new Value("__stackptr", byteptr));
+
+    Backend output(&config, parse.tree());
+    output.process();
+
+    /*
     
     Codegen * gc = new Codegen(parse.tree(), root_scope);
     codegens->push_back(gc);
@@ -447,7 +453,6 @@ int main(int argc, char ** argv)
         
         std::vector<OptimisationPass *> passes = config.passes;
 
-	/*
         passes.push_back(new ResolveConstAddr);
         passes.push_back(new ConstMover);
         passes.push_back(new AddressOfPass);
@@ -455,9 +460,7 @@ int main(int argc, char ** argv)
         passes.push_back(new ConditionalBranchSplitter);
         passes.push_back(new BranchRemover);
         passes.push_back(new SillyRegalloc);
-        passes.push_back(new StackSizePass);
-	*/
-	
+        passes.push_back(new StackSizePass);	
         int count = 0;
         for(std::vector<OptimisationPass *>::iterator it = passes.begin();
             it != passes.end(); it++)
@@ -613,7 +616,6 @@ int main(int argc, char ** argv)
     fclose(dump);
 
     image->setRootFunction(gc->getScope());
-
     
     image->finalise();
 
@@ -694,4 +696,6 @@ int main(int argc, char ** argv)
     fclose(log_file);
     printf("Result: %ld\n", result);
     return (int)result;
+*/
+    return 0;
 }

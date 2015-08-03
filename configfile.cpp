@@ -75,6 +75,10 @@ void ConfigFile::process()
   		    printf("Can't include %s!\n", val.c_str());
 		}
 	    }
+	    else if (command == "name")
+	    {
+		config->name = val;
+	    }
 	    else if (command == "path")
 	    {
 		config->paths.push_back(val);

@@ -31,6 +31,7 @@ class Configuration
     CallingConvention * cconv;
     CallingConvention * syscall;
     Assembler * assembler;
+    std::string name;
     
     std::vector<OptimisationPass *> passes;
     

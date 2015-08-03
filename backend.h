@@ -3,17 +3,20 @@
 
 #include "configfile.h"
 #include "ast.h"
+#include "codegen.h"
 
 class Backend
 {
  public:
 
     Backend(Configuration *, Expr *);
-
+    void process();
+    
  protected:
 
     Configuration * config;
-    Expr * ast;
+    Expr * root_expr;
+    std::list<Codegen *> codegens;
 
 };
 
