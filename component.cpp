@@ -1,6 +1,7 @@
 #include "component.h"
 #include "image.h"
 #include "elf.h"
+#include "pe.h"
 #include "amd64.h"
 #include "pass.h"
 
@@ -12,6 +13,11 @@ Component * make_memoryimage()
 Component * make_elf()
 {
     return new ElfImage();
+}
+
+Component * make_pe()
+{
+    return new PEImage();
 }
 
 Component * make_amd64()
@@ -78,6 +84,7 @@ ComponentFactory::ComponentFactory()
 {
     add(make_memoryimage, "image", "memory");
     add(make_elf, "image", "elf");
+    add(make_pe, "image", "pe");
     add(make_amd64, "asm", "amd64");
     add(make_amd64_unix_syscall, "cconv", "amd64_unix_syscall");
     add(make_amd64_unix, "cconv", "amd64_unix");
