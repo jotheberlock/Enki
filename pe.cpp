@@ -123,8 +123,23 @@ void PEImage::finalise()
     wle32(ptr, 0);  // timestamp
     wle32(ptr, 0);  // symbol table ptr
     wle32(ptr, 0);  // no. symbols
-    wle16(ptr, 0);  // Optional header size
+    wle16(ptr, (sf_bit ? 112 : 96) + (16*8));  // Optional header size
     wle16(ptr, 0x1 | 0x2 | 0x4 | 0x8 | 0x100 | 0x200);  // flags
+
+    wle16(ptr, sf_bit ? 0x20b : 0x10b);  // magic
+    *ptr = 6;           // linker major/minor
+    ptr++;
+    *ptr = 0;
+    ptr++;
+    wle32(ptr, sizes[IMAGE_CODE]);
+    wle32(ptr, sizes[IMAGE_CONST_DATA]+sizes[IMAGE_DATA]);
+    wle32(ptr, sizes[IMAGE_UNALLOCED_DATA]);
+    wle32(ptr, functionAddress(root_function));
+    wle32(ptr, bases[IMAGE_CODE]);
+    if (!sf_bit)
+    {
+        wle32(ptr, bases[IMAGE_DATA]);
+    }
     
     fwrite(header, 4096, 1, f);
     delete[] header;
