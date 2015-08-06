@@ -145,6 +145,7 @@
     <ClInclude Include="..\amd64.h" />
     <ClInclude Include="..\asm.h" />
     <ClInclude Include="..\ast.h" />
+    <ClInclude Include="..\backend.h" />
     <ClInclude Include="..\cfuncs.h" />
     <ClInclude Include="..\codegen.h" />
     <ClInclude Include="..\component.h" />
@@ -155,6 +156,7 @@
     <ClInclude Include="..\lexer.h" />
     <ClInclude Include="..\mem.h" />
     <ClInclude Include="..\pass.h" />
+    <ClInclude Include="..\pe.h" />
     <ClInclude Include="..\platform.h" />
     <ClInclude Include="..\regset.h" />
     <ClInclude Include="..\stringbox.h" />
@@ -167,6 +169,7 @@
     <ClCompile Include="..\amd64.cpp" />
     <ClCompile Include="..\asm.cpp" />
     <ClCompile Include="..\ast.cpp" />
+    <ClCompile Include="..\backend.cpp" />
     <ClCompile Include="..\cfuncs.cpp" />
     <ClCompile Include="..\codegen.cpp" />
     <ClCompile Include="..\component.cpp" />
@@ -178,6 +181,7 @@
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\mem.cpp" />
     <ClCompile Include="..\pass.cpp" />
+    <ClCompile Include="..\pe.cpp" />
     <ClCompile Include="..\platform.cpp" />
     <ClCompile Include="..\regset.cpp" />
     <ClCompile Include="..\stringbox.cpp" />

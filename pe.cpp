@@ -133,20 +133,20 @@ void PEImage::finalise()
     ptr++;
     *ptr = 0;
     ptr++;
-    wle32(ptr, sizes[IMAGE_CODE]);
-    wle32(ptr, sizes[IMAGE_CONST_DATA]+sizes[IMAGE_DATA]);
-    wle32(ptr, sizes[IMAGE_UNALLOCED_DATA]);
-    wle32(ptr, functionAddress(root_function));
-    wle32(ptr, bases[IMAGE_CODE]);
+    wle32(ptr, checked_32(sizes[IMAGE_CODE]));
+    wle32(ptr, checked_32(sizes[IMAGE_CONST_DATA]+sizes[IMAGE_DATA]));
+    wle32(ptr, checked_32(sizes[IMAGE_UNALLOCED_DATA]));
+    wle32(ptr, checked_32(functionAddress(root_function)));
+	wle32(ptr, checked_32(bases[IMAGE_CODE]));
     if (!sf_bit)
     {
-        wle32(ptr, bases[IMAGE_DATA]);
+        wle32(ptr, checked_32(bases[IMAGE_DATA]));
     }
 
     // PE header
     if (sf_bit)
     {
-	wle64(ptr, base_addr); 
+		wle64(ptr, base_addr); 
     }
     else
     {
@@ -161,7 +161,7 @@ void PEImage::finalise()
     wle16(ptr, 0);    // Subsystem version
     wle16(ptr, 0);
     wle32(ptr, 0);    // Reserved
-    wle32(ptr, base_addr - next_addr);   // Image size
+    wle32(ptr, checked_32(base_addr - next_addr));   // Image size
     wle32(ptr, 0x400);  // Headers size
     wle32(ptr, 0);  // Checksum
     wle16(ptr, 0x3);  // Subsystem - Windows CLI
