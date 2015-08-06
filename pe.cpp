@@ -116,7 +116,8 @@ void PEImage::finalise()
 
     unsigned char * header = new unsigned char[4096];
     memset(header, 0, 4096);
-    
+
+    // COFF header
     unsigned char * ptr = header;
     wle16(ptr, arch);
     wle16(ptr, 5);  // sections
@@ -126,6 +127,7 @@ void PEImage::finalise()
     wle16(ptr, (sf_bit ? 112 : 96) + (16*8));  // Optional header size
     wle16(ptr, 0x1 | 0x2 | 0x4 | 0x8 | 0x100 | 0x200);  // flags
 
+    // COFF optional header
     wle16(ptr, sf_bit ? 0x20b : 0x10b);  // magic
     *ptr = 6;           // linker major/minor
     ptr++;
@@ -140,7 +142,46 @@ void PEImage::finalise()
     {
         wle32(ptr, bases[IMAGE_DATA]);
     }
-    
+
+    // PE header
+    if (sf_bit)
+    {
+	wle64(ptr, base_addr); 
+    }
+    else
+    {
+        wle32(ptr, checked_32(base_addr));
+    }
+    wle32(ptr, 4096); // Align
+    wle32(ptr, 512);  // File align
+    wle16(ptr, 6);    // OS major
+    wle16(ptr, 0);    // OS minor
+    wle16(ptr, 0);    // Image version
+    wle16(ptr, 0);
+    wle16(ptr, 0);    // Subsystem version
+    wle16(ptr, 0);
+    wle32(ptr, 0);    // Reserved
+    wle32(ptr, base_addr - next_addr);   // Image size
+    wle32(ptr, 0x400);  // Headers size
+    wle32(ptr, 0);  // Checksum
+    wle16(ptr, 0x3);  // Subsystem - Windows CLI
+    wle16(ptr, 0); // DLL Flags
+    if (sf_bit)
+    {
+        wle64(ptr, 0x100000);  // Stack reserve
+        wle64(ptr, 0x4000);  // Stack commit
+        wle64(ptr, 0x100000);  // Heap reserve
+        wle64(ptr, 0x4000);   // Heap commit
+    }
+    else
+    {
+        wle32(ptr, 0x100000);  // Stack reserve
+        wle32(ptr, 0x4000);  // Stack commit
+        wle32(ptr, 0x100000);  // Heap reserve
+        wle32(ptr, 0x4000);   // Heap commit
+    }
+    wle32(ptr, 0);  // Loader flags
+    wle32(ptr, 16);   // RVA number
     fwrite(header, 4096, 1, f);
     delete[] header;
     fclose(f);
