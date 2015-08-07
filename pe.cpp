@@ -136,11 +136,11 @@ void PEImage::finalise()
     wle32(ptr, checked_32(sizes[IMAGE_CODE]));
     wle32(ptr, checked_32(sizes[IMAGE_CONST_DATA]+sizes[IMAGE_DATA]));
     wle32(ptr, checked_32(sizes[IMAGE_UNALLOCED_DATA]));
-    wle32(ptr, checked_32(functionAddress(root_function)));
-	wle32(ptr, checked_32(bases[IMAGE_CODE]));
+    wle32(ptr, checked_32(functionAddress(root_function)-base_addr));
+    wle32(ptr, checked_32(bases[IMAGE_CODE]-base_addr));
     if (!sf_bit)
     {
-        wle32(ptr, checked_32(bases[IMAGE_DATA]));
+        wle32(ptr, checked_32(bases[IMAGE_DATA]-base_addr));
     }
 
     // PE header
