@@ -182,8 +182,75 @@ void PEImage::finalise()
     }
     wle32(ptr, 0);  // Loader flags
     wle32(ptr, 16);   // RVA number
+
+    uint64_t prev_base = 0;
+    
+    for (int loopc=0; loopc<4; loopc++)
+    { 
+        int the_one = 0;
+        uint64_t lowest_diff = 0xffffffff;
+        for (int loopc2=0; loopc2<4; loopc2++)
+        {
+            uint64_t diff = bases[loopc2] - prev_base;
+            if ((bases[loopc2] > prev_base) && (diff < lowest_diff))
+            {
+                lowest_diff = diff;
+                the_one = loopc2;
+            }
+        }
+        prev_base = bases[the_one];
+        
+        wle32(ptr, 0x1);  // Loadable
+	
+        char sname[8];
+	memset(sname, 0, 8);
+	uint32_t flags;
+        if (the_one == IMAGE_CODE)
+	{  
+	    strcpy(sname, ".text");
+            flags = 0x20 | 0x20000000 | 0x40000000;
+	}
+	else if (the_one == IMAGE_DATA)
+	{
+	    strcpy(sname, ".data");
+	    flags = 0x40 | 0x40000000 | 0x80000000;
+	}
+	else if (the_one == IMAGE_CONST_DATA)
+	{
+	    strcpy(sname, ".rdata");
+	    flags = 0x40 | 0x40000000;
+        }
+        else if (the_one == IMAGE_UNALLOCED_DATA)
+	{
+	    strcpy(sname, ".bss");
+	    flags = 0x80 | 0x40000000 | 0x80000000;
+        }
+
+	memcpy(sname, ptr, 8);
+	ptr += 8;
+	wle32(ptr, sizes[the_one]);
+	wle32(ptr, bases[the_one] - base_addr);
+	wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : sizes[the_one]);
+	wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : bases[the_one] - base_addr);
+	wle32(ptr, 0);  // No relocations
+	wle32(ptr, 0);  // No line numbers
+	wle16(ptr, 0);  // No relocations
+	wle16(ptr, 0);  // No line numbers;
+	wle32(ptr, flags);
+    }
+    
     fwrite(header, 4096, 1, f);
     delete[] header;
+    
+    for (int loopc=0; loopc<4; loopc++)
+    {
+        if (loopc != IMAGE_UNALLOCED_DATA)
+        {
+            fseek(f, bases[loopc]-base_addr, SEEK_SET);
+            fwrite(sections[loopc], sizes[loopc], 1, f);
+        }
+    }
+    
     fclose(f);
 }
 
