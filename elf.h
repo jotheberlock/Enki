@@ -29,7 +29,6 @@ class ElfImage : public Image
   protected:
     
     int stringOffset(const char * c);
-    
     void materialiseSection(int s);
     uint64_t base_addr;
     uint64_t next_addr;
