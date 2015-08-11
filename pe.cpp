@@ -158,10 +158,10 @@ void PEImage::finalise()
     wle16(ptr, 0);    // OS minor
     wle16(ptr, 0);    // Image version
     wle16(ptr, 0);
-    wle16(ptr, 0);    // Subsystem version
+    wle16(ptr, 3);    // Subsystem version - windows command line
     wle16(ptr, 0);
     wle32(ptr, 0);    // Reserved
-    wle32(ptr, checked_32(base_addr - next_addr));   // Image size
+    wle32(ptr, checked_32(next_addr - base_addr));   // Image size
     wle32(ptr, 0x400);  // Headers size
     wle32(ptr, 0);  // Checksum
     wle16(ptr, 0x3);  // Subsystem - Windows CLI
