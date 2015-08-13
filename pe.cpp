@@ -12,7 +12,7 @@ PEImage::PEImage()
     fname = "a.exe";
     sf_bit = false;
     arch = 0;
-
+    subsystem = 3; // Windows CLI
     bases[3] = 0x800000;
     sizes[3] = 4096;    
 }
@@ -48,11 +48,15 @@ bool PEImage::configure(std::string param, std::string val)
     }
     else if (param == "arch")
     {
-      arch = strtol(val.c_str(), 0, 10);
+        arch = strtol(val.c_str(), 0, 10);
+    }
+    else if (param == "subsystem")
+    {
+        subsystem = strtol(val.c_str(), 0, 10);
     }
     else
     {
-      return false;
+        return false;
     }
 
     return true;
@@ -164,7 +168,7 @@ void PEImage::finalise()
     wle32(ptr, checked_32(next_addr - base_addr));   // Image size
     wle32(ptr, 0x400);  // Headers size
     wle32(ptr, 0);  // Checksum
-    wle16(ptr, 0x3);  // Subsystem - Windows CLI
+    wle16(ptr, subsystem);  // Subsystem - Windows CLI
     wle16(ptr, 0); // DLL Flags
     if (sf_bit)
     {
@@ -183,6 +187,21 @@ void PEImage::finalise()
     wle32(ptr, 0);  // Loader flags
     wle32(ptr, 16);   // RVA number
 
+    // Data directories go here
+    for (int loopc=0; loopc<16; loopc++)
+    {
+      if (loopc == 1)
+      {
+	  wle32(ptr, 0); // imports base
+	  wle32(ptr, 0); // imports size
+      }
+      else
+      {
+	wle32(ptr, 0);
+	wle32(ptr, 0);
+      }
+    }
+    
     uint64_t prev_base = 0;
     
     for (int loopc=0; loopc<4; loopc++)
@@ -200,8 +219,6 @@ void PEImage::finalise()
         }
         prev_base = bases[the_one];
         
-        wle32(ptr, 0x1);  // Loadable
-	
         char sname[8];
 	memset(sname, 0, 8);
 	uint32_t flags;
@@ -226,7 +243,7 @@ void PEImage::finalise()
 	    flags = 0x80 | 0x40000000 | 0x80000000;
         }
 
-	memcpy(sname, ptr, 8);
+	memcpy(ptr, sname, 8);
 	ptr += 8;
 	wle32(ptr, sizes[the_one]);
 	wle32(ptr, bases[the_one] - base_addr);
