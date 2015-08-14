@@ -72,6 +72,9 @@ void PEImage::finalise()
     }
 
     // Little-endian only
+
+    uint64_t imports_base = next_addr;
+    next_addr += 4096;
     
     unsigned char dosheader[256];
     memset(dosheader, 0, 256);
@@ -255,6 +258,21 @@ void PEImage::finalise()
 	wle16(ptr, 0);  // No line numbers;
 	wle32(ptr, flags);
     }
+
+    char sname[8];
+    memset(sname, 0, 8);
+    strcpy(sname, ".idata");
+    memcpy(ptr, sname, 8);
+    ptr += 8;
+    wle32(ptr, 4096);
+    wle32(ptr, imports_base - base_addr);
+    wle32(ptr, 4096);
+    wle32(ptr, imports_base - base_addr);
+    wle32(ptr, 0);
+    wle32(ptr, 0);
+    wle16(ptr, 0);
+    wle16(ptr, 0);
+    wle32(ptr, 0x40 | 0x40000000 | 0x80000000);
     
     fwrite(header, 4096, 1, f);
     delete[] header;
