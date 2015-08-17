@@ -193,16 +193,16 @@ void PEImage::finalise()
     // Data directories go here
     for (int loopc=0; loopc<16; loopc++)
     {
-      if (loopc == 1)
-      {
-	  wle32(ptr, 0); // imports base
-	  wle32(ptr, 0); // imports size
-      }
-      else
-      {
-	wle32(ptr, 0);
-	wle32(ptr, 0);
-      }
+        if (loopc == 1)
+        {
+	    wle32(ptr, 0); // imports base
+	    wle32(ptr, 0); // imports size
+        }
+        else
+        {
+	    wle32(ptr, 0);
+	    wle32(ptr, 0);
+        }
     }
     
     uint64_t prev_base = 0;
@@ -248,10 +248,10 @@ void PEImage::finalise()
 
 	memcpy(ptr, sname, 8);
 	ptr += 8;
-	wle32(ptr, sizes[the_one]);
-	wle32(ptr, bases[the_one] - base_addr);
-	wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : sizes[the_one]);
-	wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : bases[the_one] - base_addr);
+	wle32(ptr, checked_32(sizes[the_one]));
+	wle32(ptr, checked_32(bases[the_one] - base_addr));
+	wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(sizes[the_one]));
+	wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(bases[the_one] - base_addr));
 	wle32(ptr, 0);  // No relocations
 	wle32(ptr, 0);  // No line numbers
 	wle16(ptr, 0);  // No relocations
@@ -265,9 +265,9 @@ void PEImage::finalise()
     memcpy(ptr, sname, 8);
     ptr += 8;
     wle32(ptr, 4096);
-    wle32(ptr, imports_base - base_addr);
+    wle32(ptr, checked_32(imports_base - base_addr));
     wle32(ptr, 4096);
-    wle32(ptr, imports_base - base_addr);
+    wle32(ptr, checked_32(imports_base - base_addr));
     wle32(ptr, 0);
     wle32(ptr, 0);
     wle16(ptr, 0);
