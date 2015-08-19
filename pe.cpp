@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 PEImage::PEImage()
 {
@@ -29,7 +30,7 @@ bool PEImage::configure(std::string param, std::string val)
 {
     if (param == "file")
     {
-      fname = val;
+        fname = val;
     }
     else if (param == "bits")
     {
@@ -128,7 +129,7 @@ void PEImage::finalise()
     unsigned char * ptr = header;
     wle16(ptr, arch);
     wle16(ptr, 5);  // sections
-    wle32(ptr, 0);  // timestamp
+    wle32(ptr, time(0));  // timestamp
     wle32(ptr, 0);  // symbol table ptr
     wle32(ptr, 0);  // no. symbols
     wle16(ptr, (sf_bit ? 112 : 96) + (16*8));  // Optional header size
