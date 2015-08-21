@@ -286,7 +286,32 @@ void PEImage::finalise()
             fwrite(sections[loopc], sizes[loopc], 1, f);
         }
     }
+
+    std::map<std::string, int> libs;
+    for (unsigned int loopc=0; loopc<import_libraries.size(); loopc++)
+    {
+        libs[import_libraries[loopc]]++;
+    }
+
+    unsigned char buf[4096];
+    for (unsigned int loopc=0; loopc<libs.size(); loopc++)
+    {
+	ptr = buf;
+	wle32(ptr, (imports_base - base_addr)+16);  // Lookup table
+	wle32(ptr, 0);   // Timestamp
+	wle32(ptr, 0);   // Forwarder
+	wle32(ptr, 0);   // DLL name
+	wle32(ptr, 0);   // Address of IAT
+	fseek(f, imports_base - base_addr, SEEK_SET);
+    }
+    // null entry
+    wle32(ptr, 0);
+    wle32(ptr, 0);
+    wle32(ptr, 0);
+    wle32(ptr, 0);
+    wle32(ptr, 0);
     
+    fwrite(buf, 4096, 1, f);
     fclose(f);
 }
 
