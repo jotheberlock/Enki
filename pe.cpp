@@ -15,7 +15,10 @@ PEImage::PEImage()
     arch = 0;
     subsystem = 3; // Windows CLI
     bases[3] = 0x800000;
-    sizes[3] = 4096;    
+    sizes[3] = 4096;
+
+    import_names.push_back("foo");
+    import_libraries.push_back("NTDLL.DLL");
 }
 
 PEImage::~PEImage()
@@ -196,8 +199,8 @@ void PEImage::finalise()
     {
         if (loopc == 1)
         {
-	    wle32(ptr, 0); // imports base
-	    wle32(ptr, 0); // imports size
+	    wle32(ptr, imports_base - base_addr); // imports base
+	    wle32(ptr, 4096); // imports size
         }
         else
         {
@@ -293,16 +296,30 @@ void PEImage::finalise()
         libs[import_libraries[loopc]]++;
     }
 
+    int table_size = (libs.size() * 20)+20;   // import directory table
+    int ilt_size = libs.size() + import_names.size();
+    ilt_size *= (sf_bit ? 8 : 4);
+    uint64_t hints_offset = table_size+ilt_size;
+    
+    int count = 0;
+    
     unsigned char buf[4096];
-    for (unsigned int loopc=0; loopc<libs.size(); loopc++)
+    ptr = buf;
+    unsigned char * namebase = buf+hints_offset;
+    unsigned char * nameptr = namebase;
+    
+    std::map<std::string, int>::iterator it;
+    for (it = libs.begin(); it != libs.end(); ++it)
     {
-	ptr = buf;
-	wle32(ptr, (imports_base - base_addr)+16);  // Lookup table
+	wle32(ptr, (imports_base - base_addr)+20+count);  // Lookup table
 	wle32(ptr, 0);   // Timestamp
 	wle32(ptr, 0);   // Forwarder
-	wle32(ptr, 0);   // DLL name
-	wle32(ptr, 0);   // Address of IAT
+	strcpy((char *)nameptr, it->first.c_str());
+	nameptr += strlen(it->first.c_str());
+	wle32(ptr, (imports_base - base_addr) + hints_offset + (nameptr-namebase));   // DLL name
+	wle32(ptr, (imports_base - base_addr)+20+count);   // Address of IAT
 	fseek(f, imports_base - base_addr, SEEK_SET);
+	count += it->second * (sf_bit ? 8 : 4);
     }
     // null entry
     wle32(ptr, 0);
@@ -310,6 +327,18 @@ void PEImage::finalise()
     wle32(ptr, 0);
     wle32(ptr, 0);
     wle32(ptr, 0);
+
+    for (int loopc=0; loopc<ilt_size; loopc++)
+    {
+        if (sf_bit)
+        {
+	    wle64(ptr, 0);
+        }
+        else
+        {
+	    wle32(ptr, 0);
+        }
+    }
     
     fwrite(buf, 4096, 1, f);
     fclose(f);
