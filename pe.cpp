@@ -328,16 +328,42 @@ void PEImage::finalise()
     wle32(ptr, 0);
     wle32(ptr, 0);
 
-    for (int loopc=0; loopc<ilt_size; loopc++)
+    for (it = libs.begin(); it != libs.end(); ++it)
     {
-        if (sf_bit)
-        {
+	for (unsigned int loopc=0;loopc<import_names.size(); loopc++)
+	{
+	    if (import_libraries[loopc] == it->first)
+	    {
+  	        uint64_t addr = (nameptr-namebase) + (imports_base - base_addr) + hints_offset;
+	        *nameptr = 0;
+	        nameptr++;
+	        *nameptr = 0;
+	        nameptr++;
+	        strcpy((char *)nameptr, import_names[loopc].c_str());
+	        nameptr += strlen(import_names[loopc].c_str());
+		if (((uint64_t)nameptr) & 0x1)
+		{
+		    *nameptr = 0;
+		    nameptr++;
+	        }
+		if (sf_bit)
+		{
+		    wle64(ptr, addr);
+	        }
+		else
+         	{
+		    wle32(ptr, addr);
+		}
+	    }
+        }
+	if (sf_bit)
+	{
 	    wle64(ptr, 0);
         }
-        else
-        {
+	else
+	{
 	    wle32(ptr, 0);
-        }
+        }	
     }
     
     fwrite(buf, 4096, 1, f);
