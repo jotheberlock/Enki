@@ -311,14 +311,13 @@ void PEImage::finalise()
     std::map<std::string, int>::iterator it;
     for (it = libs.begin(); it != libs.end(); ++it)
     {
-	wle32(ptr, (imports_base - base_addr)+20+count);  // Lookup table
+        wle32(ptr, checked_32((imports_base - base_addr)+20+count));  // Lookup table
 	wle32(ptr, 0);   // Timestamp
 	wle32(ptr, 0);   // Forwarder
 	strcpy((char *)nameptr, it->first.c_str());
-	nameptr += strlen(it->first.c_str());
-	wle32(ptr, (imports_base - base_addr) + hints_offset + (nameptr-namebase));   // DLL name
-	wle32(ptr, (imports_base - base_addr)+20+count);   // Address of IAT
-	fseek(f, imports_base - base_addr, SEEK_SET);
+	nameptr += strlen(it->first.c_str())+1;
+	wle32(ptr, checked_32((imports_base - base_addr) + hints_offset + (nameptr-namebase)));   // DLL name
+	wle32(ptr, checked_32((imports_base - base_addr)+20+count));   // Address of IAT
 	count += it->second * (sf_bit ? 8 : 4);
     }
     // null entry
@@ -335,24 +334,25 @@ void PEImage::finalise()
 	    if (import_libraries[loopc] == it->first)
 	    {
   	        uint64_t addr = (nameptr-namebase) + (imports_base - base_addr) + hints_offset;
+		if (((uint64_t)nameptr) & 0x1)
+		{
+		    *nameptr = 0;
+		    nameptr++;
+		    addr++;
+	        }
 	        *nameptr = 0;
 	        nameptr++;
 	        *nameptr = 0;
 	        nameptr++;
 	        strcpy((char *)nameptr, import_names[loopc].c_str());
 	        nameptr += strlen(import_names[loopc].c_str());
-		if (((uint64_t)nameptr) & 0x1)
-		{
-		    *nameptr = 0;
-		    nameptr++;
-	        }
 		if (sf_bit)
 		{
 		    wle64(ptr, addr);
 	        }
 		else
          	{
-		    wle32(ptr, addr);
+	 	    wle32(ptr, checked_32(addr));
 		}
 	    }
         }
@@ -365,7 +365,8 @@ void PEImage::finalise()
 	    wle32(ptr, 0);
         }	
     }
-    
+
+    fseek(f, imports_base - base_addr, SEEK_SET);    
     fwrite(buf, 4096, 1, f);
     fclose(f);
 }
