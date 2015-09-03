@@ -68,6 +68,8 @@ bool PEImage::configure(std::string param, std::string val)
 
 void PEImage::finalise()
 {
+    materialiseSection(3);
+    
     FILE * f = fopen(fname.c_str(), "w+");
     if (!f)
     {
