@@ -229,40 +229,40 @@ void PEImage::finalise()
         prev_base = bases[the_one];
         
         char sname[8];
-	memset(sname, 0, 8);
-	uint32_t flags;
+        memset(sname, 0, 8);
+        uint32_t flags;
         if (the_one == IMAGE_CODE)
-	{  
-	    strcpy(sname, ".text");
+        {  
+            strcpy(sname, ".text");
             flags = 0x20 | 0x20000000 | 0x40000000;
-	}
-	else if (the_one == IMAGE_DATA)
-	{
-	    strcpy(sname, ".data");
-	    flags = 0x40 | 0x40000000 | 0x80000000;
-	}
-	else if (the_one == IMAGE_CONST_DATA)
-	{
-	    strcpy(sname, ".rdata");
-	    flags = 0x40 | 0x40000000;
+        }
+        else if (the_one == IMAGE_DATA)
+        {
+            strcpy(sname, ".data");
+            flags = 0x40 | 0x40000000 | 0x80000000;
+        }
+        else if (the_one == IMAGE_CONST_DATA)
+        {
+            strcpy(sname, ".rdata");
+            flags = 0x40 | 0x40000000;
         }
         else if (the_one == IMAGE_UNALLOCED_DATA)
-	{
-	    strcpy(sname, ".bss");
-	    flags = 0x80 | 0x40000000 | 0x80000000;
+        {
+            strcpy(sname, ".bss");
+            flags = 0x80 | 0x40000000 | 0x80000000;
         }
 
-	memcpy(ptr, sname, 8);
-	ptr += 8;
-	wle32(ptr, checked_32(sizes[the_one]));
-	wle32(ptr, checked_32(bases[the_one] - base_addr));
-	wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(sizes[the_one]));
-	wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(bases[the_one] - base_addr));
-	wle32(ptr, 0);  // No relocations
-	wle32(ptr, 0);  // No line numbers
-	wle16(ptr, 0);  // No relocations
-	wle16(ptr, 0);  // No line numbers;
-	wle32(ptr, flags);
+        memcpy(ptr, sname, 8);
+        ptr += 8;
+        wle32(ptr, checked_32(sizes[the_one]));
+        wle32(ptr, checked_32(bases[the_one] - base_addr));
+        wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(sizes[the_one]));
+        wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(bases[the_one] - base_addr));
+        wle32(ptr, 0);  // No relocations
+        wle32(ptr, 0);  // No line numbers
+        wle16(ptr, 0);  // No relocations
+        wle16(ptr, 0);  // No line numbers;
+        wle32(ptr, flags);
     }
 
     char sname[8];
@@ -298,6 +298,8 @@ void PEImage::finalise()
         libs[import_libraries[loopc]]++;
     }
 
+    printf("Libs size %d\n", libs.size());
+    
     int table_size = (libs.size() * 20)+20;   // import directory table
     int ilt_size = libs.size() + import_names.size();
     ilt_size *= (sf_bit ? 8 : 4);
@@ -313,14 +315,18 @@ void PEImage::finalise()
     std::map<std::string, int>::iterator it;
     for (it = libs.begin(); it != libs.end(); ++it)
     {
-        wle32(ptr, checked_32((imports_base - base_addr)+20+count));  // Lookup table
-	wle32(ptr, 0);   // Timestamp
-	wle32(ptr, 0);   // Forwarder
-	strcpy((char *)nameptr, it->first.c_str());
-	nameptr += strlen(it->first.c_str())+1;
-	wle32(ptr, checked_32((imports_base - base_addr) + hints_offset + (nameptr-namebase)));   // DLL name
-	wle32(ptr, checked_32((imports_base - base_addr)+20+count));   // Address of IAT
-	count += it->second * (sf_bit ? 8 : 4);
+        uint64_t table_offset = (imports_base - base_addr)+table_size+count;
+        printf("Table offset %lx\n", table_offset);
+        wle32(ptr, checked_32(table_offset));  // Lookup table
+        wle32(ptr, 0);   // Timestamp
+        wle32(ptr, 0);   // Forwarder
+        strcpy((char *)nameptr, it->first.c_str());
+        uint64_t offy = (imports_base - base_addr) + hints_offset + (nameptr-namebase);
+        wle32(ptr, checked_32(offy));   // DLL name
+        printf("Using offy %ld %lx imports base %ld %lx base %ld %lx\n", offy, offy, imports_base, imports_base, base_addr, base_addr);
+        nameptr += strlen(it->first.c_str())+1;
+        wle32(ptr, checked_32((imports_base - base_addr)+20+count));   // Address of IAT
+        count += (it->second * (sf_bit ? 8 : 4))+1;
     }
     // null entry
     wle32(ptr, 0);
@@ -329,45 +335,54 @@ void PEImage::finalise()
     wle32(ptr, 0);
     wle32(ptr, 0);
 
+    printf("Offset here %lx expected %lx\n", ptr-buf, table_size);
+    
     for (it = libs.begin(); it != libs.end(); ++it)
     {
-	for (unsigned int loopc=0;loopc<import_names.size(); loopc++)
-	{
-	    if (import_libraries[loopc] == it->first)
-	    {
-  	        uint64_t addr = (nameptr-namebase) + (imports_base - base_addr) + hints_offset;
-		if (((uint64_t)nameptr) & 0x1)
-		{
-		    *nameptr = 0;
-		    nameptr++;
-		    addr++;
-	        }
-	        *nameptr = 0;
-	        nameptr++;
-	        *nameptr = 0;
-	        nameptr++;
-	        strcpy((char *)nameptr, import_names[loopc].c_str());
-	        nameptr += strlen(import_names[loopc].c_str());
-		if (sf_bit)
-		{
-		    wle64(ptr, addr);
-	        }
-		else
-         	{
-	 	    wle32(ptr, checked_32(addr));
-		}
-	    }
+        for (unsigned int loopc=0;loopc<import_names.size(); loopc++)
+        {
+            if (import_libraries[loopc] == it->first)
+            {
+                uint64_t addr = (nameptr-namebase) + (imports_base - base_addr) + hints_offset;
+                if (((uint64_t)nameptr) & 0x1)
+                {
+                    *nameptr = 0;
+                    nameptr++;
+                    addr++;
+                }
+                *nameptr = 0x0;
+                nameptr++;
+                *nameptr = 0x0;
+                nameptr++;
+                strcpy((char *)nameptr, import_names[loopc].c_str());
+                printf("Nameptr %lx [%s]\n", nameptr-buf, nameptr);
+                
+                nameptr += strlen(import_names[loopc].c_str())+1;
+
+                printf("Function addr %lx\n", addr);
+                
+                if (sf_bit)
+                {
+                    wle64(ptr, addr);
+                }
+                else
+                {
+                    wle32(ptr, checked_32(addr));
+                }
+            }
         }
-	if (sf_bit)
-	{
-	    wle64(ptr, 0);
+        if (sf_bit)
+        {
+            wle64(ptr, 0);
         }
-	else
-	{
-	    wle32(ptr, 0);
+        else
+        {
+            wle32(ptr, 0);
         }	
     }
 
+    printf("Actual offset is %ld %lx string [%s] %c %c [%s]\n", ptr-buf, ptr-buf, ptr, buf[0x42], buf[0x43], &buf[0x44]);
+           
     fseek(f, imports_base - base_addr, SEEK_SET);    
     fwrite(buf, 4096, 1, f);
     fclose(f);
