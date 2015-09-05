@@ -6,19 +6,31 @@
 #include <stdlib.h>
 #include <time.h>
 
+uint64_t roundup(uint64_t in, uint64_t align)
+{
+    while (in % align)
+    {
+        in++;
+    }
+
+    return in;
+}
+
 PEImage::PEImage()
 {
     base_addr = 0x400000;
     next_addr = base_addr + 12288;
     fname = "a.exe";
     sf_bit = false;
-    arch = 0;
-    subsystem = 3; // Windows CLI
+    arch = 34404;
+    subsystem = 1; // Windows CLI
     bases[3] = 0x800000;
     sizes[3] = 4096;
 
-    import_names.push_back("foo");
+    import_names.push_back("NtOpenFile");
     import_libraries.push_back("NTDLL.DLL");
+    import_names.push_back("ExitProcess");
+    import_libraries.push_back("KERNEL32.DLL");
 }
 
 PEImage::~PEImage()
@@ -146,9 +158,9 @@ void PEImage::finalise()
     ptr++;
     *ptr = 0;
     ptr++;
-    wle32(ptr, checked_32(sizes[IMAGE_CODE]));
-    wle32(ptr, checked_32(sizes[IMAGE_CONST_DATA]+sizes[IMAGE_DATA]));
-    wle32(ptr, checked_32(sizes[IMAGE_UNALLOCED_DATA]));
+    wle32(ptr, checked_32(roundup(sizes[IMAGE_CODE], 4096)));
+    wle32(ptr, checked_32(roundup(sizes[IMAGE_CONST_DATA],4096)+roundup(sizes[IMAGE_DATA],4096)));
+    wle32(ptr, checked_32(roundup(sizes[IMAGE_UNALLOCED_DATA],4096)));
     wle32(ptr, checked_32(functionAddress(root_function)-base_addr));
     wle32(ptr, checked_32(bases[IMAGE_CODE]-base_addr));
     if (!sf_bit)
@@ -167,7 +179,7 @@ void PEImage::finalise()
     }
     wle32(ptr, 4096); // Align
     wle32(ptr, 512);  // File align
-    wle16(ptr, 6);    // OS major
+    wle16(ptr, 4);    // OS major
     wle16(ptr, 0);    // OS minor
     wle16(ptr, 0);    // Image version
     wle16(ptr, 0);
@@ -201,13 +213,13 @@ void PEImage::finalise()
     {
         if (loopc == 1)
         {
-	    wle32(ptr, imports_base - base_addr); // imports base
-	    wle32(ptr, 4096); // imports size
+            wle32(ptr, imports_base - base_addr); // imports base
+            wle32(ptr, 4096); // imports size
         }
         else
         {
-	    wle32(ptr, 0);
-	    wle32(ptr, 0);
+            wle32(ptr, 0);
+            wle32(ptr, 0);
         }
     }
     
@@ -215,10 +227,11 @@ void PEImage::finalise()
     
     for (int loopc=0; loopc<4; loopc++)
     { 
-        int the_one = 0;
+        int the_one = -1;
         uint64_t lowest_diff = 0xffffffff;
         for (int loopc2=0; loopc2<4; loopc2++)
         {
+            printf(">> Prev_base %lx base here %lx section %d\n", prev_base, bases[loopc2], loopc2);
             uint64_t diff = bases[loopc2] - prev_base;
             if ((bases[loopc2] > prev_base) && (diff < lowest_diff))
             {
@@ -226,11 +239,20 @@ void PEImage::finalise()
                 the_one = loopc2;
             }
         }
+
+        if (the_one == -1)
+        {
+            printf("Erk!\n");
+            return;
+        }
+        
         prev_base = bases[the_one];
         
         char sname[8];
         memset(sname, 0, 8);
         uint32_t flags;
+
+        printf(">> the_one %d\n", the_one);
         if (the_one == IMAGE_CODE)
         {  
             strcpy(sname, ".text");
@@ -254,9 +276,9 @@ void PEImage::finalise()
 
         memcpy(ptr, sname, 8);
         ptr += 8;
-        wle32(ptr, checked_32(sizes[the_one]));
+        wle32(ptr, checked_32(roundup(sizes[the_one],4096)));
         wle32(ptr, checked_32(bases[the_one] - base_addr));
-        wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(sizes[the_one]));
+        wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(roundup(sizes[the_one],4096)));
         wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(bases[the_one] - base_addr));
         wle32(ptr, 0);  // No relocations
         wle32(ptr, 0);  // No line numbers
@@ -303,7 +325,7 @@ void PEImage::finalise()
     int table_size = (libs.size() * 20)+20;   // import directory table
     int ilt_size = libs.size() + import_names.size();
     ilt_size *= (sf_bit ? 8 : 4);
-    uint64_t hints_offset = table_size+ilt_size;
+    uint64_t hints_offset = table_size+ilt_size+ilt_size;
     
     int count = 0;
     
@@ -315,6 +337,7 @@ void PEImage::finalise()
     std::map<std::string, int>::iterator it;
     for (it = libs.begin(); it != libs.end(); ++it)
     {
+        printf(">> Count %d current has %d\n", count, it->second);
         uint64_t table_offset = (imports_base - base_addr)+table_size+count;
         printf("Table offset %lx\n", table_offset);
         wle32(ptr, checked_32(table_offset));  // Lookup table
@@ -325,8 +348,8 @@ void PEImage::finalise()
         wle32(ptr, checked_32(offy));   // DLL name
         printf("Using offy %ld %lx imports base %ld %lx base %ld %lx\n", offy, offy, imports_base, imports_base, base_addr, base_addr);
         nameptr += strlen(it->first.c_str())+1;
-        wle32(ptr, checked_32((imports_base - base_addr)+20+count));   // Address of IAT
-        count += (it->second * (sf_bit ? 8 : 4))+1;
+        wle32(ptr, checked_32((imports_base - base_addr)+table_size+ilt_size+count));   // Address of IAT
+        count += ((it->second+1) * (sf_bit ? 8 : 4));
     }
     // null entry
     wle32(ptr, 0);
@@ -336,50 +359,54 @@ void PEImage::finalise()
     wle32(ptr, 0);
 
     printf("Offset here %lx expected %lx\n", ptr-buf, table_size);
-    
-    for (it = libs.begin(); it != libs.end(); ++it)
-    {
-        for (unsigned int loopc=0;loopc<import_names.size(); loopc++)
-        {
-            if (import_libraries[loopc] == it->first)
-            {
-                uint64_t addr = (nameptr-namebase) + (imports_base - base_addr) + hints_offset;
-                if (((uint64_t)nameptr) & 0x1)
-                {
-                    *nameptr = 0;
-                    nameptr++;
-                    addr++;
-                }
-                *nameptr = 0x0;
-                nameptr++;
-                *nameptr = 0x0;
-                nameptr++;
-                strcpy((char *)nameptr, import_names[loopc].c_str());
-                printf("Nameptr %lx [%s]\n", nameptr-buf, nameptr);
-                
-                nameptr += strlen(import_names[loopc].c_str())+1;
 
-                printf("Function addr %lx\n", addr);
+    for (int loopc=0; loopc<2; loopc++)
+    {
+            // First is ILT, second is IAT
+        for (it = libs.begin(); it != libs.end(); ++it)
+        {
+            for (unsigned int loopc=0;loopc<import_names.size(); loopc++)
+            {
+                if (import_libraries[loopc] == it->first)
+                {
+                    uint64_t addr = (nameptr-namebase) + (imports_base - base_addr) + hints_offset;
+                    if (((uint64_t)nameptr) & 0x1)
+                    {
+                        *nameptr = 0;
+                        nameptr++;
+                        addr++;
+                    }
+                    *nameptr = 0x0;
+                    nameptr++;
+                    *nameptr = 0x0;
+                    nameptr++;
+                    strcpy((char *)nameptr, import_names[loopc].c_str());
+                    printf("Nameptr %lx [%s]\n", nameptr-buf, nameptr);
                 
-                if (sf_bit)
-                {
-                    wle64(ptr, addr);
-                }
-                else
-                {
-                    wle32(ptr, checked_32(addr));
+                    nameptr += strlen(import_names[loopc].c_str())+1;
+
+                    printf("Function addr %lx\n", addr);
+                
+                    if (sf_bit)
+                    {
+                        wle64(ptr, addr);
+                    }
+                    else
+                    {
+                        wle32(ptr, checked_32(addr));
+                    }
                 }
             }
+            if (sf_bit)
+            {
+                wle64(ptr, 0);
+            }
+            else
+            {
+                wle32(ptr, 0);
+            }	
         }
-        if (sf_bit)
-        {
-            wle64(ptr, 0);
-        }
-        else
-        {
-            wle32(ptr, 0);
-        }	
-    }
+    } 
 
     printf("Actual offset is %ld %lx string [%s] %c %c [%s]\n", ptr-buf, ptr-buf, ptr, buf[0x42], buf[0x43], &buf[0x44]);
            
@@ -393,10 +420,13 @@ void PEImage::materialiseSection(int s)
     sections[s] = new unsigned char[sizes[s]];
     bases[s] = next_addr;
     next_addr += sizes[s];
-    next_addr += 4096;
+    if (!sizes[s])
+    {
+        next_addr++;
+    }
     while (next_addr % 4096)
     {
         next_addr++;
     }
-    next_addr += 4096;   // Create a guard page
+        //next_addr += 4096;   // Create a guard page
 }
