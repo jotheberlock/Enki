@@ -146,7 +146,7 @@ void PEImage::finalise()
     unsigned char * ptr = header;
     wle16(ptr, arch);
     wle16(ptr, 5);  // sections
-    wle32(ptr, time(0));  // timestamp
+    wle32(ptr, checked_32(time(0)));  // timestamp
     wle32(ptr, 0);  // symbol table ptr
     wle32(ptr, 0);  // no. symbols
     wle16(ptr, (sf_bit ? 112 : 96) + (16*8));  // Optional header size
@@ -213,7 +213,7 @@ void PEImage::finalise()
     {
         if (loopc == 1)
         {
-            wle32(ptr, imports_base - base_addr); // imports base
+            wle32(ptr, checked_32(imports_base - base_addr)); // imports base
             wle32(ptr, 4096); // imports size
         }
         else
@@ -309,7 +309,7 @@ void PEImage::finalise()
     {
         if (loopc != IMAGE_UNALLOCED_DATA)
         {
-            fseek(f, bases[loopc]-base_addr, SEEK_SET);
+            fseek(f, checked_32(bases[loopc]-base_addr), SEEK_SET);
             fwrite(sections[loopc], sizes[loopc], 1, f);
         }
     }
@@ -322,8 +322,8 @@ void PEImage::finalise()
 
     printf("Libs size %d\n", libs.size());
     
-    int table_size = (libs.size() * 20)+20;   // import directory table
-    int ilt_size = libs.size() + import_names.size();
+	uint64_t table_size = (libs.size() * 20)+20;   // import directory table
+    uint64_t ilt_size = libs.size() + import_names.size();
     ilt_size *= (sf_bit ? 8 : 4);
     uint64_t hints_offset = table_size+ilt_size+ilt_size;
     
@@ -410,7 +410,7 @@ void PEImage::finalise()
 
     printf("Actual offset is %ld %lx string [%s] %c %c [%s]\n", ptr-buf, ptr-buf, ptr, buf[0x42], buf[0x43], &buf[0x44]);
            
-    fseek(f, imports_base - base_addr, SEEK_SET);    
+    fseek(f, checked_32(imports_base - base_addr), SEEK_SET);    
     fwrite(buf, 4096, 1, f);
     fclose(f);
 }
