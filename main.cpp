@@ -232,17 +232,24 @@ int main(int argc, char ** argv)
     if (!hfile)
     {
         printf("Can't find host config [%s]\n", ConfigFile::hostConfig().c_str());
-	return 1;
+        return 1;
     }
     Configuration hostconfig;
     ConfigFile hcf(hfile, &hostconfig);
     hcf.process();
-    
-    FILE * cfile = fopen(argc > 1 ? argv[1] : "linux_amd64_target.ini", "r");
+
     Configuration config;
-    ConfigFile cf(cfile, &config);
-    cf.process();
-  
+    
+    for (int loopc=1; loopc<argc; loopc++)
+    {
+        if (strstr(argv[loopc], ".ini"))
+        {
+            FILE * cfile = fopen(argv[loopc], "r");
+            ConfigFile cf(cfile, &config);
+            cf.process();
+        }
+    }
+    
     uint64_t result = 1;
 
     bool jit = false;
@@ -278,47 +285,48 @@ int main(int argc, char ** argv)
     {
       	set_cfuncs((MemoryImage *)image);
     }
-    
-    const char * fname = (argc > 1) ? argv[1] : "test.e";
-    
+
     Lexer lex;
-    FILE * f = fopen(fname, "rb");
-
-    if(!f && argc == 1)
+            
+    for (int loopc=1; loopc<argc; loopc++)
     {
-        fname = "../test.e";
-	f = fopen(fname, "rb");
-    }
-
-    if(!f)
-    {
-        printf("No input file\n");
-        return 1;
-    }
-
-    Chars input;
-
-    fseek(f, 0, SEEK_END);
-    int len = ftell(f);
-    char * text = new char[len];
-    fseek(f, 0, SEEK_SET);
-    fread(text, len, 1, f);
-    fclose(f);
-    
-    char * ptr = text;
-    while (ptr < text+len)
-    {
-        uint32_t v = getUtf8(ptr);
-        if (v)
+        if (strstr(argv[loopc], ".e"))
         {
-            input.push_back(v);
+            const char * fname = argv[loopc];
+    
+            FILE * f = fopen(fname, "rb");
+
+            if(!f)
+            {
+                printf("No input file\n");
+                return 1;
+            }
+
+            Chars input;
+
+            fseek(f, 0, SEEK_END);
+            int len = ftell(f);
+            char * text = new char[len];
+            fseek(f, 0, SEEK_SET);
+            fread(text, len, 1, f);
+            fclose(f);
+    
+            char * ptr = text;
+            while (ptr < text+len)
+            {
+                uint32_t v = getUtf8(ptr);
+                if (v)
+                {
+                    input.push_back(v);
+                }
+            }
+            delete[] text;
+    
+            lex.setFile(fname);
+            lex.lex(input);
         }
     }
-    delete[] text;
     
-    lex.setFile(fname);
-    lex.lex(input);
-
     if (errors.size() != 0)
     {
         printf("Lexer errors:\n\n");
