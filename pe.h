@@ -31,6 +31,7 @@ class PEImage : public Image
     std::string fname;
     bool sf_bit;
     int arch;
+    int subsystem;
     
 };
 

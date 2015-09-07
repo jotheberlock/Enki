@@ -11,6 +11,7 @@
 #define IMAGE_DATA 1
 #define IMAGE_CONST_DATA 2
 #define IMAGE_UNALLOCED_DATA 3
+#define IMAGE_LAST 4
 
 #define INVALID_ADDRESS 0xdeadbeefdeadbeef
 

@@ -150,13 +150,27 @@ void PEImage::finalise()
     wle32(ptr, 0);  // symbol table ptr
     wle32(ptr, 0);  // no. symbols
     wle16(ptr, (sf_bit ? 112 : 96) + (16*8));  // Optional header size
-    wle16(ptr, 0x1 | 0x2 | 0x4 | 0x8 | 0x100 | 0x200);  // flags
+
+    uint16_t characteristics = 0;
+    characteristics |= 0x1;  // Not relocatable
+    characteristics |= 0x2;  // Valid file
+    characteristics |= 0x4;  // Line numbers removerd
+    characteristics |= 0x8;  // Symbol tables removed
+    characteristics |= 0x20; // > 2gig aware
+    characteristics |= 0x80; // Little endian
+    if (!sf_bit)
+    {
+	characteristics |= 0x100;    // 32-bit word
+    }
+    characteristics |= 0x200;   // Debugging information removed
+    
+    wle16(ptr, characteristics);  // flags
 
     // COFF optional header
     wle16(ptr, sf_bit ? 0x20b : 0x10b);  // magic
-    *ptr = 6;           // linker major/minor
+    *ptr = 2;           // linker major/minor
     ptr++;
-    *ptr = 0;
+    *ptr = 24;
     ptr++;
     wle32(ptr, checked_32(roundup(sizes[IMAGE_CODE], 4096)));
     wle32(ptr, checked_32(roundup(sizes[IMAGE_CONST_DATA],4096)+roundup(sizes[IMAGE_DATA],4096)));
@@ -183,8 +197,8 @@ void PEImage::finalise()
     wle16(ptr, 0);    // OS minor
     wle16(ptr, 0);    // Image version
     wle16(ptr, 0);
-    wle16(ptr, 3);    // Subsystem version - windows command line
-    wle16(ptr, 0);
+    wle16(ptr, 5);    // Subsystem version
+    wle16(ptr, 2);
     wle32(ptr, 0);    // Reserved
     wle32(ptr, checked_32(next_addr - base_addr));   // Image size
     wle32(ptr, 0x400);  // Headers size
