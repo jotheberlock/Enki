@@ -201,8 +201,8 @@ void PEImage::finalise()
     wle16(ptr, 2);
     wle32(ptr, 0);    // Reserved
     wle32(ptr, checked_32(next_addr - base_addr));   // Image size
-    wle32(ptr, 0x400);  // Headers size
-    wle32(ptr, 0);  // Checksum
+    wle32(ptr, 0x3000);  // Headers size
+    wle32(ptr, 0x0);  // Checksum
     wle16(ptr, subsystem);  // Subsystem - Windows CLI
     wle16(ptr, 0); // DLL Flags
     if (sf_bit)
@@ -285,12 +285,12 @@ void PEImage::finalise()
         else if (the_one == IMAGE_UNALLOCED_DATA)
         {
             strcpy(sname, ".bss");
-            flags = 0x80 | 0x40000000 | 0x80000000;
+            flags = 0x80 | 0x40000000 | 0x80000000 | 0x600000;
         }
 
         memcpy(ptr, sname, 8);
         ptr += 8;
-        wle32(ptr, checked_32(roundup(sizes[the_one],4096)));
+        wle32(ptr, checked_32(roundup(sizes[the_one] ? sizes[the_one] : 4096,4096)));
         wle32(ptr, checked_32(bases[the_one] - base_addr));
         wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(roundup(sizes[the_one],4096)));
         wle32(ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(bases[the_one] - base_addr));
