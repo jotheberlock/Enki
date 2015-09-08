@@ -27,8 +27,6 @@ PEImage::PEImage()
     bases[3] = 0x800000;
     sizes[3] = 4096;
 
-    import_names.push_back("NtOpenFile");
-    import_libraries.push_back("NTDLL.DLL");
     import_names.push_back("ExitProcess");
     import_libraries.push_back("KERNEL32.DLL");
 }
@@ -374,7 +372,7 @@ void PEImage::finalise()
 
     printf("Offset here %lx expected %lx\n", ptr-buf, table_size);
 
-    for (int loopc=0; loopc<2; loopc++)
+    for (int loopc2=0; loopc2<2; loopc2++)
     {
             // First is ILT, second is IAT
         for (it = libs.begin(); it != libs.end(); ++it)
@@ -401,6 +399,11 @@ void PEImage::finalise()
 
                     printf("Function addr %lx\n", addr);
                 
+		    if (loopc2 == 1)
+		    {
+  		        printf("IAT position %lx\n", ptr-buf);
+		    }
+			  
                     if (sf_bit)
                     {
                         wle64(ptr, addr);
