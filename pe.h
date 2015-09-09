@@ -32,6 +32,7 @@ class PEImage : public Image
     bool sf_bit;
     int arch;
     int subsystem;
+    bool guard_page;
     
 };
 

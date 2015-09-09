@@ -26,7 +26,8 @@ PEImage::PEImage()
     subsystem = 1; // Windows CLI
     bases[3] = 0x800000;
     sizes[3] = 4096;
-
+    guard_page = false;
+    
     import_names.push_back("ExitProcess");
     import_libraries.push_back("KERNEL32.DLL");
 }
@@ -67,6 +68,13 @@ bool PEImage::configure(std::string param, std::string val)
     else if (param == "subsystem")
     {
         subsystem = strtol(val.c_str(), 0, 10);
+    }
+    else if (param == "guard")
+    {
+        if (val == "true")
+	{
+    	    guard_page = true;
+	}
     }
     else
     {
@@ -334,7 +342,7 @@ void PEImage::finalise()
 
     printf("Libs size %d\n", libs.size());
     
-	uint64_t table_size = (libs.size() * 20)+20;   // import directory table
+    uint64_t table_size = (libs.size() * 20)+20;   // import directory table
     uint64_t ilt_size = libs.size() + import_names.size();
     ilt_size *= (sf_bit ? 8 : 4);
     uint64_t hints_offset = table_size+ilt_size+ilt_size;
@@ -445,5 +453,9 @@ void PEImage::materialiseSection(int s)
     {
         next_addr++;
     }
-        //next_addr += 4096;   // Create a guard page
+
+    if (guard_page)
+    {
+        next_addr += 4096;   
+    }
 }
