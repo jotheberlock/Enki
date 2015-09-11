@@ -57,6 +57,7 @@ Lexer::Lexer()
     keywords["and"] = BINOP;
     keywords["not"] = BINOP;
     keywords["xor"] = BINOP;
+    keywords["extern"] = EXTERN;
     
     oldcol = -1;
     oldline = -1;

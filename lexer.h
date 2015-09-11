@@ -59,6 +59,8 @@ typedef std::vector<uint32_t> Chars;
 #define MACRO 45
 #define UNION 46
 
+#define EXTERN 47
+
 class Token
 {
 public:
