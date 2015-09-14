@@ -381,7 +381,7 @@ Expr * Parser::parseBodyLine()
 
         return new Continue(current);
     }
-    else if (current.type == DEF || current.type == MACRO)
+    else if (current.type == DEF || current.type == MACRO || current.type == EXTERN)
     {
         return parseDef();
     }
@@ -806,6 +806,7 @@ Expr * Parser::parseDef()
     fprintf(log_file, "Entering def\n");
 
     bool is_macro = (current.type == MACRO);
+    bool is_extern = (current.type == EXTERN);
     
     next();
 
@@ -842,6 +843,13 @@ Expr * Parser::parseDef()
             if (current.type == EOL)
             {
                 next();
+
+		if (is_extern)
+		{
+		    current_scope = current_scope->parent();
+		    return ret;
+		}
+			
                 if (current.type != BEGIN)
                 {
                     addError(Error(&current, "Expected def body"));
@@ -871,8 +879,14 @@ Expr * Parser::parseDef()
                     }
                     else
                     {
-                        next();
+		        next();
 
+			if (is_extern)
+			{
+			    current_scope = current_scope->parent();
+  			    return ret;
+			}
+			
                         if (current.type != BEGIN)
                         {
                             addError(Error(&current, "Expected def body"));
