@@ -35,7 +35,7 @@ IdentifierExpr::IdentifierExpr(Token * t)
     unsigned int loopc;
     for (loopc=0; loopc<t->value.size(); loopc++)
     {
-        buf[loopc] = (char)t->value[loopc];
+       buf[loopc] = (char)t->value[loopc];
     }
     buf[loopc] = 0;
 
@@ -817,12 +817,21 @@ Expr * Parser::parseDef()
     }
 
     IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
-    FunctionType * ft = new FunctionType(ie->getString(), is_macro);
+    FunctionType * ft;
+
+    if (is_extern)
+    {
+        ft = new ExternalFunctionType(ie->getString(), calling_convention);
+    }
+    else
+    {
+	ft = new FunctionType(ie->getString(), is_macro);
+    }
     
     FunctionScope * fs = new FunctionScope(current_scope,
                                            ie->getString(),
                                            ft);
-    DefExpr * ret = new DefExpr(ft, fs, is_macro);
+    DefExpr * ret = new DefExpr(ft, fs, is_macro, is_extern);
     
     if (current.type != OPEN_BRACKET)
     {
@@ -1847,6 +1856,11 @@ std::list<Codegen *> macros;
 
 Value * DefExpr::codegen(Codegen * c)
 {
+    if (is_extern)
+    {
+        return 0;
+    }
+    
     scope->addFunction(new FunctionScope(scope, type->name(), type));
     Codegen * ch = new Codegen(body, scope);
     if (is_macro)

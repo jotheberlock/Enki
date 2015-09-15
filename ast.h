@@ -724,11 +724,13 @@ class DefExpr : public Expr
 {
   public:
 
-    DefExpr(FunctionType * t, FunctionScope * fs, bool is_m)
+    DefExpr(FunctionType * t, FunctionScope * fs, bool is_m, bool is_e)
     {
         type = t;
         scope = fs;
         is_macro = is_m;
+	is_extern = is_e;
+	body = 0;
     }
 
     ~DefExpr()
@@ -749,16 +751,19 @@ class DefExpr : public Expr
     virtual void print(int i)
     {
         indent(i);
-        fprintf(log_file, "%s %s\n", is_macro ? "macro" : "def",
+        fprintf(log_file, "%s %s\n", is_extern ? "extern" : (is_macro ? "macro" : "def"),
                 type->name().c_str());
-        if (body)
+	if (!is_extern)
         {
-            body->print(i+1);
-        }
-        else
-        {
-            fprintf(log_file, "Null body!\n");
-        }
+	    if (body)
+            {
+		body->print(i+1);
+            }
+	    else
+            {
+		fprintf(log_file, "Null body!\n");
+            }
+	}
     }
     
     virtual Value * codegen(Codegen * c);
@@ -769,6 +774,7 @@ class DefExpr : public Expr
     Expr * body;
     FunctionScope * scope;
     bool is_macro;
+    bool is_extern;
     
 };
 
