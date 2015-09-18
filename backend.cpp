@@ -10,12 +10,15 @@ extern Constants * constants;
 extern FunctionScope * root_scope;
 extern Codegen * root_gc;
 
+Configuration * configuration = 0;
+
 #define HEAP_SIZE 4096
 
 Backend::Backend(Configuration * c, Expr * r)
 {
     config = c;
     root_expr = r;
+    configuration = c;
 }
 
 void Backend::process()

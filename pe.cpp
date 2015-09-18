@@ -191,7 +191,7 @@ void PEImage::finalise()
     // PE header
     if (sf_bit)
     {
-		wle64(ptr, base_addr); 
+        wle64(ptr, base_addr); 
     }
     else
     {

@@ -1835,7 +1835,6 @@ Value * Funcall::codegen(Codegen * c)
     
     assert(fs->getType()->canFuncall());
     
-    fprintf(log_file, "Woo function call\n");
     std::vector<Value *> evaled_args;
     for (unsigned int loopc=0; loopc<args.size(); loopc++)
     {

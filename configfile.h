@@ -57,4 +57,6 @@ class ConfigFile
   
 };
 
+extern Configuration * configuration;
+
 #endif
