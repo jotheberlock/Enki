@@ -954,6 +954,8 @@ Expr * Parser::parseDef()
     }
 
     current_scope = current_scope->parent();
+    return 0;
+
 }
 
 Expr * Parser::parseAddressOf()
