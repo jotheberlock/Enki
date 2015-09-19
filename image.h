@@ -21,6 +21,14 @@ class FunctionScope;
 class BasicBlock;
 class BaseRelocation;
 
+class LibImport
+{
+public:
+
+	std::string name;
+	std::vector<std::string> imports;
+};
+
 class Image : public Component
 {
   public:
@@ -71,8 +79,8 @@ class Image : public Component
     std::vector<uint64_t> fsizes;
     std::vector<FunctionScope *> fptrs;
     
-    std::vector<std::string> import_names;
-    std::vector<std::string> import_libraries;
+	std::vector<LibImport> imports;
+	uint64_t total_imports;
     
     uint64_t current_offset;
     uint64_t align;
@@ -100,6 +108,7 @@ class MemoryImage : public Image
 
     void materialiseSection(int s);
     MemBlock mems[4];
+	std::vector<std::string> import_names;
     uint64_t * import_pointers;
 
 };

@@ -27,9 +27,6 @@ PEImage::PEImage()
     bases[3] = 0x800000;
     sizes[3] = 4096;
     guard_page = false;
-    
-    import_names.push_back("ExitProcess");
-    import_libraries.push_back("KERNEL32.DLL");
 }
 
 PEImage::~PEImage()
@@ -88,7 +85,7 @@ void PEImage::finalise()
 {
     materialiseSection(3);
     
-    FILE * f = fopen(fname.c_str(), "w+");
+    FILE * f = fopen(fname.c_str(), "wb+");
     if (!f)
     {
         printf("Can't open %s\n", fname.c_str());
@@ -333,17 +330,9 @@ void PEImage::finalise()
             fwrite(sections[loopc], sizes[loopc], 1, f);
         }
     }
-
-    std::map<std::string, int> libs;
-    for (unsigned int loopc=0; loopc<import_libraries.size(); loopc++)
-    {
-        libs[import_libraries[loopc]]++;
-    }
-
-    printf("Libs size %d\n", libs.size());
     
-    uint64_t table_size = (libs.size() * 20)+20;   // import directory table
-    uint64_t ilt_size = libs.size() + import_names.size();
+    uint64_t table_size = (imports.size() * 20)+20;   // import directory table
+    uint64_t ilt_size = imports.size() + total_imports;
     ilt_size *= (sf_bit ? 8 : 4);
     uint64_t hints_offset = table_size+ilt_size+ilt_size;
     
@@ -354,22 +343,20 @@ void PEImage::finalise()
     unsigned char * namebase = buf+hints_offset;
     unsigned char * nameptr = namebase;
     
-    std::map<std::string, int>::iterator it;
-    for (it = libs.begin(); it != libs.end(); ++it)
+	for (unsigned int loopc = 0; loopc<imports.size(); loopc++)
     {
-        printf(">> Count %d current has %d\n", count, it->second);
         uint64_t table_offset = (imports_base - base_addr)+table_size+count;
-        printf("Table offset %lx\n", table_offset);
+        printf("Table offset %lx for dll %s\n", table_offset, imports[loopc].name.c_str());
         wle32(ptr, checked_32(table_offset));  // Lookup table
         wle32(ptr, 0);   // Timestamp
         wle32(ptr, 0);   // Forwarder
-        strcpy((char *)nameptr, it->first.c_str());
+        strcpy((char *)nameptr, imports[loopc].name.c_str());
         uint64_t offy = (imports_base - base_addr) + hints_offset + (nameptr-namebase);
         wle32(ptr, checked_32(offy));   // DLL name
         printf("Using offy %ld %lx imports base %ld %lx base %ld %lx\n", offy, offy, imports_base, imports_base, base_addr, base_addr);
-        nameptr += strlen(it->first.c_str())+1;
+        nameptr += strlen(imports[loopc].name.c_str())+1;
         wle32(ptr, checked_32((imports_base - base_addr)+table_size+ilt_size+count));   // Address of IAT
-        count += ((it->second+1) * (sf_bit ? 8 : 4));
+        count += ((imports[loopc].imports.size()+1) * (sf_bit ? 8 : 4));
     }
     // null entry
     wle32(ptr, 0);
@@ -380,46 +367,44 @@ void PEImage::finalise()
 
     printf("Offset here %lx expected %lx\n", ptr-buf, table_size);
 
-    for (int loopc2=0; loopc2<2; loopc2++)
+    for (int loopc=0; loopc<2; loopc++)
     {
             // First is ILT, second is IAT
-        for (it = libs.begin(); it != libs.end(); ++it)
+        for (unsigned int loopc2 = 0; loopc2<imports.size(); loopc2++)
         {
-            for (unsigned int loopc=0;loopc<import_names.size(); loopc++)
+			LibImport & l = imports[loopc2];
+            for (unsigned int loopc3=0;loopc3<l.imports.size(); loopc3++)
             {
-                if (import_libraries[loopc] == it->first)
-                {
-                    uint64_t addr = (nameptr-namebase) + (imports_base - base_addr) + hints_offset;
-                    if (((uint64_t)nameptr) & 0x1)
-                    {
-                        *nameptr = 0;
-                        nameptr++;
-                        addr++;
-                    }
-                    *nameptr = 0x0;
+		       uint64_t addr = (nameptr-namebase) + (imports_base - base_addr) + hints_offset;
+               if (((uint64_t)nameptr) & 0x1)
+               {
+                    *nameptr = 0;
                     nameptr++;
-                    *nameptr = 0x0;
-                    nameptr++;
-                    strcpy((char *)nameptr, import_names[loopc].c_str());
-                    printf("Nameptr %lx [%s]\n", nameptr-buf, nameptr);
+                    addr++;
+                }
+                *nameptr = 0x0;
+                nameptr++;
+                *nameptr = 0x0;
+                nameptr++;
+                strcpy((char *)nameptr, l.imports[loopc3].c_str());
+                printf("Nameptr %lx [%s]\n", nameptr-buf, nameptr);
                 
-                    nameptr += strlen(import_names[loopc].c_str())+1;
+                nameptr += strlen(l.imports[loopc3].c_str())+1;
 
-                    printf("Function addr %lx\n", addr);
+                printf("Function addr %lx\n", addr);
                 
-		    if (loopc2 == 1)
-		    {
-  		        printf("IAT position %lx\n", ptr-buf);
-		    }
+				if (loopc == 1)
+				{
+  					printf("IAT position %lx\n", ptr-buf);
+				}
 			  
-                    if (sf_bit)
-                    {
-                        wle64(ptr, addr);
-                    }
-                    else
-                    {
-                        wle32(ptr, checked_32(addr));
-                    }
+                if (sf_bit)
+                {
+                    wle64(ptr, addr);
+                }
+                else
+                {
+                    wle32(ptr, checked_32(addr));
                 }
             }
             if (sf_bit)

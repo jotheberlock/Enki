@@ -5,6 +5,8 @@
 #include "codegen.h"
 #include "cfuncs.h"
 #include "symbols.h"
+#include "configfile.h"
+#include "image.h"
 
 #define LOGICAL_TRUE 1
 
@@ -819,19 +821,28 @@ Expr * Parser::parseDef()
     IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
     FunctionType * ft;
 
+	std::string name = ie->getString();
+	std::string lib = "";
+	size_t pos = name.find(":");
+	if (pos != std::string::npos)
+	{
+		lib = name.substr(0, pos);
+		name = name.substr(pos+1);
+	}
+
     if (is_extern)
     {
-        ft = new ExternalFunctionType(ie->getString(), calling_convention);
+        ft = new ExternalFunctionType(name, calling_convention);
     }
     else
     {
-	ft = new FunctionType(ie->getString(), is_macro);
+		ft = new FunctionType(name, is_macro);
     }
     
     FunctionScope * fs = new FunctionScope(current_scope,
-                                           ie->getString(),
+                                           name,
                                            ft);
-    DefExpr * ret = new DefExpr(ft, fs, is_macro, is_extern);
+    DefExpr * ret = new DefExpr(ft, fs, is_macro, is_extern, lib);
     
     if (current.type != OPEN_BRACKET)
     {
@@ -1857,6 +1868,7 @@ Value * DefExpr::codegen(Codegen * c)
 {
     if (is_extern)
     {
+		configuration->image->addImport(libname, type->name());
         return 0;
     }
     

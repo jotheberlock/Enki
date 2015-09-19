@@ -90,8 +90,8 @@ void Backend::process()
       */
         gc->block()->add(Insn(MOVE, Operand::reg(1), Operand::usigc(42)));
         gc->block()->add(Insn(MOVE, Operand::reg(7), Operand::usigc(0x407038)));
-	gc->block()->add(Insn(LOAD, Operand::reg(7), Operand::reg(7)));
-	gc->block()->add(Insn(CALL, Operand::reg(7)));
+		gc->block()->add(Insn(LOAD, Operand::reg(7), Operand::reg(7)));
+		gc->block()->add(Insn(CALL, Operand::reg(7)));
     }
     
     config->image->setSectionSize(IMAGE_CONST_DATA, constants->getSize());

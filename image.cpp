@@ -119,6 +119,7 @@ Image::Image()
     current_offset = 0;
     align = 8;
     root_function = 0;
+	total_imports = 0;
 }
 
 void Image::setRootFunction(FunctionScope * f)
@@ -193,31 +194,29 @@ uint64_t Image::functionSize(FunctionScope * ptr)
 
 void Image::addImport(std::string lib, std::string name)
 {
-    bool namefound = false;
-    for  (unsigned int loopc=0; loopc<import_names.size(); loopc++)
-    {
-        if (import_names[loopc] == name)
-        {
-            namefound = true;
-        }
-    }
-    if (!namefound)
-    {
-        import_names.push_back(name);
-    }
+	for (int loopc=0; loopc<imports.size(); loopc++)
+	{
+		if (imports[loopc].name == lib)
+		{
+			LibImport & l = imports[loopc];
+			for (int loopc2=0; loopc2<l.imports.size(); loopc2++)
+			{
+				if (l.imports[loopc2] == name)
+				{
+					return;
+				}
+			}
+			l.imports.push_back(name);
+			total_imports++;
+			return;
+		}
+	}
 
-    bool libfound = false;
-    for  (unsigned int loopc=0; loopc<import_libraries.size(); loopc++)
-    {
-        if (import_libraries[loopc] == lib)
-        {
-            libfound = true;
-        }
-    }
-    if (!libfound)
-    {
-        import_libraries.push_back(lib);
-    }
+	LibImport l;
+	l.name = lib;
+	l.imports.push_back(name);
+	imports.push_back(l);
+	total_imports++;
  }
 
 uint64_t MemoryImage::importAddress(std::string name)
@@ -292,7 +291,7 @@ void MemoryImage::setImport(std::string name, uint64_t addr)
         if (import_names[loopc] == name)
         {
             import_pointers[loopc] = addr;
-	    return;
+			return;
         }
     }
 
@@ -301,6 +300,14 @@ void MemoryImage::setImport(std::string name, uint64_t addr)
 
 void MemoryImage::endOfImports()
 {
+	for (int loopc=0; loopc<imports.size(); loopc++)
+	{
+		LibImport & l = imports[loopc];
+		for (int loopc2=0; loopc2<l.imports.size(); loopc2++)
+		{
+			import_names.push_back(l.imports[loopc2]);
+		}
+	}
     import_pointers = new uint64_t[import_names.size()];
 }
 
