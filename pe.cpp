@@ -81,10 +81,40 @@ bool PEImage::configure(std::string param, std::string val)
     return true;
 }
 
-void PEImage::finalise()
+void PEImage::endOfImports()
 {
     materialiseSection(3);
-    
+    imports_base = next_addr;
+    next_addr += 4096;
+}
+
+uint64_t PEImage::importAddress(std::string s)
+{
+    uint64_t table_size = (imports.size() * 20)+20;   // import directory table
+    uint64_t ilt_size = imports.size() + total_imports;
+    ilt_size *= (sf_bit ? 8 : 4);
+    uint64_t iat_offset = table_size+ilt_size;
+    uint64_t base_offset = imports_base + iat_offset;
+    uint64_t stride = sf_bit ? 8 : 4;
+    for (unsigned int loopc=0; loopc<imports.size(); loopc++)
+    {
+        LibImport & l = imports[loopc];
+	for (unsigned int loopc2=0; loopc2<l.imports.size(); loopc2++)
+	{
+  	    if (l.imports[loopc2] == s)
+	    {
+	      return base_offset;
+	    }
+	    base_offset += stride;
+        }
+	base_offset += stride;
+    }
+    printf("Can't find import [%s]!\n", s.c_str());
+    return 0xdeadbeef;
+}
+
+void PEImage::finalise()
+{
     FILE * f = fopen(fname.c_str(), "wb+");
     if (!f)
     {
@@ -94,9 +124,6 @@ void PEImage::finalise()
 
     // Little-endian only
 
-    uint64_t imports_base = next_addr;
-    next_addr += 4096;
-    
     unsigned char dosheader[256];
     memset(dosheader, 0, 256);
 
@@ -343,10 +370,10 @@ void PEImage::finalise()
     unsigned char * namebase = buf+hints_offset;
     unsigned char * nameptr = namebase;
     
-	for (unsigned int loopc = 0; loopc<imports.size(); loopc++)
+    for (unsigned int loopc = 0; loopc<imports.size(); loopc++)
     {
         uint64_t table_offset = (imports_base - base_addr)+table_size+count;
-        printf("Table offset %lx for dll %s\n", table_offset, imports[loopc].name.c_str());
+        printf("Table offset %lx for dll [%s]\n", table_offset, imports[loopc].name.c_str());
         wle32(ptr, checked_32(table_offset));  // Lookup table
         wle32(ptr, 0);   // Timestamp
         wle32(ptr, 0);   // Forwarder
@@ -372,7 +399,7 @@ void PEImage::finalise()
             // First is ILT, second is IAT
         for (unsigned int loopc2 = 0; loopc2<imports.size(); loopc2++)
         {
-			LibImport & l = imports[loopc2];
+	    LibImport & l = imports[loopc2];
             for (unsigned int loopc3=0;loopc3<l.imports.size(); loopc3++)
             {
 		       uint64_t addr = (nameptr-namebase) + (imports_base - base_addr) + hints_offset;

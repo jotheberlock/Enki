@@ -1,14 +1,16 @@
-Uint64 a
-Uint64 b
-a = 1
+extern USER32.DLL:MessageBoxA(Uint64 hwnd, Byte^ text, Byte^ caption, Uint64 type)
+extern KERNEL32.DLL:ExitProcess(Uint64 val)
 
-def foo() Uint64
-    a = 3
-    Uint64 c
-    c = 5
+Byte^ text = "Hello World"
+MessageBoxA(0, text, text, 0)
+ExitProcess(42)
 
-b = foo()
-return b
+
+
+
+
+
+
 
 
 
