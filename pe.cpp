@@ -373,7 +373,7 @@ void PEImage::finalise()
     for (unsigned int loopc = 0; loopc<imports.size(); loopc++)
     {
         uint64_t table_offset = (imports_base - base_addr)+table_size+count;
-        printf("Table offset %lx for dll [%s]\n", table_offset, imports[loopc].name.c_str());
+        printf("Table offset %lx for dll [%s]\n", (uint32_t)table_offset, imports[loopc].name.c_str());
         wle32(ptr, checked_32(table_offset));  // Lookup table
         wle32(ptr, 0);   // Timestamp
         wle32(ptr, 0);   // Forwarder

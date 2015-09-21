@@ -123,6 +123,7 @@ void * dumpstacker(void *)
         write_reg("rsi", the_ucontext->rsi);
 #endif
 #ifdef LINUX_HOST
+#ifdef __x86_64__
         printf("rax: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RAX]);
         printf("rbx: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RBX]);
         printf("rcx: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RCX]);
@@ -140,6 +141,7 @@ void * dumpstacker(void *)
         printf("r14: %llx\n", the_ucontext->uc_mcontext.gregs[REG_R14]);
         printf("r15: %llx\n", the_ucontext->uc_mcontext.gregs[REG_R15]);
         printf("rip: %llx\n", the_ucontext->uc_mcontext.gregs[REG_RIP]);
+#endif
 #endif
     }
     else
