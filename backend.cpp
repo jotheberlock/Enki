@@ -11,7 +11,7 @@ extern FunctionScope * root_scope;
 extern Codegen * root_gc;
 
 Configuration * configuration = 0;
-
+std::list<Codegen *> * codegensptr = 0;
 #define HEAP_SIZE 4096
 
 Backend::Backend(Configuration * c, Expr * r)
@@ -23,6 +23,7 @@ Backend::Backend(Configuration * c, Expr * r)
 
 void Backend::process()
 {
+    codegensptr = &codegens;
     Codegen * gc = new Codegen(root_expr, root_scope);
     codegens.push_back(gc);
         
@@ -104,6 +105,8 @@ void Backend::process()
         Codegen * cg = *cit;
         cg->allocateStackSlots();
 
+	printf(">>>> function %s!\n", cg->getScope()->name().c_str());
+	
         BasicBlock::calcRelationships(cg->getBlocks());
         
         std::vector<OptimisationPass *> passes = config->passes;
@@ -146,6 +149,7 @@ void Backend::process()
         bool is_macro = (*cit)->getScope()->getType()->isMacro();
 	if (is_macro)
 	{
+  	    printf("Skipping macro %s\n", (*cit)->getScope()->name().c_str());
 	    continue;
 	}
 	
@@ -165,6 +169,7 @@ void Backend::process()
         }
 
         FunctionScope * fs = (*cit)->getScope();
+	printf(">>> Adding function %s size %d\n", fs->name().c_str(), func_size);
 	config->image->addFunction(fs, func_size);
     }
 

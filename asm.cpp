@@ -121,6 +121,11 @@ Operand::Operand(FunctionScope * f)
 
 Value * Operand::getValue()
 {
+  if (type != OPERAND_VALUE)
+    {
+      char * grr = 0;
+      *grr = 0;
+    }
     assert(type == OPERAND_VALUE);
     return contents.v;
 }

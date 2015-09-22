@@ -22,7 +22,6 @@
 
 Assembler * assembler = 0;
 CallingConvention * calling_convention = 0;
-std::list<Codegen *> * codegens = 0;
 FILE * log_file = 0;
 Constants * constants = 0;
 FunctionScope * root_scope = 0;
@@ -267,7 +266,6 @@ int main(int argc, char ** argv)
     }
 
     constants = new Constants();
-    codegens = new std::list<Codegen *>;
     assembler = config.assembler;
     initialiseTypes();
     FunctionType * root_type = new FunctionType("@root", false);

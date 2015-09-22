@@ -1870,11 +1870,12 @@ Value * DefExpr::codegen(Codegen * c)
 {
     if (is_extern)
     {
-		configuration->image->addImport(libname, type->name());
+        configuration->image->addImport(libname, type->name());
         return 0;
     }
     
     scope->addFunction(new FunctionScope(scope, type->name(), type));
+    
     Codegen * ch = new Codegen(body, scope);
     if (is_macro)
     {
@@ -1885,7 +1886,7 @@ Value * DefExpr::codegen(Codegen * c)
     }
     else
     {
-        codegens->push_back(ch);
+        codegensptr->push_back(ch);
     }
     
     ch->generate();

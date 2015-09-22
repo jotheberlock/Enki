@@ -314,7 +314,7 @@ class Codegen
     
 };
 
-extern std::list<Codegen *> * codegens;
+extern std::list<Codegen *> * codegensptr;
 extern Constants * constants;
 
 #endif
