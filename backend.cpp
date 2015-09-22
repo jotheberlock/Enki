@@ -98,6 +98,8 @@ void Backend::process()
     config->image->setSectionSize(IMAGE_CONST_DATA, constants->getSize());
     constants->setAddress(config->image->getAddr(IMAGE_CONST_DATA));
     constants->fillPool(config->image->getPtr(IMAGE_CONST_DATA));
+     
+	std::vector<OptimisationPass *> passes = config->passes;
     
     for(std::list<Codegen *>::iterator cit = codegens.begin();
         cit != codegens.end(); cit++)
@@ -105,11 +107,10 @@ void Backend::process()
         Codegen * cg = *cit;
         cg->allocateStackSlots();
 
-	printf(">>>> function %s!\n", cg->getScope()->name().c_str());
+		printf(">>>> function %s!\n", cg->getScope()->name().c_str());
 	
         BasicBlock::calcRelationships(cg->getBlocks());
         
-        std::vector<OptimisationPass *> passes = config->passes;
 	
         int count = 0;
         for(std::vector<OptimisationPass *>::iterator it = passes.begin();
@@ -132,15 +133,9 @@ void Backend::process()
             log_file = keep_log;
             count++;
         }
-
-        for(std::vector<OptimisationPass *>::iterator it = passes.begin();
-            it != passes.end(); it++)
-        {
-            delete *it;
-        }        
+ 
     }
 
-    
     int code_size = 0;
     
     for(std::list<Codegen *>::iterator cit = codegens.begin();
