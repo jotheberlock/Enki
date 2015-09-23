@@ -113,6 +113,10 @@ void ConfigFile::process()
 		  (OptimisationPass *)component_factory->make("pass", val);
 		config->passes.push_back(op);
 	    }
+	    else if (command == "entrypoint")
+	    {
+		config->entrypoint = (Entrypoint *)component_factory->make("entrypoint", val);
+	    }
 	    else if (command == "set")
 	    {
 	        std::string cname;

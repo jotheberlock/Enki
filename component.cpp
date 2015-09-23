@@ -4,6 +4,17 @@
 #include "pe.h"
 #include "amd64.h"
 #include "pass.h"
+#include "entrypoint.h"
+
+Component * make_windowsentrypoint()
+{
+    return new WindowsEntrypoint();
+}
+
+Component * make_linuxentrypoint()
+{
+    return new LinuxEntrypoint();
+}
 
 Component * make_memoryimage()
 {
@@ -97,6 +108,8 @@ ComponentFactory::ComponentFactory()
     add(make_constmover, "pass", "constmover");
     add(make_resolveconstaddr, "pass", "resolveconstaddr");
     add(make_stacksizepass, "pass", "stacksize");
+    add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
+    add(make_linuxentrypoint, "entrypoint", "linuxentrypoint");
 }
 
 void ComponentFactory::add(ComponentMaker ptr, std::string c, std::string n)

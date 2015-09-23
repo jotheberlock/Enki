@@ -12,6 +12,7 @@ class Component;
 class CallingConvention;
 class OptimisationPass;
 class Assembler;
+class Entrypoint;
 
 class Configuration
 {
@@ -23,6 +24,7 @@ class Configuration
 	cconv = 0;
 	syscall = 0;
 	assembler = 0;
+	entrypoint = 0;
     }
   
     std::list<std::string> paths;
@@ -31,6 +33,7 @@ class Configuration
     CallingConvention * cconv;
     CallingConvention * syscall;
     Assembler * assembler;
+    Entrypoint * entrypoint;
     std::string name;
     
     std::vector<OptimisationPass *> passes;
