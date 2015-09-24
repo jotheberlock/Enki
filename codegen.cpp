@@ -10,7 +10,7 @@ Codegen::Codegen(Expr * e, FunctionScope * fs)
     stack_size = 0xdeadbeef;
     current_block = newBlock("prologue");
     allocated_slots = false;
-	cconv = CCONV_STANDARD;
+    cconv = CCONV_STANDARD;
     scope = fs;
     retvar = 0;
     ipvar = 0;

@@ -99,8 +99,6 @@ void Backend::process()
     {
         Codegen * cg = *cit;
         cg->allocateStackSlots();
-
-		printf(">>>> function %s!\n", cg->getScope()->name().c_str());
 	
         BasicBlock::calcRelationships(cg->getBlocks());
         
@@ -156,8 +154,10 @@ void Backend::process()
             func_size += siz;
         }
 
+	code_size += 8;   // stack size marker at start of normal function
+	func_size += 8;
+	
         FunctionScope * fs = (*cit)->getScope();
-	printf(">>> Adding function %s size %d\n", fs->name().c_str(), func_size);
 	config->image->addFunction(fs, func_size);
     }
 
