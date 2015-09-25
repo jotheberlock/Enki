@@ -57,7 +57,7 @@ StringLiteralExpr::StringLiteralExpr(Token * t)
     buf[loopc] = 0;
 
     val = buf;
-    idx = constants->addConstant(buf, loopc, 1);
+    idx = constants->addConstant(buf, loopc+1, 1);
 }
 
 Parser::Parser(Lexer * l)
@@ -1475,6 +1475,10 @@ Value * BinaryExpr::codegen(Codegen * c)
         if (lhgt && rhft)
         {
             printf("Setting up generator!\n");
+	    FunctionScope * fs = rhft->getScope()->lookup_function(rhft->name());
+	    Value * ptr = fs->getType()->getFunctionPointer(c, rhft); 
+	    c->block()->add(Insn(MOVE, vre->value, ptr));
+	    return ptr;
         }
     
         if (vre->value->isConst())
