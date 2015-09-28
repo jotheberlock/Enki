@@ -357,7 +357,7 @@ std::string StructType::display(unsigned char * addr)
 
 // frame is old_framepointer, old_ip, static link, return, args, locals
 
-Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
+Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
                                       std::vector<Value *> & args)
 {
     if (args.size() != params.size())
@@ -367,7 +367,7 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f,
         return 0;
     }
 
-    Value * fp = getFunctionPointer(c,f);
+    fp = getFunctionPointer(c,f);
     Value * to_add = 0;
     Value * new_frame = initStackFrame(c, fp, to_add, f);
 
@@ -481,12 +481,12 @@ Value * FunctionType::initStackFrame(Codegen * c, Value * faddr,
     return new_ptr;
 }
 
-Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f,
+Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp, 
 					      std::vector<Value *> & args)
 {
     Value * addr_of_extfunc = c->getTemporary(register_type, "addr_of_"+f->name());
-    Value * fptr = c->getTemporary(register_type, "fptr_to_"+f->name());
+    fp = c->getTemporary(register_type, "fptr_to_"+f->name());
     c->block()->add(Insn(MOVE, addr_of_extfunc, Operand::extFunction(f->name())));
-    c->block()->add(Insn(LOAD, fptr, addr_of_extfunc));
-    return convention->generateCall(c,fptr,args);
+    c->block()->add(Insn(LOAD, fp, addr_of_extfunc));
+    return convention->generateCall(c,fp,args);
 }

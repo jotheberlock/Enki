@@ -838,11 +838,15 @@ Expr * Parser::parseDef()
     {
 		ft = new FunctionType(name, is_macro);
     }
-    
+	
+	Value * v = new Value(name, ft);
+	current_scope->add(v);
+
     FunctionScope * fs = new FunctionScope(current_scope,
                                            name,
                                            ft);
-    DefExpr * ret = new DefExpr(ft, fs, is_macro, is_extern, lib);
+
+    DefExpr * ret = new DefExpr(ft, fs, is_macro, is_extern, v, name, lib);
     
     if (current.type != OPEN_BRACKET)
     {
@@ -1826,6 +1830,18 @@ Value * BreakpointExpr::codegen(Codegen * c)
 
 Value * Funcall::codegen(Codegen * c)
 {
+	Value * ptr = scope->lookupLocal(name());
+	if (!ptr)
+	{
+		int depth = 0;
+		ptr = scope->lookup(name(), depth);
+	    Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
+	    c->block()->add(Insn(GETADDR, addrof, ptr, Operand::usigc(depth)));
+		c->block()->add(Insn(LOAD, ptr, addrof));
+	}
+
+	assert(ptr);
+
     FunctionScope * fs = scope->lookup_function(name());
 
     if (!fs)
@@ -1835,18 +1851,18 @@ Value * Funcall::codegen(Codegen * c)
         return 0;
     }
 
-    if (fs->getType()->isMacro())
+    if (ptr->type->isMacro())
     {
         addError(Error(&token, "Can't call macros directly",
                        name()));
     }
-    else if (c->getScope()->getType()->isMacro() && (fs->getType()->isMacro() == false))
+    else if (c->getScope()->getType()->isMacro() && (ptr->type->isMacro() == false))
     {
         addError(Error(&token, "Can't call normal code from macro",
                        name()));
     }
     
-    assert(fs->getType()->canFuncall());
+    assert(ptr->type->canFuncall());
     
     std::vector<Value *> evaled_args;
     for (unsigned int loopc=0; loopc<args.size(); loopc++)
@@ -1861,7 +1877,7 @@ Value * Funcall::codegen(Codegen * c)
         evaled_args.push_back(v);
     }
 
-    return fs->getType()->generateFuncall(c, this, evaled_args);
+    return ptr->type->generateFuncall(c, this, ptr, evaled_args);
 }
 
 std::list<Codegen *> macros;
@@ -1873,7 +1889,11 @@ Value * DefExpr::codegen(Codegen * c)
         configuration->image->addImport(libname, type->name());
         return 0;
     }
-    
+	
+	FunctionScope * to_call = scope->lookup_function(name);
+    assert(to_call);
+	c->block()->add(Insn(MOVE, ptr, Operand(to_call)));
+
     scope->addFunction(new FunctionScope(scope, type->name(), type));
     
     Codegen * ch = new Codegen(body, scope);

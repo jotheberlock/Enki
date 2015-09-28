@@ -724,14 +724,16 @@ class DefExpr : public Expr
 {
   public:
 
-    DefExpr(FunctionType * t, FunctionScope * fs, bool is_m, bool is_e, std::string l = "")
+    DefExpr(FunctionType * t, FunctionScope * fs, bool is_m, bool is_e, Value * p, std::string n, std::string l = "")
     {
         type = t;
         scope = fs;
         is_macro = is_m;
 		is_extern = is_e;
+		name = n;
 		libname = l;
 		body = 0;
+		ptr = p;
     }
 
     ~DefExpr()
@@ -753,7 +755,7 @@ class DefExpr : public Expr
     {
         indent(i);
         fprintf(log_file, "%s %s\n", is_extern ? "extern" : (is_macro ? "macro" : "def"),
-                type->name().c_str());
+                name.c_str());
 	if (!is_extern)
         {
 	    if (body)
@@ -776,7 +778,9 @@ class DefExpr : public Expr
     FunctionScope * scope;
     bool is_macro;
     bool is_extern;
+	std::string name;
 	std::string libname;
+	Value * ptr;
     
 };
 

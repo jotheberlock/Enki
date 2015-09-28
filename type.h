@@ -34,7 +34,7 @@ class Type
         return false;
     }
 
-    virtual Value * generateFuncall(Codegen *, Funcall *,
+    virtual Value * generateFuncall(Codegen *, Funcall *, Value *,
                                     std::vector<Value *> & args)
     {
         return 0;
@@ -481,7 +481,7 @@ class FunctionType : public Type
         return true;
     }
 
-    virtual Value * generateFuncall(Codegen *, Funcall *,
+    virtual Value * generateFuncall(Codegen *, Funcall *, Value * fp,
                             std::vector<Value *> & args);
     
     int size()
@@ -525,7 +525,7 @@ class ExternalFunctionType : public FunctionType
         convention=c;
     }
     
-    virtual Value * generateFuncall(Codegen * c, Funcall * f,
+    virtual Value * generateFuncall(Codegen * c, Funcall * f, Value * fp,
 				    std::vector<Value *> & args);
     
     int size()
