@@ -512,6 +512,6 @@ int loadForType(Type * t)
 
 void Assembler::newFunction(Codegen * c)
 {
-	current_function = c->getScope();
-	assert(current_function);
+    current_function = c->getScope();
+    assert(current_function);
 }

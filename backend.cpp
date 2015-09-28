@@ -3,6 +3,7 @@
 #include "symbols.h"
 #include "image.h"
 #include "error.h"
+#include "entrypoint.h"
 
 extern FILE * log_file;
 extern void dump_codegen(Codegen * cg);
@@ -56,6 +57,7 @@ void Backend::process()
         root_scope->add(stacksize);
         gc->block()->add(Insn(GETSTACKSIZE, stacksize));
         gc->block()->add(Insn(ADD, Operand(v), Operand(v), stacksize));
+	config->entrypoint->generatePrologue(gc->block(), root_scope);
     }
 	
     BasicBlock * body = gc->newBlock("body");
@@ -83,16 +85,7 @@ void Backend::process()
     }
     else
     {
-            // Temp
-      /*
-        gc->block()->add(Insn(MOVE, Operand::reg(7), root_scope->lookupLocal("__ret")));
-        gc->block()->add(Insn(MOVE, Operand::reg(0), Operand::usigc(0x3c)));
-        gc->block()->add(Insn(SYSCALL));
-      */
-        gc->block()->add(Insn(MOVE, Operand::reg(1), root_scope->lookupLocal("__ret")));
-        gc->block()->add(Insn(MOVE, Operand::reg(7), Operand::extFunction("ExitProcess")));
-	gc->block()->add(Insn(LOAD, Operand::reg(7), Operand::reg(7)));
-	gc->block()->add(Insn(CALL, Operand::reg(7)));
+	config->entrypoint->generateEpilogue(epilogue, root_scope);
     }
     
     config->image->setSectionSize(IMAGE_CONST_DATA, constants->getSize());
@@ -106,8 +99,6 @@ void Backend::process()
     {
         Codegen * cg = *cit;
         cg->allocateStackSlots();
-
-		printf(">>>> function %s!\n", cg->getScope()->name().c_str());
 	
         BasicBlock::calcRelationships(cg->getBlocks());
         
@@ -163,8 +154,10 @@ void Backend::process()
             func_size += siz;
         }
 
+	code_size += 8;   // stack size marker at start of normal function
+	func_size += 8;
+	
         FunctionScope * fs = (*cit)->getScope();
-	printf(">>> Adding function %s size %d\n", fs->name().c_str(), func_size);
 	config->image->addFunction(fs, func_size);
     }
 

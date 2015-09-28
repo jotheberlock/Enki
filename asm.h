@@ -146,6 +146,7 @@ class Insn
         ins=NOP;
         oc=0;
         addr=0;
+	size=0;
     }
     
     Insn(uint64_t i)
@@ -153,6 +154,7 @@ class Insn
         ins=i;
         oc=0;
         addr=0;
+	size=0;
     }
 
     Insn(uint64_t i, Operand o1)
@@ -161,6 +163,7 @@ class Insn
         ops[0]=o1;
         oc=1;
         addr=0;
+	size=0;
     }
     
     Insn(uint64_t i, Operand o1, Operand o2)
@@ -170,6 +173,7 @@ class Insn
         ops[1]=o2;
         oc=2;
         addr=0;
+	size=0;
     }
     
     Insn(uint64_t i, Operand o1, Operand o2, Operand o3)
@@ -180,6 +184,7 @@ class Insn
         ops[2]=o3;
         oc=3;
         addr=0;
+	size=0;
     }
 
     std::string toString();  // Full instruction with operands
@@ -190,6 +195,7 @@ class Insn
     
     uint64_t ins;
     uint64_t addr;
+    uint64_t size;
     int oc;
     Operand ops[4];
     std::string comment;
@@ -327,6 +333,7 @@ class Assembler : public Component
         limit=0;
         psize=0;
         base=0;
+	func_base=0;
     }
 
     virtual ~Assembler()
@@ -342,6 +349,7 @@ class Assembler : public Component
     void setPtr(unsigned char * ptr)
     {
         current = ptr;
+	func_base = ptr;
     }
     
     int staticLinkOffset()
@@ -367,8 +375,9 @@ class Assembler : public Component
         return psize;
     }
     
-    uint64_t len() { return current-base; }
-
+    uint64_t len() { return current-base; }  // From beginning of code segment
+    uint64_t flen() { return current-func_base; }   // From beginning of function
+    
     uint64_t currentAddr()
     {
         return address+len();
@@ -387,9 +396,10 @@ class Assembler : public Component
     unsigned char * base;
     unsigned char * current;
     unsigned char * limit;
+    unsigned char * func_base;
     uint64_t address;
     int psize;
-	FunctionScope * current_function;
+    FunctionScope * current_function;
     
 };
 

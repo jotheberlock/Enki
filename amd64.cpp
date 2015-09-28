@@ -118,6 +118,9 @@ int Amd64::size(BasicBlock * b)
     {
         Insn & i = *it;
         i.addr = address+len();
+
+	int oldret = ret;
+	
         switch (i.ins)
         {
             case STORE8:
@@ -139,7 +142,7 @@ int Amd64::size(BasicBlock * b)
                     ret++;
                 }
 
-                ret+= (i.oc == 3) ? 6 : 3;  // Conservative estimates for now
+                ret+= (i.oc == 3) ? 7 : 3;  // Conservative estimates for now
                 break;
             }
             case LOAD8:
@@ -158,7 +161,7 @@ int Amd64::size(BasicBlock * b)
             case STORE:
             case LOADS32:
             {
-                ret += (i.oc == 3) ? 8 : 5;
+                ret += (i.oc == 3) ? 8 : 7;
                 break;
             }
             case MOVE:
@@ -210,7 +213,7 @@ int Amd64::size(BasicBlock * b)
                 }
                 else
                 {
-                    ret += 3;
+                    ret += 4;
                 }
                 
                 break;
@@ -337,6 +340,8 @@ int Amd64::size(BasicBlock * b)
                 assert(false);
             }
         }
+
+	i.size = (ret-oldret);
     }
     
     return ret;  
@@ -346,13 +351,16 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 {
     std::list<Insn> & code = b->getCode();
 
-    b->setAddr(address+len());
+    b->setAddr(address+flen());
     
     for (std::list<Insn>::iterator it = code.begin(); it != code.end();
          it++)
     {
         Insn & i = *it;
-        i.addr = address+len();
+        i.addr = address+flen();
+
+	unsigned char * oldcurrent = current;
+	
         switch (i.ins)
         {
             case STORE8:
@@ -973,7 +981,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 {
                     assert(i.ins == BRA);
                     *current++ = 0xe9;
-					new BasicBlockRelocation(image, current_function, len(), len()+4, i.ops[0].getBlock());
+		    new BasicBlockRelocation(image, current_function, len(), len()+4, i.ops[0].getBlock());
 
                     //relocs.push_back(Relocation(REL_S32, currentAddr()+4, len(),
                     //                            i.ops[0].getBlock()));
@@ -1155,11 +1163,19 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 fprintf(log_file, "Don't know how to turn %ld into amd64!\n", i.ins);
                 assert(false);
             }
+
+	    int siz = (int)(current - oldcurrent);
+	    if (siz > i.size)
+	    {
+	        printf("Unexpectedly large instruction! estimate %d actual %d %s\n",
+		       i.size, siz, i.toString().c_str());
+	    }
         }
 
         if (current >= limit)
         {
-            fprintf(log_file, "Ran out of space to assemble into\n");
+	    printf("Ran out of space to assemble into, %d\n", (int)(limit-base));
+	    fprintf(log_file, "Ran out of space to assemble into, %d\n", (int)(limit-base));
             return false;
         }
     }
