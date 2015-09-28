@@ -151,6 +151,7 @@
     <ClInclude Include="..\component.h" />
     <ClInclude Include="..\configfile.h" />
     <ClInclude Include="..\elf.h" />
+    <ClInclude Include="..\entrypoint.h" />
     <ClInclude Include="..\error.h" />
     <ClInclude Include="..\image.h" />
     <ClInclude Include="..\lexer.h" />
@@ -175,6 +176,7 @@
     <ClCompile Include="..\component.cpp" />
     <ClCompile Include="..\configfile.cpp" />
     <ClCompile Include="..\elf.cpp" />
+    <ClCompile Include="..\entrypoint.cpp" />
     <ClCompile Include="..\error.cpp" />
     <ClCompile Include="..\image.cpp" />
     <ClCompile Include="..\lexer.cpp" />
