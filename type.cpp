@@ -367,7 +367,6 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
         return 0;
     }
 
-    fp = getFunctionPointer(c,f);
     Value * to_add = 0;
     Value * new_frame = initStackFrame(c, fp, to_add, f);
 
@@ -448,16 +447,6 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
     return ret;
 }
 
-Value * FunctionType::getFunctionPointer(Codegen * c, Funcall *f)
-{
-        // Fixme?
-    Value * ret = c->getTemporary(register_type, "fp");
-    FunctionScope * to_call = f->getScope()->lookup_function(f->name());
-    assert(to_call);
-    c->block()->add(Insn(MOVE, ret, Operand(to_call)));
-    return ret;
-}
-
 Value * FunctionType::initStackFrame(Codegen * c, Value * faddr,
                                      Value * & to_add, Funcall * f)
 {
@@ -484,9 +473,5 @@ Value * FunctionType::initStackFrame(Codegen * c, Value * faddr,
 Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp, 
 					      std::vector<Value *> & args)
 {
-    Value * addr_of_extfunc = c->getTemporary(register_type, "addr_of_"+f->name());
-    fp = c->getTemporary(register_type, "fptr_to_"+f->name());
-    c->block()->add(Insn(MOVE, addr_of_extfunc, Operand::extFunction(f->name())));
-    c->block()->add(Insn(LOAD, fp, addr_of_extfunc));
     return convention->generateCall(c,fp,args);
 }

@@ -499,7 +499,6 @@ class FunctionType : public Type
         return nam;
     }
 
-    Value * getFunctionPointer(Codegen *, Funcall *);
     Value * initStackFrame(Codegen *, Value *, Value *&, Funcall *);
     
   protected:
@@ -530,7 +529,7 @@ class ExternalFunctionType : public FunctionType
     
     int size()
     {
-        return 0;
+        return 64;
     }
     
   protected:

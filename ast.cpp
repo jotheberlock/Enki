@@ -1479,10 +1479,10 @@ Value * BinaryExpr::codegen(Codegen * c)
         if (lhgt && rhft)
         {
             printf("Setting up generator!\n");
-	    FunctionScope * fs = rhft->getScope()->lookup_function(rhft->name());
-	    Value * ptr = fs->getType()->getFunctionPointer(c, rhft); 
-	    c->block()->add(Insn(MOVE, vre->value, ptr));
-	    return ptr;
+		    FunctionScope * fs = rhft->getScope()->lookup_function(rhft->name());
+		   // Value * ptr = fs->getType()->getFunctionPointer(c, rhft); 
+		    //c->block()->add(Insn(MOVE, vre->value, ptr));
+			//return ptr;
         }
     
         if (vre->value->isConst())
@@ -1846,15 +1846,6 @@ Value * Funcall::codegen(Codegen * c)
 
 	assert(ptr);
 
-    FunctionScope * fs = scope->lookup_function(name());
-
-    if (!fs)
-    {
-
-        addError(Error(&token, "Can't find function", name()));    
-        return 0;
-    }
-
     if (ptr->type->isMacro())
     {
         addError(Error(&token, "Can't call macros directly",
@@ -1891,7 +1882,11 @@ Value * DefExpr::codegen(Codegen * c)
     if (is_extern)
     {
         configuration->image->addImport(libname, type->name());
-        return 0;
+		
+		Value * addr_of_extfunc = c->getTemporary(register_type, "addr_of_extfunc_"+name);
+		c->block()->add(Insn(MOVE, addr_of_extfunc, Operand::extFunction(name)));
+	    c->block()->add(Insn(LOAD, ptr, addr_of_extfunc));
+        return ptr;
     }
 	
 	FunctionScope * to_call = scope->lookup_function(name);
@@ -1922,7 +1917,7 @@ Value * DefExpr::codegen(Codegen * c)
         calling_convention->generateEpilogue(epilogue, root_scope);
     }
     
-    return 0;
+    return ptr;
 }
 
 Value * Break::codegen(Codegen * c)
