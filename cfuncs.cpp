@@ -64,7 +64,7 @@ int crash()
 
 void set_cfuncs(MemoryImage * mi)
 {
-    new FunctionScope(root_scope, "test", new ExternalFunctionType("test", calling_convention));
+    new FunctionScope(root_scope, "test", new ExternalFunctionType(calling_convention));
     mi->addImport("", "test");
 }
 

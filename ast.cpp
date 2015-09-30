@@ -832,11 +832,11 @@ Expr * Parser::parseDef()
 
     if (is_extern)
     {
-        ft = new ExternalFunctionType(name, calling_convention);
+        ft = new ExternalFunctionType(calling_convention);
     }
     else
     {
-		ft = new FunctionType(name, is_macro);
+        ft = new FunctionType(is_macro);
     }
 	
 	Value * v = new Value(name, ft);

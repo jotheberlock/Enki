@@ -438,9 +438,8 @@ class FunctionType : public Type
 {
   public:
 
-    FunctionType(std::string n, bool m)
+    FunctionType(bool m)
     {
-        nam=n;
         siz=0;
         is_macro = m;
     }
@@ -494,19 +493,37 @@ class FunctionType : public Type
         return 64;
     }
 
+    Value * initStackFrame(Codegen *, Value *, Value *&, Funcall *);
+
     std::string name()
     {
-        return nam;
+        std::string ret;
+        for (unsigned int loopc=0; loopc<returns.size(); loopc++)
+	{
+	    if (loopc>0)
+ 	    {
+  	        ret += ",";
+	    }
+	    ret += returns[loopc]->name();
+	}
+	ret += "(";
+	for (unsigned int loopc=0; loopc<params.size(); loopc++)
+	{
+	    ret += params[loopc].type->name();
+	    if (loopc>0)
+	    {
+	        ret += ",";
+	    }
+        }
+	ret += ")";
+	return ret;
     }
-
-    Value * initStackFrame(Codegen *, Value *, Value *&, Funcall *);
     
   protected:
 
     std::vector<StructElement> params;
     std::vector<Type *> returns;
 
-    std::string nam;
     int siz;
     bool is_macro;
     
@@ -518,8 +535,8 @@ class ExternalFunctionType : public FunctionType
 {
   public:
 
-    ExternalFunctionType(std::string n, CallingConvention * c)
-        : FunctionType(n, false)
+    ExternalFunctionType(CallingConvention * c)
+      : FunctionType(false)
     {
         convention=c;
     }
@@ -530,6 +547,13 @@ class ExternalFunctionType : public FunctionType
     int size()
     {
         return 64;
+    }
+
+    std::string name()
+    {
+        std::string ret = "extern ";
+        ret += FunctionType::name();
+        return ret;
     }
     
   protected:

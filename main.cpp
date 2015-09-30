@@ -268,13 +268,13 @@ int main(int argc, char ** argv)
     constants = new Constants();
     assembler = config.assembler;
     initialiseTypes();
-    FunctionType * root_type = new FunctionType("@root", false);
+    FunctionType * root_type = new FunctionType(false);
     root_type->addReturn(register_type);
     
     root_scope = new FunctionScope(0, "@root", root_type);
-    
-    FunctionType * syscall_type = new ExternalFunctionType("__syscall",
-                                                           config.syscall);
+
+    // FIXME needs a function pointer?
+    FunctionType * syscall_type = new ExternalFunctionType(config.syscall);
     syscall_type->addReturn(register_type);
     FunctionScope * fs_syscall = new FunctionScope(root_scope, "__syscall",
                                                    syscall_type);
