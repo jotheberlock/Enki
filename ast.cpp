@@ -1465,25 +1465,6 @@ Value * BinaryExpr::codegen(Codegen * c)
         {
             fprintf(log_file, "Type check succeeded! %s\n", t->name().c_str());
         }
-
-        GeneratorType * lhgt = dynamic_cast<GeneratorType *>(vre->value->type);
-        GeneratorType * rhgt = dynamic_cast<GeneratorType *>(rh->type);
-        Funcall * rhft = dynamic_cast<Funcall *>(rhs);
-        
-        if (lhgt && rhgt)
-        {
-            c->block()->add(Insn(MOVE, vre->value, rh));
-            return rh;
-        }
-
-        if (lhgt && rhft)
-        {
-            printf("Setting up generator!\n");
-		    FunctionScope * fs = rhft->getScope()->lookup_function(rhft->name());
-		   // Value * ptr = fs->getType()->getFunctionPointer(c, rhft); 
-		    //c->block()->add(Insn(MOVE, vre->value, ptr));
-			//return ptr;
-        }
     
         if (vre->value->isConst())
         {
