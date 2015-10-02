@@ -8,12 +8,9 @@
 
 uint64_t roundup(uint64_t in, uint64_t align)
 {
-    while (in % align)
-    {
-        in++;
-    }
-
-    return in;
+    if (in % align == 0)
+       return in;
+    return in + (align - (in % align));
 }
 
 PEImage::PEImage()
