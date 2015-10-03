@@ -1480,7 +1480,7 @@ Value * BinaryExpr::codegen(Codegen * c)
     {
         addError(Error(&token, "Unknown binop"));
         fprintf(log_file, "Argl unknown binop %x %c for codegen!\n", op,
-                op & 0xff);
+                (unsigned char)(op & 0xff));
     }
     
     return 0;

@@ -194,12 +194,12 @@ uint64_t Image::functionSize(FunctionScope * ptr)
 
 void Image::addImport(std::string lib, std::string name)
 {
-	for (int loopc=0; loopc<imports.size(); loopc++)
+	for (unsigned int loopc=0; loopc<imports.size(); loopc++)
 	{
 		if (imports[loopc].name == lib)
 		{
 			LibImport & l = imports[loopc];
-			for (int loopc2=0; loopc2<l.imports.size(); loopc2++)
+			for (unsigned int loopc2=0; loopc2<l.imports.size(); loopc2++)
 			{
 				if (l.imports[loopc2] == name)
 				{
@@ -300,10 +300,10 @@ void MemoryImage::setImport(std::string name, uint64_t addr)
 
 void MemoryImage::endOfImports()
 {
-	for (int loopc=0; loopc<imports.size(); loopc++)
+	for (unsigned int loopc=0; loopc<imports.size(); loopc++)
 	{
 		LibImport & l = imports[loopc];
-		for (int loopc2=0; loopc2<l.imports.size(); loopc2++)
+		for (unsigned int loopc2=0; loopc2<l.imports.size(); loopc2++)
 		{
 			import_names.push_back(l.imports[loopc2]);
 		}
