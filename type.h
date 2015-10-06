@@ -509,11 +509,11 @@ class FunctionType : public Type
 	ret += "(";
 	for (unsigned int loopc=0; loopc<params.size(); loopc++)
 	{
-	    ret += params[loopc].type->name();
 	    if (loopc>0)
 	    {
 	        ret += ",";
 	    }
+	    ret += params[loopc].type->name();
         }
 	ret += ")";
 	return ret;
