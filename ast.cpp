@@ -1862,11 +1862,10 @@ Value * DefExpr::codegen(Codegen * c)
 {
     if (is_extern)
     {
-        configuration->image->addImport(libname, type->name());
-		
-		Value * addr_of_extfunc = c->getTemporary(register_type, "addr_of_extfunc_"+name);
-		c->block()->add(Insn(MOVE, addr_of_extfunc, Operand::extFunction(name)));
-	    c->block()->add(Insn(LOAD, ptr, addr_of_extfunc));
+        configuration->image->addImport(libname, name);	
+	Value * addr_of_extfunc = c->getTemporary(register_type, "addr_of_extfunc_"+name);
+	c->block()->add(Insn(MOVE, addr_of_extfunc, Operand::extFunction(name)));
+	c->block()->add(Insn(LOAD, ptr, addr_of_extfunc));
         return ptr;
     }
 	
