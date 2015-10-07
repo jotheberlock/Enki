@@ -1,21 +1,12 @@
-extern USER32.DLL:MessageBoxA(Uint64 hwnd, Byte^ text, Byte^ caption, Uint64 type)
 extern KERNEL32.DLL:ExitProcess(Uint64 val)
+extern USER32.DLL:MessageBoxA(Uint64 hwnd, Byte^ text, Byte^ caption, Uint64 type)
 
-def Foo()
-  Uint64 val = 4
-  return val
+fptr extern (Uint64 hwnd, Byte^ text, Byte^ caption, Uint64 type) Uint64 Testptr
+Testptr foo
 
-MessageBoxA(0, "Hi", "Hello", 0)
-
-MessageBoxA(0, "Hi", "Hello", 0)
-
-Uint64 ret = Foo()
-return ret
-
-
-
-
-
+foo = MessageBoxA
+foo(0, "Hi", "Hello", 0)
+ExitProcess(42)
 
 
 

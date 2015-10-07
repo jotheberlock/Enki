@@ -896,7 +896,8 @@ class Parser
     Expr * parseFuncall(IdentifierExpr *);
     Expr * parseVarRef(Expr *);
     Expr * parseAddressOf();
-
+    Expr * parseFptr();
+    
     Type * parseType();
     
     int getPrecedence();

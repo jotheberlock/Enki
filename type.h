@@ -444,6 +444,13 @@ class FunctionType : public Type
         is_macro = m;
     }
     
+    // Address of target, source
+    virtual void copy(Codegen *, Value *, Value *);
+    virtual bool canCopy(Type *)
+    {
+        return true;
+    }
+    
     virtual bool isMacro()
     {
         return is_macro;

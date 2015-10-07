@@ -70,6 +70,11 @@ void PointerType::calcAddress(Codegen * c, Value * a, Expr *)
     c->block()->add(Insn(LOAD, a, a));
 }
 
+void FunctionType::copy(Codegen * c, Value * a, Value * v)
+{
+    c->block()->add(Insn(STORE,a,v));
+}
+
 void ArrayType::calcAddress(Codegen * c, Value * a, Expr * i)
 {
     Value * v = c->getTemporary(register_type, "arrayaddr");

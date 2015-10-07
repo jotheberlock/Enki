@@ -60,6 +60,7 @@ Lexer::Lexer()
     keywords["not"] = BINOP;
     keywords["xor"] = BINOP;
     keywords["extern"] = EXTERN;
+    keywords["fptr"] = FPTR;
     
     oldcol = -1;
     oldline = -1;

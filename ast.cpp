@@ -325,6 +325,10 @@ Expr * Parser::parseBodyLine()
     {
         return parseStruct();
     }
+    else if (current.type == FPTR)
+    {
+	return parseFptr();
+    }
     else if (current.type == YIELD)
     {
         return parseYield();
@@ -975,6 +979,85 @@ Expr * Parser::parseAddressOf()
     {
         return new AddressOfExpr(e);
     }
+}
+
+Expr * Parser::parseFptr()
+{
+    next();
+  
+    bool is_extern = false;
+    if (current.type == EXTERN)
+    {
+        is_extern = true;
+        next();
+    }
+
+    FunctionType * ft = is_extern ?
+      new ExternalFunctionType(calling_convention) : new FunctionType(false);
+    
+    if (current.type != OPEN_BRACKET)
+    {
+	addError(Error(&current, "Expected open bracket in fptr definition"));
+	return 0;
+    }
+    next();
+
+    while(current.type != CLOSE_BRACKET)
+    {
+        Type * t = parseType();
+	if (!t)
+	{
+            return 0;
+        }
+
+	std::string n = "";
+	if (current.type == IDENTIFIER)
+	{
+	    IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
+	    if (!ie)
+	    {
+	        return 0;
+	    }
+	    n = ie->getString();
+        }
+
+	if (current.type == COMMA)
+	{
+	    next();    
+	}
+	else if (current.type == CLOSE_BRACKET)
+	{
+  	    next();
+	    break;
+        }
+	else
+	{
+	    addError(Error(&current, "Expected comma in fptr definition"));
+        }
+	ft->addParam(n, t);
+    }
+    
+    Type * t = parseType();
+    if (t)
+    {
+        ft->addReturn(t);
+    }
+    else
+    {
+        printf("Couldn't figure out return type\n");
+	return 0;
+    }
+    
+    Expr * ie = parseIdentifier();
+    if (!ie)
+    {
+        push();
+        return 0;
+    }
+
+    std::string tname = ((IdentifierExpr *)ie)->getString();
+    addType(ft, tname);
+    return 0;
 }
 
 Type * Parser::parseType()
