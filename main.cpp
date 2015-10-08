@@ -240,7 +240,8 @@ int main(int argc, char ** argv)
     hcf.process();
 
     Configuration config;
-    
+
+    bool done_ini = false;
     for (int loopc=1; loopc<argc; loopc++)
     {
         if (strstr(argv[loopc], ".ini"))
@@ -248,7 +249,20 @@ int main(int argc, char ** argv)
             FILE * cfile = fopen(argv[loopc], "r");
             ConfigFile cf(cfile, &config);
             cf.process();
+	    done_ini = true;
         }
+    }
+
+    if (!done_ini)
+    {
+        FILE * cfile = fopen(ConfigFile::nativeTargetConfig().c_str(), "r");
+        if (!cfile)
+        {
+  	    printf("Can't find native target config [%s]\n", ConfigFile::nativeTargetConfig().c_str());
+	    return 1;
+        }
+        ConfigFile cf(cfile, &config);
+	cf.process();
     }
     
     uint64_t result = 1;

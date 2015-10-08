@@ -48,6 +48,7 @@ class ConfigFile
   ConfigFile(FILE *, Configuration *);
   void process();
   static std::string hostConfig();
+  static std::string nativeTargetConfig();
   
   bool split(std::string, std::string, std::string &, std::string &);
   FILE * open(std::string);
