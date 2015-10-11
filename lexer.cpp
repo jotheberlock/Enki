@@ -35,7 +35,8 @@ Lexer::Lexer()
     
     addOp(OpRec(UNARYOP, true, 4), '!');
     addOp(OpRec(UNARYOP, true, 4), '@');
-    addOp(OpRec(UNARYOP, true, 4), '%');
+    // addOp(OpRec(UNARYOP, true, 4), '%');
+    addOp(OpRec(UNARYOP, true, 4), '~');
     
     // Lowest priority, because it needs to run /last/
     addOp(OpRec(BINOP, true, 1), '=');
@@ -139,6 +140,7 @@ ReadChar Lexer::eatLine()
         ch = next();
         val = ch.val;
     }
+    ch = next();
     return ch;
 }
 
@@ -476,7 +478,7 @@ void Lexer::lex(Chars & input)
             }
             return;
         }
-        if (val == '#')
+        while (val == '#')
         {
             begin = eatLine();
             val = begin.val;

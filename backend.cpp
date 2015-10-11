@@ -160,8 +160,6 @@ void Backend::process()
         FunctionScope * fs = (*cit)->getScope();
 	config->image->addFunction(fs, func_size);
     }
-
-    printf("Code size is %d bytes\n", code_size);
     
     config->image->setSectionSize(IMAGE_CODE, code_size);
 

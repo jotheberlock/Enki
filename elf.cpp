@@ -5,6 +5,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#if defined(LINUX_HOST) || defined(CYGWIN_HOST)
+#include <sys/stat.h>
+#endif
+
 ElfImage::ElfImage()
 {
     base_addr = 0x400000;
@@ -474,6 +478,9 @@ void ElfImage::finalise()
         }
     }
     fclose(f);
+#if defined(LINUX_HOST) || defined(CYGWIN_HOST)
+    chmod(fname.c_str(), 0755);
+#endif
 }
 
 void ElfImage::materialiseSection(int s)

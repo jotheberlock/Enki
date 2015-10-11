@@ -39,6 +39,16 @@ class Type
     {
         return 0;
     }
+
+    virtual bool canActivate()
+    {
+        return false;
+    }
+
+    virtual void activate(Codegen *, Value * v)
+    {
+        printf("Illegal activation!\n");
+    }
     
     // Address of target, source
     virtual void copy(Codegen *,Value *, Value *)
@@ -260,14 +270,14 @@ class PointerType : public Type
   protected:
 
     Type * pointed_type;
-    
+
 };
 
-class GeneratorType : public Type
+class ActivationType : public Type
 {
   public:
 
-    GeneratorType(Type * t)
+    ActivationType(Type * t)
     {
         pointed_type=t;
     }
@@ -292,6 +302,13 @@ class GeneratorType : public Type
     }
     virtual void copy(Codegen *, Value *, Value *);
 
+    bool canActivate()
+    {
+        return true;
+    }
+
+    void activate(Codegen *, Value *);
+    
     int size()
     {
         return assembler->pointerSize();
@@ -487,6 +504,7 @@ class FunctionType : public Type
         return true;
     }
 
+    // Value will be an ActivationType, activated once
     virtual Value * generateFuncall(Codegen *, Funcall *, Value * fp,
                             std::vector<Value *> & args);
     
@@ -500,7 +518,7 @@ class FunctionType : public Type
         return 64;
     }
 
-    Value * initStackFrame(Codegen *, Value *, Value *&, Funcall *);
+    Value * allocStackFrame(Codegen *, Value *, Value *&, Funcall *, Type *);
 
     std::string name()
     {
@@ -547,7 +565,8 @@ class ExternalFunctionType : public FunctionType
     {
         convention=c;
     }
-    
+
+    // Value will be the literal return
     virtual Value * generateFuncall(Codegen * c, Funcall * f, Value * fp,
 				    std::vector<Value *> & args);
     

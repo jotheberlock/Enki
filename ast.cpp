@@ -1080,7 +1080,7 @@ Type * Parser::parseType()
         return 0;
     }
 
-    bool is_generator = false;
+    bool is_activation = false;
         
     while (true)
     {
@@ -1107,14 +1107,14 @@ Type * Parser::parseType()
         }
         else if (current.type == FUNCVAR)
         {
-            if (is_generator)
+	    if (is_activation)
             {
-                addError(Error(&current, "Generator declared twice"));
+                addError(Error(&current, "Activation declared twice"));
                 return 0;
             }
             else
             {
-                is_generator = true;
+                is_activation = true;
             }
         }
         else if (current.type == OPEN_SQUARE)
@@ -1178,9 +1178,9 @@ Type * Parser::parseType()
         next();
     }
 
-    if(ret_type && is_generator)
+    if(ret_type && is_activation)
     {
-        ret_type = new GeneratorType(ret_type);
+        ret_type = new ActivationType(ret_type);
     }
     
     return ret_type;
@@ -1503,7 +1503,7 @@ Value * BinaryExpr::codegen(Codegen * c)
             return 0;
         }
 
-         GeneratorType * rhgt = dynamic_cast<GeneratorType *>(rh->type);
+         ActivationType * rhgt = dynamic_cast<ActivationType *>(rh->type);
          if (!rhgt)
          {
              addError(Error(&token, "Eval only works with generator type"));
@@ -1586,11 +1586,22 @@ Value * UnaryExpr::codegen(Codegen * c)
         c->block()->add(Insn(GETADDR, v, e, Operand::usigc(0)));  // FIXME
         return v; 
     }
-    else if (op == '!')
+    else if (op == '~')
     {
         Value * v = c->getTemporary(register_type, "anot");
         c->block()->add(Insn(NOT, v, e));
         return v; 
+    }
+    else if (op == '!')
+    {
+        if (!e->type->canActivate())
+	{
+  	    addError(Error(&token, "Can't activate non-activation"));
+	    return 0;
+	}
+
+	e->type->activate(c,e);
+	return e;
     }
     else
     {
@@ -1643,11 +1654,11 @@ Value * Yield::codegen(Codegen * c)
     res.set(0);
     c->block()->setReservedRegs(res);
     
-    c->block()->add(Insn(LOAD, Operand::reg(0),
-                         Operand::reg(assembler->framePointer()),
-                         Operand::sigc(assembler->pointerSize()/8)));
     c->block()->add(Insn(LOAD, Operand::reg(assembler->framePointer()),
                          Operand::reg(assembler->framePointer())));
+    c->block()->add(Insn(LOAD, Operand::reg(0),
+                         Operand::reg(assembler->framePointer()),
+                         Operand::sigc(assembler->ipOffset())));
     c->block()->add(Insn(BRA, Operand::reg(0)));
 
     c->setBlock(resumeblock);
@@ -1690,11 +1701,14 @@ Value * Return::codegen(Codegen * c)
         res.set(0);
         c->block()->setReservedRegs(res);
 
-        c->block()->add(Insn(LOAD, Operand::reg(0),
-                             Operand::reg(assembler->framePointer()),
-                             Operand::sigc(assembler->pointerSize()/8)));
+	// Restore old framepointer
         c->block()->add(Insn(LOAD, Operand::reg(assembler->framePointer()),
                              Operand::reg(assembler->framePointer())));
+	// Load ip from it
+        c->block()->add(Insn(LOAD, Operand::reg(0),
+                             Operand::reg(assembler->framePointer()),
+                             Operand::sigc(assembler->ipOffset())));
+	// Jump back
         c->block()->add(Insn(BRA, Operand::reg(0)));
     }
     else if (c->callConvention() == CCONV_C)

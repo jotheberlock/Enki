@@ -225,17 +225,35 @@ uint32_t getUtf8(char * & f)
     return ret;
 }
 
+FILE * findFile(std::string name)
+{
+    FILE * f = 0;
+    if (f = fopen(name.c_str(), "r"))
+    {
+        return f;
+    }
+    name = std::string("../")+name;
+  
+    if (f = fopen(name.c_str(), "r"))
+    {
+        return f;
+    }
+
+    return 0;
+}
+
 int main(int argc, char ** argv)
 {
     component_factory = new ComponentFactory();
 
-    FILE * hfile = fopen(ConfigFile::hostConfig().c_str(), "r");
+    FILE * hfile = findFile(ConfigFile::hostConfig().c_str());
     if (!hfile)
     {
         printf("Can't find host config [%s]\n", ConfigFile::hostConfig().c_str());
         return 1;
     }
     Configuration hostconfig;
+
     ConfigFile hcf(hfile, &hostconfig);
     hcf.process();
 
@@ -245,7 +263,7 @@ int main(int argc, char ** argv)
     {
         if (strstr(argv[loopc], ".ini"))
         {
-            FILE * cfile = fopen(argv[loopc], "r");
+            FILE * cfile = findFile(argv[loopc]);
             ConfigFile cf(cfile, &config);
             cf.process();
         }
@@ -273,11 +291,10 @@ int main(int argc, char ** argv)
     
     root_scope = new FunctionScope(0, "@root", root_type);
 
-    // FIXME needs a function pointer?
     FunctionType * syscall_type = new ExternalFunctionType(config.syscall);
     syscall_type->addReturn(register_type);
-    FunctionScope * fs_syscall = new FunctionScope(root_scope, "__syscall",
-                                                   syscall_type);
+    Value * fptr = new Value("__syscall", syscall_type);
+    root_scope->add(fptr);
 
     calling_convention = config.cconv;
 
@@ -301,7 +318,7 @@ int main(int argc, char ** argv)
                 printf("No input file\n");
                 return 1;
             }
-
+	    
             Chars input;
 
             fseek(f, 0, SEEK_END);

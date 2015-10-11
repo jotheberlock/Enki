@@ -351,6 +351,16 @@ class Assembler : public Component
         current = ptr;
 	func_base = ptr;
     }
+
+    int dynamicLinkOffset()
+    {
+        return (pointerSize() * 1) / 8;
+    }
+    
+    int ipOffset()
+    {
+        return (pointerSize() * 2) / 8;
+    }
     
     int staticLinkOffset()
     {

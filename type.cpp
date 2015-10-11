@@ -44,20 +44,12 @@ void IntegerType::copy(Codegen * c, Value * a, Value * v)
     }
 }
 
-void GeneratorType::copy(Codegen * c, Value * a, Value * v)
+void ActivationType::copy(Codegen * c, Value * a, Value * v)
 {
-    printf("Generator copy!\n");
-        // Do funcall here
-    GeneratorType * gt = dynamic_cast<GeneratorType *>(v->type);
-    if (gt)
-    {
-        printf("Store\n");
-        c->block()->add(Insn(STORE,a,v));
-    }
-    else
-    {
-        printf("Not implemented!\n");
-    }
+    printf("Activation copy!\n");
+    Value * tmp = c->getTemporary(pointed_type, "actcopy");
+    c->block()->add(Insn(LOAD, tmp, v, Operand::sigc(assembler->returnOffset())));
+    c->block()->add(Insn(STORE, a, tmp));
 }
 
 void PointerType::copy(Codegen * c, Value * a, Value * v)
@@ -360,7 +352,7 @@ std::string StructType::display(unsigned char * addr)
 // d) get result
 // e) dispose of stack frame
 
-// frame is old_framepointer, old_ip, static link, return, args, locals
+// frame is dynamic, ip, static link, return, args, locals
 
 Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
                                       std::vector<Value *> & args)
@@ -372,8 +364,9 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
         return 0;
     }
 
+    std::vector<Type *> rets = c->getScope()->getType()->getReturns();
     Value * to_add = 0;
-    Value * new_frame = initStackFrame(c, fp, to_add, f);
+    Value * new_frame = allocStackFrame(c, fp, to_add, f, rets.size() == 0 ? register_type : rets[0]);
 
         // Get to the actual code
     c->block()->add(Insn(ADD, fp, fp,
@@ -381,11 +374,9 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
     c->block()->add(Insn(STORE, new_frame,
                          Operand::reg(assembler->framePointer())));
     
-    BasicBlock * return_block = c->newBlock("return");
-    Value * ip_holder = c->getTemporary(register_type, "ip_holder");
-    c->block()->add(Insn(MOVE, ip_holder, return_block));
+    // Set initial stored ip to start of function
     c->block()->add(Insn(STORE, new_frame,
-                         Operand::sigc(assembler->pointerSize()/8), ip_holder));
+                         Operand::sigc(assembler->ipOffset()), fp));
 
      // Needs expanding
     if (c->getScope() == f->getScope())
@@ -406,7 +397,6 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
     }
     
 	int current_offset = assembler->returnOffset();
-	std::vector<Type *> rets = c->getScope()->getType()->getReturns();
 
     if (rets.size() == 0)
     {
@@ -435,25 +425,33 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 		current_offset += args[loopc]->type->size() / 8;
 	}
 
+    new_frame->type->activate(c, new_frame);
+    return new_frame;
+}
+
+void ActivationType::activate(Codegen * c, Value * frame)
+{
+    BasicBlock * return_block = c->newBlock("return");
+    Value * ip_holder = c->getTemporary(register_type, "ip_holder");
+    c->block()->add(Insn(MOVE, ip_holder, return_block));
+    c->block()->add(Insn(STORE, Operand::reg(assembler->framePointer()),
+			 Operand::sigc(assembler->ipOffset()), ip_holder));
+    
     RegSet res;
     res.set(0);
     c->block()->setReservedRegs(res);
-    c->block()->add(Insn(MOVE, Operand::reg(0), fp));
+    c->block()->add(Insn(LOAD, Operand::reg(0), frame, Operand::sigc(assembler->ipOffset())));
     c->block()->add(Insn(MOVE, Operand::reg(assembler->framePointer()),
-                         new_frame));
+                         frame));
         // Oops this doesn't work because frame pointer just got clobbered
     
     c->block()->add(Insn(BRA, Operand::reg(0)));
         // Call returns here
     c->setBlock(return_block);
-
-    Value * ret = c->getTemporary(rets[0]);
-    c->block()->add(Insn(LOAD, ret, new_frame, Operand::sigc(assembler->returnOffset())));
-    return ret;
 }
 
-Value * FunctionType::initStackFrame(Codegen * c, Value * faddr,
-                                     Value * & to_add, Funcall * f)
+Value * FunctionType::allocStackFrame(Codegen * c, Value * faddr,
+				      Value * & to_add, Funcall * f, Type * rettype)
 {
     to_add = c->getTemporary(register_type, "to_add");
     c->block()->add(Insn(LOAD, to_add, faddr));
@@ -465,7 +463,7 @@ Value * FunctionType::initStackFrame(Codegen * c, Value * faddr,
     Value * addrof = c->getTemporary(register_type, "addr_of_stackptr");
     c->block()->add(Insn(GETADDR, addrof, next_frame_ptr, Operand::usigc(depth)));
     
-    Value * new_ptr = c->getTemporary(register_type, "new_ptr");
+    Value * new_ptr = c->getTemporary(new ActivationType(rettype), "new_ptr");
     c->block()->add(Insn(LOAD, new_ptr, addrof));
 
     Value * adder = c->getTemporary(register_type, "stackptr_add");
