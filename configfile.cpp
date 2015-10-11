@@ -20,6 +20,20 @@ std::string ConfigFile::hostConfig()
     return "unknown host";
 }
 
+std::string ConfigFile::nativeTargetConfig()
+{
+#ifdef CYGWIN_HOST
+    return "windows_amd64_target.ini";
+#endif
+#ifdef LINUX_HOST
+    return "linux_amd64_target.ini";
+#endif
+#ifdef WINDOWS_HOST
+    return "windows_amd64_target.ini";
+#endif
+    return "unknown host";
+}
+
 ConfigFile::ConfigFile(FILE * f, Configuration * c)
 {
     file = f;
