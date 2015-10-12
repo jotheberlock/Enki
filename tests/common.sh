@@ -1,6 +1,13 @@
 #!/bin/bash
 
-COMPILER="../enki"
+if [[ -f "../enki" ]]; then
+	COMPILER="../enki"
+elif [[ -f "../parsey/x64/Debug/enki.exe" ]]; then
+	COMPILER="../parsey/x64/Debug/enki.exe"
+else
+	echo "Can't find compiler!"
+	exit 1
+fi
 
 if [[ `uname` == "Linux" ]]; then
     OUTPUT="./a.out"
