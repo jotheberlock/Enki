@@ -1,7 +1,15 @@
 #!/bin/bash
 
-COMPILER="../enki linux_amd64_target.ini"
-OUTPUT="./a.out"
+COMPILER="../enki"
+
+if [[ `uname` == "Linux" ]]; then
+    OUTPUT="./a.out"
+elif [[ `uname` = CYGWIN* ]]; then
+    OUTPUT="./a.exe"
+else
+    echo "Unknown platform!"
+    exit 1
+fi
 
 function compile()
 {
@@ -66,4 +74,4 @@ function linuxonly()
 	skip
     fi
 }
-    
+
