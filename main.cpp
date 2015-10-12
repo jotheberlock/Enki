@@ -233,7 +233,7 @@ FILE * findFile(std::string name)
         return f;
     }
     name = std::string("../")+name;
-  
+
     if (f = fopen(name.c_str(), "r"))
     {
         return f;
@@ -273,7 +273,7 @@ int main(int argc, char ** argv)
 
     if (!done_ini)
     {
-        FILE * cfile = fopen(ConfigFile::nativeTargetConfig().c_str(), "r");
+        FILE * cfile = findFile(ConfigFile::nativeTargetConfig());
         if (!cfile)
         {
   	    printf("Can't find native target config [%s]\n", ConfigFile::nativeTargetConfig().c_str());
