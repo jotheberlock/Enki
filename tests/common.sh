@@ -8,7 +8,6 @@ elif [[ `uname` = CYGWIN* ]]; then
     OUTPUT="./a.exe"
 else
     echo "Unknown platform!"
-    exit 1
 fi
 
 function compile()
@@ -59,10 +58,14 @@ function expectExit()
     fi
 }
 
-function expectString()
+function expectResult()
 {
-    if [[ $1 == $2 ]]; then
-	success
+    if [[ $? -eq $1 ]]; then
+	if [[ $2 == $3 ]]; then
+	    success
+	else
+	    failure
+	fi
     else
 	failure
     fi
