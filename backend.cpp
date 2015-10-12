@@ -57,7 +57,7 @@ void Backend::process()
         root_scope->add(stacksize);
         gc->block()->add(Insn(GETSTACKSIZE, stacksize));
         gc->block()->add(Insn(ADD, Operand(v), Operand(v), stacksize));
-	config->entrypoint->generatePrologue(gc->block(), root_scope);
+	config->entrypoint->generatePrologue(gc->block(), root_scope, config->image);
     }
 	
     BasicBlock * body = gc->newBlock("body");
@@ -85,7 +85,7 @@ void Backend::process()
     }
     else
     {
-	config->entrypoint->generateEpilogue(epilogue, root_scope);
+        config->entrypoint->generateEpilogue(epilogue, root_scope, config->image);
     }
     
     config->image->setSectionSize(IMAGE_CONST_DATA, constants->getSize());
