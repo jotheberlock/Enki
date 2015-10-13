@@ -1,7 +1,7 @@
 #!/bin/bash
 . common.sh
 rm -f $OUTPUT
-compile TEST.001.twoplustwo.e
+compile TEST.008.logicaland.e
 $OUTPUT
-expectResult 4
+expectExit 2
 
