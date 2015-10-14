@@ -46,7 +46,6 @@ void IntegerType::copy(Codegen * c, Value * a, Value * v)
 
 void ActivationType::copy(Codegen * c, Value * a, Value * v)
 {
-    printf("Activation copy!\n");
     Value * tmp = c->getTemporary(pointed_type, "actcopy");
     c->block()->add(Insn(LOAD, tmp, v, Operand::sigc(assembler->returnOffset())));
     c->block()->add(Insn(STORE, a, tmp));
@@ -476,5 +475,12 @@ Value * FunctionType::allocStackFrame(Codegen * c, Value * faddr,
 Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp, 
 					      std::vector<Value *> & args)
 {
-    return convention->generateCall(c,fp,args);
+    if (args.size() != params.size())
+    {
+        fprintf(log_file, "Expected %lu params, got %lu!\n", params.size(),
+               args.size());
+        return 0;
+    }
+    
+  return convention->generateCall(c,fp,args);
 }
