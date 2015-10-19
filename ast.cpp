@@ -12,23 +12,49 @@
 
 IntegerExpr::IntegerExpr(Token * t)
 {
-    char buf[4096];
-
-    if (t->value.size() > 4096)
+    if (t->value.size() > 18)
     {
         printf("Invalidly huge integer!\n");
         val = 0;
         return;
     }
-    
-    unsigned int loopc;
-    for (loopc=0; loopc<t->value.size(); loopc++)
-    {
-        buf[loopc] = (char)t->value[loopc];
-    }
-    buf[loopc] = 0;
 
-    val = strtol(buf, 0, 0);
+    val = 0;
+    int begin = 0;
+    unsigned int base = 10;
+    if (t->value.size() > 2 && t->value[0] == '0' && t->value[1] == 'x')
+    {
+        begin = 2;
+        base = 16;
+    }
+    
+    // Do our own strol(l) to make sure we can do 64 bits
+    for (unsigned int loopc=begin; loopc<t->value.size(); loopc++)
+    {
+        unsigned char v = t->value[loopc];
+	unsigned char n = 0;
+	if (v >= '0' && v <= '9')
+	{
+	    n = (v - '0');
+	}
+	else if ((base == 16) && v >= 'a' && v <= 'f')
+	{
+  	    n = (v - 'a') + 10;
+	}
+	else if ((base == 16) && v >= 'A' && v <= 'F')
+	{
+  	    n = (v - 'A') + 10;
+	}
+	else
+	{
+	    printf("Invalid digit [%c]!\n", v);
+        }
+
+	val *= base;
+	val = val + n;
+	printf("n %d base %d val %d\n", n, base, val);
+    }
+    printf("Result %d\n", val);
 }
 
 IdentifierExpr::IdentifierExpr(Token * t)
@@ -1899,7 +1925,7 @@ void VarRefExpr::store(Codegen * c, Value * v)
 	       etype->name().c_str());
         return;
     }
-
+    
         // FIXME: how to do generator type...
     etype->copy(c,r,v);
 }
