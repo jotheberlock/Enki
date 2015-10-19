@@ -1,2 +1,2 @@
 # Hmm why is this 32 bit
-return ~0xfffffffe
+return ~0xfffffffffffffffe
