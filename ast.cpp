@@ -162,10 +162,10 @@ int Parser::getPrecedence()
     bool dummy;
     OpRec rec;
 
-	if (current.value.size() == 0)
-	{
-		return -1;
-	}
+    if (current.value.size() == 0)
+    {
+	return -1;
+    }
 
     if (!lexer->isOp(current.value[0], current.value.size() == 1 ? 0 : current.value[1], dummy, rec, current.toString()))
     {
@@ -1372,7 +1372,9 @@ Value * BinaryExpr::codegen(Codegen * c)
     uint64_t lte_op = (((uint64_t)'=' << 32) | '<');
     uint64_t gte_op = (((uint64_t)'=' << 32) | '>');
     uint64_t eval_op = (((uint64_t)':' << 32) | '=');
-    
+    uint64_t lshift_op = (((uint64_t)'<' << 32) | '<');
+    uint64_t rshift_op = (((uint64_t)'>' << 32) | '>');
+
     if (token.toString() == "and")
     {
         Value * lh = lhs->codegen(c);
@@ -1447,6 +1449,20 @@ Value * BinaryExpr::codegen(Codegen * c)
         Value * lh = lhs->codegen(c);
         Value * v = c->getTemporary(register_type, "rem");
         c->block()->add(Insn(REM, v, lh, rh));
+        return v;
+    }
+    else if (op == lshift_op)
+    {
+        Value * lh = lhs->codegen(c);
+        Value * v = c->getTemporary(register_type, "lshift");
+        c->block()->add(Insn(SHL, v, lh, rh));
+        return v;
+    }
+    else if (op == rshift_op)
+    {
+        Value * lh = lhs->codegen(c);
+        Value * v = c->getTemporary(register_type, "rshift");
+        c->block()->add(Insn(SHR, v, lh, rh));
         return v;
     }
     else if (op == '&')

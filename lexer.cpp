@@ -24,6 +24,8 @@ Lexer::Lexer()
     addOp(OpRec(BINOP, true, 4), '=', '=');
     addOp(OpRec(BINOP, true, 4), '!', '=');
     
+    addOp(OpRec(BINOP, true, 5), '<', '>');
+    addOp(OpRec(BINOP, true, 5), '>', '>');
     addOp(OpRec(BINOP, true, 4), '<');
     addOp(OpRec(BINOP, true, 4), '>');
     addOp(OpRec(BINOP, true, 4), '<', '=');
@@ -98,6 +100,16 @@ bool Lexer::isOp(uint32_t first, uint32_t second, bool & two_char,
         op = OpRec(UNARYOP, true, 4);
         return true;
     }
+    else if (full_value == "<<")
+    {
+	op = OpRec(BINOP, true, 5);
+	return true;
+    }
+    else if (full_value == ">>")
+    {
+	op = OpRec(BINOP, true, 5);
+	return true;
+    }
     
     uint64_t s64 = second;
     uint64_t encoded = (s64 << 32) | first;
@@ -116,6 +128,7 @@ bool Lexer::isOp(uint32_t first, uint32_t second, bool & two_char,
         return true;
     }
 
+    printf("No\n");
     return false;
 }
 
