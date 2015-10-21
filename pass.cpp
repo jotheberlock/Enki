@@ -95,7 +95,8 @@ void ThreeToTwoPass::processInsn()
     if (insn.ins == ADD || insn.ins == SUB || insn.ins == MUL ||
         insn.ins == IMUL || insn.ins == DIV || insn.ins == DIV ||
         insn.ins == AND || insn.ins == OR || insn.ins == XOR ||
-        insn.ins == NOT || insn.ins == REM || insn.ins == IREM)
+        insn.ins == NOT || insn.ins == REM || insn.ins == IREM ||
+	insn.ins == SHL || insn.ins == SHR)
     {
         if (!insn.ops[0].eq(insn.ops[1]))
         {

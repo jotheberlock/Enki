@@ -24,7 +24,7 @@ Lexer::Lexer()
     addOp(OpRec(BINOP, true, 4), '=', '=');
     addOp(OpRec(BINOP, true, 4), '!', '=');
     
-    addOp(OpRec(BINOP, true, 5), '<', '>');
+    addOp(OpRec(BINOP, true, 5), '<', '<');
     addOp(OpRec(BINOP, true, 5), '>', '>');
     addOp(OpRec(BINOP, true, 4), '<');
     addOp(OpRec(BINOP, true, 4), '>');
@@ -128,7 +128,6 @@ bool Lexer::isOp(uint32_t first, uint32_t second, bool & two_char,
         return true;
     }
 
-    printf("No\n");
     return false;
 }
 
@@ -173,7 +172,6 @@ void Lexer::readIdentifier()
             if (it != keywords.end())
             {
                 current_token.type = (*it).second;
-                fprintf(log_file, "Munging keyword [%s] to %d\n", current_token.toString().c_str(), current_token.type);
             }
 
             ReadChar dummy = ch;
@@ -510,31 +508,22 @@ void Lexer::lex(Chars & input)
             int occ = oldcol;
             oldcol = begin.col;
 
-            fprintf(log_file, "Zor %d %d %d\n", begin.col, occ, indentations.top());
-
             if (begin.col > indentations.top())
             {
                     // New level of indentation
                 indentations.push(begin.col);
-                fprintf(log_file, ">>> Indent to %d\n", begin.col);
                 simpleToken(begin, BEGIN);
                 push(begin);
                 continue;
             }
             else if (begin.col < occ)
             {
-                fprintf(log_file, "Begin %d occ %d\n", begin.col, occ);
                 while (indentations.size() > 1)
                 {
-                    fprintf(log_file, "Popping %d size %ld\n", indentations.top(),
-                           indentations.size());
                     indentations.pop();
-                    fprintf(log_file, "Looking for %d\n", indentations.top());
                     
                     if (indentations.top() == begin.col)
                     {
-                        fprintf(log_file, "Found it, current top is %d\n", 
-                               indentations.top());
                         simpleToken(begin, END);
                             //push(begin);
                         break;
@@ -562,7 +551,6 @@ void Lexer::lex(Chars & input)
                     }
                 }
             }
-            fprintf(log_file, "Zarniwoop\n");
         }
         
         ReadChar second = next();
@@ -576,7 +564,6 @@ void Lexer::lex(Chars & input)
         }
         else if (begin.val == '-' && (second.val >= '0' && second.val <= '9'))
         {
-            printf("Integer!\n");
             beginToken(begin, INTEGER_LITERAL);
             current_token.value.push_back(begin.val);
             push(second);

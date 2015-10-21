@@ -35,7 +35,7 @@ class Amd64 : public Assembler
         
         if (i.ins == ADD || i.ins == SUB || i.ins == MUL
             || i.ins == IMUL || i.ins == AND || i.ins == OR
-            || i.ins == XOR)
+            || i.ins == XOR || i.ins == SHL || i.ins == SHR)
         {
             if (idx != 2)
             {
