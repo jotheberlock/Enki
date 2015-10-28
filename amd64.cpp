@@ -720,7 +720,6 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         bool big = (val > 0xffffffff);
                         if (big)
                         {
-                            fprintf(log_file, "!!! Big!\n");
                             unsigned char r = 0xb8;
                             r |= reg(i.ops[0].getReg() & 0x7);
                             *current++ = r;
@@ -778,7 +777,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         case XOR: *current++ = 0xf0 | rr;
                             break;
                         default:
-                            fprintf(log_file, "Awoogah!\n");
+  			    fprintf(log_file, "Unknown logop %d!\n", i.ins);
                             break;
                     }
 
@@ -813,7 +812,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         case XOR: *current++ = 0x31;
                             break;
                         default:
-                            fprintf(log_file, "Awoogah!\n");
+  			    fprintf(log_file, "Unknown logop %d!\n", i.ins);
                             break;
                     }
 
@@ -886,7 +885,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 uint64_t sr = i.ops[2].getUsigc();
                 if (sr > 0xff)
                 {
-                    fprintf(log_file, "Too large shift!\n");
+ 		    fprintf(log_file, "Too large shift %ld!\n", sr);
                 }
                 
                 *current++ = (sr & 0xff);

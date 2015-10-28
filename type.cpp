@@ -240,7 +240,15 @@ void initialiseTypes()
     byte_type = new IntegerType(true, 8);
     types["Byte"] = byte_type;
     register_type = new IntegerType(true, assembler->pointerSize());
-    types["Uint64"] = register_type;
+
+    if (assembler->pointerSize() == 64)
+    {
+	types["Uint64"] = register_type;
+    }
+    else
+    {
+        types["Uint32"] = register_type;
+    }
     types["Byte^"] = new PointerType(byte_type);
 }
 
