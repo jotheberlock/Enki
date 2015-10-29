@@ -22,7 +22,7 @@ Backend::Backend(Configuration * c, Expr * r)
     configuration = c;
 }
 
-void Backend::process()
+int Backend::process()
 {
     codegensptr = &codegens;
     Codegen * gc = new Codegen(root_expr, root_scope);
@@ -73,7 +73,7 @@ void Backend::process()
             printf("\n");
             (*it).print();
         }
-        return;
+        return 1;
     }
     
     BasicBlock * epilogue = gc->newBlock("epilogue");
@@ -211,4 +211,6 @@ void Backend::process()
     FILE * dump = fopen(buf, "w");
     fwrite(config->image->getPtr(IMAGE_CODE), config->image->sectionSize(IMAGE_CODE), 1, dump);
     fclose(dump);
+
+    return 0;
 }

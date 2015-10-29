@@ -10,7 +10,7 @@ class Backend
  public:
 
     Backend(Configuration *, Expr *);
-    void process();
+    int process();
     
  protected:
 
