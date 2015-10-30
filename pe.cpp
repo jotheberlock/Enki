@@ -447,6 +447,10 @@ void PEImage::finalise()
     fseek(f, checked_32(imports_base - base_addr), SEEK_SET);    
     fwrite(buf, 4096, 1, f);
     fclose(f);
+
+#if defined(LINUX_HOST) || defined(CYGWIN_HOST)
+    chmod(fname.c_str(), 0755);
+#endif
 }
 
 void PEImage::materialiseSection(int s)
