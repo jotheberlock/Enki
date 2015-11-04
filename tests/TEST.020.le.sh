@@ -3,4 +3,4 @@
 rm -f $OUTPUT
 compile TEST.020.le.e
 $OUTPUT
-expectResult 1
+expectResult 3
