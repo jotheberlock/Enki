@@ -272,7 +272,6 @@ void PEImage::finalise()
         uint64_t lowest_diff = 0xffffffff;
         for (int loopc2=0; loopc2<4; loopc2++)
         {
-            printf(">> Prev_base %lx base here %lx section %d\n", prev_base, bases[loopc2], loopc2);
             uint64_t diff = bases[loopc2] - prev_base;
             if ((bases[loopc2] > prev_base) && (diff < lowest_diff))
             {
@@ -293,7 +292,6 @@ void PEImage::finalise()
         memset(sname, 0, 8);
         uint32_t flags;
 
-        printf(">> the_one %d\n", the_one);
         if (the_one == IMAGE_CODE)
         {  
             strcpy(sname, ".text");
@@ -370,14 +368,12 @@ void PEImage::finalise()
     for (unsigned int loopc = 0; loopc<imports.size(); loopc++)
     {
         uint64_t table_offset = (imports_base - base_addr)+table_size+count;
-        printf("Table offset %lx for dll [%s]\n", (uint32_t)table_offset, imports[loopc].name.c_str());
         wle32(ptr, checked_32(table_offset));  // Lookup table
         wle32(ptr, 0);   // Timestamp
         wle32(ptr, 0);   // Forwarder
         strcpy((char *)nameptr, imports[loopc].name.c_str());
         uint64_t offy = (imports_base - base_addr) + hints_offset + (nameptr-namebase);
         wle32(ptr, checked_32(offy));   // DLL name
-        printf("Using offy %ld %lx imports base %ld %lx base %ld %lx\n", offy, offy, imports_base, imports_base, base_addr, base_addr);
         nameptr += strlen(imports[loopc].name.c_str())+1;
         wle32(ptr, checked_32((imports_base - base_addr)+table_size+ilt_size+count));   // Address of IAT
         count += ((imports[loopc].imports.size()+1) * (sf_bit ? 8 : 4));
@@ -388,8 +384,6 @@ void PEImage::finalise()
     wle32(ptr, 0);
     wle32(ptr, 0);
     wle32(ptr, 0);
-
-    printf("Offset here %lx expected %lx\n", ptr-buf, table_size);
 
     for (int loopc=0; loopc<2; loopc++)
     {
@@ -411,16 +405,8 @@ void PEImage::finalise()
                 *nameptr = 0x0;
                 nameptr++;
                 strcpy((char *)nameptr, l.imports[loopc3].c_str());
-                printf("Nameptr %lx [%s]\n", nameptr-buf, nameptr);
                 
                 nameptr += strlen(l.imports[loopc3].c_str())+1;
-
-                printf("Function addr %lx\n", addr);
-                
-				if (loopc == 1)
-				{
-  					printf("IAT position %lx\n", ptr-buf);
-				}
 			  
                 if (sf_bit)
                 {
@@ -441,8 +427,6 @@ void PEImage::finalise()
             }	
         }
     } 
-
-    printf("Actual offset is %ld %lx string [%s] %c %c [%s]\n", ptr-buf, ptr-buf, ptr, buf[0x42], buf[0x43], &buf[0x44]);
            
     fseek(f, checked_32(imports_base - base_addr), SEEK_SET);    
     fwrite(buf, 4096, 1, f);
