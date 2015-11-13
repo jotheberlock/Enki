@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <time.h>
 
+#if defined(LINUX_HOST) || defined(CYGWIN_HOST)
+#include <sys/stat.h>
+#endif
+
 uint64_t roundup(uint64_t in, uint64_t align)
 {
     if (in % align == 0)
