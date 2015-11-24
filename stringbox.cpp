@@ -87,7 +87,7 @@ int StringBox::add(const char * c)
 		ids=(int *)realloc(ids,(idp+1)*sizeof(int));
     }
     strcpy(data+datap,c);
-    ids[idp]=datap;
+    ids[idp]=(int)datap;
     int ret=idp;
     datap+=l;
     idp++;

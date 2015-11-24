@@ -362,7 +362,7 @@ void PEImage::finalise()
     ilt_size *= (sf_bit ? 8 : 4);
     uint64_t hints_offset = table_size+ilt_size+ilt_size;
     
-    int count = 0;
+    size_t count = 0;
     
     unsigned char buf[4096];
     ptr = buf;
