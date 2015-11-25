@@ -52,9 +52,7 @@ IntegerExpr::IntegerExpr(Token * t)
 
 	val *= base;
 	val = val + n;
-	printf("n %d base %d val %d\n", n, base, val);
     }
-    printf("Result %d\n", val);
 }
 
 IdentifierExpr::IdentifierExpr(Token * t)
