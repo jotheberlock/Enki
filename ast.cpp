@@ -205,8 +205,6 @@ Expr * Parser::parseBinopRHS(int prec, Expr * lhs)
 
 Expr * Parser::parsePrimary()
 {
-    fprintf(log_file, ">>> parsePrimary %d\n", current.type);
-    
     if(current.type == INTEGER_LITERAL)
     { 
         return parseInteger();
@@ -599,7 +597,6 @@ Expr * Parser::parseVarExpr(Type * t)
     Expr * i = parseIdentifier();
     if (i)
     {
-        fprintf(log_file, "Bibble %d\n", current.type);
         Expr * assigned = 0;
         if (current.toString() == "=")
         {
@@ -762,7 +759,6 @@ Expr * Parser::parseStruct()
 
         if (current.type != EOL)
         {
-            fprintf(log_file, "[[[ %d\n", current.type);
             addError(Error(&current, "Expected EOL in struct"));
             return 0;
         }
@@ -776,8 +772,6 @@ Expr * Parser::parseStruct()
 
 Expr * Parser::parseVarRef(Expr * e)
 {
-    fprintf(log_file, ">>>>>> parseVarRef\n");
-
     IdentifierExpr * ie = dynamic_cast<IdentifierExpr *>(e);
     if (!ie)
     {
@@ -920,7 +914,6 @@ Expr * Parser::parseDef()
                 Type * t = parseType();
                 if (t)
                 {
-                    printf("Return type found!\n");
                     ft->addReturn(t);
                     if (current.type != EOL)
                     {
@@ -1223,7 +1216,6 @@ Type * VarRefExpr::checkType(Codegen * c)
             {
                 if (ret->canDeref())
                 {
-                    fprintf(log_file, ">>> deref\n");
                     ret = ret->derefType();
                 }
                 else
