@@ -32,26 +32,26 @@ IntegerExpr::IntegerExpr(Token * t)
     for (unsigned int loopc=begin; loopc<t->value.size(); loopc++)
     {
         unsigned char v = t->value[loopc];
-	unsigned char n = 0;
-	if (v >= '0' && v <= '9')
-	{
-	    n = (v - '0');
-	}
-	else if ((base == 16) && v >= 'a' && v <= 'f')
-	{
-  	    n = (v - 'a') + 10;
-	}
-	else if ((base == 16) && v >= 'A' && v <= 'F')
-	{
-  	    n = (v - 'A') + 10;
-	}
-	else
-	{
-	    printf("Invalid digit [%c]!\n", v);
+        unsigned char n = 0;
+        if (v >= '0' && v <= '9')
+        {
+            n = (v - '0');
+        }
+        else if ((base == 16) && v >= 'a' && v <= 'f')
+        {
+            n = (v - 'a') + 10;
+        }
+        else if ((base == 16) && v >= 'A' && v <= 'F')
+        {
+            n = (v - 'A') + 10;
+        }
+        else
+        {
+            printf("Invalid digit [%c]!\n", v);
         }
 
-	val *= base;
-	val = val + n;
+	    val *= base;
+	    val = val + n;
     }
 }
 

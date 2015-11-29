@@ -341,7 +341,7 @@ int Amd64::size(BasicBlock * b)
             }
         }
 
-	i.size = (ret-oldret);
+        i.size = (ret-oldret);
     }
     
     return ret;  
