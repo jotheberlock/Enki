@@ -37,6 +37,7 @@ class Type
     virtual Value * generateFuncall(Codegen *, Funcall *, Value *,
                                     std::vector<Value *> & args)
     {
+        printf("Illegal generateFuncall!\n");
         return 0;
     }
 
@@ -560,10 +561,11 @@ class ExternalFunctionType : public FunctionType
 {
   public:
 
-    ExternalFunctionType(CallingConvention * c)
+  ExternalFunctionType(CallingConvention * c, bool ia = false)
       : FunctionType(false)
     {
         convention=c;
+        ignore_arguments = ia;   // If true, can take arbitrary arguments
     }
 
     // Value will be the literal return
@@ -585,6 +587,7 @@ class ExternalFunctionType : public FunctionType
   protected:
 
     CallingConvention * convention;
+    bool ignore_arguments;
     
 };
 

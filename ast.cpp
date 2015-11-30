@@ -32,29 +32,27 @@ IntegerExpr::IntegerExpr(Token * t)
     for (unsigned int loopc=begin; loopc<t->value.size(); loopc++)
     {
         unsigned char v = t->value[loopc];
-	unsigned char n = 0;
-	if (v >= '0' && v <= '9')
-	{
-	    n = (v - '0');
-	}
-	else if ((base == 16) && v >= 'a' && v <= 'f')
-	{
-  	    n = (v - 'a') + 10;
-	}
-	else if ((base == 16) && v >= 'A' && v <= 'F')
-	{
-  	    n = (v - 'A') + 10;
-	}
-	else
-	{
-	    printf("Invalid digit [%c]!\n", v);
+        unsigned char n = 0;
+        if (v >= '0' && v <= '9')
+        {
+            n = (v - '0');
+        }
+        else if ((base == 16) && v >= 'a' && v <= 'f')
+        {
+            n = (v - 'a') + 10;
+        }
+        else if ((base == 16) && v >= 'A' && v <= 'F')
+        {
+            n = (v - 'A') + 10;
+        }
+        else
+        {
+            printf("Invalid digit [%c]!\n", v);
         }
 
-	val *= base;
-	val = val + n;
-	printf("n %d base %d val %d\n", n, base, val);
+	    val *= base;
+	    val = val + n;
     }
-    printf("Result %d\n", val);
 }
 
 IdentifierExpr::IdentifierExpr(Token * t)
@@ -207,8 +205,6 @@ Expr * Parser::parseBinopRHS(int prec, Expr * lhs)
 
 Expr * Parser::parsePrimary()
 {
-    fprintf(log_file, ">>> parsePrimary %d\n", current.type);
-    
     if(current.type == INTEGER_LITERAL)
     { 
         return parseInteger();
@@ -601,7 +597,6 @@ Expr * Parser::parseVarExpr(Type * t)
     Expr * i = parseIdentifier();
     if (i)
     {
-        fprintf(log_file, "Bibble %d\n", current.type);
         Expr * assigned = 0;
         if (current.toString() == "=")
         {
@@ -764,7 +759,6 @@ Expr * Parser::parseStruct()
 
         if (current.type != EOL)
         {
-            fprintf(log_file, "[[[ %d\n", current.type);
             addError(Error(&current, "Expected EOL in struct"));
             return 0;
         }
@@ -778,8 +772,6 @@ Expr * Parser::parseStruct()
 
 Expr * Parser::parseVarRef(Expr * e)
 {
-    fprintf(log_file, ">>>>>> parseVarRef\n");
-
     IdentifierExpr * ie = dynamic_cast<IdentifierExpr *>(e);
     if (!ie)
     {
@@ -922,7 +914,6 @@ Expr * Parser::parseDef()
                 Type * t = parseType();
                 if (t)
                 {
-                    printf("Return type found!\n");
                     ft->addReturn(t);
                     if (current.type != EOL)
                     {
@@ -1225,7 +1216,6 @@ Type * VarRefExpr::checkType(Codegen * c)
             {
                 if (ret->canDeref())
                 {
-                    fprintf(log_file, ">>> deref\n");
                     ret = ret->derefType();
                 }
                 else

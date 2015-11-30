@@ -483,12 +483,15 @@ Value * FunctionType::allocStackFrame(Codegen * c, Value * faddr,
 Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp, 
 					      std::vector<Value *> & args)
 {
-    if (args.size() != params.size())
+    if (!ignore_arguments)
     {
-        fprintf(log_file, "Expected %lu params, got %lu!\n", params.size(),
-               args.size());
-        return 0;
+        if (args.size() != params.size())
+        {
+            fprintf(log_file, "Expected %lu params, got %lu!\n", params.size(),
+                    args.size());
+            return 0;
+        }
     }
-    
-  return convention->generateCall(c,fp,args);
+
+    return convention->generateCall(c,fp,args);
 }

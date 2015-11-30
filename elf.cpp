@@ -473,7 +473,7 @@ void ElfImage::finalise()
     {
         if (loopc != IMAGE_UNALLOCED_DATA)
         {
-            fseek(f, bases[loopc]-base_addr, SEEK_SET);
+            fseek(f, (long)(bases[loopc]-base_addr), SEEK_SET);
             fwrite(sections[loopc], sizes[loopc], 1, f);
         }
     }

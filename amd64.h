@@ -91,7 +91,7 @@ class Amd64WindowsCallingConvention : public CallingConvention
 class Amd64UnixSyscallCallingConvention : public CallingConvention
 {
   public:
-
+    
     virtual void generatePrologue(BasicBlock *, FunctionScope *) 
     {}
 
