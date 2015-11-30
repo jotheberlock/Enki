@@ -92,7 +92,7 @@ int Backend::process()
     constants->setAddress(config->image->getAddr(IMAGE_CONST_DATA));
     constants->fillPool(config->image->getPtr(IMAGE_CONST_DATA));
      
-	std::vector<OptimisationPass *> passes = config->passes;
+    std::vector<OptimisationPass *> passes = config->passes;
     
     for(std::list<Codegen *>::iterator cit = codegens.begin();
         cit != codegens.end(); cit++)
@@ -208,7 +208,7 @@ int Backend::process()
 
     char buf[4096];
     sprintf(buf, "%s_out.bin", config->name.c_str());
-    FILE * dump = fopen(buf, "w");
+    FILE * dump = fopen(buf, "wb");
     fwrite(config->image->getPtr(IMAGE_CODE), config->image->sectionSize(IMAGE_CODE), 1, dump);
     fclose(dump);
 

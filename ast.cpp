@@ -14,7 +14,7 @@ IntegerExpr::IntegerExpr(Token * t)
 {
     if (t->value.size() > 18)
     {
-        printf("Invalidly huge integer! [%s]\n", t->toString());
+        printf("Invalidly huge integer! [%s]\n", t->toString().c_str());
         val = 0;
         return;
     }
@@ -1968,7 +1968,7 @@ Value * Funcall::codegen(Codegen * c)
     }
     
     assert(ptr->type->canFuncall());
-    
+
     std::vector<Value *> evaled_args;
     for (unsigned int loopc=0; loopc<args.size(); loopc++)
     {
@@ -1982,6 +1982,12 @@ Value * Funcall::codegen(Codegen * c)
         evaled_args.push_back(v);
     }
 
+    if (!ptr->type->validArgList(evaled_args))
+    {
+        addError(Error(&token, "Parameter mismatch!", name()));
+	return 0;
+    }
+    
     return ptr->type->generateFuncall(c, this, ptr, evaled_args);
 }
 

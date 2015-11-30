@@ -34,6 +34,11 @@ class Type
         return false;
     }
 
+    virtual bool validArgList(std::vector<Value *> &)
+    {
+        return false;
+    }
+    
     virtual Value * generateFuncall(Codegen *, Funcall *, Value *,
                                     std::vector<Value *> & args)
     {
@@ -492,7 +497,12 @@ class FunctionType : public Type
     {
         returns.push_back(t);
     }
-
+    
+    virtual bool validArgList(std::vector<Value *> & args)
+    {
+        return args.size() == params.size();
+    }
+    
     std::vector<Type *> & getReturns()
     {
         return returns;
@@ -582,6 +592,11 @@ class ExternalFunctionType : public FunctionType
         std::string ret = "extern ";
         ret += FunctionType::name();
         return ret;
+    }
+
+    virtual bool validArgList(std::vector<Value *> & args)
+    {
+        return ignore_arguments ? true : FunctionType::validArgList(args);
     }
     
   protected:

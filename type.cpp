@@ -364,13 +364,6 @@ std::string StructType::display(unsigned char * addr)
 Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
                                       std::vector<Value *> & args)
 {
-    if (args.size() != params.size())
-    {
-        fprintf(log_file, "Expected %lu params, got %lu!\n", params.size(),
-               args.size());
-        return 0;
-    }
-
     std::vector<Type *> rets = c->getScope()->getType()->getReturns();
     Value * to_add = 0;
     Value * new_frame = allocStackFrame(c, fp, to_add, f, rets.size() == 0 ? register_type : rets[0]);
@@ -423,13 +416,13 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 
 	for (unsigned int loopc=0; loopc<args.size(); loopc++)
 	{
-        int align = rets[loopc]->align() / 8;
-        while (current_offset % align)
-        {
-            current_offset++;
-        }
-		c->block()->add(Insn(STORE, new_frame, Operand::sigc(current_offset), Operand(args[loopc])));
-		current_offset += args[loopc]->type->size() / 8;
+	    int align = args[loopc]->type->align() / 8;
+	    while (current_offset % align)
+	   {
+                current_offset++;
+           }
+	   c->block()->add(Insn(STORE, new_frame, Operand::sigc(current_offset), Operand(args[loopc])));
+	   current_offset += args[loopc]->type->size() / 8;
 	}
 
     new_frame->type->activate(c, new_frame);
@@ -483,15 +476,5 @@ Value * FunctionType::allocStackFrame(Codegen * c, Value * faddr,
 Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp, 
 					      std::vector<Value *> & args)
 {
-    if (!ignore_arguments)
-    {
-        if (args.size() != params.size())
-        {
-            fprintf(log_file, "Expected %lu params, got %lu!\n", params.size(),
-                    args.size());
-            return 0;
-        }
-    }
-
     return convention->generateCall(c,fp,args);
 }
