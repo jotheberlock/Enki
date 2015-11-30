@@ -14,7 +14,7 @@ IntegerExpr::IntegerExpr(Token * t)
 {
     if (t->value.size() > 18)
     {
-        printf("Invalidly huge integer!\n");
+        printf("Invalidly huge integer! [%s]\n", t->toString());
         val = 0;
         return;
     }

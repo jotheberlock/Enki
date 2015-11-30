@@ -43,7 +43,7 @@ class Amd64 : public Assembler
             }
         }
 
-        if (i.ins == STORE)
+        if (i.ins == STORE || i.ins == STORE8 || i.ins == STORE16 || i.ins == STORE32 || i.ins == STORE64)
         {
             if (idx == 2)
             {

@@ -32,8 +32,6 @@ typedef uint64_t (*TestFunc)(uint64_t);
 Codegen * root_gc = 0;
 unsigned char * root_buf = 0;
 
-#define HEAP_SIZE 4096
-
 void dumpstack()
 {
     if (root_buf && root_gc)
