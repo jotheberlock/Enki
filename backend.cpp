@@ -133,13 +133,13 @@ int Backend::process()
         cit != codegens.end(); cit++)
     {
         bool is_macro = (*cit)->getScope()->getType()->isMacro();
-	if (is_macro)
-	{
-  	    printf("Skipping macro %s\n", (*cit)->getScope()->name().c_str());
-	    continue;
-	}
+		if (is_macro)
+		{
+  			printf("Skipping macro %s\n", (*cit)->getScope()->name().c_str());
+			continue;
+		}
 	
-        while (code_size % 8)
+        while (code_size % config->assembler->functionAlignment())
         {
             code_size++;
         }

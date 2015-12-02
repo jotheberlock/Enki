@@ -23,6 +23,11 @@ class Amd64 : public Assembler
         return 15;
     }
 
+	int functionAlignment()
+	{
+		return 8;
+	}
+
     bool validConst(Insn & i, int idx)
     {
         if (i.ins == DIV || i.ins == IDIV || i.ins == REM ||

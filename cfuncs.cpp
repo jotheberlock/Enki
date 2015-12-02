@@ -52,7 +52,7 @@ int print(char * c, int l)
 int read(char * c, int l)
 {
 	fgets(c, l, stdin);
-	return strlen(c);
+	return (int)strlen(c);
 }
 
 int crash()
