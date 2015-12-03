@@ -196,7 +196,7 @@ class IntegerType : public Type
     {
         std::string ret;
         if (un_signed)
-            ret += "u";
+            ret += "U";
         char buf[4096];
         sprintf(buf, "int%d", bits);
         ret += buf;
