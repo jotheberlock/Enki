@@ -473,6 +473,24 @@ Value * FunctionType::allocStackFrame(Codegen * c, Value * faddr,
     return new_ptr;
 }
 
+bool FunctionType::validArgList(std::vector<Value *> & args)
+{
+    if (args.size() == params.size())
+    {
+      return false;
+    }
+  
+    for (unsigned int loopc=0; loopc<args.size(); loopc++)
+    {
+        if (args[loopc]->type->size() != params[loopc].type->size())
+	{
+	    return false;
+	}
+    }
+
+    return true;
+}
+
 Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp, 
 					      std::vector<Value *> & args)
 {

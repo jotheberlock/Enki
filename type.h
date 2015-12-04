@@ -498,10 +498,7 @@ class FunctionType : public Type
         returns.push_back(t);
     }
     
-    virtual bool validArgList(std::vector<Value *> & args)
-    {
-        return args.size() == params.size();
-    }
+    virtual bool validArgList(std::vector<Value *> & args);
     
     std::vector<Type *> & getReturns()
     {
