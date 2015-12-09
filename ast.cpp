@@ -50,8 +50,8 @@ IntegerExpr::IntegerExpr(Token * t)
             printf("Invalid digit [%c]!\n", v);
         }
 
-	    val *= base;
-	    val = val + n;
+	val *= base;
+	val = val + n;
     }
 }
 
@@ -776,6 +776,7 @@ Expr * Parser::parseVarRef(Expr * e)
     if (!ie)
     {
         fprintf(log_file, "Eek unexpected expr type in parseVarRef\n");
+	addError(Error(&current, "Unexpected expression type"));
         return 0;
     }
     

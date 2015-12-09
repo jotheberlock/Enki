@@ -1159,7 +1159,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             }
             default:
             {
-                fprintf(log_file, "Don't know how to turn %ld into amd64!\n", i.ins);
+  	        fprintf(log_file, "Don't know how to turn %ld [%s] into amd64!\n", i.ins, i.toString().c_str());
                 assert(false);
             }
 

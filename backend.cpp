@@ -118,7 +118,7 @@ int Backend::process()
             dump_codegen(cg);
             op->init(cg);
             op->run();
-            fprintf(log_file, "\nAfter\n\n");
+            fprintf(log_file, "\nAfter pass %s:\n\n", op->name().c_str());
             dump_codegen(cg);
             fclose(log_file);
             log_file = keep_log;
