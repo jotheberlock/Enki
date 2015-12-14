@@ -541,11 +541,13 @@ Expr * Parser::parseReturn()
         if (!e)
         {
             addError(Error(&current, "Expected expr following return"));
+	    return 0;
         }
         
         if (current.type != EOL)
         {
             addError(Error(&current, "Expected EOL after return expression"));
+	    return 0;
         }
         else
         {
@@ -570,11 +572,13 @@ Expr * Parser::parseYield()
 	if (!e)
 	{
   	    addError(Error(&current, "Expected expr following yield"));
+	    return 0;
 	}
 
 	if (current.type != EOL)
 	{
 	    addError(Error(&current, "Expected EOL after yield expression"));
+	    return 0;
 	}
 	else
 	{
@@ -815,6 +819,11 @@ Expr * Parser::parseVarRef(Expr * e)
         else if (current.type == OPEN_SQUARE)
         {
             Expr * s = parseSquare();
+	    if (!s)
+	    {
+		addError(Error(&current, "Invalid array subscript"));
+		return 0;
+	    }
             vre->add(VarRefElement(VARREF_ARRAY, s));
         }
         else
