@@ -779,7 +779,6 @@ Expr * Parser::parseVarRef(Expr * e)
     IdentifierExpr * ie = dynamic_cast<IdentifierExpr *>(e);
     if (!ie)
     {
-        fprintf(log_file, "Eek unexpected expr type in parseVarRef\n");
 	addError(Error(&current, "Unexpected expression type"));
         return 0;
     }

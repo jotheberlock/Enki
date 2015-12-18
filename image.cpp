@@ -295,7 +295,7 @@ void MemoryImage::setImport(std::string name, uint64_t addr)
         }
     }
 
-    printf("Couldn't set address for import %s!\n", name.c_str());
+    printf("Couldn't set address for import [%s]!\n", name.c_str());
 }
 
 void MemoryImage::endOfImports()

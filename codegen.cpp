@@ -176,9 +176,6 @@ void Codegen::allocateStackSlots()
         Value * v = locals[loopc];
         if (v->onStack())
         {
-            fprintf(log_file, ">>> Putting %s at stack offset %ld %lx\n",
-                    v->name.c_str(), stack_size, stack_size);
-            
             while (stack_size % (v->type->align()/8))
             {
                 stack_size++;
