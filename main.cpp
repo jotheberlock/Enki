@@ -256,16 +256,26 @@ int main(int argc, char ** argv)
     hcf.process();
 
     Configuration config;
-
+    
+    ConfigFile * current_config_file = 0;
+    
     bool done_ini = false;
+
     for (int loopc=1; loopc<argc; loopc++)
     {
         if (strstr(argv[loopc], ".ini"))
         {
+  	    delete current_config_file;
             FILE * cfile = findFile(argv[loopc]);
-            ConfigFile cf(cfile, &config);
-            cf.process();
+            current_config_file = new ConfigFile(cfile, &config);
+            current_config_file->process();
 	    done_ini = true;
+        }
+	else if (strstr(argv[loopc], "=") && current_config_file)
+	{
+  	    char buf[4096];
+  	    sprintf(buf, "set %s", argv[loopc]);
+	    current_config_file->processLine(buf);
         }
     }
 
@@ -277,9 +287,21 @@ int main(int argc, char ** argv)
   	    printf("Can't find native target config [%s]\n", ConfigFile::nativeTargetConfig().c_str());
 	    return 1;
         }
-        ConfigFile cf(cfile, &config);
-	cf.process();
+        current_config_file = new ConfigFile(cfile, &config);
+	current_config_file->process();
     }
+    
+    for (int loopc=1; loopc<argc; loopc++)
+    {
+        if (strstr(argv[loopc], "=") && current_config_file)
+	{
+  	    char buf[4096];
+  	    sprintf(buf, "set %s", argv[loopc]);
+	    current_config_file->processLine(buf);
+        }
+    }
+    
+    delete current_config_file;
     
     uint64_t result = 1;
 

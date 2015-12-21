@@ -47,6 +47,7 @@ class ConfigFile
 
   ConfigFile(FILE *, Configuration *);
   void process();
+  bool processLine(std::string line);
   static std::string hostConfig();
   static std::string nativeTargetConfig();
   
