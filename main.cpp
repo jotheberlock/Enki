@@ -275,7 +275,26 @@ int main(int argc, char ** argv)
 	{
   	    char buf[4096];
   	    sprintf(buf, "set %s", argv[loopc]);
-	    current_config_file->processLine(buf);
+	    if (!current_config_file->processLine(buf))
+	    {
+		printf("Don't know how to set %s\n", argv[loopc]);
+	    }
+        }
+	else if (!strcmp(argv[loopc], "-o"))
+	{
+	    loopc++;
+	    if (loopc < argc)
+	    {
+	        if (!current_config_file->processLine(argv[loopc]))
+		{
+ 		    printf("Don't understand option [%s]\n", argv[loopc]);
+		}
+	    }
+	    else
+	    {
+ 	        printf("-o without option!\n");
+  	        break;
+	    }
         }
     }
 
