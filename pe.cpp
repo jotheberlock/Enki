@@ -25,8 +25,8 @@ PEImage::PEImage()
     sf_bit = false;
     arch = 34404;
     subsystem = 1; // Windows CLI
-    bases[3] = 0x800000;
-    sizes[3] = 4096;
+    bases[IMAGE_UNALLOCED_DATA] = 0x800000;
+    sizes[IMAGE_UNALLOCED_DATA] = 4096;
     guard_page = false;
 }
 
@@ -73,6 +73,15 @@ bool PEImage::configure(std::string param, std::string val)
 	{
     	    guard_page = true;
 	}
+    }
+    else if (param == "baseaddr")
+    {
+        base_addr = strtol(val.c_str(), 0, 0);
+	next_addr = base_addr + 12288;
+    }
+    else if (param == "heapaddr")
+    {
+        bases[IMAGE_UNALLOCED_DATA] = strtol(val.c_str(), 0, 0);
     }
     else
     {
