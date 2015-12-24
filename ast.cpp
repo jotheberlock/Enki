@@ -2018,7 +2018,6 @@ Value * Funcall::codegen(Codegen * c)
     }
 
     Value * ret = ptr->type->generateFuncall(c, this, ptr, evaled_args);
-    printf("Ret from genFuncall is %s\n", ret ? ret->type->name().c_str() : "<null>");
     return ret;
 }
 
