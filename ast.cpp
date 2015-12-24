@@ -1882,7 +1882,7 @@ void VarRefExpr::store(Codegen * c, Value * v)
     Value * copied = v;
 
     Type * vtype = v->type;
-    if (vtype && vtype->canCopy(vtype->activatedType()))
+    if (vtype && vtype->canActivate() && vtype->canCopy(vtype->activatedType()))
     {
         copied = c->getTemporary(vtype->activatedType(), "varrefcopy");
         Value * r = c->getTemporary(register_type, "varrefcopyaddr");
