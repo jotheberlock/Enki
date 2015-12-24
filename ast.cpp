@@ -1365,6 +1365,11 @@ Value * IdentifierExpr::codegen(Codegen * c)
 Value * BinaryExpr::codegen(Codegen * c)
 {
     Value * rh = rhs->codegen(c);
+    if (!rh)
+    {
+        printf("No right hand side in binaryexpr!\n");
+        return 0;
+    }
     
     uint64_t equality_op = (((uint64_t)'=' << 32) | '=');
     uint64_t inequality_op = (((uint64_t)'=' << 32) | '!');
@@ -1873,10 +1878,25 @@ Value * VarRefExpr::codegen(Codegen * c)
 void VarRefExpr::store(Codegen * c, Value * v)
 {
     Value * i = value;
-    
-    if (!v->type)
+
+    Value * copied = v;
+
+    Type * vtype = v->type;
+    if (vtype && vtype->canCopy(vtype->activatedType()))
     {
-        if (!v->is_number)
+        copied = c->getTemporary(vtype->activatedType(), "varrefcopy");
+        Value * r = c->getTemporary(register_type, "varrefcopyaddr");
+        c->block()->add(Insn(GETADDR, r, copied, Operand::usigc(0)));
+        vtype->copy(c, r, v);
+    }
+    else
+    {
+        copied = v;
+    }
+    
+    if (!copied->type)
+    {
+        if (!copied->is_number)
         {
             fprintf(log_file, "Null value type to store!\n");
             return;
@@ -1884,16 +1904,16 @@ void VarRefExpr::store(Codegen * c, Value * v)
         else
         {
             Value * v2 = c->getTemporary(register_type, "varrefintcopy");
-            c->block()->add(Insn(MOVE, v2, v));
-            v = v2;
+            c->block()->add(Insn(MOVE, v2, copied));
+            copied = v2;
         }
     }
     
-    if (i->type->inRegister() && v->type->inRegister() && elements.size() == 0
+    if (i->type->inRegister() && copied->type->inRegister() && elements.size() == 0
         && depth == 0)
     {
         fprintf(log_file, ">>> Adding a move\n");
-        c->block()->add(Insn(MOVE, i, v));
+        c->block()->add(Insn(MOVE, i, copied));
         return;
     }
     
@@ -1932,17 +1952,17 @@ void VarRefExpr::store(Codegen * c, Value * v)
 	}	
     }
 
-    if (!etype->canCopy(v->type))
+    if (!etype->canCopy(copied->type))
     {
         addError(Error(&token, "Don't know how to copy this type", value->name));    
         fprintf(log_file, "Don't know how to copy value of type %s to type %s!\n",
-	       v->type ? v->type->name().c_str() : "constant", 
+	       copied->type ? copied->type->name().c_str() : "constant", 
 	       etype->name().c_str());
         return;
     }
     
         // FIXME: how to do generator type...
-    etype->copy(c,r,v);
+    etype->copy(c,r,copied);
 }
 
 Value * BreakpointExpr::codegen(Codegen * c)
@@ -1994,10 +2014,12 @@ Value * Funcall::codegen(Codegen * c)
     if (!ptr->type->validArgList(evaled_args))
     {
         addError(Error(&token, "Parameter mismatch!", name()));
-	return 0;
+        return 0;
     }
-    
-    return ptr->type->generateFuncall(c, this, ptr, evaled_args);
+
+    Value * ret = ptr->type->generateFuncall(c, this, ptr, evaled_args);
+    printf("Ret from genFuncall is %s\n", ret ? ret->type->name().c_str() : "<null>");
+    return ret;
 }
 
 std::list<Codegen *> macros;

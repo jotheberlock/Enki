@@ -51,6 +51,11 @@ class Type
         return false;
     }
 
+    virtual Type * activatedType()
+    {
+        return 0;
+    }
+    
     virtual void activate(Codegen *, Value * v)
     {
         printf("Illegal activation!\n");
@@ -313,6 +318,11 @@ class ActivationType : public Type
         return true;
     }
 
+    virtual Type * activatedType()
+    {
+        return pointed_type;
+    }
+    
     void activate(Codegen *, Value *);
     
     int size()

@@ -475,17 +475,17 @@ Value * FunctionType::allocStackFrame(Codegen * c, Value * faddr,
 
 bool FunctionType::validArgList(std::vector<Value *> & args)
 {
-    if (args.size() == params.size())
+    if (args.size() != params.size())
     {
-      return false;
+        return false;
     }
   
     for (unsigned int loopc=0; loopc<args.size(); loopc++)
     {
         if (args[loopc]->type->size() != params[loopc].type->size())
-	{
-	    return false;
-	}
+        {
+            return false;
+        }
     }
 
     return true;
