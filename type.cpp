@@ -367,16 +367,18 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
     std::vector<Type *> rets = c->getScope()->getType()->getReturns();
     Value * to_add = 0;
     Value * new_frame = allocStackFrame(c, fp, to_add, f, rets.size() == 0 ? register_type : rets[0]);
-
+    
+    Value * fp_holder = c->getTemporary(register_type, "fp_holder");
+    c->block()->add(Insn(MOVE, fp_holder, fp));
         // Get to the actual code
-    c->block()->add(Insn(ADD, fp, fp,
+    c->block()->add(Insn(ADD, fp_holder, fp_holder,
                          Operand::usigc(assembler->pointerSize()/8)));
     c->block()->add(Insn(STORE, new_frame,
                          Operand::reg(assembler->framePointer())));
     
     // Set initial stored ip to start of function
     c->block()->add(Insn(STORE, new_frame,
-                         Operand::sigc(assembler->ipOffset()), fp));
+                         Operand::sigc(assembler->ipOffset()), fp_holder));
 
      // Needs expanding
     if (c->getScope() == f->getScope())
