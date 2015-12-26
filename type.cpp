@@ -44,6 +44,13 @@ void IntegerType::copy(Codegen * c, Value * a, Value * v)
     }
 }
 
+Value * ActivationType::getActivatedValue(Codegen * c, Value * act)
+{
+    Value * ret = c->getTemporary(activatedType(), "activation_return");
+    c->block()->add(Insn(LOAD, ret, act, Operand::sigc(assembler->returnOffset())));
+    return ret;
+}
+
 void ActivationType::copy(Codegen * c, Value * a, Value * v)
 {
     Value * tmp = c->getTemporary(pointed_type, "actcopy");

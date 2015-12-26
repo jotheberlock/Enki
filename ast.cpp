@@ -1678,6 +1678,14 @@ Value * Yield::codegen(Codegen * c)
         }
 
         Value * to_ret = ret->codegen(c);
+        Type * to_ret_type = to_ret->type;
+        Type * returnvar_type = returnvar->type;
+        
+        if (!returnvar_type->canActivate() && to_ret_type  &&
+            to_ret_type->canActivate())
+        {
+            to_ret = to_ret_type->getActivatedValue(c, to_ret);
+        }
         
         c->block()->add(Insn(MOVE, returnvar, to_ret));
     }
@@ -1725,8 +1733,17 @@ Value * Return::codegen(Codegen * c)
         }
 
         Value * to_ret = ret->codegen(c);
+
+        Type * to_ret_type = to_ret->type;
+        Type * returnvar_type = returnvar->type;
+
+        if (!returnvar_type->canActivate() && to_ret_type  &&
+            to_ret_type->canActivate())
+        {
+            to_ret = to_ret_type->getActivatedValue(c, to_ret);
+        }
         
-	c->block()->add(Insn(STORE, Operand::reg(assembler->framePointer()), Operand::sigc(assembler->returnOffset()), to_ret));
+        c->block()->add(Insn(MOVE, returnvar, to_ret));
     }
 
     if (c->callConvention() == CCONV_STANDARD)
@@ -1884,10 +1901,7 @@ void VarRefExpr::store(Codegen * c, Value * v)
     Type * vtype = v->type;
     if ((!i->type->canActivate()) && vtype && vtype->canActivate() && vtype->canCopy(vtype->activatedType()))
     {
-        copied = c->getTemporary(vtype->activatedType(), "varrefcopy");
-        Value * r = c->getTemporary(register_type, "varrefcopyaddr");
-        c->block()->add(Insn(GETADDR, r, copied, Operand::usigc(0)));
-        vtype->copy(c, r, v);
+        copied = vtype->getActivatedValue(c, v);
     }
     else
     {

@@ -55,6 +55,12 @@ class Type
     {
         return 0;
     }
+
+    virtual Value * getActivatedValue(Codegen *, Value *)
+    {
+        printf("Illegal attempt to get activated value!\n");
+        return 0;
+    }
     
     virtual void activate(Codegen *, Value * v)
     {
@@ -324,6 +330,8 @@ class ActivationType : public Type
     }
     
     void activate(Codegen *, Value *);
+
+    virtual Value * getActivatedValue(Codegen *, Value *);
     
     int size()
     {
