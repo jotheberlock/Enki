@@ -16,13 +16,14 @@ class SymbolScope
 {
   public:
 
-    SymbolScope(SymbolScope * p)
+    SymbolScope(SymbolScope * p, std::string n)
     {
         parent_scope = p;
         if (p)
         {
             p->addChild(this);
         }
+        symbol_name = n;
     }
 
     virtual ~SymbolScope()
@@ -40,13 +41,12 @@ class SymbolScope
     }
     
     void add(Value *);
-    Value * lookup(std::string,int &);
+    Value * lookup(std::string,int &,bool = true);
 
     Value * lookupLocal(std::string n)
     {
         int static_depth = 0;
-        Value * ret = lookup(n, static_depth);
-        assert(static_depth == 0);
+        Value * ret = lookup(n, static_depth, false);
         return ret;
     }
     
@@ -72,6 +72,9 @@ class SymbolScope
     }
 
     void getValues(std::vector<Value *> & values);
+
+    std::string name() { return symbol_name; }
+    std::string fqName();
     
   protected:
 
@@ -80,6 +83,7 @@ class SymbolScope
     std::vector<Value *> sorted_contents;
     std::map<std::string, FunctionScope *> functions;
     std::list<SymbolScope *> children;
+    std::string symbol_name;
     
 };
 
@@ -113,13 +117,6 @@ class FunctionScope : public SymbolScope
         return true;
     }
     
-    std::string name()
-    {
-        return function_name;
-    }
-
-    std::string fqName();
-    
     uint64_t getAddr()
     {
         assert(addr);
@@ -145,7 +142,6 @@ class FunctionScope : public SymbolScope
   protected:
 
     std::vector<Value *> args_list;
-    std::string function_name;
     FunctionScope * function;
     FunctionType * type;
     uint64_t addr;

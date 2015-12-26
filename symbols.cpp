@@ -19,18 +19,18 @@ void SymbolScope::addFunction(FunctionScope * f)
     functions[f->name()] = f;
 }
 
-Value * SymbolScope::lookup(std::string n, int & nest)
+Value * SymbolScope::lookup(std::string n, int & nest, bool recurse)
 {
-    nest = 0;
     std::map<std::string, Value *>::iterator it = contents.find(n);
     if (it == contents.end())
     {
-        if (parent())
+        if (parent() && recurse)
         {
             if (isFunction())
             {
                 // Leaving this function's scope so static depth
                 // goes up.
+                printf("Leaving function scope\n");
                 nest++;
             }
             
@@ -41,6 +41,12 @@ Value * SymbolScope::lookup(std::string n, int & nest)
             return 0;
         }
     }
+    else
+    {
+        printf("Found %s in symbol scope %s nest is %d\n", n.c_str(),
+               fqName().c_str(), nest);
+    }
+    
     return (*it).second;
 }
 
@@ -91,9 +97,8 @@ FunctionScope * SymbolScope::parentFunction()
 }
 
 FunctionScope::FunctionScope(SymbolScope * p, std::string n, FunctionType * ft)
-    : SymbolScope(p)
+    : SymbolScope(p, n)
 {
-    function_name = n;
     type = ft;
     if (p)
     {
@@ -122,14 +127,14 @@ FunctionScope * FunctionScope::parentFunction()
     return parent() ? parent()->parentFunction() : 0;
 }
 
-std::string FunctionScope::fqName()
+std::string SymbolScope::fqName()
 {
-    std::string ret = function_name;
-    FunctionScope * fs = parentFunction();
+    std::string ret = symbol_name;
+    SymbolScope * fs = parent();
     while (fs)
     {
-        ret = ret + fs->name()+"::"+ret;
-        fs = fs->parentFunction();
+        ret = fs->name()+"::"+ret;
+        fs = fs->parent();
     }
     return ret;
 }

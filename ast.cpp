@@ -669,7 +669,7 @@ Expr * Parser::parseBlock()
 {
     next();
 
-    SymbolScope * nb = new SymbolScope(current_scope);
+    SymbolScope * nb = new SymbolScope(current_scope, "<block>");
     current_scope = nb;
     
     Block * ret = new Block();
@@ -788,6 +788,7 @@ Expr * Parser::parseVarRef(Expr * e)
     vre->scope = current_scope;
 
     std::string name = ((IdentifierExpr *)ie)->getString();
+    vre->depth = 0;
     vre->value = vre->scope->lookup(name, vre->depth);
     if (!vre->value)
     {
@@ -872,7 +873,9 @@ Expr * Parser::parseDef()
 	
 	Value * v = new Value(name, ft);
 	current_scope->add(v);
-
+    printf("Adding function to current scope [%s]\n",
+           current_scope->fqName().c_str());
+    
     FunctionScope * fs = new FunctionScope(current_scope,
                                            name,
                                            ft);
@@ -1988,10 +1991,18 @@ Value * BreakpointExpr::codegen(Codegen * c)
 Value * Funcall::codegen(Codegen * c)
 {
 	Value * ptr = scope->lookupLocal(name());
+
+    if (ptr)
+    {
+        printf("lookupLocal succesful for function %s scope %s\n", name().c_str(),
+               scope->fqName().c_str());
+    }
+    
 	if (!ptr)
 	{
 		int depth = 0;
 		ptr = scope->lookup(name(), depth);
+        printf("Looked up %s at depth %d\n", name().c_str(), depth);
 	    Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
 	    c->block()->add(Insn(GETADDR, addrof, ptr, Operand::usigc(depth)));
 		c->block()->add(Insn(LOAD, ptr, addrof));
