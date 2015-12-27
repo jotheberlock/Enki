@@ -662,7 +662,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         *current++ = r;
                         
 						assert(current_function);
-						new FunctionRelocation(image, current_function, len(), i.ops[1].getFunction(), 0);
+						new FunctionRelocation(image, current_function, flen(), i.ops[1].getFunction(), 0);
                         //relocs.push_back(Relocation(REL_A64, len()+8, len(),
                         //                            i.ops[1].getFunction()));
                         wle64(current, reloc);
