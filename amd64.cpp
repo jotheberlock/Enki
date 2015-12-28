@@ -1640,5 +1640,8 @@ Value * Amd64UnixSyscallCallingConvention::generateCall(Codegen * c,
     Value * ret = c->getTemporary(register_type, "ret");
     current->add(Insn(MOVE, ret, Operand::reg("rax")));
 
+    BasicBlock * postsyscall = c->newBlock("postsyscall");
+    c->setBlock(postsyscall);
+    
     return ret;
 }
