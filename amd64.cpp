@@ -674,7 +674,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         r |= reg(i.ops[0].getReg() & 0x7);
                         *current++ = r;
                         
-						new BasicBlockRelocation(image, current_function, len(), i.ops[1].getBlock());
+						new BasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
                         //relocs.push_back(Relocation(REL_A64, len()+8, len(),
                         //                            i.ops[1].getBlock()));
                         wle64(current, reloc);
@@ -980,7 +980,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 {
                     assert(i.ins == BRA);
                     *current++ = 0xe9;
-		    new BasicBlockRelocation(image, current_function, len(), len()+4, i.ops[0].getBlock());
+                    new BasicBlockRelocation(image, current_function, flen(), flen()+4, i.ops[0].getBlock());
 
                     //relocs.push_back(Relocation(REL_S32, currentAddr()+4, len(),
                     //                            i.ops[0].getBlock()));
@@ -1023,7 +1023,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         assert(false);
                 }
                 
-				new BasicBlockRelocation(image, current_function, len(), len()+4, i.ops[0].getBlock());
+				new BasicBlockRelocation(image, current_function, flen(), flen()+4, i.ops[0].getBlock());
                 wle32(current, 0xdeadbeef);
                 break;
             }
@@ -1383,6 +1383,11 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 
     current->add(Insn(ADD, Operand::reg("rsp"), Operand::reg("rsp"),
                       Operand::usigc(stack_size)));
+    
+    BasicBlock * postcall = c->newBlock("postcall");
+    current->add(Insn(BRA, Operand(postcall)));
+    c->setBlock(postcall);
+    
     return ret;
 }
 
@@ -1468,6 +1473,10 @@ Value * Amd64UnixCallingConvention::generateCall(Codegen * c,
     Value * ret = c->getTemporary(register_type, "ret");
     current->add(Insn(MOVE, ret, Operand::reg("rax")));
 
+    BasicBlock * postcall = c->newBlock("postcall");
+    current->add(Insn(BRA, Operand(postcall)));
+    c->setBlock(postcall);
+    
     return ret;
 }
 
@@ -1639,8 +1648,9 @@ Value * Amd64UnixSyscallCallingConvention::generateCall(Codegen * c,
     current->add(Insn(SYSCALL));
     Value * ret = c->getTemporary(register_type, "ret");
     current->add(Insn(MOVE, ret, Operand::reg("rax")));
-
+    
     BasicBlock * postsyscall = c->newBlock("postsyscall");
+    current->add(Insn(BRA, Operand(postsyscall)));
     c->setBlock(postsyscall);
     
     return ret;

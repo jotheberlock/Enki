@@ -9,6 +9,7 @@ Codegen::Codegen(Expr * e, FunctionScope * fs)
     bbcount = 0;
     stack_size = 0xdeadbeef;
     current_block = newBlock("prologue");
+    setBlock(current_block);
     allocated_slots = false;
     cconv = CCONV_STANDARD;
     scope = fs;
@@ -100,7 +101,7 @@ BasicBlock * Codegen::newBlock(std::string n)
     }
 
     BasicBlock * ret = new BasicBlock(n);
-    blocks.push_back(ret);
+    unplaced_blocks.push_back(ret);
     return ret;
 }
 

@@ -30,7 +30,6 @@ Value * SymbolScope::lookup(std::string n, int & nest, bool recurse)
             {
                 // Leaving this function's scope so static depth
                 // goes up.
-                printf("Leaving function scope\n");
                 nest++;
             }
             
@@ -40,11 +39,6 @@ Value * SymbolScope::lookup(std::string n, int & nest, bool recurse)
         {
             return 0;
         }
-    }
-    else
-    {
-        printf("Found %s in symbol scope %s nest is %d\n", n.c_str(),
-               fqName().c_str(), nest);
     }
     
     return (*it).second;
@@ -130,11 +124,11 @@ FunctionScope * FunctionScope::parentFunction()
 std::string SymbolScope::fqName()
 {
     std::string ret = symbol_name;
-    SymbolScope * fs = parent();
+    FunctionScope * fs = parentFunction();
     while (fs)
     {
         ret = fs->name()+"::"+ret;
-        fs = fs->parent();
+        fs = fs->parentFunction();
     }
     return ret;
 }

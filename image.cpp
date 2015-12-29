@@ -46,7 +46,7 @@ BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_
 
 void BasicBlockRelocation::apply()
 {
-    unsigned char * patch_site = image->getPtr(IMAGE_CODE)+patch_offset;
+    unsigned char * patch_site = image->functionPtr(to_patch)+patch_offset;
 	if (absolute)
 	{
 		wees64(image->littleEndian(), patch_site, to_link->getAddr());
@@ -55,7 +55,7 @@ void BasicBlockRelocation::apply()
 
     uint64_t baddr = to_link->getAddr();
     uint64_t oaddr = image->functionAddress(to_patch) + patch_relative;
-            
+    
     int32_t diff;
     if (oaddr > baddr)
     {
@@ -159,7 +159,7 @@ unsigned char * Image::functionPtr(FunctionScope * ptr)
             return foffsets[loopc] + getPtr(IMAGE_CODE);
         }
     }
-
+    
     printf("functionPtr - can't find function [%s]!\n", ptr ? ptr->name().c_str() : "<null>");
     return 0;
 }

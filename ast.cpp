@@ -873,8 +873,6 @@ Expr * Parser::parseDef()
 	
 	Value * v = new Value(name, ft);
 	current_scope->add(v);
-    printf("Adding function to current scope [%s]\n",
-           current_scope->fqName().c_str());
     
     FunctionScope * fs = new FunctionScope(current_scope,
                                            name,
@@ -1695,6 +1693,7 @@ Value * Yield::codegen(Codegen * c)
 
     
     BasicBlock * retblock = c->newBlock("yield");
+    c->block()->add(Insn(BRA, Operand(retblock)));
     c->setBlock(retblock);
     BasicBlock * resumeblock = c->newBlock("resume");
     
@@ -1752,6 +1751,7 @@ Value * Return::codegen(Codegen * c)
     if (c->callConvention() == CCONV_STANDARD)
     {
         BasicBlock * retblock = c->newBlock("ret");
+        c->block()->add(Insn(BRA, Operand(retblock)));
         c->setBlock(retblock);
 
         Value * ipvar = c->getIp();
@@ -1780,8 +1780,9 @@ Value * Return::codegen(Codegen * c)
     else if (c->callConvention() == CCONV_C)
     {
         BasicBlock * ret = c->newBlock("ret");
-	c->block()->add(Insn(BRA, ret));
-	calling_convention->generateEpilogue(ret, c->getScope());
+        c->block()->add(Insn(BRA, ret));
+        c->setBlock(ret);
+        calling_convention->generateEpilogue(ret, c->getScope());
     }
     
     return 0;
@@ -1832,13 +1833,13 @@ Value * If::codegen(Codegen * c)
     
     c->setBlock(ifb);
     body->codegen(c);
-    ifb->add(Insn(BRA, endb));
+    c->block()->add(Insn(BRA, endb));
     
     if (elb)
     {
         c->setBlock(elb);
         elseblock->codegen(c);
-        elb->add(Insn(BRA, endb));
+        c->block()->add(Insn(BRA, endb));
     }
     
     c->setBlock(endb);
@@ -1991,18 +1992,11 @@ Value * BreakpointExpr::codegen(Codegen * c)
 Value * Funcall::codegen(Codegen * c)
 {
 	Value * ptr = scope->lookupLocal(name());
-
-    if (ptr)
-    {
-        printf("lookupLocal succesful for function %s scope %s\n", name().c_str(),
-               scope->fqName().c_str());
-    }
     
 	if (!ptr)
 	{
 		int depth = 0;
 		ptr = scope->lookup(name(), depth);
-        printf("Looked up %s at depth %d\n", name().c_str(), depth);
 	    Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
 	    c->block()->add(Insn(GETADDR, addrof, ptr, Operand::usigc(depth)));
 		c->block()->add(Insn(LOAD, ptr, addrof));
@@ -2084,6 +2078,7 @@ Value * DefExpr::codegen(Codegen * c)
     {
         BasicBlock * epilogue = ch->newBlock("epilogue");
         ch->block()->add(Insn(BRA, epilogue));
+        c->setBlock(epilogue);
         calling_convention->generateEpilogue(epilogue, root_scope);
     }
     

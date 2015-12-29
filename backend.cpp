@@ -77,14 +77,16 @@ int Backend::process()
     }
     
     BasicBlock * epilogue = gc->newBlock("epilogue");
-
+    
     if (jit)
     {
         gc->block()->add(Insn(BRA, epilogue));
+        gc->setBlock(epilogue);
         config->cconv->generateEpilogue(epilogue, root_scope);
     }
     else
     {
+        gc->setBlock(epilogue);
         config->entrypoint->generateEpilogue(epilogue, root_scope, config->image);
     }
     
@@ -173,6 +175,18 @@ int Backend::process()
     for(std::list<Codegen *>::iterator cit = codegens.begin();
         cit != codegens.end(); cit++)
     {
+        std::vector<BasicBlock *> & ubbs = (*cit)->getUnplacedBlocks();
+        if (ubbs.size() != 0)
+        {
+            printf("WARNING unplaced blocks:\n");
+            for (int loopc=0; loopc<ubbs.size(); loopc++)
+            {
+                printf("%d: %s\n", ubbs[loopc]->toString().c_str());
+            }
+            return 1;
+        }
+        
+        
         FunctionScope * fs = (*cit)->getScope();
         config->assembler->setAddr(config->image->functionAddress(fs));
         config->assembler->setPtr(config->image->functionPtr(fs));
