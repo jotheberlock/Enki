@@ -517,6 +517,11 @@ class FunctionType : public Type
     }
     
     virtual bool validArgList(std::vector<Value *> & args);
+
+    std::vector<StructElement> & getParams()
+    {
+	return params;
+    }
     
     std::vector<Type *> & getReturns()
     {

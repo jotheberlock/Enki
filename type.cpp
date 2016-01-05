@@ -415,11 +415,11 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
     
 	for (unsigned int loopc=0; loopc<rets.size(); loopc++)
 	{
-        int align = rets[loopc]->align() / 8;
-        while (current_offset % align)
-        {
-            current_offset++;
-        }
+	    int align = rets[loopc]->align() / 8;
+  	    while (current_offset % align)
+            {
+                current_offset++;
+            }
 		current_offset += rets[loopc]->size() / 8;
 	}
 
@@ -427,10 +427,20 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 	{
 	    int align = args[loopc]->type->align() / 8;
 	    while (current_offset % align)
-	   {
+	    {
                 current_offset++;
-           }
-	   c->block()->add(Insn(STORE, new_frame, Operand::sigc(current_offset), Operand(args[loopc])));
+            }
+
+	    Value * arg = args[loopc];
+	    Type * intype = arg->type;
+	    Type * expectedtype = params[loopc].type;
+	    
+	    if (intype && !expectedtype->canActivate() && intype->canActivate())
+	    {
+		arg = intype->getActivatedValue(c, arg);
+	    }
+        
+	   c->block()->add(Insn(STORE, new_frame, Operand::sigc(current_offset), arg));
 	   current_offset += args[loopc]->type->size() / 8;
 	}
 
