@@ -28,7 +28,7 @@ IntegerExpr::IntegerExpr(Token * t)
         base = 16;
     }
     
-    // Do our own strol(l) to make sure we can do 64 bits
+    // Do our own strtol(3) to make sure we can do 64 bits
     for (unsigned int loopc=begin; loopc<t->value.size(); loopc++)
     {
         unsigned char v = t->value[loopc];
@@ -171,8 +171,10 @@ int Parser::getPrecedence()
     }
 
     if (rec.type != BINOP)
+    {
         return -1;
-
+    }
+    
     return rec.pri;
 }
 
@@ -187,19 +189,25 @@ Expr * Parser::parseBinopRHS(int prec, Expr * lhs)
         next();
         Expr * rhs = parseUnary();
         if (!rhs)
+	{
             return 0;
+	}
         int nprec = getPrecedence();
         if (tprec < nprec)
         {
             rhs = parseBinopRHS(tprec+1, rhs);
             if (rhs == 0)
+	    {
                 return 0;
+	    }
         }
 
         lhs = new BinaryExpr(&binop, lhs, rhs);
 
         if (current.type == DONE)
+	{
             return lhs;
+	}
     }
 }
 
@@ -256,10 +264,14 @@ Expr * Parser::parseUnary()
     uint32_t first = 0;
     uint32_t second = 0;
     if (current.value.size() > 0)
+    {
         first = current.value[0];
+    }
     if (current.value.size() > 1)
+    {
         second = current.value[1];
-
+    }
+    
     if (first == 0)
     {
         return parsePrimary();
@@ -501,16 +513,15 @@ Expr * Parser::parseWhile()
 
     Block * b = 0;
     
-	if (current.type != EOL)
-	{
-	    addError(Error(&current, "Expected EOL after while expr"));
-	}
-	next();
-
+    if (current.type != EOL)
+    {
+	addError(Error(&current, "Expected EOL after while expr"));
+    }
+    next();
     
-	if (current.type != BEGIN)
-	{
-  	    addError(Error(&current, "Expected block after while"));
+    if (current.type != BEGIN)
+    {
+	addError(Error(&current, "Expected block after while"));
     }
     else
     {
@@ -679,7 +690,9 @@ Expr * Parser::parseBlock()
         if (current.type == DONE || current.type == END)
         {
             if (current.type == END)
+	    {
                 next();
+	    }
             current_scope = current_scope->parent();
             return ret;
         }
@@ -871,8 +884,8 @@ Expr * Parser::parseDef()
         ft = new FunctionType(is_macro);
     }
 	
-	Value * v = new Value(name, ft);
-	current_scope->add(v);
+    Value * v = new Value(name, ft);
+    current_scope->add(v);
     
     FunctionScope * fs = new FunctionScope(current_scope,
                                            name,
@@ -1995,8 +2008,8 @@ Value * Funcall::codegen(Codegen * c)
     
 	if (!ptr)
 	{
-		int depth = 0;
-		ptr = scope->lookup(name(), depth);
+	    int depth = 0;
+	    ptr = scope->lookup(name(), depth);
 	    Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
 	    c->block()->add(Insn(GETADDR, addrof, ptr, Operand::usigc(depth)));
 		c->block()->add(Insn(LOAD, ptr, addrof));
@@ -2053,9 +2066,9 @@ Value * DefExpr::codegen(Codegen * c)
         return ptr;
     }
 	
-	FunctionScope * to_call = scope->lookup_function(name);
+    FunctionScope * to_call = scope->lookup_function(name);
     assert(to_call);
-	c->block()->add(Insn(MOVE, ptr, Operand(to_call)));
+    c->block()->add(Insn(MOVE, ptr, Operand(to_call)));
 
     scope->addFunction(new FunctionScope(scope, type->name(), type));
     
