@@ -16,17 +16,25 @@ StringBox::StringBox()
 StringBox::~StringBox()
 {
     if(data)
-		free(data);
+    {
+        free(data);
+    }
     if(ids)
-		free(ids);
+    {
+        free(ids);
+    }
 }
 
 void StringBox::clear()
 {
     if(data)
-		free(data);
+    {
+        free(data);
+    }
     if(ids)
-		free(ids);
+    {
+	free(ids);
+    }
     idp=0;
     internal_idp=-1;
     datap=0;
@@ -36,55 +44,62 @@ void StringBox::clear()
 
 char * StringBox::getText(int i)
 {
-	if(i<0) {
-		i*=-1;
-		// Awoogah! Memory leak!
-		char * buf=(char *)malloc(30);
-		sprintf(buf,"<Internal ID %d>",i);
-		return buf;
-	} else {
-		i--;
-		if(i==-1 || i>=idp) {
-			printf("Eek! Illegal ID\n");
-			abort();
-			return 0;
-		}
-		return data+ids[i];
-	}
+    if(i<0) {
+        i*=-1;
+	// Awoogah! Memory leak!
+	char * buf=(char *)malloc(30);
+	sprintf(buf,"<Internal ID %d>",i);
+	return buf;
+    } else {
+        i--;
+        if(i==-1 || i>=idp)
+	{
+	    printf("Eek! Illegal ID\n");
+  	    abort();
+	    return 0;
+        }
+        return data+ids[i];
+    }
 }
 
 int StringBox::getID(const char * c)
 {
     for(int loopc=0;loopc<idp;loopc++) {
-		if(!strcmp(data+ids[loopc],c))
-			return loopc+1;
+        if(!strcmp(data+ids[loopc],c))
+	{
+      	    return loopc+1;
+	}
     }
     return 0;
 }
 
 int StringBox::getInternalID()
 {
-	int ret=internal_idp;
-	internal_idp--;
-	return ret;
+    int ret=internal_idp;
+    internal_idp--;
+    return ret;
 }
 
 int StringBox::add(const char * c)
 {
     int t=getID(c);
     if(t)
-		return t;
+    {
+        return t;
+    }
     size_t l=strlen(c)+1;
     size_t newsize=datap+l;
-    if(!data) {
-		data=(char *)malloc(newsize);
+    if(!data)
+    {
+        data=(char *)malloc(newsize);
     } else {
-		data=(char *)realloc(data,newsize);
+        data=(char *)realloc(data,newsize);
     }
-    if(!ids) {
-		ids=(int *)malloc((idp+1)*sizeof(int));
+    if(!ids)
+    {
+        ids=(int *)malloc((idp+1)*sizeof(int));
     } else {
-		ids=(int *)realloc(ids,(idp+1)*sizeof(int));
+        ids=(int *)realloc(ids,(idp+1)*sizeof(int));
     }
     strcpy(data+datap,c);
     ids[idp]=(int)datap;
@@ -97,8 +112,9 @@ int StringBox::add(const char * c)
 void StringBox::dump()
 {
     printf("IDs %d datasize %d\n\n",idp,datap);
-    for(int loopc=0;loopc<idp;loopc++) {
-		printf("%d [%s]\n",loopc+1,data+ids[loopc]);
+    for(int loopc=0;loopc<idp;loopc++)
+    {
+        printf("%d [%s]\n",loopc+1,data+ids[loopc]);
     }
 }
 
