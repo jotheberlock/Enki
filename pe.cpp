@@ -13,7 +13,9 @@
 uint64_t roundup(uint64_t in, uint64_t align)
 {
     if (in % align == 0)
+    {
        return in;
+    }
     return in + (align - (in % align));
 }
 

@@ -44,7 +44,8 @@ void StringBox::clear()
 
 char * StringBox::getText(int i)
 {
-    if(i<0) {
+    if(i<0)
+    {
         i*=-1;
 	// Awoogah! Memory leak!
 	char * buf=(char *)malloc(30);
@@ -64,7 +65,8 @@ char * StringBox::getText(int i)
 
 int StringBox::getID(const char * c)
 {
-    for(int loopc=0;loopc<idp;loopc++) {
+    for(int loopc=0;loopc<idp;loopc++)
+    {
         if(!strcmp(data+ids[loopc],c))
 	{
       	    return loopc+1;

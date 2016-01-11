@@ -155,7 +155,9 @@ void Constants::fillPool(unsigned char * ptr)
 uint64_t Constants::addConstant(const char * data, int len, int align)
 {
     while (constantp % align)
+    {
         constantp++;
+    }
     
     uint64_t ret = constants.size();
     Constant c;

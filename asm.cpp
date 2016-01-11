@@ -481,7 +481,7 @@ int storeForType(Type * t)
         // assert(false);
     }
 
-	return STORE;
+    return STORE;
 }
 
 int loadForType(Type * t)
@@ -507,7 +507,7 @@ int loadForType(Type * t)
       //  assert(false);
     }
 
-	return LOAD;
+    return LOAD;
 }
 
 void Assembler::newFunction(Codegen * c)

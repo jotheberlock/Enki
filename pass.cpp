@@ -152,9 +152,9 @@ int SillyRegalloc::findFree(RegSet & r, RegSet & c)
         }
     }
 
-        // Should probably learn how to spill here
-	assert(false);    
-	return 0;
+    // Should probably learn how to spill here
+    assert(false);    
+    return 0;
 }
 
 int SillyRegalloc::alloc(Value * v, RegSet & r, RegSet & c)
