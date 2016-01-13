@@ -81,7 +81,13 @@ function expectResult()
 function linuxonly()
 {
     if [[ `uname` != "Linux" ]]; then
-	skip
-    fi
+		skip
+	fi
 }
 
+function windowsonly()
+{
+	if [[ ! `uname` =~ CYGWIN* ]]; then
+		skip
+	fi
+}
