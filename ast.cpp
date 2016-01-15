@@ -1687,7 +1687,7 @@ Value * Yield::codegen(Codegen * c)
         Value * returnvar = c->getRet();
         if (!returnvar)
         {
-            fprintf(log_file, "Can't find __ret in return!\n");
+            fprintf(log_file, "Can't find return variable!\n");
             return 0;
         }
 

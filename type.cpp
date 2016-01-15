@@ -76,18 +76,6 @@ void FunctionType::copy(Codegen * c, Value * a, Value * v)
 void ArrayType::calcAddress(Codegen * c, Value * a, Expr * i)
 {
     Value * v = c->getTemporary(register_type, "arrayaddr");
-
-    if (!i)
-    {
-        fprintf(log_file, "Null awoogah\n");
-        return;
-    }
-    else
-    {
-        fprintf(log_file, "Awoogah is:\n");
-        i->print(0);
-    }
-    
     Value * ss = i->codegen(c);
 
     if (!ss)

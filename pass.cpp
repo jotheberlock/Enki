@@ -75,10 +75,10 @@ void OptimisationPass::run()
             insn = (*iit);
             processInsn();
 
-			if (iit == block->getCode().end())
-			{
-				break;
-			}
+	    if (iit == block->getCode().end())
+	    {
+		break;
+	    }
         }
         
         for (std::list<Insn>::iterator ait =
