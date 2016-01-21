@@ -1,12 +1,15 @@
-extern KERNEL32.DLL:ExitProcess(Uint64 val)
-extern USER32.DLL:MessageBoxA(Uint64 hwnd, Byte^ text, Byte^ caption, Uint64 type)
+extern KERNEL32.DLL:WriteConsoleA(Uint64 output, Byte^ buffer, Uint64 chars, Uint64^ written, Uint64 reserved)
+extern KERNEL32.DLL:GetStdHandle(Uint64 handle)
+extern KERNEL32.DLL:AllocConsole()
 
-fptr extern (Uint64 hwnd, Byte^ text, Byte^ caption, Uint64 type) Uint64 Testptr
-Testptr foo
+Uint64 written
+Uint64 handle = 0
 
-foo = MessageBoxA
-foo(0, "Hi", "Hello", 0)
-ExitProcess(42)
+AllocConsole()
+handle = GetStdHandle(-11)
+WriteConsoleA(handle,"Hello world\n", 12, @written, 0)
+return handle
+
 
 
 

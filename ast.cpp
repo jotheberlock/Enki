@@ -22,12 +22,20 @@ IntegerExpr::IntegerExpr(Token * t)
     val = 0;
     int begin = 0;
     unsigned int base = 10;
-    if (t->value.size() > 2 && t->value[0] == '0' && t->value[1] == 'x')
+
+    bool is_negative = false;
+    if (t->value.size() > 1 && t->value[0] == '-')
     {
-        begin = 2;
-        base = 16;
+	is_negative = true;
+        begin++;
     }
     
+    if (t->value.size() > begin+2 && t->value[begin] == '0' && t->value[begin+1] == 'x')
+    {
+        begin += 2;
+        base = 16;
+    }
+
     // Do our own strtol(3) to make sure we can do 64 bits
     for (unsigned int loopc=begin; loopc<t->value.size(); loopc++)
     {
@@ -52,6 +60,11 @@ IntegerExpr::IntegerExpr(Token * t)
 
 	val *= base;
 	val = val + n;
+    }
+
+    if (is_negative)
+    {
+        val = -val;
     }
 }
 
