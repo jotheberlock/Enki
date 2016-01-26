@@ -22,7 +22,7 @@ uint64_t roundup(uint64_t in, uint64_t align)
 PEImage::PEImage()
 {
     base_addr = 0x400000;
-    next_addr = base_addr + 12288;
+    next_addr = base_addr + (4096 * 4);
     fname = "a.exe";
     sf_bit = false;
     arch = 34404;
@@ -97,6 +97,8 @@ void PEImage::endOfImports()
 {
     materialiseSection(3);
     imports_base = next_addr;
+    next_addr += 4096;
+    symbols_base = next_addr;
     next_addr += 4096;
 }
 
@@ -187,9 +189,9 @@ void PEImage::finalise()
     // COFF header
     unsigned char * ptr = header;
     wle16(ptr, arch);
-    wle16(ptr, 5);  // sections
+    wle16(ptr, 6);  // sections
     wle32(ptr, checked_32(time(0)));  // timestamp
-    wle32(ptr, 0);  // symbol table ptr
+    wle32(ptr, symbols_base);  // symbol table ptr
     wle32(ptr, 0);  // no. symbols
     wle16(ptr, (sf_bit ? 112 : 96) + (16*8));  // Optional header size
 
@@ -197,7 +199,7 @@ void PEImage::finalise()
     characteristics |= 0x1;  // Not relocatable
     characteristics |= 0x2;  // Valid file
     characteristics |= 0x4;  // Line numbers removerd
-    characteristics |= 0x8;  // Symbol tables removed
+    // characteristics |= 0x8;  // Symbol tables removed
     characteristics |= 0x20; // > 2gig aware
     characteristics |= 0x80; // Little endian
     if (!sf_bit)
@@ -355,6 +357,20 @@ void PEImage::finalise()
     wle16(ptr, 0);
     wle16(ptr, 0);
     wle32(ptr, 0x40 | 0x40000000 | 0x80000000);
+
+    memset(sname, 0, 8);
+    strcpy(sname, ".symtab");
+    memcpy(ptr, sname, 8);
+    ptr += 8;
+    wle32(ptr, 4096);
+    wle32(ptr, checked_32(symbols_base - base_addr));
+    wle32(ptr, 4096);
+    wle32(ptr, checked_32(symbols_base - base_addr));
+    wle32(ptr, 0);
+    wle32(ptr, 0);
+    wle16(ptr, 0);
+    wle16(ptr, 0);
+    wle32(ptr, 0x40 | 0x40000000 | 0x80000000);
     
     fwrite(header, 4096, 1, f);
     delete[] header;
@@ -445,8 +461,13 @@ void PEImage::finalise()
            
     fseek(f, checked_32(imports_base - base_addr), SEEK_SET);    
     fwrite(buf, 4096, 1, f);
-    fclose(f);
 
+    memset(buf, 0, 4096);
+    fseek(f, checked_32(symbols_base - base_addr), SEEK_SET);
+    fwrite(buf, 4096, 1, f);
+
+    fclose(f);
+    
 #if defined(LINUX_HOST) || defined(CYGWIN_HOST)
     chmod(fname.c_str(), 0755);
 #endif
