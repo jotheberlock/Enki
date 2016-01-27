@@ -32,6 +32,7 @@ class PEImage : public Image
     int subsystem;
     bool guard_page;
     uint64_t imports_base;
+    uint64_t symbols_base;
     
 };
 

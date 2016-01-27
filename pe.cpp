@@ -22,7 +22,7 @@ uint64_t roundup(uint64_t in, uint64_t align)
 PEImage::PEImage()
 {
     base_addr = 0x400000;
-    next_addr = base_addr + (4096 * 4);
+    next_addr = base_addr + (4096 * 3);
     fname = "a.exe";
     sf_bit = false;
     arch = 34404;
@@ -199,7 +199,7 @@ void PEImage::finalise()
     characteristics |= 0x1;  // Not relocatable
     characteristics |= 0x2;  // Valid file
     characteristics |= 0x4;  // Line numbers removerd
-    // characteristics |= 0x8;  // Symbol tables removed
+    //characteristics |= 0x8;  // Symbol tables removed
     characteristics |= 0x20; // > 2gig aware
     characteristics |= 0x80; // Little endian
     if (!sf_bit)
@@ -370,8 +370,7 @@ void PEImage::finalise()
     wle32(ptr, 0);
     wle16(ptr, 0);
     wle16(ptr, 0);
-    wle32(ptr, 0x40 | 0x40000000 | 0x80000000);
-    
+    wle32(ptr, 0x40 | 0x40000000);
     fwrite(header, 4096, 1, f);
     delete[] header;
     
