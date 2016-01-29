@@ -192,7 +192,7 @@ void PEImage::finalise()
     wle16(ptr, 6);  // sections
     wle32(ptr, checked_32(time(0)));  // timestamp
     wle32(ptr, symbols_base);  // symbol table ptr
-    wle32(ptr, 0);  // no. symbols
+    wle32(ptr, fptrs.size());  // no. symbols
     wle16(ptr, (sf_bit ? 112 : 96) + (16*8));  // Optional header size
 
     uint16_t characteristics = 0;
@@ -282,6 +282,8 @@ void PEImage::finalise()
     }
     
     uint64_t prev_base = 0;
+
+    int code_section = 0;
     
     for (int loopc=0; loopc<4; loopc++)
     { 
@@ -310,7 +312,8 @@ void PEImage::finalise()
         uint32_t flags;
 
         if (the_one == IMAGE_CODE)
-        {  
+        {
+   	    code_section = loopc;
             strcpy(sname, ".text");
             flags = 0x20 | 0x20000000 | 0x40000000;
         }
@@ -462,6 +465,25 @@ void PEImage::finalise()
     fwrite(buf, 4096, 1, f);
 
     memset(buf, 0, 4096);
+    ptr = buf;
+    for (unsigned int loopc=0; loopc<fptrs.size(); loopc++)
+    {
+        memset(ptr, 0, 8);
+	strncpy((char *)ptr, fptrs[loopc]->name().c_str(), 8);
+	ptr[7] = 0;
+        ptr += 8;
+	wle32(ptr, checked_32(foffsets[loopc]+bases[IMAGE_CODE]));
+	wle16(ptr, 0 /*code_section+1*/);
+	wle16(ptr, 0x20);   // Function 
+	*ptr = 101;  // Function
+	ptr++;
+	*ptr = 0;  // Aux records
+	ptr++;
+    }
+
+    // Empty string table
+    wle32(ptr, 4);
+    
     fseek(f, checked_32(symbols_base - base_addr), SEEK_SET);
     fwrite(buf, 4096, 1, f);
 
