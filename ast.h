@@ -823,13 +823,18 @@ class Funcall : public Expr
       indent(i);
       fprintf(log_file, "funcall ");
       ident->print(0);
-      for (unsigned int loopc=0; loopc<args.size(); loopc++)
+
+      if (args.size() == 0)
       {
-	  if (loopc==0)
-	    fprintf(log_file, "(");
-	  else
-	    fprintf(log_file, ",");
-	  args[loopc]->print(0);
+	  fprintf(log_file, "(");
+      }
+      else
+      {
+          for (unsigned int loopc=0; loopc<args.size(); loopc++)
+          {
+	    fprintf(log_file, (loopc == 0) ? "(" : ",");
+	      args[loopc]->print(0);
+          }
       }
       fprintf(log_file, ")");
   }
@@ -896,7 +901,8 @@ class Parser
     Expr * parseFuncall(IdentifierExpr *);
     Expr * parseVarRef(Expr *);
     Expr * parseAddressOf();
-
+    Expr * parseFptr();
+    
     Type * parseType();
     
     int getPrecedence();

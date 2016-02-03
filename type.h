@@ -34,10 +34,37 @@ class Type
         return false;
     }
 
+    virtual bool validArgList(std::vector<Value *> &)
+    {
+        return false;
+    }
+    
     virtual Value * generateFuncall(Codegen *, Funcall *, Value *,
                                     std::vector<Value *> & args)
     {
+        printf("Illegal generateFuncall!\n");
         return 0;
+    }
+
+    virtual bool canActivate()
+    {
+        return false;
+    }
+
+    virtual Type * activatedType()
+    {
+        return 0;
+    }
+
+    virtual Value * getActivatedValue(Codegen *, Value *)
+    {
+        printf("Illegal attempt to get activated value!\n");
+        return 0;
+    }
+    
+    virtual void activate(Codegen *, Value * v)
+    {
+        printf("Illegal activation!\n");
     }
     
     // Address of target, source
@@ -180,7 +207,7 @@ class IntegerType : public Type
     {
         std::string ret;
         if (un_signed)
-            ret += "u";
+            ret += "U";
         char buf[4096];
         sprintf(buf, "int%d", bits);
         ret += buf;
@@ -260,14 +287,14 @@ class PointerType : public Type
   protected:
 
     Type * pointed_type;
-    
+
 };
 
-class GeneratorType : public Type
+class ActivationType : public Type
 {
   public:
 
-    GeneratorType(Type * t)
+    ActivationType(Type * t)
     {
         pointed_type=t;
     }
@@ -292,6 +319,20 @@ class GeneratorType : public Type
     }
     virtual void copy(Codegen *, Value *, Value *);
 
+    bool canActivate()
+    {
+        return true;
+    }
+
+    virtual Type * activatedType()
+    {
+        return pointed_type;
+    }
+    
+    void activate(Codegen *, Value *);
+
+    virtual Value * getActivatedValue(Codegen *, Value *);
+    
     int size()
     {
         return assembler->pointerSize();
@@ -444,6 +485,13 @@ class FunctionType : public Type
         is_macro = m;
     }
     
+    // Address of target, source
+    virtual void copy(Codegen *, Value *, Value *);
+    virtual bool canCopy(Type *)
+    {
+        return true;
+    }
+    
     virtual bool isMacro()
     {
         return is_macro;
@@ -467,7 +515,14 @@ class FunctionType : public Type
     {
         returns.push_back(t);
     }
+    
+    virtual bool validArgList(std::vector<Value *> & args);
 
+    std::vector<StructElement> & getParams()
+    {
+	return params;
+    }
+    
     std::vector<Type *> & getReturns()
     {
         return returns;
@@ -480,6 +535,7 @@ class FunctionType : public Type
         return true;
     }
 
+    // Value will be an ActivationType, activated once
     virtual Value * generateFuncall(Codegen *, Funcall *, Value * fp,
                             std::vector<Value *> & args);
     
@@ -493,7 +549,7 @@ class FunctionType : public Type
         return 64;
     }
 
-    Value * initStackFrame(Codegen *, Value *, Value *&, Funcall *);
+    Value * allocStackFrame(Codegen *, Value *, Value *&, Funcall *, Type *);
 
     std::string name()
     {
@@ -509,11 +565,11 @@ class FunctionType : public Type
 	ret += "(";
 	for (unsigned int loopc=0; loopc<params.size(); loopc++)
 	{
-	    ret += params[loopc].type->name();
 	    if (loopc>0)
 	    {
 	        ret += ",";
 	    }
+	    ret += params[loopc].type->name();
         }
 	ret += ")";
 	return ret;
@@ -535,12 +591,14 @@ class ExternalFunctionType : public FunctionType
 {
   public:
 
-    ExternalFunctionType(CallingConvention * c)
+  ExternalFunctionType(CallingConvention * c, bool ia = false)
       : FunctionType(false)
     {
         convention=c;
+        ignore_arguments = ia;   // If true, can take arbitrary arguments
     }
-    
+
+    // Value will be the literal return
     virtual Value * generateFuncall(Codegen * c, Funcall * f, Value * fp,
 				    std::vector<Value *> & args);
     
@@ -555,10 +613,16 @@ class ExternalFunctionType : public FunctionType
         ret += FunctionType::name();
         return ret;
     }
+
+    virtual bool validArgList(std::vector<Value *> & args)
+    {
+        return ignore_arguments ? true : FunctionType::validArgList(args);
+    }
     
   protected:
 
     CallingConvention * convention;
+    bool ignore_arguments;
     
 };
 

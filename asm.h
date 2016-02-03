@@ -333,7 +333,7 @@ class Assembler : public Component
         limit=0;
         psize=0;
         base=0;
-	func_base=0;
+		func_base=0;
     }
 
     virtual ~Assembler()
@@ -349,7 +349,17 @@ class Assembler : public Component
     void setPtr(unsigned char * ptr)
     {
         current = ptr;
-	func_base = ptr;
+		func_base = ptr;
+    }
+
+    int dynamicLinkOffset()
+    {
+        return (pointerSize() * 1) / 8;
+    }
+    
+    int ipOffset()
+    {
+        return (pointerSize() * 2) / 8;
     }
     
     int staticLinkOffset()
@@ -362,6 +372,7 @@ class Assembler : public Component
         return (pointerSize() * 4) / 8;
     }
 
+	virtual int functionAlignment() = 0;
     virtual int regnum(std::string) = 0;
     virtual int size(BasicBlock *) = 0;  // Size in bytes of machine code
     virtual bool assemble(BasicBlock *, BasicBlock * next, Image * image) = 0;

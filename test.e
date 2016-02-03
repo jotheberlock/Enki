@@ -1,20 +1,14 @@
-extern USER32.DLL:MessageBoxA(Uint64 hwnd, Byte^ text, Byte^ caption, Uint64 type)
-extern KERNEL32.DLL:ExitProcess(Uint64 val)
+extern KERNEL32.DLL:WriteConsoleA(Uint64 output, Byte^ buffer, Uint64 chars, Uint64^ written, Uint64 reserved)
+extern KERNEL32.DLL:GetStdHandle(Uint64 handle)
+extern KERNEL32.DLL:AllocConsole()
 
-def Foo()
-  Uint64 val = 4
-  return val
+Uint64 written
+Uint64 handle = 0
 
-MessageBoxA(0, "Hi", "Hello", 0)
-
-MessageBoxA(0, "Hi", "Hello", 0)
-
-Uint64 ret = Foo()
-return ret
-
-
-
-
+AllocConsole()
+handle = GetStdHandle(-11)
+WriteConsoleA(handle,"Hello world\n", 12, @written, 0)
+return handle
 
 
 

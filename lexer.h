@@ -62,6 +62,7 @@ typedef std::vector<uint32_t> Chars;
 #define EXTERN 47
 
 #define EVAL_FUNCVAR 48
+#define FPTR 49
 
 class Token
 {

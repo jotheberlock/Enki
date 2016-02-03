@@ -22,7 +22,7 @@ Backend::Backend(Configuration * c, Expr * r)
     configuration = c;
 }
 
-void Backend::process()
+int Backend::process()
 {
     codegensptr = &codegens;
     Codegen * gc = new Codegen(root_expr, root_scope);
@@ -57,7 +57,7 @@ void Backend::process()
         root_scope->add(stacksize);
         gc->block()->add(Insn(GETSTACKSIZE, stacksize));
         gc->block()->add(Insn(ADD, Operand(v), Operand(v), stacksize));
-	config->entrypoint->generatePrologue(gc->block(), root_scope);
+	config->entrypoint->generatePrologue(gc->block(), root_scope, config->image);
     }
 	
     BasicBlock * body = gc->newBlock("body");
@@ -73,26 +73,28 @@ void Backend::process()
             printf("\n");
             (*it).print();
         }
-        return;
+        return 1;
     }
     
     BasicBlock * epilogue = gc->newBlock("epilogue");
-
+    
     if (jit)
     {
         gc->block()->add(Insn(BRA, epilogue));
+        gc->setBlock(epilogue);
         config->cconv->generateEpilogue(epilogue, root_scope);
     }
     else
     {
-	config->entrypoint->generateEpilogue(epilogue, root_scope);
+        gc->setBlock(epilogue);
+        config->entrypoint->generateEpilogue(epilogue, root_scope, config->image);
     }
     
     config->image->setSectionSize(IMAGE_CONST_DATA, constants->getSize());
     constants->setAddress(config->image->getAddr(IMAGE_CONST_DATA));
     constants->fillPool(config->image->getPtr(IMAGE_CONST_DATA));
      
-	std::vector<OptimisationPass *> passes = config->passes;
+    std::vector<OptimisationPass *> passes = config->passes;
     
     for(std::list<Codegen *>::iterator cit = codegens.begin();
         cit != codegens.end(); cit++)
@@ -118,7 +120,7 @@ void Backend::process()
             dump_codegen(cg);
             op->init(cg);
             op->run();
-            fprintf(log_file, "\nAfter\n\n");
+            fprintf(log_file, "\nAfter pass %s:\n\n", op->name().c_str());
             dump_codegen(cg);
             fclose(log_file);
             log_file = keep_log;
@@ -133,13 +135,13 @@ void Backend::process()
         cit != codegens.end(); cit++)
     {
         bool is_macro = (*cit)->getScope()->getType()->isMacro();
-	if (is_macro)
-	{
-  	    printf("Skipping macro %s\n", (*cit)->getScope()->name().c_str());
-	    continue;
-	}
+		if (is_macro)
+		{
+  			printf("Skipping macro %s\n", (*cit)->getScope()->name().c_str());
+			continue;
+		}
 	
-        while (code_size % 8)
+        while (code_size % config->assembler->functionAlignment())
         {
             code_size++;
         }
@@ -160,8 +162,6 @@ void Backend::process()
         FunctionScope * fs = (*cit)->getScope();
 	config->image->addFunction(fs, func_size);
     }
-
-    printf("Code size is %d bytes\n", code_size);
     
     config->image->setSectionSize(IMAGE_CODE, code_size);
 
@@ -175,6 +175,18 @@ void Backend::process()
     for(std::list<Codegen *>::iterator cit = codegens.begin();
         cit != codegens.end(); cit++)
     {
+        std::vector<BasicBlock *> & ubbs = (*cit)->getUnplacedBlocks();
+        if (ubbs.size() != 0)
+        {
+            printf("WARNING unplaced blocks:\n");
+            for (int loopc=0; loopc<ubbs.size(); loopc++)
+            {
+                printf("%d: %s\n", ubbs[loopc]->toString().c_str());
+            }
+            return 1;
+        }
+        
+        
         FunctionScope * fs = (*cit)->getScope();
         config->assembler->setAddr(config->image->functionAddress(fs));
         config->assembler->setPtr(config->image->functionPtr(fs));
@@ -210,7 +222,9 @@ void Backend::process()
 
     char buf[4096];
     sprintf(buf, "%s_out.bin", config->name.c_str());
-    FILE * dump = fopen(buf, "w");
+    FILE * dump = fopen(buf, "wb");
     fwrite(config->image->getPtr(IMAGE_CODE), config->image->sectionSize(IMAGE_CODE), 1, dump);
     fclose(dump);
+
+    return 0;
 }

@@ -341,7 +341,7 @@ int Amd64::size(BasicBlock * b)
             }
         }
 
-	i.size = (ret-oldret);
+        i.size = (ret-oldret);
     }
     
     return ret;  
@@ -662,7 +662,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         *current++ = r;
                         
 						assert(current_function);
-						new FunctionRelocation(image, current_function, len(), i.ops[1].getFunction(), 0);
+						new FunctionRelocation(image, current_function, flen(), i.ops[1].getFunction(), 0);
                         //relocs.push_back(Relocation(REL_A64, len()+8, len(),
                         //                            i.ops[1].getFunction()));
                         wle64(current, reloc);
@@ -674,7 +674,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         r |= reg(i.ops[0].getReg() & 0x7);
                         *current++ = r;
                         
-						new BasicBlockRelocation(image, current_function, len(), i.ops[1].getBlock());
+						new BasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
                         //relocs.push_back(Relocation(REL_A64, len()+8, len(),
                         //                            i.ops[1].getBlock()));
                         wle64(current, reloc);
@@ -720,7 +720,6 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         bool big = (val > 0xffffffff);
                         if (big)
                         {
-                            fprintf(log_file, "!!! Big!\n");
                             unsigned char r = 0xb8;
                             r |= reg(i.ops[0].getReg() & 0x7);
                             *current++ = r;
@@ -778,7 +777,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         case XOR: *current++ = 0xf0 | rr;
                             break;
                         default:
-                            fprintf(log_file, "Awoogah!\n");
+  			    fprintf(log_file, "Unknown logop %d!\n", i.ins);
                             break;
                     }
 
@@ -813,7 +812,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         case XOR: *current++ = 0x31;
                             break;
                         default:
-                            fprintf(log_file, "Awoogah!\n");
+  			    fprintf(log_file, "Unknown logop %d!\n", i.ins);
                             break;
                     }
 
@@ -886,7 +885,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 uint64_t sr = i.ops[2].getUsigc();
                 if (sr > 0xff)
                 {
-                    fprintf(log_file, "Too large shift!\n");
+ 		    fprintf(log_file, "Too large shift %ld!\n", sr);
                 }
                 
                 *current++ = (sr & 0xff);
@@ -981,7 +980,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 {
                     assert(i.ins == BRA);
                     *current++ = 0xe9;
-		    new BasicBlockRelocation(image, current_function, len(), len()+4, i.ops[0].getBlock());
+                    new BasicBlockRelocation(image, current_function, flen(), flen()+4, i.ops[0].getBlock());
 
                     //relocs.push_back(Relocation(REL_S32, currentAddr()+4, len(),
                     //                            i.ops[0].getBlock()));
@@ -1024,7 +1023,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         assert(false);
                 }
                 
-				new BasicBlockRelocation(image, current_function, len(), len()+4, i.ops[0].getBlock());
+				new BasicBlockRelocation(image, current_function, flen(), flen()+4, i.ops[0].getBlock());
                 wle32(current, 0xdeadbeef);
                 break;
             }
@@ -1160,7 +1159,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             }
             default:
             {
-                fprintf(log_file, "Don't know how to turn %ld into amd64!\n", i.ins);
+  	        fprintf(log_file, "Don't know how to turn %ld [%s] into amd64!\n", i.ins, i.toString().c_str());
                 assert(false);
             }
 
@@ -1384,6 +1383,11 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 
     current->add(Insn(ADD, Operand::reg("rsp"), Operand::reg("rsp"),
                       Operand::usigc(stack_size)));
+    
+    BasicBlock * postcall = c->newBlock("postcall");
+    current->add(Insn(BRA, Operand(postcall)));
+    c->setBlock(postcall);
+    
     return ret;
 }
 
@@ -1469,6 +1473,10 @@ Value * Amd64UnixCallingConvention::generateCall(Codegen * c,
     Value * ret = c->getTemporary(register_type, "ret");
     current->add(Insn(MOVE, ret, Operand::reg("rax")));
 
+    BasicBlock * postcall = c->newBlock("postcall");
+    current->add(Insn(BRA, Operand(postcall)));
+    c->setBlock(postcall);
+    
     return ret;
 }
 
@@ -1640,6 +1648,10 @@ Value * Amd64UnixSyscallCallingConvention::generateCall(Codegen * c,
     current->add(Insn(SYSCALL));
     Value * ret = c->getTemporary(register_type, "ret");
     current->add(Insn(MOVE, ret, Operand::reg("rax")));
-
+    
+    BasicBlock * postsyscall = c->newBlock("postsyscall");
+    current->add(Insn(BRA, Operand(postsyscall)));
+    c->setBlock(postsyscall);
+    
     return ret;
 }

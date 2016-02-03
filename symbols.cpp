@@ -19,13 +19,12 @@ void SymbolScope::addFunction(FunctionScope * f)
     functions[f->name()] = f;
 }
 
-Value * SymbolScope::lookup(std::string n, int & nest)
+Value * SymbolScope::lookup(std::string n, int & nest, bool recurse)
 {
-    nest = 0;
     std::map<std::string, Value *>::iterator it = contents.find(n);
     if (it == contents.end())
     {
-        if (parent())
+        if (parent() && recurse)
         {
             if (isFunction())
             {
@@ -41,6 +40,7 @@ Value * SymbolScope::lookup(std::string n, int & nest)
             return 0;
         }
     }
+    
     return (*it).second;
 }
 
@@ -91,9 +91,8 @@ FunctionScope * SymbolScope::parentFunction()
 }
 
 FunctionScope::FunctionScope(SymbolScope * p, std::string n, FunctionType * ft)
-    : SymbolScope(p)
+    : SymbolScope(p, n)
 {
-    function_name = n;
     type = ft;
     if (p)
     {
@@ -122,13 +121,13 @@ FunctionScope * FunctionScope::parentFunction()
     return parent() ? parent()->parentFunction() : 0;
 }
 
-std::string FunctionScope::fqName()
+std::string SymbolScope::fqName()
 {
-    std::string ret = function_name;
+    std::string ret = symbol_name;
     FunctionScope * fs = parentFunction();
     while (fs)
     {
-        ret = ret + fs->name()+"::"+ret;
+        ret = fs->name()+"::"+ret;
         fs = fs->parentFunction();
     }
     return ret;

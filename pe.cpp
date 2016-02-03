@@ -6,23 +6,29 @@
 #include <stdlib.h>
 #include <time.h>
 
+#if defined(LINUX_HOST) || defined(CYGWIN_HOST)
+#include <sys/stat.h>
+#endif
+
 uint64_t roundup(uint64_t in, uint64_t align)
 {
     if (in % align == 0)
+    {
        return in;
+    }
     return in + (align - (in % align));
 }
 
 PEImage::PEImage()
 {
     base_addr = 0x400000;
-    next_addr = base_addr + 12288;
+    next_addr = base_addr + (4096 * 3);
     fname = "a.exe";
     sf_bit = false;
     arch = 34404;
     subsystem = 1; // Windows CLI
-    bases[3] = 0x800000;
-    sizes[3] = 4096;
+    bases[IMAGE_UNALLOCED_DATA] = 0x800000;
+    sizes[IMAGE_UNALLOCED_DATA] = 4096;
     guard_page = false;
 }
 
@@ -70,6 +76,15 @@ bool PEImage::configure(std::string param, std::string val)
     	    guard_page = true;
 	}
     }
+    else if (param == "baseaddr")
+    {
+        base_addr = strtol(val.c_str(), 0, 0);
+	next_addr = base_addr + 12288;
+    }
+    else if (param == "heapaddr")
+    {
+        bases[IMAGE_UNALLOCED_DATA] = strtol(val.c_str(), 0, 0);
+    }
     else
     {
         return false;
@@ -82,6 +97,8 @@ void PEImage::endOfImports()
 {
     materialiseSection(3);
     imports_base = next_addr;
+    next_addr += 4096;
+    symbols_base = next_addr;
     next_addr += 4096;
 }
 
@@ -172,17 +189,17 @@ void PEImage::finalise()
     // COFF header
     unsigned char * ptr = header;
     wle16(ptr, arch);
-    wle16(ptr, 5);  // sections
+    wle16(ptr, 6);  // sections
     wle32(ptr, checked_32(time(0)));  // timestamp
-    wle32(ptr, 0);  // symbol table ptr
-    wle32(ptr, 0);  // no. symbols
+    wle32(ptr, symbols_base);  // symbol table ptr
+    wle32(ptr, fptrs.size());  // no. symbols
     wle16(ptr, (sf_bit ? 112 : 96) + (16*8));  // Optional header size
 
     uint16_t characteristics = 0;
     characteristics |= 0x1;  // Not relocatable
     characteristics |= 0x2;  // Valid file
     characteristics |= 0x4;  // Line numbers removerd
-    characteristics |= 0x8;  // Symbol tables removed
+    //characteristics |= 0x8;  // Symbol tables removed
     characteristics |= 0x20; // > 2gig aware
     characteristics |= 0x80; // Little endian
     if (!sf_bit)
@@ -265,6 +282,8 @@ void PEImage::finalise()
     }
     
     uint64_t prev_base = 0;
+
+    int code_section = 0;
     
     for (int loopc=0; loopc<4; loopc++)
     { 
@@ -272,7 +291,6 @@ void PEImage::finalise()
         uint64_t lowest_diff = 0xffffffff;
         for (int loopc2=0; loopc2<4; loopc2++)
         {
-            printf(">> Prev_base %lx base here %lx section %d\n", prev_base, bases[loopc2], loopc2);
             uint64_t diff = bases[loopc2] - prev_base;
             if ((bases[loopc2] > prev_base) && (diff < lowest_diff))
             {
@@ -293,9 +311,9 @@ void PEImage::finalise()
         memset(sname, 0, 8);
         uint32_t flags;
 
-        printf(">> the_one %d\n", the_one);
         if (the_one == IMAGE_CODE)
-        {  
+        {
+   	    code_section = loopc;
             strcpy(sname, ".text");
             flags = 0x20 | 0x20000000 | 0x40000000;
         }
@@ -342,7 +360,20 @@ void PEImage::finalise()
     wle16(ptr, 0);
     wle16(ptr, 0);
     wle32(ptr, 0x40 | 0x40000000 | 0x80000000);
-    
+
+    memset(sname, 0, 8);
+    strcpy(sname, ".symtab");
+    memcpy(ptr, sname, 8);
+    ptr += 8;
+    wle32(ptr, 4096);
+    wle32(ptr, checked_32(symbols_base - base_addr));
+    wle32(ptr, 4096);
+    wle32(ptr, checked_32(symbols_base - base_addr));
+    wle32(ptr, 0);
+    wle32(ptr, 0);
+    wle16(ptr, 0);
+    wle16(ptr, 0);
+    wle32(ptr, 0x40 | 0x40000000);
     fwrite(header, 4096, 1, f);
     delete[] header;
     
@@ -360,7 +391,7 @@ void PEImage::finalise()
     ilt_size *= (sf_bit ? 8 : 4);
     uint64_t hints_offset = table_size+ilt_size+ilt_size;
     
-    int count = 0;
+    size_t count = 0;
     
     unsigned char buf[4096];
     ptr = buf;
@@ -370,14 +401,12 @@ void PEImage::finalise()
     for (unsigned int loopc = 0; loopc<imports.size(); loopc++)
     {
         uint64_t table_offset = (imports_base - base_addr)+table_size+count;
-        printf("Table offset %lx for dll [%s]\n", (uint32_t)table_offset, imports[loopc].name.c_str());
         wle32(ptr, checked_32(table_offset));  // Lookup table
         wle32(ptr, 0);   // Timestamp
         wle32(ptr, 0);   // Forwarder
         strcpy((char *)nameptr, imports[loopc].name.c_str());
         uint64_t offy = (imports_base - base_addr) + hints_offset + (nameptr-namebase);
         wle32(ptr, checked_32(offy));   // DLL name
-        printf("Using offy %ld %lx imports base %ld %lx base %ld %lx\n", offy, offy, imports_base, imports_base, base_addr, base_addr);
         nameptr += strlen(imports[loopc].name.c_str())+1;
         wle32(ptr, checked_32((imports_base - base_addr)+table_size+ilt_size+count));   // Address of IAT
         count += ((imports[loopc].imports.size()+1) * (sf_bit ? 8 : 4));
@@ -388,8 +417,6 @@ void PEImage::finalise()
     wle32(ptr, 0);
     wle32(ptr, 0);
     wle32(ptr, 0);
-
-    printf("Offset here %lx expected %lx\n", ptr-buf, table_size);
 
     for (int loopc=0; loopc<2; loopc++)
     {
@@ -411,16 +438,8 @@ void PEImage::finalise()
                 *nameptr = 0x0;
                 nameptr++;
                 strcpy((char *)nameptr, l.imports[loopc3].c_str());
-                printf("Nameptr %lx [%s]\n", nameptr-buf, nameptr);
                 
                 nameptr += strlen(l.imports[loopc3].c_str())+1;
-
-                printf("Function addr %lx\n", addr);
-                
-				if (loopc == 1)
-				{
-  					printf("IAT position %lx\n", ptr-buf);
-				}
 			  
                 if (sf_bit)
                 {
@@ -441,12 +460,38 @@ void PEImage::finalise()
             }	
         }
     } 
-
-    printf("Actual offset is %ld %lx string [%s] %c %c [%s]\n", ptr-buf, ptr-buf, ptr, buf[0x42], buf[0x43], &buf[0x44]);
            
     fseek(f, checked_32(imports_base - base_addr), SEEK_SET);    
     fwrite(buf, 4096, 1, f);
+
+    memset(buf, 0, 4096);
+    ptr = buf;
+    for (unsigned int loopc=0; loopc<fptrs.size(); loopc++)
+    {
+        memset(ptr, 0, 8);
+	strncpy((char *)ptr, fptrs[loopc]->name().c_str(), 8);
+	ptr[7] = 0;
+        ptr += 8;
+	wle32(ptr, checked_32(foffsets[loopc]+bases[IMAGE_CODE]));
+	wle16(ptr, 0 /*code_section+1*/);
+	wle16(ptr, 0x20);   // Function 
+	*ptr = 101;  // Function
+	ptr++;
+	*ptr = 0;  // Aux records
+	ptr++;
+    }
+
+    // Empty string table
+    wle32(ptr, 4);
+    
+    fseek(f, checked_32(symbols_base - base_addr), SEEK_SET);
+    fwrite(buf, 4096, 1, f);
+
     fclose(f);
+    
+#if defined(LINUX_HOST) || defined(CYGWIN_HOST)
+    chmod(fname.c_str(), 0755);
+#endif
 }
 
 void PEImage::materialiseSection(int s)

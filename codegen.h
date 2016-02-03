@@ -6,6 +6,7 @@
 #include "asm.h"
 #include <stack>
 #include <vector>
+#include <algorithm>
 #include <assert.h>
 
 class Value
@@ -243,13 +244,30 @@ class Codegen
     void setBlock(BasicBlock * b)
     {
         current_block = b;
+        blocks.push_back(b);
+        std::vector<BasicBlock *>::iterator it = std::find(unplaced_blocks.begin(),
+                                                 unplaced_blocks.end(), b);
+        if(it != unplaced_blocks.end())
+        {
+            unplaced_blocks.erase(it);
+        }        
     }
     
     std::vector<BasicBlock *> & getBlocks()
     {
         return blocks;
     }
-    
+
+    std::vector<BasicBlock *> & getUnplacedBlocks()
+    {
+        return unplaced_blocks;
+    }
+
+        // Creates and returns a new block but does not yet add it to the
+        // list of blocks to codegen (this happens when and where setBlock()
+        // is called). It /is/ added to a list of unplaced blocks until then,
+        // and the code generator will bork at assembly time if any blocks
+        // remain in that list since it's likely to be an error.
     BasicBlock * newBlock(std::string = "");
 
     std::string display(unsigned char *);
@@ -295,6 +313,8 @@ class Codegen
     std::list<BasicBlock *> continue_targets;
     
     std::vector<BasicBlock *> blocks;
+    std::vector<BasicBlock *> unplaced_blocks;
+    
     std::vector<Value *> locals;
     
     Expr * base;

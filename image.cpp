@@ -28,9 +28,9 @@ BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_
     image = i;
     to_patch = p;
     patch_offset = po;
-	patch_relative = pr;
-	to_link = l;
-	absolute = false;
+    patch_relative = pr;
+    to_link = l;
+    absolute = false;
 }
 
 BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_t po, BasicBlock * l)
@@ -39,23 +39,23 @@ BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_
     image = i;
     to_patch = p;
     patch_offset = po;
-	patch_relative = po;
-	to_link = l;
-	absolute = true;
+    patch_relative = po;
+    to_link = l;
+    absolute = true;
 }
 
 void BasicBlockRelocation::apply()
 {
-    unsigned char * patch_site = image->getPtr(IMAGE_CODE)+patch_offset;
-	if (absolute)
-	{
-		wees64(image->littleEndian(), patch_site, to_link->getAddr());
-		return;
-	}
+    unsigned char * patch_site = image->functionPtr(to_patch)+patch_offset;
+    if (absolute)
+    {
+	wees64(image->littleEndian(), patch_site, to_link->getAddr());
+	return;
+    }
 
     uint64_t baddr = to_link->getAddr();
     uint64_t oaddr = image->functionAddress(to_patch) + patch_relative;
-            
+    
     int32_t diff;
     if (oaddr > baddr)
     {
@@ -129,12 +129,12 @@ void Image::setRootFunction(FunctionScope * f)
 
 void Image::relocate()
 {
-	for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
-	{
-		relocs[loopc]->apply();
-		delete relocs[loopc];
-	}
-	relocs.clear();
+  for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
+  {
+      relocs[loopc]->apply();
+      delete relocs[loopc];
+  }
+  relocs.clear();
 }
 
 void Image::addFunction(FunctionScope * ptr, uint64_t size)
@@ -159,8 +159,8 @@ unsigned char * Image::functionPtr(FunctionScope * ptr)
             return foffsets[loopc] + getPtr(IMAGE_CODE);
         }
     }
-
-    printf("Can't find function [%s]!\n", ptr ? ptr->name().c_str() : "<null>");
+    
+    printf("functionPtr - can't find function [%s]!\n", ptr ? ptr->name().c_str() : "<null>");
     return 0;
 }
 
@@ -174,7 +174,7 @@ uint64_t Image::functionAddress(FunctionScope * ptr)
         }
     }
 	
-    printf("Can't find function [%s]!\n", ptr ? ptr->name().c_str() : "<null>");
+    printf("functionAddress - can't find function [%s]!\n", ptr ? ptr->name().c_str() : "<null>");
     return INVALID_ADDRESS;
 }
 
@@ -188,35 +188,35 @@ uint64_t Image::functionSize(FunctionScope * ptr)
         }
     }
 	
-    printf("Can't find function [%s]!\n", ptr ? ptr->name().c_str() : "<null>");
+    printf("functionSize - can't find function [%s]!\n", ptr ? ptr->name().c_str() : "<null>");
     return 0;
 }
 
 void Image::addImport(std::string lib, std::string name)
 {
-	for (unsigned int loopc=0; loopc<imports.size(); loopc++)
-	{
-		if (imports[loopc].name == lib)
-		{
-			LibImport & l = imports[loopc];
-			for (unsigned int loopc2=0; loopc2<l.imports.size(); loopc2++)
-			{
-				if (l.imports[loopc2] == name)
-				{
-					return;
-				}
-			}
-			l.imports.push_back(name);
-			total_imports++;
-			return;
-		}
-	}
-
-	LibImport l;
-	l.name = lib;
-	l.imports.push_back(name);
-	imports.push_back(l);
-	total_imports++;
+  for (unsigned int loopc=0; loopc<imports.size(); loopc++)
+  {
+      if (imports[loopc].name == lib)
+      {
+	  LibImport & l = imports[loopc];
+	  for (unsigned int loopc2=0; loopc2<l.imports.size(); loopc2++)
+	  {
+	      if (l.imports[loopc2] == name)
+	      {
+		  return;
+	      }
+	  }
+	  l.imports.push_back(name);
+	  total_imports++;
+	  return;
+      }
+  }
+  
+  LibImport l;
+  l.name = lib;
+  l.imports.push_back(name);
+  imports.push_back(l);
+  total_imports++;
  }
 
 uint64_t MemoryImage::importAddress(std::string name)
@@ -270,7 +270,7 @@ MemoryImage::MemoryImage()
 MemoryImage::~MemoryImage()
 {
     Mem mem;
-    for (int loopc=0; loopc<4; loopc++)
+    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
     {
         mem.releaseBlock(mems[loopc]);
     }
@@ -295,19 +295,19 @@ void MemoryImage::setImport(std::string name, uint64_t addr)
         }
     }
 
-    printf("Couldn't set address for import %s!\n", name.c_str());
+    printf("Couldn't set address for import [%s]!\n", name.c_str());
 }
 
 void MemoryImage::endOfImports()
 {
-	for (unsigned int loopc=0; loopc<imports.size(); loopc++)
+    for (unsigned int loopc=0; loopc<imports.size(); loopc++)
+    {
+        LibImport & l = imports[loopc];
+        for (unsigned int loopc2=0; loopc2<l.imports.size(); loopc2++)
 	{
-		LibImport & l = imports[loopc];
-		for (unsigned int loopc2=0; loopc2<l.imports.size(); loopc2++)
-		{
-			import_names.push_back(l.imports[loopc2]);
-		}
+            import_names.push_back(l.imports[loopc2]);
 	}
+    }
     import_pointers = new uint64_t[import_names.size()];
 }
 

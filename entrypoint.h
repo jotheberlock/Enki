@@ -8,14 +8,15 @@
 
 class BasicBlock;
 class FunctionScope;
+class Image;
 
 class Entrypoint : public Component
 {
  public:
 
   virtual std::string name() = 0;
-  virtual void generatePrologue(BasicBlock *, FunctionScope *) {}
-  virtual void generateEpilogue(BasicBlock *, FunctionScope *) {}
+  virtual void generatePrologue(BasicBlock *, FunctionScope *, Image *) {}
+  virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *) {}
   
 };
 
@@ -24,7 +25,7 @@ class WindowsEntrypoint : public Entrypoint
  public:
 
   virtual std::string name() { return "windowsentrypoint"; }
-  virtual void generateEpilogue(BasicBlock *, FunctionScope *);
+  virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *);
 };
 
 class LinuxEntrypoint : public Entrypoint
@@ -32,7 +33,7 @@ class LinuxEntrypoint : public Entrypoint
  public:
 
   virtual std::string name() { return "linuxentrypoint"; }
-  virtual void generateEpilogue(BasicBlock *, FunctionScope *);
+  virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *);
   
 };
   

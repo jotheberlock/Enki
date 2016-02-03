@@ -32,8 +32,6 @@ typedef uint64_t (*TestFunc)(uint64_t);
 Codegen * root_gc = 0;
 unsigned char * root_buf = 0;
 
-#define HEAP_SIZE 4096
-
 void dumpstack()
 {
     if (root_buf && root_gc)
@@ -225,31 +223,104 @@ uint32_t getUtf8(char * & f)
     return ret;
 }
 
+FILE * findFile(std::string name)
+{
+    FILE * f = 0;
+    if (f = fopen(name.c_str(), "r"))
+    {
+        return f;
+    }
+    name = std::string("../")+name;
+
+    if (f = fopen(name.c_str(), "r"))
+    {
+        return f;
+    }
+
+    return 0;
+}
+
 int main(int argc, char ** argv)
 {
     component_factory = new ComponentFactory();
 
-    FILE * hfile = fopen(ConfigFile::hostConfig().c_str(), "r");
+    FILE * hfile = findFile(ConfigFile::hostConfig().c_str());
     if (!hfile)
     {
         printf("Can't find host config [%s]\n", ConfigFile::hostConfig().c_str());
         return 1;
     }
     Configuration hostconfig;
+
     ConfigFile hcf(hfile, &hostconfig);
     hcf.process();
 
     Configuration config;
     
+    ConfigFile * current_config_file = 0;
+    
+    bool done_ini = false;
+
     for (int loopc=1; loopc<argc; loopc++)
     {
         if (strstr(argv[loopc], ".ini"))
         {
-            FILE * cfile = fopen(argv[loopc], "r");
-            ConfigFile cf(cfile, &config);
-            cf.process();
+  	    delete current_config_file;
+            FILE * cfile = findFile(argv[loopc]);
+            current_config_file = new ConfigFile(cfile, &config);
+            current_config_file->process();
+	    done_ini = true;
+        }
+	else if (strstr(argv[loopc], "=") && current_config_file)
+	{
+  	    char buf[4096];
+  	    sprintf(buf, "set %s", argv[loopc]);
+	    if (!current_config_file->processLine(buf))
+	    {
+		printf("Don't know how to set %s\n", argv[loopc]);
+	    }
+        }
+	else if (!strcmp(argv[loopc], "-o"))
+	{
+	    loopc++;
+	    if (loopc < argc)
+	    {
+	        if (!current_config_file->processLine(argv[loopc]))
+		{
+ 		    printf("Don't understand option [%s]\n", argv[loopc]);
+		}
+	    }
+	    else
+	    {
+ 	        printf("-o without option!\n");
+  	        break;
+	    }
         }
     }
+
+    if (!done_ini)
+    {
+        FILE * cfile = findFile(ConfigFile::nativeTargetConfig());
+        if (!cfile)
+        {
+  	    printf("Can't find native target config [%s]\n", ConfigFile::nativeTargetConfig().c_str());
+	    return 1;
+        }
+        current_config_file = new ConfigFile(cfile, &config);
+	current_config_file->process();
+    }
+    
+    for (int loopc=1; loopc<argc; loopc++)
+    {
+        if (strstr(argv[loopc], "=") && current_config_file)
+	{
+  	    char buf[4096];
+  	    sprintf(buf, "set %s", argv[loopc]);
+	    current_config_file->processLine(buf);
+        }
+    }
+    
+    delete current_config_file;
     
     uint64_t result = 1;
 
@@ -273,11 +344,10 @@ int main(int argc, char ** argv)
     
     root_scope = new FunctionScope(0, "@root", root_type);
 
-    // FIXME needs a function pointer?
-    FunctionType * syscall_type = new ExternalFunctionType(config.syscall);
+    FunctionType * syscall_type = new ExternalFunctionType(config.syscall, true);
     syscall_type->addReturn(register_type);
-    FunctionScope * fs_syscall = new FunctionScope(root_scope, "__syscall",
-                                                   syscall_type);
+    Value * fptr = new Value("__syscall", syscall_type);  // Value never actually used
+    root_scope->add(fptr);
 
     calling_convention = config.cconv;
 
@@ -301,7 +371,7 @@ int main(int argc, char ** argv)
                 printf("No input file\n");
                 return 1;
             }
-
+	    
             Chars input;
 
             fseek(f, 0, SEEK_END);
@@ -378,70 +448,5 @@ int main(int argc, char ** argv)
     root_scope->add(new Value("__stackptr", byteptr));
 
     Backend output(&config, parse.tree());
-    output.process();
-
-    /*
-#ifdef POSIX_SIGNALS
-    pthread_mutex_lock(&dumper);
-    
-    struct sigaction sa, oldact;
-    memset(&sa, 0, sizeof(sa));
-    sa.sa_sigaction = segv_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART | SA_SIGINFO;
-
-    if (sigaction(SIGSEGV, &sa, &oldact))
-    {
-        printf("Failure to install segv signal handler!\n");
-    }
-    if (sigaction(SIGILL, &sa, &oldact))
-    {
-        printf("Failure to install sigill signal handler!\n");
-    }
-    if (sigaction(SIGBUS, &sa, &oldact))
-    {
-        printf("Failure to install sigbus signal handler!\n");
-    }
-    
-    pthread_t tid;
-    pthread_create(&tid, 0, dumpstacker, 0);
-    pthread_detach(tid); 
-#endif
-
-    unsigned char * fptr = image->functionPtr(gc->getScope());
-    if (!fptr)
-    {
-        printf("Can't find root function!\n");
-    }
-    
-    TestFunc tf = (TestFunc)fptr;
-    result = tf(image->getAddr(IMAGE_DATA));
-    fprintf(log_file, ">>> Result %ld %lx\n", result, result);
-    
-    fprintf(log_file, "Stack:\n%s\n",
-            gc->display(image->getPtr(IMAGE_DATA)).c_str());
-    
-    delete calling_convention;
-    delete assembler;
-
-    for (std::list<Codegen *>::iterator cdit = codegens->begin();
-         cdit != codegens->end(); cdit++)
-    {
-        delete (*cdit);
-    }
-
-    delete codegens;
-    delete constants;
-    delete root_scope;
-    
-    destroyTypes();
-
-    delete image;
-    delete macros;
-    
-    fclose(log_file);
-    printf("Result: %ld\n", result);
-    return (int)result;
-*/
-    return 0;
+    return output.process();
 }

@@ -75,10 +75,10 @@ void OptimisationPass::run()
             insn = (*iit);
             processInsn();
 
-			if (iit == block->getCode().end())
-			{
-				break;
-			}
+	    if (iit == block->getCode().end())
+	    {
+		break;
+	    }
         }
         
         for (std::list<Insn>::iterator ait =
@@ -95,7 +95,8 @@ void ThreeToTwoPass::processInsn()
     if (insn.ins == ADD || insn.ins == SUB || insn.ins == MUL ||
         insn.ins == IMUL || insn.ins == DIV || insn.ins == DIV ||
         insn.ins == AND || insn.ins == OR || insn.ins == XOR ||
-        insn.ins == NOT || insn.ins == REM || insn.ins == IREM)
+        insn.ins == NOT || insn.ins == REM || insn.ins == IREM ||
+	insn.ins == SHL || insn.ins == SHR)
     {
         if (!insn.ops[0].eq(insn.ops[1]))
         {
@@ -151,9 +152,9 @@ int SillyRegalloc::findFree(RegSet & r, RegSet & c)
         }
     }
 
-        // Should probably learn how to spill here
-	assert(false);    
-	return 0;
+    // Should probably learn how to spill here
+    assert(false);    
+    return 0;
 }
 
 int SillyRegalloc::alloc(Value * v, RegSet & r, RegSet & c)

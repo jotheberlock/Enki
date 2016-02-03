@@ -9,6 +9,7 @@ Codegen::Codegen(Expr * e, FunctionScope * fs)
     bbcount = 0;
     stack_size = 0xdeadbeef;
     current_block = newBlock("prologue");
+    setBlock(current_block);
     allocated_slots = false;
     cconv = CCONV_STANDARD;
     scope = fs;
@@ -100,7 +101,7 @@ BasicBlock * Codegen::newBlock(std::string n)
     }
 
     BasicBlock * ret = new BasicBlock(n);
-    blocks.push_back(ret);
+    unplaced_blocks.push_back(ret);
     return ret;
 }
 
@@ -154,7 +155,9 @@ void Constants::fillPool(unsigned char * ptr)
 uint64_t Constants::addConstant(const char * data, int len, int align)
 {
     while (constantp % align)
+    {
         constantp++;
+    }
     
     uint64_t ret = constants.size();
     Constant c;
@@ -176,9 +179,6 @@ void Codegen::allocateStackSlots()
         Value * v = locals[loopc];
         if (v->onStack())
         {
-            fprintf(log_file, ">>> Putting %s at stack offset %ld %lx\n",
-                    v->name.c_str(), stack_size, stack_size);
-            
             while (stack_size % (v->type->align()/8))
             {
                 stack_size++;

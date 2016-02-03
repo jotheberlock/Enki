@@ -23,6 +23,11 @@ class Amd64 : public Assembler
         return 15;
     }
 
+	int functionAlignment()
+	{
+		return 8;
+	}
+
     bool validConst(Insn & i, int idx)
     {
         if (i.ins == DIV || i.ins == IDIV || i.ins == REM ||
@@ -35,7 +40,7 @@ class Amd64 : public Assembler
         
         if (i.ins == ADD || i.ins == SUB || i.ins == MUL
             || i.ins == IMUL || i.ins == AND || i.ins == OR
-            || i.ins == XOR)
+            || i.ins == XOR || i.ins == SHL || i.ins == SHR)
         {
             if (idx != 2)
             {
@@ -43,7 +48,7 @@ class Amd64 : public Assembler
             }
         }
 
-        if (i.ins == STORE)
+        if (i.ins == STORE || i.ins == STORE8 || i.ins == STORE16 || i.ins == STORE32 || i.ins == STORE64)
         {
             if (idx == 2)
             {
@@ -91,7 +96,7 @@ class Amd64WindowsCallingConvention : public CallingConvention
 class Amd64UnixSyscallCallingConvention : public CallingConvention
 {
   public:
-
+    
     virtual void generatePrologue(BasicBlock *, FunctionScope *) 
     {}
 

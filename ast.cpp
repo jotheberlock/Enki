@@ -12,23 +12,60 @@
 
 IntegerExpr::IntegerExpr(Token * t)
 {
-    char buf[4096];
-
-    if (t->value.size() > 4096)
+    if (t->value.size() > 18)
     {
-        printf("Invalidly huge integer!\n");
+        printf("Invalidly huge integer! [%s]\n", t->toString().c_str());
         val = 0;
         return;
     }
-    
-    unsigned int loopc;
-    for (loopc=0; loopc<t->value.size(); loopc++)
-    {
-        buf[loopc] = (char)t->value[loopc];
-    }
-    buf[loopc] = 0;
 
-    val = strtol(buf, 0, 0);
+    val = 0;
+    int begin = 0;
+    unsigned int base = 10;
+
+    bool is_negative = false;
+    if (t->value.size() > 1 && t->value[0] == '-')
+    {
+	is_negative = true;
+        begin++;
+    }
+    
+    if (t->value.size() > begin+2 && t->value[begin] == '0' && t->value[begin+1] == 'x')
+    {
+        begin += 2;
+        base = 16;
+    }
+
+    // Do our own strtol(3) to make sure we can do 64 bits
+    for (unsigned int loopc=begin; loopc<t->value.size(); loopc++)
+    {
+        unsigned char v = t->value[loopc];
+        unsigned char n = 0;
+        if (v >= '0' && v <= '9')
+        {
+            n = (v - '0');
+        }
+        else if ((base == 16) && v >= 'a' && v <= 'f')
+        {
+            n = (v - 'a') + 10;
+        }
+        else if ((base == 16) && v >= 'A' && v <= 'F')
+        {
+            n = (v - 'A') + 10;
+        }
+        else
+        {
+            printf("Invalid digit [%c]!\n", v);
+        }
+
+	val *= base;
+	val = val + n;
+    }
+
+    if (is_negative)
+    {
+        val = -val;
+    }
 }
 
 IdentifierExpr::IdentifierExpr(Token * t)
@@ -136,10 +173,10 @@ int Parser::getPrecedence()
     bool dummy;
     OpRec rec;
 
-	if (current.value.size() == 0)
-	{
-		return -1;
-	}
+    if (current.value.size() == 0)
+    {
+	return -1;
+    }
 
     if (!lexer->isOp(current.value[0], current.value.size() == 1 ? 0 : current.value[1], dummy, rec, current.toString()))
     {
@@ -147,8 +184,10 @@ int Parser::getPrecedence()
     }
 
     if (rec.type != BINOP)
+    {
         return -1;
-
+    }
+    
     return rec.pri;
 }
 
@@ -163,26 +202,30 @@ Expr * Parser::parseBinopRHS(int prec, Expr * lhs)
         next();
         Expr * rhs = parseUnary();
         if (!rhs)
+	{
             return 0;
+	}
         int nprec = getPrecedence();
         if (tprec < nprec)
         {
             rhs = parseBinopRHS(tprec+1, rhs);
             if (rhs == 0)
+	    {
                 return 0;
+	    }
         }
 
         lhs = new BinaryExpr(&binop, lhs, rhs);
 
         if (current.type == DONE)
+	{
             return lhs;
+	}
     }
 }
 
 Expr * Parser::parsePrimary()
 {
-    fprintf(log_file, ">>> parsePrimary %d\n", current.type);
-    
     if(current.type == INTEGER_LITERAL)
     { 
         return parseInteger();
@@ -234,10 +277,14 @@ Expr * Parser::parseUnary()
     uint32_t first = 0;
     uint32_t second = 0;
     if (current.value.size() > 0)
+    {
         first = current.value[0];
+    }
     if (current.value.size() > 1)
+    {
         second = current.value[1];
-
+    }
+    
     if (first == 0)
     {
         return parsePrimary();
@@ -324,6 +371,10 @@ Expr * Parser::parseBodyLine()
     else if (current.type == STRUCT || current.type == UNION)
     {
         return parseStruct();
+    }
+    else if (current.type == FPTR)
+    {
+	return parseFptr();
     }
     else if (current.type == YIELD)
     {
@@ -475,16 +526,15 @@ Expr * Parser::parseWhile()
 
     Block * b = 0;
     
-	if (current.type != EOL)
-	{
-	    addError(Error(&current, "Expected EOL after while expr"));
-	}
-	next();
-
+    if (current.type != EOL)
+    {
+	addError(Error(&current, "Expected EOL after while expr"));
+    }
+    next();
     
-	if (current.type != BEGIN)
-	{
-  	    addError(Error(&current, "Expected block after while"));
+    if (current.type != BEGIN)
+    {
+	addError(Error(&current, "Expected block after while"));
     }
     else
     {
@@ -515,11 +565,13 @@ Expr * Parser::parseReturn()
         if (!e)
         {
             addError(Error(&current, "Expected expr following return"));
+	    return 0;
         }
         
         if (current.type != EOL)
         {
             addError(Error(&current, "Expected EOL after return expression"));
+	    return 0;
         }
         else
         {
@@ -544,11 +596,13 @@ Expr * Parser::parseYield()
 	if (!e)
 	{
   	    addError(Error(&current, "Expected expr following yield"));
+	    return 0;
 	}
 
 	if (current.type != EOL)
 	{
 	    addError(Error(&current, "Expected EOL after yield expression"));
+	    return 0;
 	}
 	else
 	{
@@ -571,7 +625,6 @@ Expr * Parser::parseVarExpr(Type * t)
     Expr * i = parseIdentifier();
     if (i)
     {
-        fprintf(log_file, "Bibble %d\n", current.type);
         Expr * assigned = 0;
         if (current.toString() == "=")
         {
@@ -640,7 +693,7 @@ Expr * Parser::parseBlock()
 {
     next();
 
-    SymbolScope * nb = new SymbolScope(current_scope);
+    SymbolScope * nb = new SymbolScope(current_scope, "<block>");
     current_scope = nb;
     
     Block * ret = new Block();
@@ -650,7 +703,9 @@ Expr * Parser::parseBlock()
         if (current.type == DONE || current.type == END)
         {
             if (current.type == END)
+	    {
                 next();
+	    }
             current_scope = current_scope->parent();
             return ret;
         }
@@ -734,7 +789,6 @@ Expr * Parser::parseStruct()
 
         if (current.type != EOL)
         {
-            fprintf(log_file, "[[[ %d\n", current.type);
             addError(Error(&current, "Expected EOL in struct"));
             return 0;
         }
@@ -748,12 +802,10 @@ Expr * Parser::parseStruct()
 
 Expr * Parser::parseVarRef(Expr * e)
 {
-    fprintf(log_file, ">>>>>> parseVarRef\n");
-
     IdentifierExpr * ie = dynamic_cast<IdentifierExpr *>(e);
     if (!ie)
     {
-        fprintf(log_file, "Eek unexpected expr type in parseVarRef\n");
+	addError(Error(&current, "Unexpected expression type"));
         return 0;
     }
     
@@ -762,6 +814,7 @@ Expr * Parser::parseVarRef(Expr * e)
     vre->scope = current_scope;
 
     std::string name = ((IdentifierExpr *)ie)->getString();
+    vre->depth = 0;
     vre->value = vre->scope->lookup(name, vre->depth);
     if (!vre->value)
     {
@@ -792,6 +845,11 @@ Expr * Parser::parseVarRef(Expr * e)
         else if (current.type == OPEN_SQUARE)
         {
             Expr * s = parseSquare();
+	    if (!s)
+	    {
+		addError(Error(&current, "Invalid array subscript"));
+		return 0;
+	    }
             vre->add(VarRefElement(VARREF_ARRAY, s));
         }
         else
@@ -839,9 +897,9 @@ Expr * Parser::parseDef()
         ft = new FunctionType(is_macro);
     }
 	
-	Value * v = new Value(name, ft);
-	current_scope->add(v);
-
+    Value * v = new Value(name, ft);
+    current_scope->add(v);
+    
     FunctionScope * fs = new FunctionScope(current_scope,
                                            name,
                                            ft);
@@ -892,7 +950,6 @@ Expr * Parser::parseDef()
                 Type * t = parseType();
                 if (t)
                 {
-                    printf("Return type found!\n");
                     ft->addReturn(t);
                     if (current.type != EOL)
                     {
@@ -977,6 +1034,85 @@ Expr * Parser::parseAddressOf()
     }
 }
 
+Expr * Parser::parseFptr()
+{
+    next();
+  
+    bool is_extern = false;
+    if (current.type == EXTERN)
+    {
+        is_extern = true;
+        next();
+    }
+
+    FunctionType * ft = is_extern ?
+      new ExternalFunctionType(calling_convention) : new FunctionType(false);
+    
+    if (current.type != OPEN_BRACKET)
+    {
+	addError(Error(&current, "Expected open bracket in fptr definition"));
+	return 0;
+    }
+    next();
+
+    while(current.type != CLOSE_BRACKET)
+    {
+        Type * t = parseType();
+	if (!t)
+	{
+            return 0;
+        }
+
+	std::string n = "";
+	if (current.type == IDENTIFIER)
+	{
+	    IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
+	    if (!ie)
+	    {
+	        return 0;
+	    }
+	    n = ie->getString();
+        }
+
+	if (current.type == COMMA)
+	{
+	    next();    
+	}
+	else if (current.type == CLOSE_BRACKET)
+	{
+  	    next();
+	    break;
+        }
+	else
+	{
+	    addError(Error(&current, "Expected comma in fptr definition"));
+        }
+	ft->addParam(n, t);
+    }
+    
+    Type * t = parseType();
+    if (t)
+    {
+        ft->addReturn(t);
+    }
+    else
+    {
+        printf("Couldn't figure out return type\n");
+	return 0;
+    }
+    
+    Expr * ie = parseIdentifier();
+    if (!ie)
+    {
+        push();
+        return 0;
+    }
+
+    std::string tname = ((IdentifierExpr *)ie)->getString();
+    addType(ft, tname);
+    return 0;
+}
+
 Type * Parser::parseType()
 {
     Expr * ie = parseIdentifier();
@@ -997,7 +1133,7 @@ Type * Parser::parseType()
         return 0;
     }
 
-    bool is_generator = false;
+    bool is_activation = false;
         
     while (true)
     {
@@ -1024,14 +1160,14 @@ Type * Parser::parseType()
         }
         else if (current.type == FUNCVAR)
         {
-            if (is_generator)
+	    if (is_activation)
             {
-                addError(Error(&current, "Generator declared twice"));
+                addError(Error(&current, "Activation declared twice"));
                 return 0;
             }
             else
             {
-                is_generator = true;
+                is_activation = true;
             }
         }
         else if (current.type == OPEN_SQUARE)
@@ -1095,9 +1231,9 @@ Type * Parser::parseType()
         next();
     }
 
-    if(ret_type && is_generator)
+    if(ret_type && is_activation)
     {
-        ret_type = new GeneratorType(ret_type);
+        ret_type = new ActivationType(ret_type);
     }
     
     return ret_type;
@@ -1116,7 +1252,6 @@ Type * VarRefExpr::checkType(Codegen * c)
             {
                 if (ret->canDeref())
                 {
-                    fprintf(log_file, ">>> deref\n");
                     ret = ret->derefType();
                 }
                 else
@@ -1257,13 +1392,20 @@ Value * IdentifierExpr::codegen(Codegen * c)
 Value * BinaryExpr::codegen(Codegen * c)
 {
     Value * rh = rhs->codegen(c);
+    if (!rh)
+    {
+        printf("No right hand side in binaryexpr!\n");
+        return 0;
+    }
     
     uint64_t equality_op = (((uint64_t)'=' << 32) | '=');
     uint64_t inequality_op = (((uint64_t)'=' << 32) | '!');
     uint64_t lte_op = (((uint64_t)'=' << 32) | '<');
     uint64_t gte_op = (((uint64_t)'=' << 32) | '>');
     uint64_t eval_op = (((uint64_t)':' << 32) | '=');
-    
+    uint64_t lshift_op = (((uint64_t)'<' << 32) | '<');
+    uint64_t rshift_op = (((uint64_t)'>' << 32) | '>');
+
     if (token.toString() == "and")
     {
         Value * lh = lhs->codegen(c);
@@ -1338,6 +1480,20 @@ Value * BinaryExpr::codegen(Codegen * c)
         Value * lh = lhs->codegen(c);
         Value * v = c->getTemporary(register_type, "rem");
         c->block()->add(Insn(REM, v, lh, rh));
+        return v;
+    }
+    else if (op == lshift_op)
+    {
+        Value * lh = lhs->codegen(c);
+        Value * v = c->getTemporary(register_type, "lshift");
+        c->block()->add(Insn(SHL, v, lh, rh));
+        return v;
+    }
+    else if (op == rshift_op)
+    {
+        Value * lh = lhs->codegen(c);
+        Value * v = c->getTemporary(register_type, "rshift");
+        c->block()->add(Insn(SHR, v, lh, rh));
         return v;
     }
     else if (op == '&')
@@ -1420,7 +1576,7 @@ Value * BinaryExpr::codegen(Codegen * c)
             return 0;
         }
 
-         GeneratorType * rhgt = dynamic_cast<GeneratorType *>(rh->type);
+         ActivationType * rhgt = dynamic_cast<ActivationType *>(rh->type);
          if (!rhgt)
          {
              addError(Error(&token, "Eval only works with generator type"));
@@ -1503,11 +1659,22 @@ Value * UnaryExpr::codegen(Codegen * c)
         c->block()->add(Insn(GETADDR, v, e, Operand::usigc(0)));  // FIXME
         return v; 
     }
-    else if (op == '!')
+    else if (op == '~')
     {
         Value * v = c->getTemporary(register_type, "anot");
         c->block()->add(Insn(NOT, v, e));
         return v; 
+    }
+    else if (op == '!')
+    {
+        if (!e->type->canActivate())
+	{
+  	    addError(Error(&token, "Can't activate non-activation"));
+	    return 0;
+	}
+
+	e->type->activate(c,e);
+	return e;
     }
     else
     {
@@ -1533,17 +1700,26 @@ Value * Yield::codegen(Codegen * c)
         Value * returnvar = c->getRet();
         if (!returnvar)
         {
-            fprintf(log_file, "Can't find __ret in return!\n");
+            fprintf(log_file, "Can't find return variable!\n");
             return 0;
         }
 
         Value * to_ret = ret->codegen(c);
+        Type * to_ret_type = to_ret->type;
+        Type * returnvar_type = returnvar->type;
+        
+        if (!returnvar_type->canActivate() && to_ret_type  &&
+            to_ret_type->canActivate())
+        {
+            to_ret = to_ret_type->getActivatedValue(c, to_ret);
+        }
         
         c->block()->add(Insn(MOVE, returnvar, to_ret));
     }
 
     
     BasicBlock * retblock = c->newBlock("yield");
+    c->block()->add(Insn(BRA, Operand(retblock)));
     c->setBlock(retblock);
     BasicBlock * resumeblock = c->newBlock("resume");
     
@@ -1560,11 +1736,11 @@ Value * Yield::codegen(Codegen * c)
     res.set(0);
     c->block()->setReservedRegs(res);
     
-    c->block()->add(Insn(LOAD, Operand::reg(0),
-                         Operand::reg(assembler->framePointer()),
-                         Operand::sigc(assembler->pointerSize()/8)));
     c->block()->add(Insn(LOAD, Operand::reg(assembler->framePointer()),
                          Operand::reg(assembler->framePointer())));
+    c->block()->add(Insn(LOAD, Operand::reg(0),
+                         Operand::reg(assembler->framePointer()),
+                         Operand::sigc(assembler->ipOffset())));
     c->block()->add(Insn(BRA, Operand::reg(0)));
 
     c->setBlock(resumeblock);
@@ -1585,13 +1761,23 @@ Value * Return::codegen(Codegen * c)
         }
 
         Value * to_ret = ret->codegen(c);
+
+        Type * to_ret_type = to_ret->type;
+        Type * returnvar_type = returnvar->type;
+
+        if (!returnvar_type->canActivate() && to_ret_type  &&
+            to_ret_type->canActivate())
+        {
+            to_ret = to_ret_type->getActivatedValue(c, to_ret);
+        }
         
-	c->block()->add(Insn(STORE, Operand::reg(assembler->framePointer()), Operand::sigc(assembler->returnOffset()), to_ret));
+        c->block()->add(Insn(MOVE, returnvar, to_ret));
     }
 
     if (c->callConvention() == CCONV_STANDARD)
     {
         BasicBlock * retblock = c->newBlock("ret");
+        c->block()->add(Insn(BRA, Operand(retblock)));
         c->setBlock(retblock);
 
         Value * ipvar = c->getIp();
@@ -1607,18 +1793,22 @@ Value * Return::codegen(Codegen * c)
         res.set(0);
         c->block()->setReservedRegs(res);
 
-        c->block()->add(Insn(LOAD, Operand::reg(0),
-                             Operand::reg(assembler->framePointer()),
-                             Operand::sigc(assembler->pointerSize()/8)));
+	// Restore old framepointer
         c->block()->add(Insn(LOAD, Operand::reg(assembler->framePointer()),
                              Operand::reg(assembler->framePointer())));
+	// Load ip from it
+        c->block()->add(Insn(LOAD, Operand::reg(0),
+                             Operand::reg(assembler->framePointer()),
+                             Operand::sigc(assembler->ipOffset())));
+	// Jump back
         c->block()->add(Insn(BRA, Operand::reg(0)));
     }
     else if (c->callConvention() == CCONV_C)
     {
         BasicBlock * ret = c->newBlock("ret");
-	c->block()->add(Insn(BRA, ret));
-	calling_convention->generateEpilogue(ret, c->getScope());
+        c->block()->add(Insn(BRA, ret));
+        c->setBlock(ret);
+        calling_convention->generateEpilogue(ret, c->getScope());
     }
     
     return 0;
@@ -1669,13 +1859,13 @@ Value * If::codegen(Codegen * c)
     
     c->setBlock(ifb);
     body->codegen(c);
-    ifb->add(Insn(BRA, endb));
+    c->block()->add(Insn(BRA, endb));
     
     if (elb)
     {
         c->setBlock(elb);
         elseblock->codegen(c);
-        elb->add(Insn(BRA, endb));
+        c->block()->add(Insn(BRA, endb));
     }
     
     c->setBlock(endb);
@@ -1735,10 +1925,22 @@ Value * VarRefExpr::codegen(Codegen * c)
 void VarRefExpr::store(Codegen * c, Value * v)
 {
     Value * i = value;
-    
-    if (!v->type)
+
+    Value * copied = v;
+
+    Type * vtype = v->type;
+    if ((!i->type->canActivate()) && vtype && vtype->canActivate() && vtype->canCopy(vtype->activatedType()))
     {
-        if (!v->is_number)
+        copied = vtype->getActivatedValue(c, v);
+    }
+    else
+    {
+        copied = v;
+    }
+    
+    if (!copied->type)
+    {
+        if (!copied->is_number)
         {
             fprintf(log_file, "Null value type to store!\n");
             return;
@@ -1746,16 +1948,16 @@ void VarRefExpr::store(Codegen * c, Value * v)
         else
         {
             Value * v2 = c->getTemporary(register_type, "varrefintcopy");
-            c->block()->add(Insn(MOVE, v2, v));
-            v = v2;
+            c->block()->add(Insn(MOVE, v2, copied));
+            copied = v2;
         }
     }
     
-    if (i->type->inRegister() && v->type->inRegister() && elements.size() == 0
+    if (i->type->inRegister() && copied->type->inRegister() && elements.size() == 0
         && depth == 0)
     {
         fprintf(log_file, ">>> Adding a move\n");
-        c->block()->add(Insn(MOVE, i, v));
+        c->block()->add(Insn(MOVE, i, copied));
         return;
     }
     
@@ -1794,17 +1996,17 @@ void VarRefExpr::store(Codegen * c, Value * v)
 	}	
     }
 
-    if (!etype->canCopy(v->type))
+    if (!etype->canCopy(copied->type))
     {
         addError(Error(&token, "Don't know how to copy this type", value->name));    
         fprintf(log_file, "Don't know how to copy value of type %s to type %s!\n",
-	       v->type ? v->type->name().c_str() : "constant", 
+	       copied->type ? copied->type->name().c_str() : "constant", 
 	       etype->name().c_str());
         return;
     }
-
+    
         // FIXME: how to do generator type...
-    etype->copy(c,r,v);
+    etype->copy(c,r,copied);
 }
 
 Value * BreakpointExpr::codegen(Codegen * c)
@@ -1816,10 +2018,11 @@ Value * BreakpointExpr::codegen(Codegen * c)
 Value * Funcall::codegen(Codegen * c)
 {
 	Value * ptr = scope->lookupLocal(name());
+    
 	if (!ptr)
 	{
-		int depth = 0;
-		ptr = scope->lookup(name(), depth);
+	    int depth = 0;
+	    ptr = scope->lookup(name(), depth);
 	    Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
 	    c->block()->add(Insn(GETADDR, addrof, ptr, Operand::usigc(depth)));
 		c->block()->add(Insn(LOAD, ptr, addrof));
@@ -1839,7 +2042,7 @@ Value * Funcall::codegen(Codegen * c)
     }
     
     assert(ptr->type->canFuncall());
-    
+
     std::vector<Value *> evaled_args;
     for (unsigned int loopc=0; loopc<args.size(); loopc++)
     {
@@ -1853,7 +2056,14 @@ Value * Funcall::codegen(Codegen * c)
         evaled_args.push_back(v);
     }
 
-    return ptr->type->generateFuncall(c, this, ptr, evaled_args);
+    if (!ptr->type->validArgList(evaled_args))
+    {
+        addError(Error(&token, "Parameter mismatch!", name()));
+        return 0;
+    }
+
+    Value * ret = ptr->type->generateFuncall(c, this, ptr, evaled_args);
+    return ret;
 }
 
 std::list<Codegen *> macros;
@@ -1862,17 +2072,16 @@ Value * DefExpr::codegen(Codegen * c)
 {
     if (is_extern)
     {
-        configuration->image->addImport(libname, type->name());
-		
-		Value * addr_of_extfunc = c->getTemporary(register_type, "addr_of_extfunc_"+name);
-		c->block()->add(Insn(MOVE, addr_of_extfunc, Operand::extFunction(name)));
-	    c->block()->add(Insn(LOAD, ptr, addr_of_extfunc));
+        configuration->image->addImport(libname, name);	
+	Value * addr_of_extfunc = c->getTemporary(register_type, "addr_of_extfunc_"+name);
+	c->block()->add(Insn(MOVE, addr_of_extfunc, Operand::extFunction(name)));
+	c->block()->add(Insn(LOAD, ptr, addr_of_extfunc));
         return ptr;
     }
 	
-	FunctionScope * to_call = scope->lookup_function(name);
+    FunctionScope * to_call = scope->lookup_function(name);
     assert(to_call);
-	c->block()->add(Insn(MOVE, ptr, Operand(to_call)));
+    c->block()->add(Insn(MOVE, ptr, Operand(to_call)));
 
     scope->addFunction(new FunctionScope(scope, type->name(), type));
     
@@ -1895,6 +2104,7 @@ Value * DefExpr::codegen(Codegen * c)
     {
         BasicBlock * epilogue = ch->newBlock("epilogue");
         ch->block()->add(Insn(BRA, epilogue));
+        c->setBlock(epilogue);
         calling_convention->generateEpilogue(epilogue, root_scope);
     }
     

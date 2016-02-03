@@ -5,6 +5,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#if defined(LINUX_HOST) || defined(CYGWIN_HOST)
+#include <sys/stat.h>
+#endif
+
 ElfImage::ElfImage()
 {
     base_addr = 0x400000;
@@ -14,8 +18,8 @@ ElfImage::ElfImage()
     le = true;
     arch = 0;
 
-    bases[3] = 0x800000;
-    sizes[3] = 4096;    
+    bases[IMAGE_UNALLOCED_DATA] = 0x800000;
+    sizes[IMAGE_UNALLOCED_DATA] = 4096;    
 }
 
 ElfImage::ElfImage(const char * f, bool s, bool l, int a)
@@ -75,6 +79,15 @@ bool ElfImage::configure(std::string param, std::string val)
   else if (param == "arch")
   {
       arch = strtol(val.c_str(), 0, 10);
+  }
+  else if (param == "baseaddr")
+  {
+      base_addr = strtol(val.c_str(), 0, 0);
+      next_addr = base_addr + 12288;
+  }
+  else if (param == "heapaddr")
+  {
+      bases[IMAGE_UNALLOCED_DATA] = strtol(val.c_str(), 0, 0);
   }
   else
   {
@@ -469,11 +482,14 @@ void ElfImage::finalise()
     {
         if (loopc != IMAGE_UNALLOCED_DATA)
         {
-            fseek(f, bases[loopc]-base_addr, SEEK_SET);
+            fseek(f, (long)(bases[loopc]-base_addr), SEEK_SET);
             fwrite(sections[loopc], sizes[loopc], 1, f);
         }
     }
     fclose(f);
+#if defined(LINUX_HOST) || defined(CYGWIN_HOST)
+    chmod(fname.c_str(), 0755);
+#endif
 }
 
 void ElfImage::materialiseSection(int s)
