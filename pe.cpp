@@ -201,7 +201,7 @@ void PEImage::finalise()
     wle16(ptr, arch);
     wle16(ptr, 6);  // sections
     wle32(ptr, checked_32(time(0)));  // timestamp
-    wle32(ptr, symbols_base);  // symbol table ptr
+    wle32(ptr, symbols_base-base_addr);  // symbol table ptr
     wle32(ptr, fptrs.size());  // no. symbols
     wle16(ptr, (sf_bit ? 112 : 96) + (16*8));  // Optional header size
 
@@ -482,7 +482,7 @@ void PEImage::finalise()
 	strncpy((char *)ptr, fptrs[loopc]->name().c_str(), 8);
         ptr += 8;
 	wle32(ptr, checked_32(foffsets[loopc]+bases[IMAGE_CODE]));
-	wle16(ptr, 0 /*code_section+1*/);
+	wle16(ptr, code_section+1);
 	wle16(ptr, 0x20);   // Function 
 	*ptr = 101;  // Function
 	ptr++;
