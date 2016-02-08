@@ -675,3 +675,26 @@ String Table Size = 0xA2E bytes
         1000 .rsrc
         1000 .text
         1000 .xdata
+
+
+
+
+
+Dump of file a.exe
+
+File Type: EXECUTABLE IMAGE
+
+COFF SYMBOL TABLE
+000 00404000 SECT2  notype ()    .bf or.ef    | @root
+001 00404208 SECT2  notype ()    .bf or.ef    | foo
+
+String Table Size = 0x0 bytes
+
+  Summary
+
+        1000 .bss
+        1000 .data
+        1000 .idata
+        1000 .rdata
+        1000 .symtab
+        1000 .text
