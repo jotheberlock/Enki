@@ -1,0 +1,677 @@
+Microsoft (R) COFF/PE Dumper Version 14.00.23506.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file a.exe
+
+File Type: EXECUTABLE IMAGE
+
+COFF SYMBOL TABLE
+000 0000001D DEBUG  notype       Filename     | .file
+    crt0.c
+002 00000000 SECT1  notype ()    External     | mainCRTStartup
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+004 00000000 SECT1  notype ()    External     | WinMainCRTStartup
+005 00000000 SECT1  notype       Static       | .text
+    Section length   44, #relocs    6, #linenums    0, checksum        0
+007 00000000 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+009 00000000 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+00B 00000000 SECT6  notype       Static       | .xdata
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+00D 00000000 SECT5  notype       Static       | .pdata
+    Section length    C, #relocs    3, #linenums    0, checksum        0
+00F 00000000 SECTB  notype       Static       | .debug_info
+    Section length 1300, #relocs    B, #linenums    0, checksum        0
+011 00000000 SECTC  notype       Static       | .debug_abbrev
+    Section length  1FB, #relocs    0, #linenums    0, checksum        0
+013 00000000 SECTA  notype       Static       | .debug_aranges
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+015 00000000 SECTD  notype       Static       | .debug_line
+    Section length  267, #relocs    1, #linenums    0, checksum        0
+017 00000000 SECTF  notype       Static       | .debug_str
+    Section length    E, #relocs    0, #linenums    0, checksum        0
+019 00000030 SECT3  notype       Static       | .rdata$zzz
+    Section length   32, #relocs    0, #linenums    0, checksum        0
+01B 00000000 SECTE  notype       Static       | .debug_frame
+    Section length   38, #relocs    2, #linenums    0, checksum        0
+01D 00000032 DEBUG  notype       Filename     | .file
+    cygming-crtbegin.c
+01F 00000080 SECT2  notype       Static       | __JCR_LIST__
+020 00000060 SECT1  notype ()    External     | __gcc_register_frame
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+022 000000D0 SECT1  notype ()    External     | __gcc_deregister_frame
+023 00000050 SECT1  notype       Static       | .text
+    Section length   86, #relocs    9, #linenums    0, checksum        0
+025 00000000 SECT2  notype       Static       | .data
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+027 00000000 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+029 00000008 SECT6  notype       Static       | .xdata
+    Section length   1C, #relocs    0, #linenums    0, checksum        0
+02B 0000000C SECT5  notype       Static       | .pdata
+    Section length   24, #relocs    9, #linenums    0, checksum        0
+02D 00000000 SECT3  notype       Static       | .rdata
+    Section length   22, #relocs    0, #linenums    0, checksum        0
+02F 00000070 SECT3  notype       Static       | .rdata$zzz
+    Section length   11, #relocs    0, #linenums    0, checksum        0
+031 00000080 SECT2  notype       Static       | .jcr
+032 0000004D DEBUG  notype       Filename     | .file
+    test.c
+034 000000E0 SECT1  notype ()    External     | foo
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+036 000000E6 SECT1  notype ()    External     | main
+037 000000E0 SECT1  notype       Static       | .text
+    Section length   19, #relocs    1, #linenums    0, checksum        0
+039 00000010 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+03B 00000000 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+03D 00000024 SECT6  notype       Static       | .xdata
+    Section length   14, #relocs    0, #linenums    0, checksum        0
+03F 00000030 SECT5  notype       Static       | .pdata
+    Section length   18, #relocs    6, #linenums    0, checksum        0
+041 00001300 SECTB  notype       Static       | .debug_info
+    Section length   B8, #relocs    5, #linenums    0, checksum        0
+043 000001FB SECTC  notype       Static       | .debug_abbrev
+    Section length   4F, #relocs    0, #linenums    0, checksum        0
+045 00000030 SECTA  notype       Static       | .debug_aranges
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+047 00000267 SECTD  notype       Static       | .debug_line
+    Section length   3B, #relocs    1, #linenums    0, checksum        0
+049 00000090 SECT3  notype       Static       | .rdata$zzz
+    Section length   11, #relocs    0, #linenums    0, checksum        0
+04B 00000038 SECTE  notype       Static       | .debug_frame
+    Section length   68, #relocs    4, #linenums    0, checksum        0
+04D 00000051 DEBUG  notype       Filename     | .file
+    fake
+04F 00000100 SECT1  notype       Static       | .text
+    Section length    6, #relocs    1, #linenums    0, checksum        0
+051 00000055 DEBUG  notype       Filename     | .file
+    fake
+053 00000110 SECT1  notype       Static       | .text
+    Section length    6, #relocs    1, #linenums    0, checksum        0
+055 00000071 DEBUG  notype       Filename     | .file
+    cygwin_crt0.c
+057 00000120 SECT1  notype ()    External     | cygwin_crt0
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+059 00000120 SECT1  notype       Static       | .text
+    Section length   12, #relocs    2, #linenums    0, checksum        0
+05B 00000010 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+05D 00000000 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+05F 00000038 SECT6  notype       Static       | .xdata
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+061 00000048 SECT5  notype       Static       | .pdata
+    Section length    C, #relocs    3, #linenums    0, checksum        0
+063 000013B8 SECTB  notype       Static       | .debug_info
+    Section length  38E, #relocs    6, #linenums    0, checksum        0
+065 0000024A SECTC  notype       Static       | .debug_abbrev
+    Section length   A3, #relocs    0, #linenums    0, checksum        0
+067 00000000 SECT10 notype       Static       | .debug_loc
+    Section length   39, #relocs    0, #linenums    0, checksum        0
+069 00000060 SECTA  notype       Static       | .debug_aranges
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+06B 000002A2 SECTD  notype       Static       | .debug_line
+    Section length   7D, #relocs    1, #linenums    0, checksum        0
+06D 000000B0 SECT3  notype       Static       | .rdata$zzz
+    Section length   32, #relocs    0, #linenums    0, checksum        0
+06F 000000A0 SECTE  notype       Static       | .debug_frame
+    Section length   38, #relocs    2, #linenums    0, checksum        0
+071 0000008B DEBUG  notype       Filename     | .file
+    premain0.c
+073 00000140 SECT1  notype ()    External     | cygwin_premain0
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+075 00000140 SECT1  notype       Static       | .text
+    Section length    1, #relocs    0, #linenums    0, checksum        0
+077 00000010 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+079 00000000 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+07B 00000040 SECT6  notype       Static       | .xdata
+    Section length    4, #relocs    0, #linenums    0, checksum        0
+07D 00000054 SECT5  notype       Static       | .pdata
+    Section length    C, #relocs    3, #linenums    0, checksum        0
+07F 00001746 SECTB  notype       Static       | .debug_info
+    Section length  25A, #relocs    4, #linenums    0, checksum        0
+081 000002ED SECTC  notype       Static       | .debug_abbrev
+    Section length   4F, #relocs    0, #linenums    0, checksum        0
+083 00000090 SECTA  notype       Static       | .debug_aranges
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+085 0000031F SECTD  notype       Static       | .debug_line
+    Section length   6E, #relocs    1, #linenums    0, checksum        0
+087 000000F0 SECT3  notype       Static       | .rdata$zzz
+    Section length   32, #relocs    0, #linenums    0, checksum        0
+089 000000D8 SECTE  notype       Static       | .debug_frame
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+08B 000000A5 DEBUG  notype       Filename     | .file
+    premain1.c
+08D 00000150 SECT1  notype ()    External     | cygwin_premain1
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+08F 00000150 SECT1  notype       Static       | .text
+    Section length    1, #relocs    0, #linenums    0, checksum        0
+091 00000010 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+093 00000000 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+095 00000044 SECT6  notype       Static       | .xdata
+    Section length    4, #relocs    0, #linenums    0, checksum        0
+097 00000060 SECT5  notype       Static       | .pdata
+    Section length    C, #relocs    3, #linenums    0, checksum        0
+099 000019A0 SECTB  notype       Static       | .debug_info
+    Section length  25A, #relocs    4, #linenums    0, checksum        0
+09B 0000033C SECTC  notype       Static       | .debug_abbrev
+    Section length   4F, #relocs    0, #linenums    0, checksum        0
+09D 000000C0 SECTA  notype       Static       | .debug_aranges
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+09F 0000038D SECTD  notype       Static       | .debug_line
+    Section length   6E, #relocs    1, #linenums    0, checksum        0
+0A1 00000130 SECT3  notype       Static       | .rdata$zzz
+    Section length   32, #relocs    0, #linenums    0, checksum        0
+0A3 00000108 SECTE  notype       Static       | .debug_frame
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+0A5 000000BF DEBUG  notype       Filename     | .file
+    premain2.c
+0A7 00000160 SECT1  notype ()    External     | cygwin_premain2
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+0A9 00000160 SECT1  notype       Static       | .text
+    Section length    1, #relocs    0, #linenums    0, checksum        0
+0AB 00000010 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+0AD 00000000 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+0AF 00000048 SECT6  notype       Static       | .xdata
+    Section length    4, #relocs    0, #linenums    0, checksum        0
+0B1 0000006C SECT5  notype       Static       | .pdata
+    Section length    C, #relocs    3, #linenums    0, checksum        0
+0B3 00001BFA SECTB  notype       Static       | .debug_info
+    Section length  25A, #relocs    4, #linenums    0, checksum        0
+0B5 0000038B SECTC  notype       Static       | .debug_abbrev
+    Section length   4F, #relocs    0, #linenums    0, checksum        0
+0B7 000000F0 SECTA  notype       Static       | .debug_aranges
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+0B9 000003FB SECTD  notype       Static       | .debug_line
+    Section length   6E, #relocs    1, #linenums    0, checksum        0
+0BB 00000170 SECT3  notype       Static       | .rdata$zzz
+    Section length   32, #relocs    0, #linenums    0, checksum        0
+0BD 00000138 SECTE  notype       Static       | .debug_frame
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+0BF 000000D9 DEBUG  notype       Filename     | .file
+    premain3.c
+0C1 00000170 SECT1  notype ()    External     | cygwin_premain3
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+0C3 00000170 SECT1  notype       Static       | .text
+    Section length    1, #relocs    0, #linenums    0, checksum        0
+0C5 00000010 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+0C7 00000000 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+0C9 0000004C SECT6  notype       Static       | .xdata
+    Section length    4, #relocs    0, #linenums    0, checksum        0
+0CB 00000078 SECT5  notype       Static       | .pdata
+    Section length    C, #relocs    3, #linenums    0, checksum        0
+0CD 00001E54 SECTB  notype       Static       | .debug_info
+    Section length  25A, #relocs    4, #linenums    0, checksum        0
+0CF 000003DA SECTC  notype       Static       | .debug_abbrev
+    Section length   4F, #relocs    0, #linenums    0, checksum        0
+0D1 00000120 SECTA  notype       Static       | .debug_aranges
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+0D3 00000469 SECTD  notype       Static       | .debug_line
+    Section length   6E, #relocs    1, #linenums    0, checksum        0
+0D5 000001B0 SECT3  notype       Static       | .rdata$zzz
+    Section length   32, #relocs    0, #linenums    0, checksum        0
+0D7 00000168 SECTE  notype       Static       | .debug_frame
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+0D9 000000F9 DEBUG  notype       Filename     | .file
+    
+0DB 00000180 SECT1  notype ()    External     | _cygwin_crt0_common
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+0DD 00000180 SECT1  notype       Static       | .text
+    Section length  3DF, #relocs   3D, #linenums    0, checksum        0
+0DF 00000040 SECT2  notype       Static       | .data
+    Section length   40, #relocs    8, #linenums    0, checksum        0
+0E1 00000000 SECT7  notype       Static       | .bss
+    Section length    4, #relocs    0, #linenums    0, checksum        0
+0E3 00000050 SECT6  notype       Static       | .xdata
+    Section length   10, #relocs    0, #linenums    0, checksum        0
+0E5 00000084 SECT5  notype       Static       | .pdata
+    Section length    C, #relocs    3, #linenums    0, checksum        0
+0E7 000020AE SECTB  notype       Static       | .debug_info
+    Section length 2262, #relocs   13, #linenums    0, checksum        0
+0E9 00000429 SECTC  notype       Static       | .debug_abbrev
+    Section length  3C4, #relocs    0, #linenums    0, checksum        0
+0EB 00000039 SECT10 notype       Static       | .debug_loc
+    Section length  169, #relocs    0, #linenums    0, checksum        0
+0ED 00000150 SECTA  notype       Static       | .debug_aranges
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+0EF 00000000 SECT11 notype       Static       | .debug_ranges
+    Section length   30, #relocs    0, #linenums    0, checksum        0
+0F1 000004D7 SECTD  notype       Static       | .debug_line
+    Section length  4E5, #relocs    1, #linenums    0, checksum        0
+0F3 0000000E SECTF  notype       Static       | .debug_str
+    Section length   15, #relocs    0, #linenums    0, checksum        0
+0F5 000001F0 SECT3  notype       Static       | .rdata$zzz
+    Section length   32, #relocs    0, #linenums    0, checksum        0
+0F7 00000198 SECTE  notype       Static       | .debug_frame
+    Section length   50, #relocs    2, #linenums    0, checksum        0
+0F9 0000011B DEBUG  notype       Filename     | .file
+    dll_entry.c
+0FB 00000560 SECT1  notype ()    Static       | __dllMain
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+0FD 00000020 SECT7  notype       Static       | storedPtr
+0FE 00000028 SECT7  notype       Static       | storedReason
+0FF 00000030 SECT7  notype       Static       | storedHandle
+100 00000580 SECT1  notype ()    External     | _cygwin_dll_entry
+101 00000018 SECT7  notype       Static       | dll_index
+102 00000640 SECT1  notype ()    External     | _cygwin_noncygwin_dll_entry
+103 00000560 SECT1  notype       Static       | .text
+    Section length   E5, #relocs   10, #linenums    0, checksum        0
+105 00000080 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+107 00000010 SECT7  notype       Static       | .bss
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+109 00000060 SECT6  notype       Static       | .xdata
+    Section length   10, #relocs    0, #linenums    0, checksum        0
+10B 00000090 SECT5  notype       Static       | .pdata
+    Section length   24, #relocs    9, #linenums    0, checksum        0
+10D 00004310 SECTB  notype       Static       | .debug_info
+    Section length  966, #relocs   21, #linenums    0, checksum        0
+10F 000007ED SECTC  notype       Static       | .debug_abbrev
+    Section length  1EE, #relocs    0, #linenums    0, checksum        0
+111 000001A2 SECT10 notype       Static       | .debug_loc
+    Section length  4F8, #relocs    0, #linenums    0, checksum        0
+113 00000180 SECTA  notype       Static       | .debug_aranges
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+115 000009BC SECTD  notype       Static       | .debug_line
+    Section length   FF, #relocs    1, #linenums    0, checksum        0
+117 00000230 SECT3  notype       Static       | .rdata$zzz
+    Section length   32, #relocs    0, #linenums    0, checksum        0
+119 000001E8 SECTE  notype       Static       | .debug_frame
+    Section length   80, #relocs    6, #linenums    0, checksum        0
+11B 00000135 DEBUG  notype       Filename     | .file
+    dll_main.cc
+11D 00000650 SECT1  notype ()    External     | DllMain
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+11F 00000650 SECT1  notype       Static       | .text
+    Section length    6, #relocs    0, #linenums    0, checksum        0
+121 00000080 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+123 00000040 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+125 00000070 SECT6  notype       Static       | .xdata
+    Section length    4, #relocs    0, #linenums    0, checksum        0
+127 000000B4 SECT5  notype       Static       | .pdata
+    Section length    C, #relocs    3, #linenums    0, checksum        0
+129 00004C76 SECTB  notype       Static       | .debug_info
+    Section length  3B9, #relocs    4, #linenums    0, checksum        0
+12B 000009DB SECTC  notype       Static       | .debug_abbrev
+    Section length   7F, #relocs    0, #linenums    0, checksum        0
+12D 000001B0 SECTA  notype       Static       | .debug_aranges
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+12F 00000ABB SECTD  notype       Static       | .debug_line
+    Section length   B3, #relocs    1, #linenums    0, checksum        0
+131 00000270 SECT3  notype       Static       | .rdata$zzz
+    Section length   32, #relocs    0, #linenums    0, checksum        0
+133 00000268 SECTE  notype       Static       | .debug_frame
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+135 00000154 DEBUG  notype       Filename     | .file
+    
+137 00000660 SECT1  notype ()    External     | _pei386_runtime_relocator
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+139 00000660 SECT1  notype       Static       | .text
+    Section length    1, #relocs    0, #linenums    0, checksum        0
+13B 00000080 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+13D 00000040 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+13F 00000074 SECT6  notype       Static       | .xdata
+    Section length    4, #relocs    0, #linenums    0, checksum        0
+141 000000C0 SECT5  notype       Static       | .pdata
+    Section length    C, #relocs    3, #linenums    0, checksum        0
+143 0000502F SECTB  notype       Static       | .debug_info
+    Section length  232, #relocs    4, #linenums    0, checksum        0
+145 00000A5A SECTC  notype       Static       | .debug_abbrev
+    Section length   28, #relocs    0, #linenums    0, checksum        0
+147 000001E0 SECTA  notype       Static       | .debug_aranges
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+149 00000B6E SECTD  notype       Static       | .debug_line
+    Section length   76, #relocs    1, #linenums    0, checksum        0
+14B 000002B0 SECT3  notype       Static       | .rdata$zzz
+    Section length   32, #relocs    0, #linenums    0, checksum        0
+14D 00000298 SECTE  notype       Static       | .debug_frame
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+14F 00000670 SECT1  notype       Static       | .text
+150 00000220 SECT8  notype       Static       | .idata$7
+151 000000D4 SECT8  notype       Static       | .idata$5
+152 00000054 SECT8  notype       Static       | .idata$4
+153 00000164 SECT8  notype       Static       | .idata$6
+154 00000158 DEBUG  notype       Filename     | .file
+    fake
+156 00000670 SECT1  notype       Static       | .text
+    Section length    6, #relocs    1, #linenums    0, checksum        0
+158 0000015C DEBUG  notype       Filename     | .file
+    fake
+15A 00000680 SECT1  notype       Static       | .text
+    Section length    6, #relocs    1, #linenums    0, checksum        0
+15C 00000160 DEBUG  notype       Filename     | .file
+    fake
+15E 00000690 SECT1  notype       Static       | .text
+    Section length    6, #relocs    1, #linenums    0, checksum        0
+160 00000164 DEBUG  notype       Filename     | .file
+    fake
+162 000006A0 SECT1  notype       Static       | .text
+    Section length    6, #relocs    1, #linenums    0, checksum        0
+164 00000168 DEBUG  notype       Filename     | .file
+    fake
+166 000006B0 SECT1  notype       Static       | .text
+    Section length    6, #relocs    1, #linenums    0, checksum        0
+168 0000016C DEBUG  notype       Filename     | .file
+    fake
+16A 000006C0 SECT1  notype       Static       | .text
+    Section length    6, #relocs    1, #linenums    0, checksum        0
+16C 00000170 DEBUG  notype       Filename     | .file
+    fake
+16E 000006D0 SECT1  notype       Static       | .text
+    Section length    6, #relocs    1, #linenums    0, checksum        0
+170 0000018F DEBUG  notype       Filename     | .file
+    
+172 000006E0 SECT1  notype ()    External     | cygwin_attach_dll
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+174 00000040 SECT7  notype       Static       | u.39216
+175 000006E0 SECT1  notype       Static       | .text
+    Section length   2B, #relocs    4, #linenums    0, checksum        0
+177 00000080 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+179 00000040 SECT7  notype       Static       | .bss
+    Section length  148, #relocs    0, #linenums    0, checksum        0
+17B 00000078 SECT6  notype       Static       | .xdata
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+17D 000000CC SECT5  notype       Static       | .pdata
+    Section length    C, #relocs    3, #linenums    0, checksum        0
+17F 00005261 SECTB  notype       Static       | .debug_info
+    Section length 1281, #relocs    D, #linenums    0, checksum        0
+181 00000A82 SECTC  notype       Static       | .debug_abbrev
+    Section length  205, #relocs    0, #linenums    0, checksum        0
+183 0000069A SECT10 notype       Static       | .debug_loc
+    Section length   AB, #relocs    0, #linenums    0, checksum        0
+185 00000210 SECTA  notype       Static       | .debug_aranges
+    Section length   30, #relocs    2, #linenums    0, checksum        0
+187 00000BE4 SECTD  notype       Static       | .debug_line
+    Section length  280, #relocs    1, #linenums    0, checksum        0
+189 00000023 SECTF  notype       Static       | .debug_str
+    Section length    E, #relocs    0, #linenums    0, checksum        0
+18B 000002F0 SECT3  notype       Static       | .rdata$zzz
+    Section length   32, #relocs    0, #linenums    0, checksum        0
+18D 000002C8 SECTE  notype       Static       | .debug_frame
+    Section length   40, #relocs    2, #linenums    0, checksum        0
+18F 000001A1 DEBUG  notype       Filename     | .file
+    fake
+191 00000710 SECT1  notype       Static       | .text
+    Section length    6, #relocs    1, #linenums    0, checksum        0
+193 00000720 SECT1  notype       Static       | .text
+194 00000080 SECT2  notype       Static       | .data
+195 000001C0 SECT7  notype       Static       | .bss
+196 00000254 SECT8  notype       Static       | .idata$7
+197 0000012C SECT8  notype       Static       | .idata$5
+198 000000AC SECT8  notype       Static       | .idata$4
+199 00000200 SECT8  notype       Static       | .idata$6
+19A 00000728 SECT1  notype       Static       | .text
+19B 00000080 SECT2  notype       Static       | .data
+19C 000001C0 SECT7  notype       Static       | .bss
+19D 00000250 SECT8  notype       Static       | .idata$7
+19E 00000124 SECT8  notype       Static       | .idata$5
+19F 000000A4 SECT8  notype       Static       | .idata$4
+1A0 000001EC SECT8  notype       Static       | .idata$6
+1A1 000001AF DEBUG  notype       Filename     | .file
+    fake
+1A3 000000A4 SECT8  notype       Static       | hname
+1A4 00000124 SECT8  notype       Static       | fthunk
+1A5 00000730 SECT1  notype       Static       | .text
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+1A7 00000080 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+1A9 000001C0 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+1AB 00000014 SECT8  notype       Static       | .idata$2
+    Section length   14, #relocs    3, #linenums    0, checksum        0
+1AD 000000A4 SECT8  notype       Static       | .idata$4
+1AE 00000124 SECT8  notype       Static       | .idata$5
+1AF 000001BD DEBUG  notype       Filename     | .file
+    fake
+1B1 00000730 SECT1  notype       Static       | .text
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+1B3 00000080 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+1B5 000001C0 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+1B7 000000B4 SECT8  notype       Static       | .idata$4
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+1B9 00000134 SECT8  notype       Static       | .idata$5
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+1BB 00000258 SECT8  notype       Static       | .idata$7
+    Section length    D, #relocs    0, #linenums    0, checksum        0
+1BD 000001CF DEBUG  notype       Filename     | .file
+    libgcc2.c
+1BF 00000730 SECT1  notype       Static       | .text
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+1C1 00000080 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+1C3 000001C0 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+1C5 000064E2 SECTB  notype       Static       | .debug_info
+    Section length  E8B, #relocs    4, #linenums    0, checksum        0
+1C7 00000C87 SECTC  notype       Static       | .debug_abbrev
+    Section length   73, #relocs    0, #linenums    0, checksum        0
+1C9 00000240 SECTA  notype       Static       | .debug_aranges
+    Section length   20, #relocs    1, #linenums    0, checksum        0
+1CB 00000E64 SECTD  notype       Static       | .debug_line
+    Section length   9A, #relocs    0, #linenums    0, checksum        0
+1CD 00000330 SECT3  notype       Static       | .rdata$zzz
+    Section length   11, #relocs    0, #linenums    0, checksum        0
+1CF 00000219 DEBUG  notype       Filename     | .file
+    cygming-crtend.c
+1D1 00000080 SECT2  notype       Static       | __JCR_END__
+1D2 00000730 SECT1  notype ()    Static       | register_frame_ctor
+    tag index 00000000 size 00000000 lines 00000000 next function 00000000
+1D4 00000730 SECT1  notype       Static       | .text
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+1D6 00000080 SECT2  notype       Static       | .data
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+1D8 000001C0 SECT7  notype       Static       | .bss
+    Section length    0, #relocs    0, #linenums    0, checksum        0
+1DA 00000080 SECT2  notype       Static       | .jcr
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+1DC 00000730 SECT1  notype       Static       | .text.startup
+    Section length    A, #relocs    1, #linenums    0, checksum        0
+1DE 00000080 SECT6  notype       Static       | .xdata.startup
+    Section length    8, #relocs    0, #linenums    0, checksum        0
+1E0 000000D8 SECT5  notype       Static       | .pdata.startup
+    Section length    C, #relocs    3, #linenums    0, checksum        0
+1E2 00000748 SECT1  notype       Static       | .ctors.65535
+    Section length    8, #relocs    1, #linenums    0, checksum        0
+1E4 00000350 SECT3  notype       Static       | .rdata$zzz
+    Section length   11, #relocs    0, #linenums    0, checksum        0
+1E6 00000000 SECT8  notype       Static       | .idata$2
+1E7 000000BC SECT8  notype       Static       | .idata$5
+1E8 0000003C SECT8  notype       Static       | .idata$4
+1E9 00000214 SECT8  notype       Static       | .idata$7
+1EA 000000BC SECT8  notype       Static       | .idata$5
+1EB 0000003C SECT8  notype       Static       | .idata$4
+1EC 0000013C SECT8  notype       Static       | .idata$6
+1ED 00000218 SECT8  notype       Static       | .idata$7
+1EE 000000C4 SECT8  notype       Static       | .idata$5
+1EF 00000044 SECT8  notype       Static       | .idata$4
+1F0 0000014C SECT8  notype       Static       | .idata$6
+1F1 0000021C SECT8  notype       Static       | .idata$7
+1F2 000000CC SECT8  notype       Static       | .idata$5
+1F3 0000004C SECT8  notype       Static       | .idata$4
+1F4 00000158 SECT8  notype       Static       | .idata$6
+1F5 00000224 SECT8  notype       Static       | .idata$7
+1F6 000000DC SECT8  notype       Static       | .idata$5
+1F7 0000005C SECT8  notype       Static       | .idata$4
+1F8 00000174 SECT8  notype       Static       | .idata$6
+1F9 00000228 SECT8  notype       Static       | .idata$7
+1FA 000000E4 SECT8  notype       Static       | .idata$5
+1FB 00000064 SECT8  notype       Static       | .idata$4
+1FC 00000180 SECT8  notype       Static       | .idata$6
+1FD 0000022C SECT8  notype       Static       | .idata$7
+1FE 000000EC SECT8  notype       Static       | .idata$5
+1FF 0000006C SECT8  notype       Static       | .idata$4
+200 00000194 SECT8  notype       Static       | .idata$6
+201 00000230 SECT8  notype       Static       | .idata$7
+202 000000F4 SECT8  notype       Static       | .idata$5
+203 00000074 SECT8  notype       Static       | .idata$4
+204 000001A8 SECT8  notype       Static       | .idata$6
+205 00000234 SECT8  notype       Static       | .idata$7
+206 000000FC SECT8  notype       Static       | .idata$5
+207 0000007C SECT8  notype       Static       | .idata$4
+208 000001B8 SECT8  notype       Static       | .idata$6
+209 00000238 SECT8  notype       Static       | .idata$7
+20A 00000104 SECT8  notype       Static       | .idata$5
+20B 00000084 SECT8  notype       Static       | .idata$4
+20C 000001C0 SECT8  notype       Static       | .idata$6
+20D 0000023C SECT8  notype       Static       | .idata$7
+20E 0000010C SECT8  notype       Static       | .idata$5
+20F 0000008C SECT8  notype       Static       | .idata$4
+210 000001CC SECT8  notype       Static       | .idata$6
+211 00000240 SECT8  notype       Static       | .idata$7
+212 00000114 SECT8  notype       Static       | .idata$5
+213 00000094 SECT8  notype       Static       | .idata$4
+214 000001E0 SECT8  notype       Static       | .idata$6
+215 0000009C SECT8  notype       Static       | .idata$4
+216 0000011C SECT8  notype       Static       | .idata$5
+217 00000244 SECT8  notype       Static       | .idata$7
+218 00000000 SECT9  notype       Static       | .rsrc
+219 00000000 ABS    notype       External     | .weak.__real__Znam._cygwin_crt0_common
+21A 00000000 ABS    notype       External     | .weak.__real__ZnamRKSt9nothrow_t._cygwin_crt0_common
+21B 00000110 SECT1  notype ()    External     | __main
+21C 00002370 SECT1  notype       External     | ___RUNTIME_PSEUDO_RELOC_LIST__
+21D 00000258 SECT8  notype       External     | __lib64_libkernel32_a_iname
+21E 00000000 SECT2  notype       External     | __data_start__
+21F 00000758 SECT1  notype       External     | ___DTOR_LIST__
+220 00000244 SECT8  notype       External     | cygwin1_dll_iname
+221 000000CC SECT8  notype       External     | __imp__dll_crt0
+222 000000DC SECT8  notype       External     | __imp_calloc
+223 00000000 SECT9  notype       External     | ___tls_start__
+224 00400000 ABS    notype       External     | __ImageBase
+225 00000710 SECT1  notype ()    External     | dll_dllcrt0
+226 00000370 SECT3  notype       External     | __rt_psrelocs_start
+227 00008000 ABS    notype       External     | __dll_characteristics__
+228 00001000 ABS    notype       External     | __size_of_stack_commit__
+229 00000000 UNDEF  notype       External     | _Znwm
+    tag index 00000029 size 00000001 lines 00000000 next function 00000000
+22B 00200000 ABS    notype       External     | __size_of_stack_reserve__
+22C 00000005 ABS    notype       External     | __major_subsystem_version__
+22D 00000000 SECT9  notype       External     | ___crt_xl_start__
+22E 00000000 SECT9  notype       External     | ___crt_xi_start__
+22F 00000000 SECT9  notype       External     | ___crt_xi_end__
+230 00000690 SECT1  notype ()    External     | cygwin_internal
+231 00000010 SECT7  notype       External     | __dynamically_loaded
+232 00000000 ABS    notype       External     | .weak.__real__Znwm._cygwin_crt0_common
+233 000006B0 SECT1  notype ()    External     | malloc
+234 00000000 SECT7  notype       External     | __bss_start__
+235 00000000 SECT2  notype       External     | __dso_handle
+236 00000370 SECT3  notype       External     | ___RUNTIME_PSEUDO_RELOC_LIST_END__
+237 000000EC SECT8  notype       External     | __imp_cygwin_internal
+238 0000010C SECT8  notype       External     | __imp_posix_memalign
+239 00001000 ABS    notype       External     | __size_of_heap_commit__
+23A 000000FC SECT8  notype       External     | __imp_free
+23B 00000050 SECT1  notype       External     | .weak._Jv_RegisterClasses.__dso_handle
+23C 00000000 SECT9  notype       External     | ___crt_xp_start__
+23D 00000000 SECT8  notype       External     | _head_cygwin1_dll
+23E 00000000 UNDEF  notype       External     | _ZdlPv
+    tag index 00000027 size 00000001 lines 00000000 next function 00000000
+240 00000164 SECT8  notype       External     | __nm__impure_ptr
+241 00000000 SECT9  notype       External     | ___crt_xp_end__
+242 00000000 ABS    notype       External     | __dll__
+243 00000000 ABS    notype       External     | __minor_os_version__
+244 00400000 ABS    notype       External     | __image_base__
+245 00001000 ABS    notype       External     | __section_alignment__
+246 00000670 SECT1  notype ()    External     | calloc
+247 0000013C SECT8  notype       External     | __IAT_end__
+248 00002370 SECT1  notype       External     | __RUNTIME_PSEUDO_RELOC_LIST__
+249 000000F4 SECT8  notype       External     | __imp_dll_dllcrt0
+24A 00000088 SECT2  notype       External     | __data_end__
+24B 00000740 SECT1  notype       External     | __CTOR_LIST__
+24C 00000014 SECT8  notype       External     | _head_lib64_libkernel32_a
+24D 00000680 SECT1  notype ()    External     | cygwin_detach_dll
+24E 00000728 SECT1  notype ()    External     | GetModuleHandleA
+24F 000001E0 SECT7  notype       External     | __bss_end__
+250 00000000 ABS    notype       External     | .weak.__real__ZdlPvRKSt9nothrow_t._cygwin_crt0_common
+251 00000000 ABS    notype       External     | .weak.__real__ZdlPv._cygwin_crt0_common
+252 00000000 SECT9  notype       External     | ___crt_xc_end__
+253 00000000 ABS    notype       External     | .weak.__real__ZdaPv._cygwin_crt0_common
+254 00000000 ABS    notype       External     | .weak.__real__ZnwmRKSt9nothrow_t._cygwin_crt0_common
+255 00000000 SECT9  notype       External     | ___crt_xc_start__
+256 0000012C SECT8  notype       External     | __imp_GetProcAddress
+257 00000740 SECT1  notype       External     | ___CTOR_LIST__
+258 000006D0 SECT1  notype ()    External     | realloc
+259 00000100 SECT1  notype ()    External     | __cxa_atexit
+25A 00000124 SECT8  notype       External     | __imp_GetModuleHandleA
+25B 00000000 ABS    notype       External     | __rt_psrelocs_size
+25C 00000000 ABS    notype       External     | .weak.__real__ZdaPvRKSt9nothrow_t._cygwin_crt0_common
+25D 000000C4 SECT8  notype       External     | __imp___main
+25E 00000104 SECT8  notype       External     | __imp_malloc
+25F 00000200 ABS    notype       External     | __file_alignment__
+260 000000D4 SECT8  notype       External     | __imp__impure_ptr
+261 00000114 SECT8  notype       External     | __imp_realloc
+262 00000004 ABS    notype       External     | __major_os_version__
+263 00000000 UNDEF  notype       External     | _ZdaPv
+    tag index 00000026 size 00000001 lines 00000000 next function 00000000
+265 000000BC SECT8  notype       External     | __IAT_start__
+266 00000000 SECT9  notype       External     | __end__
+267 00000000 UNDEF  notype       External     | _ZdaPvRKSt9nothrow_t
+    tag index 00000022 size 00000001 lines 00000000 next function 00000000
+269 00000720 SECT1  notype       External     | GetProcAddress
+26A 00000758 SECT1  notype       External     | __DTOR_LIST__
+26B 000000BC SECT8  notype       External     | __imp___cxa_atexit
+26C 00000000 UNDEF  notype       External     | _ZnwmRKSt9nothrow_t
+    tag index 00000025 size 00000001 lines 00000000 next function 00000000
+26E 00100000 ABS    notype       External     | __size_of_heap_reserve__
+26F 00000000 SECT9  notype       External     | ___crt_xt_start__
+270 00000003 ABS    notype       External     | __subsystem__
+271 00000000 SECT7  notype       External     | _fmode
+272 00000000 UNDEF  notype       External     | _Znam
+    tag index 00000028 size 00000001 lines 00000000 next function 00000000
+274 00000000 SECT9  notype       External     | ___tls_end__
+275 000000E4 SECT8  notype       External     | __imp_cygwin_detach_dll
+276 00000000 ABS    notype       External     | __major_image_version__
+277 00000000 ABS    notype       External     | __loader_flags__
+278 00000000 UNDEF  notype       External     | _ZnamRKSt9nothrow_t
+    tag index 00000024 size 00000001 lines 00000000 next function 00000000
+27A 00000370 SECT3  notype       External     | __rt_psrelocs_end
+27B 00000040 SECT2  notype       External     | __cygwin_cxx_malloc
+27C 00000002 ABS    notype       External     | __minor_subsystem_version__
+27D 00000000 ABS    notype       External     | __minor_image_version__
+27E 00000000 UNDEF  notype       External     | _ZdlPvRKSt9nothrow_t
+    tag index 00000023 size 00000001 lines 00000000 next function 00000000
+280 00000370 SECT3  notype       External     | __RUNTIME_PSEUDO_RELOC_LIST_END__
+281 00000000 UNDEF  notype ()    External     | _Jv_RegisterClasses
+    tag index 00000015 size 00000001 lines 00000000 next function 00000000
+283 000006C0 SECT1  notype ()    External     | posix_memalign
+284 00000000 SECT9  notype       External     | ___crt_xt_end__
+285 000006A0 SECT1  notype ()    External     | free
+
+String Table Size = 0xA2E bytes
+
+  Summary
+
+        1000 .bss
+        1000 .buildid
+        1000 .data
+        1000 .debug_abbrev
+        1000 .debug_aranges
+        1000 .debug_frame
+        8000 .debug_info
+        1000 .debug_line
+        1000 .debug_loc
+        1000 .debug_ranges
+        1000 .debug_str
+        1000 .idata
+        1000 .pdata
+        1000 .rdata
+        1000 .rsrc
+        1000 .text
+        1000 .xdata
