@@ -484,7 +484,7 @@ void PEImage::finalise()
 	wle32(ptr, checked_32(foffsets[loopc]+bases[IMAGE_CODE]));
 	wle16(ptr, code_section+1);
 	wle16(ptr, 0x20);   // Function 
-	*ptr = 101;  // Function
+	*ptr = 2;  // External
 	ptr++;
 	*ptr = 0;  // Aux records
 	ptr++;
