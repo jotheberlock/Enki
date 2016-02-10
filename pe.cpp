@@ -481,7 +481,7 @@ void PEImage::finalise()
         memset(ptr, 0, 8);
 	strncpy((char *)ptr, fptrs[loopc]->name().c_str(), 8);
         ptr += 8;
-	wle32(ptr, checked_32(foffsets[loopc]+bases[IMAGE_CODE]));
+	wle32(ptr, checked_32(foffsets[loopc]));
 	wle16(ptr, code_section+1);
 	wle16(ptr, 0x20);   // Function 
 	*ptr = 2;  // External
