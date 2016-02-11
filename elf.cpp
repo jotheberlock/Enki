@@ -130,7 +130,7 @@ void ElfImage::finalise()
         stringtable.add(fptrs[loopc]->name().c_str());
     }
     
-    FILE * f = fopen(fname.c_str(), "w+");
+    FILE * f = fopen(fname.c_str(), "wb+");
     if (!f)
     {
         printf("Can't open %s\n", fname.c_str());
