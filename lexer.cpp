@@ -68,6 +68,9 @@ Lexer::Lexer()
     oldcol = -1;
     oldline = -1;
     indentations.push(0);
+    
+    ReadChar b;
+    simpleToken(b, BEGIN);  // Implicit block
 }
 
 void Lexer::addOp(OpRec op, uint32_t first, uint32_t second)
@@ -474,19 +477,18 @@ void Lexer::lex(Chars & input)
     chars_list = input;
     pos = 0;
 
-    ReadChar b;
-    simpleToken(b, BEGIN);  // Implicit block
-
     while (true)
     {
         ReadChar begin = eatWhitespace();
         uint32_t val = begin.val;
         if (val == 0)
         {
+	  /*
             for (unsigned int loopc=0; loopc<indentations.size(); loopc++)
             {
                 simpleToken(begin, END);
             }
+	  */
             return;
         }
         while (val == '#')
@@ -671,7 +673,10 @@ void Lexer::lex(Chars & input)
                            buf));
         }
     }
+}
 
+void Lexer::endLexing()
+{  
     for (unsigned int loopc=0; loopc>indentations.size(); loopc++)
     {
         ReadChar b;

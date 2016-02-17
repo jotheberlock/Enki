@@ -110,7 +110,7 @@ Parser::Parser(Lexer * l)
     }
     else
     {
-        root=parseBlock();
+        root = parseBlock();
     }
 }
 
