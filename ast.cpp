@@ -879,15 +879,20 @@ Expr * Parser::parseDef()
     IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
     FunctionType * ft;
 
-	std::string name = ie->getString();
-	std::string lib = "";
-	size_t pos = name.find(":");
-	if (pos != std::string::npos)
-	{
-		lib = name.substr(0, pos);
-		name = name.substr(pos+1);
-	}
+    std::string name = ie->getString();
+    std::string lib = "";
+    size_t pos = name.find(":");
+    if (pos != std::string::npos)
+    {
+	lib = name.substr(0, pos);
+	name = name.substr(pos+1);
+    }
 
+    if (is_extern && current_scope->lookup_function(name))
+    {
+        return 0; // Already defined
+    }
+    
     if (is_extern)
     {
         ft = new ExternalFunctionType(calling_convention);
