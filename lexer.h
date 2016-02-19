@@ -139,6 +139,11 @@ public:
     void setFile(std::string f)
     {
         file=f;
+	col=0;
+	line=0;
+	oldcol = -1;
+	oldline = -1;
+	push_list.clear();
     }
 
     std::vector<Token> & tokens()
