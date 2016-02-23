@@ -387,7 +387,9 @@ int main(int argc, char ** argv)
 	    }
 	}
         delete[] text;
-      
+
+	input.push_back('\n');
+	input.push_back('\n');
         lex.setFile(config.preloads[loopc]);
         lex.lex(input);
     }
