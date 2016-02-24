@@ -33,6 +33,8 @@ class PEImage : public Image
     bool guard_page;
     uint64_t imports_base;
     uint64_t symbols_base;
+    int os_major;
+    int os_minor;
     
 };
 

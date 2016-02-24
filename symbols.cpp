@@ -3,7 +3,11 @@
 
 void SymbolScope::add(Value * v)
 {
-    assert(contents.find(v->name) == contents.end());
+    if(contents.find(v->name) != contents.end())
+    {
+        printf("!! Warning, %s already present in scope %s\n", v->name.c_str(),
+	       fqName().c_str());
+    }
     contents[v->name] = v;
     sorted_contents.push_back(v);
 }

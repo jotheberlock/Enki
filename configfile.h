@@ -26,16 +26,18 @@ class Configuration
 	assembler = 0;
 	entrypoint = 0;
     }
+
+    FILE * open(std::string);
   
     std::list<std::string> paths;
     std::map<std::string, Component *> components;
+    std::vector<std::string> preloads;
     Image * image;
     CallingConvention * cconv;
     CallingConvention * syscall;
     Assembler * assembler;
     Entrypoint * entrypoint;
     std::string name;
-    
     std::vector<OptimisationPass *> passes;
     
 };
@@ -52,7 +54,6 @@ class ConfigFile
   static std::string nativeTargetConfig();
   
   bool split(std::string, std::string, std::string &, std::string &);
-  FILE * open(std::string);
   void addPath(std::string);
   
  protected:

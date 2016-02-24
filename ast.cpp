@@ -110,7 +110,7 @@ Parser::Parser(Lexer * l)
     }
     else
     {
-        root=parseBlock();
+        root = parseBlock();
     }
 }
 
@@ -723,8 +723,9 @@ Expr * Parser::parseBlock()
             }
             else if (!i)
             {
-                addError(Error(&current, "Can't parse expression in block"));
-                break;
+	      //addError(Error(&current, "Can't parse expression in block"));
+	      // break;
+	        continue;
             }
             else
             {
@@ -879,15 +880,15 @@ Expr * Parser::parseDef()
     IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
     FunctionType * ft;
 
-	std::string name = ie->getString();
-	std::string lib = "";
-	size_t pos = name.find(":");
-	if (pos != std::string::npos)
-	{
-		lib = name.substr(0, pos);
-		name = name.substr(pos+1);
-	}
-
+    std::string name = ie->getString();
+    std::string lib = "";
+    size_t pos = name.find(":");
+    if (pos != std::string::npos)
+    {
+	lib = name.substr(0, pos);
+	name = name.substr(pos+1);
+    }
+    
     if (is_extern)
     {
         ft = new ExternalFunctionType(calling_convention);
@@ -896,9 +897,18 @@ Expr * Parser::parseDef()
     {
         ft = new FunctionType(is_macro);
     }
-	
+
+    bool already_added = false;
+    
     Value * v = new Value(name, ft);
-    current_scope->add(v);
+    if (is_extern && current_scope->lookup_function(name))
+    {
+        already_added = true;
+    }
+    else
+    {
+        current_scope->add(v);
+    }
     
     FunctionScope * fs = new FunctionScope(current_scope,
                                            name,
@@ -928,7 +938,11 @@ Expr * Parser::parseDef()
 
 		if (is_extern)
 		{
-		    current_scope = current_scope->parent();
+		    current_scope = current_scope->parent();		    
+		    if (already_added)
+		    {
+		        return 0; // Already defined. Should check arguments are compatible here
+		    }
 		    return ret;
 		}
 			

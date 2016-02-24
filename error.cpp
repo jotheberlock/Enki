@@ -19,7 +19,12 @@ Error::Error(Token * t, std::string m, std::string d)
 
 void Error::print()
 {
-    FILE * f = fopen(file.c_str(), "r");
+    FILE * f = fopen(file.c_str(), "rb");
+    if (!f)
+    {
+        f = fopen(("../"+file).c_str(), "rb");
+    }
+
     if (!f)
     {
         printf("<Can't open [%s]>\n", file.c_str());

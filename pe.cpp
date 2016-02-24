@@ -30,6 +30,8 @@ PEImage::PEImage()
     bases[IMAGE_UNALLOCED_DATA] = 0x800000;
     sizes[IMAGE_UNALLOCED_DATA] = 4096;
     guard_page = false;
+    os_major = 6;  // Default to Vista
+    os_minor = 0;
 }
 
 PEImage::~PEImage()
@@ -84,6 +86,14 @@ bool PEImage::configure(std::string param, std::string val)
     else if (param == "heapaddr")
     {
         bases[IMAGE_UNALLOCED_DATA] = strtol(val.c_str(), 0, 0);
+    }
+    else if (param == "osmajor")
+    {
+        os_major = strtol(val.c_str(), 0, 10);
+    }
+    else if (param == "osminor")
+    {
+        os_minor = strtol(val.c_str(), 0, 10);
     }
     else
     {
@@ -191,7 +201,7 @@ void PEImage::finalise()
     wle16(ptr, arch);
     wle16(ptr, 6);  // sections
     wle32(ptr, checked_32(time(0)));  // timestamp
-    wle32(ptr, symbols_base);  // symbol table ptr
+    wle32(ptr, symbols_base-base_addr);  // symbol table ptr
     wle32(ptr, fptrs.size());  // no. symbols
     wle16(ptr, (sf_bit ? 112 : 96) + (16*8));  // Optional header size
 
@@ -237,8 +247,8 @@ void PEImage::finalise()
     }
     wle32(ptr, 4096); // Align
     wle32(ptr, 512);  // File align
-    wle16(ptr, 4);    // OS major
-    wle16(ptr, 0);    // OS minor
+    wle16(ptr, os_major);    
+    wle16(ptr, os_minor);   
     wle16(ptr, 0);    // Image version
     wle16(ptr, 0);
     wle16(ptr, 5);    // Subsystem version
@@ -252,16 +262,16 @@ void PEImage::finalise()
     if (sf_bit)
     {
         wle64(ptr, 0x100000);  // Stack reserve
-        wle64(ptr, 0x4000);  // Stack commit
+        wle64(ptr, 0x4000);    // Stack commit
         wle64(ptr, 0x100000);  // Heap reserve
-        wle64(ptr, 0x4000);   // Heap commit
+        wle64(ptr, 0x4000);    // Heap commit
     }
     else
     {
         wle32(ptr, 0x100000);  // Stack reserve
-        wle32(ptr, 0x4000);  // Stack commit
+        wle32(ptr, 0x4000);    // Stack commit
         wle32(ptr, 0x100000);  // Heap reserve
-        wle32(ptr, 0x4000);   // Heap commit
+        wle32(ptr, 0x4000);    // Heap commit
     }
     wle32(ptr, 0);  // Loader flags
     wle32(ptr, 16);   // RVA number
@@ -301,7 +311,7 @@ void PEImage::finalise()
 
         if (the_one == -1)
         {
-            printf("Erk!\n");
+   	    printf("Cannot find correct section for %d!\n", the_one);
             return;
         }
         
@@ -470,12 +480,11 @@ void PEImage::finalise()
     {
         memset(ptr, 0, 8);
 	strncpy((char *)ptr, fptrs[loopc]->name().c_str(), 8);
-	ptr[7] = 0;
         ptr += 8;
-	wle32(ptr, checked_32(foffsets[loopc]+bases[IMAGE_CODE]));
-	wle16(ptr, 0 /*code_section+1*/);
+	wle32(ptr, checked_32(foffsets[loopc]));
+	wle16(ptr, code_section+1);
 	wle16(ptr, 0x20);   // Function 
-	*ptr = 101;  // Function
+	*ptr = 2;  // External
 	ptr++;
 	*ptr = 0;  // Aux records
 	ptr++;

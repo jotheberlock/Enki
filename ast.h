@@ -279,6 +279,16 @@ class Block : public Expr
         contents.push_back(e);
     }
 
+    void absorb(Block * b)
+    {
+        std::list<Expr *>::iterator it = b->contents.begin();
+        while (it != b->contents.end())
+        {
+  	    add(*it);
+	}
+	b->contents.clear();
+    }
+    
     virtual void print(int i)
     {
         indent(i);

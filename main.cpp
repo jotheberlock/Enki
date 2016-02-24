@@ -226,13 +226,13 @@ uint32_t getUtf8(char * & f)
 FILE * findFile(std::string name)
 {
     FILE * f = 0;
-    if (f = fopen(name.c_str(), "r"))
+    if (f = fopen(name.c_str(), "rb"))
     {
         return f;
     }
     name = std::string("../")+name;
 
-    if (f = fopen(name.c_str(), "r"))
+    if (f = fopen(name.c_str(), "rb"))
     {
         return f;
     }
@@ -357,14 +357,50 @@ int main(int argc, char ** argv)
     }
 
     Lexer lex;
-            
+    
+    for (int loopc=0; loopc<config.preloads.size(); loopc++)
+    {      
+        FILE * f = config.open(config.preloads[loopc].c_str());
+      
+        if(!f)
+	{
+  	    printf("No preload input file %s\n", config.preloads[loopc].c_str());
+	    return 1;
+	}
+	    
+        Chars input;
+      
+        fseek(f, 0, SEEK_END);
+        int len = ftell(f);
+        char * text = new char[len];
+        fseek(f, 0, SEEK_SET);
+        fread(text, len, 1, f);
+        fclose(f);
+      
+        char * ptr = text;
+        while (ptr < text+len)
+	{
+	    uint32_t v = getUtf8(ptr);
+	    if (v)
+	    {
+	        input.push_back(v);
+	    }
+	}
+        delete[] text;
+
+	input.push_back('\n');
+	input.push_back('\n');
+        lex.setFile(config.preloads[loopc]);
+        lex.lex(input);
+    }
+    
     for (int loopc=1; loopc<argc; loopc++)
     {
         if (strstr(argv[loopc], ".e"))
         {
             const char * fname = argv[loopc];
     
-            FILE * f = fopen(fname, "rb");
+            FILE * f = config.open(fname);
 
             if(!f)
             {
@@ -396,6 +432,8 @@ int main(int argc, char ** argv)
             lex.lex(input);
         }
     }
+
+    lex.endLexing();
     
     if (errors.size() != 0)
     {

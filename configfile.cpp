@@ -88,7 +88,7 @@ bool ConfigFile::processLine(std::string line)
   {
       if (command == "include")
       {
-	  FILE * f = open(val);
+	  FILE * f = config->open(val);
 	  if (f)
 	  {
 	      ConfigFile cf(f, config);
@@ -141,6 +141,10 @@ bool ConfigFile::processLine(std::string line)
       {
 	  config->entrypoint = (Entrypoint *)component_factory->make("entrypoint", val);
       }
+      else if (command == "file")
+      {
+  	  config->preloads.push_back(val);
+      }
       else if (command == "set")
       {
 	  std::string cname;
@@ -191,18 +195,23 @@ bool ConfigFile::split(std::string i, std::string s, std::string & o1,
     return true;
 }
 
-FILE * ConfigFile::open(std::string n)
+FILE * Configuration::open(std::string n)
 {
-    for (std::list<std::string>::iterator it = config->paths.begin();
-         it != config->paths.end(); it++)
+    FILE * f = fopen(n.c_str(), "rb");
+    if (f)
+    {
+	return f;
+    }
+    
+    for (std::list<std::string>::iterator it = paths.begin();
+         it != paths.end(); it++)
     {
         std::string path = *it + n;
-	FILE * f = fopen(path.c_str(), "r");
+	FILE * f = fopen(path.c_str(), "rb");
 	if (f)
 	{
 	    return f;
 	}
     }
-
     return 0;
 }

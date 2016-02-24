@@ -1,0 +1,11 @@
+extern KERNEL32.DLL:WriteFile(Uint64 output, Byte^ buffer, Uint64 chars, Uint64^ written, Uint64 overlapped)
+extern KERNEL32.DLL:GetStdHandle(Uint64 handle)
+
+def write(Byte^ ptr) Uint64
+    Uint64 count 
+    count = len(ptr)
+    Uint64 written
+    Uint64 handle = 0
+    handle = GetStdHandle(-11)
+    WriteFile(handle, ptr, 12, @written, 0)
+    return count

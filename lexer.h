@@ -139,6 +139,11 @@ public:
     void setFile(std::string f)
     {
         file=f;
+	col=0;
+	line=0;
+	oldcol = -1;
+	oldline = -1;
+	push_list.clear();
     }
 
     std::vector<Token> & tokens()
@@ -209,6 +214,8 @@ public:
     bool isOp(uint32_t first, uint32_t second, bool & two_char, OpRec & rec,
               std::string);
 
+    void endLexing();
+    
 protected:
 
     ReadChar eatWhitespace();
@@ -257,7 +264,7 @@ protected:
         current_token.eline = ch.line;
         current_token.ecol = ch.col;
     }
-
+    
     Token current_token;
     ReadChar previous_char;
     
