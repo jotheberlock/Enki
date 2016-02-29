@@ -1,20 +1,5 @@
-extern KERNEL32.DLL:WriteConsoleA(Uint64 output, Byte^ buffer, Uint64 chars, Uint64^ written, Uint64 reserved)
-extern KERNEL32.DLL:GetStdHandle(Uint64 handle)
-extern KERNEL32.DLL:AllocConsole()
+Byte[18] outstr
 
-Uint64 written
-Uint64 handle = 0
-
-AllocConsole()
-handle = GetStdHandle(-11)
-WriteConsoleA(handle,"Hello world\n", 12, @written, 0)
-return handle
-
-
-
-
-
-
-
-
-
+outstr[16] = 0
+num_to_str(0xdeadbeef, @outstr[0])
+write(outstr, 16)
