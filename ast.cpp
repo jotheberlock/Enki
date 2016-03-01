@@ -1256,6 +1256,11 @@ Type * Parser::parseType()
 Type * VarRefExpr::checkType(Codegen * c)
 {
     Type * ret = value->type;
+    if (!ret)
+    {
+        printf("Null type in checkType!\n");
+        return 0;
+    }
     
     for (unsigned int loopc=0; loopc<elements.size(); loopc++)
     {
