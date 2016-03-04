@@ -25,3 +25,12 @@ def num_to_str(Uint64 in, Byte^ out)
             out_end^ = digit2+97
         out_end = out_end - 1
         count = count - 1
+
+def to_upper(Byte^ str)
+    Byte ch = str^
+    while ch != 0
+        if ch > 97 and ch < 123
+            ch = ch - 32
+            str^ = ch
+        str = str + 1
+        ch = str^
