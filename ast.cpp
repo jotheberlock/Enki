@@ -1256,6 +1256,11 @@ Type * Parser::parseType()
 Type * VarRefExpr::checkType(Codegen * c)
 {
     Type * ret = value->type;
+    if (!ret)
+    {
+        printf("Null type in checkType!\n");
+        return 0;
+    }
     
     for (unsigned int loopc=0; loopc<elements.size(); loopc++)
     {
@@ -1366,7 +1371,11 @@ Value * VarDefExpr::codegen(Codegen * c)
     if (assigned)
     {
         Value * r = assigned->codegen(c);
-        c->block()->add(Insn(MOVE, value, r));
+	if (r && r->type && r->type->canActivate() && (!value->type->canActivate()))
+	{
+  	    r = r->type->getActivatedValue(c, r);
+	}
+	c->block()->add(Insn(MOVE, value, r));
     }
 
     return 0;

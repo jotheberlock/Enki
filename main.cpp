@@ -240,6 +240,30 @@ FILE * findFile(std::string name)
     return 0;
 }
 
+void readFile(FILE * f, Chars & input)
+{
+    fseek(f, 0, SEEK_END);
+    int len = ftell(f);
+    char * text = new char[len];
+    fseek(f, 0, SEEK_SET);
+    fread(text, len, 1, f);
+    fclose(f);
+      
+    char * ptr = text;
+    while (ptr < text+len)
+    {
+        uint32_t v = getUtf8(ptr);
+        if (v)
+        {
+	    input.push_back(v);
+        }
+    }
+    delete[] text;
+  
+    input.push_back('\n');
+    input.push_back('\n');
+}
+
 int main(int argc, char ** argv)
 {
     component_factory = new ComponentFactory();
@@ -369,27 +393,7 @@ int main(int argc, char ** argv)
 	}
 	    
         Chars input;
-      
-        fseek(f, 0, SEEK_END);
-        int len = ftell(f);
-        char * text = new char[len];
-        fseek(f, 0, SEEK_SET);
-        fread(text, len, 1, f);
-        fclose(f);
-      
-        char * ptr = text;
-        while (ptr < text+len)
-	{
-	    uint32_t v = getUtf8(ptr);
-	    if (v)
-	    {
-	        input.push_back(v);
-	    }
-	}
-        delete[] text;
-
-	input.push_back('\n');
-	input.push_back('\n');
+	readFile(f, input);
         lex.setFile(config.preloads[loopc]);
         lex.lex(input);
     }
@@ -409,25 +413,7 @@ int main(int argc, char ** argv)
             }
 	    
             Chars input;
-
-            fseek(f, 0, SEEK_END);
-            int len = ftell(f);
-            char * text = new char[len];
-            fseek(f, 0, SEEK_SET);
-            fread(text, len, 1, f);
-            fclose(f);
-    
-            char * ptr = text;
-            while (ptr < text+len)
-            {
-                uint32_t v = getUtf8(ptr);
-                if (v)
-                {
-                    input.push_back(v);
-                }
-            }
-            delete[] text;
-    
+	    readFile(f, input);
             lex.setFile(fname);
             lex.lex(input);
         }

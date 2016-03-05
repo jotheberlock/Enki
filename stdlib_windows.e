@@ -9,3 +9,11 @@ def write(Byte^ ptr) Uint64
     handle = GetStdHandle(-11)
     WriteFile(handle, ptr, 12, @written, 0)
     return count
+
+def read(Byte^ ptr, Uint64 len) Uint64
+    Uint64 num_read
+    Uint64 handle = 0
+    handle = GetStdHandle(-10)
+    ReadFile(handle, ptr, len, @num_read, 0)
+    return num_read
+
