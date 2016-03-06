@@ -179,12 +179,18 @@ void Codegen::allocateStackSlots()
         Value * v = locals[loopc];
         if (v->onStack())
         {
+            assert(v->type->size() != 0);
             while (stack_size % (v->type->align()/8))
             {
                 stack_size++;
             }
             v->setStackOffset(stack_size);
+            // printf("%s: Allocating %s at %d, adding %d\n", scope->fqName().c_str(), v->name.c_str(), stack_size, v->type->size()/8);
             stack_size += v->type->size() / 8;
+        }
+        else
+        {
+            printf(">>> Not allocating %s as not on stack\n", v->name.c_str());
         }
     }
 

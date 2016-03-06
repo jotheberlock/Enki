@@ -55,6 +55,14 @@ class Amd64 : public Assembler
                 return false;
             }
         }
+
+        if (i.ins == CMP)
+        {
+            if (idx == 0)
+            {
+                return false;
+            }
+        }
         
         return true;
     }

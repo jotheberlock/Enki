@@ -1,5 +1,4 @@
-Byte[18] outstr
+def foo() Uint64
+    len("Hello")
 
-outstr[16] = 0
-num_to_str(0xdeadbeef, @outstr[0])
-write(outstr, 16)
+foo()

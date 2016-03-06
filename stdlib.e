@@ -7,7 +7,7 @@ def len(Byte^ ptr)
     return count
 
 def num_to_str(Uint64 in, Byte^ out)
-    out_end = out + 16
+    Byte^ out_end = out + 16
     Uint64 count = 8
     while count > 0
         Byte digit1 = out^

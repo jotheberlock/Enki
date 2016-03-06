@@ -447,6 +447,8 @@ void ElfImage::finalise()
     for (unsigned int loopc=0; loopc<fptrs.size(); loopc++)
     {
         int idx = stringOffset(fptrs[loopc]->name().c_str());
+        int add = (fptrs[loopc] == root_function ? 0 : 8); // Hack to avoid stack size at beginning
+        
         if (sf_bit)
         {
             wee32(le, ptr, idx);
@@ -455,14 +457,14 @@ void ElfImage::finalise()
             *ptr = 0;
             ptr++;
             wee16(le, ptr, 3);
-            wee64(le, ptr, foffsets[loopc]+bases[IMAGE_CODE]);
-            wee64(le, ptr, fsizes[loopc]);
+            wee64(le, ptr, foffsets[loopc]+bases[IMAGE_CODE]+add); 
+            wee64(le, ptr, fsizes[loopc]-add);
         }
         else
         {
             wee32(le, ptr, idx);
-            wee32(le, ptr, checked_32(foffsets[loopc]+bases[IMAGE_CODE]));
-            wee32(le, ptr, checked_32(fsizes[loopc]));
+            wee32(le, ptr, checked_32(foffsets[loopc]+bases[IMAGE_CODE]+add));
+            wee32(le, ptr, checked_32(fsizes[loopc]-add));
             *ptr = 0x12; // info - function, global
             ptr++;
             *ptr = 0;
