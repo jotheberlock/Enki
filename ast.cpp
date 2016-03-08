@@ -2040,18 +2040,22 @@ Value * BreakpointExpr::codegen(Codegen * c)
 
 Value * Funcall::codegen(Codegen * c)
 {
-	Value * ptr = scope->lookupLocal(name());
+    Value * ptr = scope->lookupLocal(name());
     
-	if (!ptr)
-	{
-	    int depth = 0;
-	    ptr = scope->lookup(name(), depth);
-	    Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
-	    c->block()->add(Insn(GETADDR, addrof, ptr, Operand::usigc(depth)));
-		c->block()->add(Insn(LOAD, ptr, addrof));
-	}
+    if (!ptr)
+    {
+	int depth = 0;
+	ptr = scope->lookup(name(), depth);
+	Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
+	c->block()->add(Insn(GETADDR, addrof, ptr, Operand::usigc(depth)));
+	c->block()->add(Insn(LOAD, ptr, addrof));
+    }
 
-	assert(ptr);
+    if (!ptr)
+    {
+	addError(Error(&token, "Could not find function at codegen time", name()));
+	return 0;
+    }
 
     if (ptr->type->isMacro())
     {
