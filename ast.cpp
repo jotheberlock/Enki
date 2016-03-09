@@ -2061,14 +2061,20 @@ Value * Funcall::codegen(Codegen * c)
     {
         addError(Error(&token, "Can't call macros directly",
                        name()));
+	return 0;
     }
     else if (c->getScope()->getType()->isMacro() && (ptr->type->isMacro() == false))
     {
         addError(Error(&token, "Can't call normal code from macro",
                        name()));
+	return 0;
     }
-    
-    assert(ptr->type->canFuncall());
+
+    if (!ptr->type->canFuncall())
+    {
+        addError(Error(&token, "Attempt to call non-function", name()));
+	return 0;
+    }
 
     std::vector<Value *> evaled_args;
     for (unsigned int loopc=0; loopc<args.size(); loopc++)
