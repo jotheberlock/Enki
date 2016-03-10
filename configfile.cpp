@@ -6,6 +6,8 @@
 #include <list>
 #include <string.h>
 
+extern bool no_stdlib;
+
 std::string ConfigFile::hostConfig()
 {
 #ifdef CYGWIN_HOST
@@ -141,7 +143,7 @@ bool ConfigFile::processLine(std::string line)
       {
 	  config->entrypoint = (Entrypoint *)component_factory->make("entrypoint", val);
       }
-      else if (command == "file")
+      else if (command == "file" && (!no_stdlib))
       {
   	  config->preloads.push_back(val);
       }

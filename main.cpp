@@ -264,6 +264,8 @@ void readFile(FILE * f, Chars & input)
     input.push_back('\n');
 }
 
+bool no_stdlib = false;
+
 int main(int argc, char ** argv)
 {
     component_factory = new ComponentFactory();
@@ -304,6 +306,10 @@ int main(int argc, char ** argv)
 		printf("Don't know how to set %s\n", argv[loopc]);
 	    }
         }
+	else if (!strcmp(argv[loopc], "-nostdlib"))
+	{
+  	    no_stdlib = true;
+	}
 	else if (!strcmp(argv[loopc], "-o"))
 	{
 	    loopc++;
