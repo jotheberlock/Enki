@@ -264,8 +264,6 @@ void readFile(FILE * f, Chars & input)
     input.push_back('\n');
 }
 
-bool no_stdlib = false;
-
 int main(int argc, char ** argv)
 {
     component_factory = new ComponentFactory();
@@ -286,7 +284,8 @@ int main(int argc, char ** argv)
     ConfigFile * current_config_file = 0;
     
     bool done_ini = false;
-
+    bool no_stdlib = false;
+ 
     for (int loopc=1; loopc<argc; loopc++)
     {
         if (strstr(argv[loopc], ".ini"))
@@ -387,21 +386,24 @@ int main(int argc, char ** argv)
     }
 
     Lexer lex;
-    
-    for (int loopc=0; loopc<config.preloads.size(); loopc++)
-    {      
-        FILE * f = config.open(config.preloads[loopc].c_str());
+
+    if (!no_stdlib)
+    {
+        for (int loopc=0; loopc<config.preloads.size(); loopc++)
+        {      
+            FILE * f = config.open(config.preloads[loopc].c_str());
       
-        if(!f)
-	{
-  	    printf("No preload input file %s\n", config.preloads[loopc].c_str());
-	    return 1;
-	}
+            if(!f)
+	    {
+	        printf("No preload input file %s\n", config.preloads[loopc].c_str());
+	        return 1;
+	    }
 	    
-        Chars input;
-	readFile(f, input);
-        lex.setFile(config.preloads[loopc]);
-        lex.lex(input);
+            Chars input;
+	    readFile(f, input);
+            lex.setFile(config.preloads[loopc]);
+            lex.lex(input);
+        }
     }
     
     for (int loopc=1; loopc<argc; loopc++)
