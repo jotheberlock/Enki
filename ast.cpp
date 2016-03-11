@@ -1806,7 +1806,7 @@ Value * Return::codegen(Codegen * c)
         Value * ipvar = c->getIp();
         if (!ipvar)
         {
-            fprintf(log_file, "Can't find __ret in return!\n");
+            fprintf(log_file, "Can't find return address in return!\n");
             return 0;
         }
 
@@ -1869,11 +1869,11 @@ Value * If::codegen(Codegen * c)
     Value * v = condition->codegen(c);
     c->block()->add(Insn(CMP, v, Operand::usigc(0)));
         // Generate the if part
-    BasicBlock * ifb = c->newBlock("iftrue");
+    BasicBlock * ifb = c->newBlock("if_true");
     BasicBlock * elb = 0;
     if (elseblock)
     {
-        elb = c->newBlock("iffalse");
+        elb = c->newBlock("if_false");
     }
 
     BasicBlock * endb = c->newBlock("endif");
