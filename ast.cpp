@@ -1728,6 +1728,12 @@ Value * Yield::codegen(Codegen * c)
         }
 
         Value * to_ret = ret->codegen(c);
+        if (!to_ret)
+        {
+            // Probably undefined function
+            return 0;
+        }
+        
         Type * to_ret_type = to_ret->type;
         Type * returnvar_type = returnvar->type;
         
@@ -1784,7 +1790,12 @@ Value * Return::codegen(Codegen * c)
         }
 
         Value * to_ret = ret->codegen(c);
-
+        if (!to_ret)
+        {
+            // Probably undefined function
+            return 0;
+        }
+        
         Type * to_ret_type = to_ret->type;
         Type * returnvar_type = returnvar->type;
 
