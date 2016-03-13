@@ -27,6 +27,8 @@ class MachOImage : public Image
   protected:
     
     void materialiseSection(int s);
+    bool le;
+    int arch_subtype;
     
 };
 

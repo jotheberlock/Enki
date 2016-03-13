@@ -123,7 +123,7 @@ Image::Image()
     total_imports = 0;
     base_addr = 0x400000;
     next_addr = base_addr + (4096 * 3);
-    fname = "a.exe";
+    fname = "a.out";
     sf_bit = false;
     arch = 0;
     guard_page = false;

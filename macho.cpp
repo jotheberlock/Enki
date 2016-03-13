@@ -1,4 +1,8 @@
 #include "macho.h"
+#include "platform.h"
+#include "symbols.h"
+#include <stdio.h>
+#include <string.h>
 
 #if defined(LINUX_HOST) || defined(CYGWIN_HOST)
 #include <sys/stat.h>
@@ -6,13 +10,10 @@
 
 MachOImage::MachOImage()
 {
-    base_addr = 0x400000;
-    next_addr =  base_addr + 12288;
-    fname = "a.out";
-    sf_bit = false;
-    arch = 0;
     bases[IMAGE_UNALLOCED_DATA] = 0x800000;
     sizes[IMAGE_UNALLOCED_DATA] = 4096;
+    le = true;
+    arch_subtype = 0;
 }
 
 MachOImage::~MachOImage()
@@ -25,37 +26,24 @@ MachOImage::~MachOImage()
 
 bool MachOImage::configure(std::string param, std::string val)
 {
-    if (param == "file")
+    if (param == "endian")
     {
-        fname = val;
-    }
-    else if (param == "bits")
-    {
-        if (val == "64")
+        if (val == "little")
         {
-            sf_bit = true;
+            le = true;
         }
-        else if (val == "32")
+        else if (val == "big")
         {
-            sf_bit = false;
+            le = false;
         }
         else
         {
             return false;
         }
     }
-    else if (param == "arch")
+    else if (param == "arch_subtype")
     {
-        arch = strtol(val.c_str(), 0, 10);
-    }
-    else if (param == "baseaddr")
-    {
-        base_addr = strtol(val.c_str(), 0, 0);
-        next_addr = base_addr + 12288;
-    }
-    else if (param == "heapaddr")
-    {
-        bases[IMAGE_UNALLOCED_DATA] = strtol(val.c_str(), 0, 0);
+        arch_subtype = strtol(val.c_str(), 0, 10);
     }
     else
     {
@@ -67,6 +55,38 @@ bool MachOImage::configure(std::string param, std::string val)
 
 void MachOImage::finalise()
 {
+    FILE * f = fopen(fname.c_str(), "wb+");
+    if (!f)
+    {
+        printf("Can't open %s\n", fname.c_str());
+        return;
+    }
+
+    unsigned char * header = new unsigned char[4096];
+    memset(header, 0, 4096);
+    
+    unsigned char * ptr = header;
+
+    uint32_t magic = (sf_bit) ? 0xfeedfacf : 0xfeedface;
+    wee32(le, ptr, magic);
+    wee32(le, ptr, arch);
+    wee32(le, ptr, arch_subtype);   // cpu subtype
+    wee32(le, ptr, 0x2);   // filetype - executable
+    wee32(le, ptr, 0x0);   // no. cmds
+    wee32(le, ptr, 0x0);   // size of cmds
+    wee32(le, ptr, 0x1);   // flags - no undefs
+    if (sf_bit)
+    {
+        wee32(le, ptr, 0x0); // Reserved
+    }
+    
+    fwrite(header, 4096, 1, f);
+    delete[] header;
+    
+    fclose(f);
+#if defined(LINUX_HOST) || defined(CYGWIN_HOST)
+    chmod(fname.c_str(), 0755);
+#endif
 }
 
 void MachOImage::materialiseSection(int s)
