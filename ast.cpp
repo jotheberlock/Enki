@@ -2055,17 +2055,20 @@ Value * Funcall::codegen(Codegen * c)
     
     if (!ptr)
     {
-	int depth = 0;
-	ptr = scope->lookup(name(), depth);
-	Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
-	c->block()->add(Insn(GETADDR, addrof, ptr, Operand::usigc(depth)));
-	c->block()->add(Insn(LOAD, ptr, addrof));
+        int depth = 0;
+        ptr = scope->lookup(name(), depth);
+        Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
+        c->block()->add(Insn(GETADDR, addrof, ptr, Operand::usigc(depth)));
+        c->block()->add(Insn(LOAD, addrof, addrof));
+        Value * localptr = c->getTemporary(ptr->type, "local_ptr");
+        c->block()->add(Insn(MOVE, localptr, addrof));
+        ptr = localptr;
     }
 
     if (!ptr)
     {
-	addError(Error(&token, "Could not find function at codegen time", name()));
-	return 0;
+        addError(Error(&token, "Could not find function at codegen time", name()));
+        return 0;
     }
 
     if (ptr->type->isMacro())
