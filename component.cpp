@@ -2,6 +2,7 @@
 #include "image.h"
 #include "elf.h"
 #include "pe.h"
+#include "macho.h"
 #include "amd64.h"
 #include "pass.h"
 #include "entrypoint.h"
@@ -29,6 +30,11 @@ Component * make_elf()
 Component * make_pe()
 {
     return new PEImage();
+}
+
+Component * make_macho()
+{
+    return new MachOImage();
 }
 
 Component * make_amd64()
@@ -96,6 +102,7 @@ ComponentFactory::ComponentFactory()
     add(make_memoryimage, "image", "memory");
     add(make_elf, "image", "elf");
     add(make_pe, "image", "pe");
+    add(make_macho, "image", "macho");
     add(make_amd64, "asm", "amd64");
     add(make_amd64_unix_syscall, "cconv", "amd64_unix_syscall");
     add(make_amd64_unix, "cconv", "amd64_unix");

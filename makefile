@@ -1,5 +1,5 @@
-enki: main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o
-	g++ -o enki main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o -lpthread
+enki: main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o
+	g++ -o enki main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o -lpthread
 
 main.o : main.cpp lexer.h ast.h type.h codegen.h
 	g++ -g -c -Wall main.cpp
@@ -66,6 +66,9 @@ pe.o : pe.cpp pe.h
 
 entrypoint.o : entrypoint.cpp entrypoint.h asm.h symbols.h
 	g++ -g -c -Wall entrypoint.cpp
+
+macho.o : macho.cpp macho.h
+	g++ -g -c -Wall macho.cpp
 
 clean:
 	rm *.o enki enki.exe *~

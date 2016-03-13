@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "image.h"
 #include "symbols.h"
 #include "asm.h"
@@ -120,6 +121,69 @@ Image::Image()
     align = 8;
     root_function = 0;
     total_imports = 0;
+    base_addr = 0x400000;
+    next_addr = base_addr + (4096 * 3);
+    fname = "a.exe";
+    sf_bit = false;
+    arch = 0;
+    guard_page = false;
+}
+
+bool Image::configure(std::string param, std::string val)
+{
+    if (param == "file")
+    {
+        fname = val;
+    }
+    else if (param == "bits")
+    {
+        if (val == "64")
+        {
+            sf_bit = true;
+        }
+        else if (val == "32")
+        {
+            sf_bit = false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else if (param == "arch")
+    {
+        arch = strtol(val.c_str(), 0, 10);
+    }
+    else if (param == "baseaddr")
+    {
+        base_addr = strtol(val.c_str(), 0, 0);
+        next_addr = base_addr + 12288;
+    }
+    else if (param == "heapaddr")
+    {
+        bases[IMAGE_UNALLOCED_DATA] = strtol(val.c_str(), 0, 0);
+    }
+    else if (param == "guard")
+    {
+        if (val == "true")
+        {
+    	    guard_page = true;
+        }
+        else if (val == "false")
+        {
+            guard_page = false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return false;
+    }
+    
+    return true;
 }
 
 void Image::setRootFunction(FunctionScope * f)

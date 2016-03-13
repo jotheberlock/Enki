@@ -42,56 +42,24 @@ ElfImage::ElfImage(const char * f, bool s, bool l, int a)
 
 bool ElfImage::configure(std::string param, std::string val)
 {
-  if (param == "file")
-  {
-      fname = val;
-  }
-  else if (param == "bits")
-  {
-      if (val == "64")
-      {
-  	  sf_bit = true;
-      }
-      else if (val == "32")
-      {
-  	  sf_bit = false;
-      }
-      else
-      {
-	  return false;
-      }
-  }
-  else if (param == "endian")
+  if (param == "endian")
   {
       if (val == "little")
       {
-  	  le = true;
+          le = true;
       }
       else if (val == "big")
       {
-	  le = false;
+          le = false;
       }
       else
       {
-	  return false;
+          return false;
       }
-  }
-  else if (param == "arch")
-  {
-      arch = strtol(val.c_str(), 0, 10);
-  }
-  else if (param == "baseaddr")
-  {
-      base_addr = strtol(val.c_str(), 0, 0);
-      next_addr = base_addr + 12288;
-  }
-  else if (param == "heapaddr")
-  {
-      bases[IMAGE_UNALLOCED_DATA] = strtol(val.c_str(), 0, 0);
   }
   else
   {
-      return false;
+      return Image::configure(param, val);
   }
 
   return true;
@@ -504,6 +472,10 @@ void ElfImage::materialiseSection(int s)
     {
         next_addr++;
     }
-    next_addr += 4096;   // Create a guard page
+
+    if (guard_page)
+    {
+        next_addr += 4096;   // Create a guard page
+    }
 }
 

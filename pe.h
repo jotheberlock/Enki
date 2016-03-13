@@ -24,13 +24,7 @@ class PEImage : public Image
  protected:
 
     void materialiseSection(int s);
-    uint64_t base_addr;
-    uint64_t next_addr;
-    std::string fname;
-    bool sf_bit;
-    int arch;
     int subsystem;
-    bool guard_page;
     uint64_t imports_base;
     uint64_t symbols_base;
     int os_major;

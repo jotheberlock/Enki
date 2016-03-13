@@ -1,19 +1,19 @@
-#ifndef _ELF_
-#define _ELF_
+#ifndef _MACHO_
+#define _MACHO_
 
 #include "image.h"
 #include "stringbox.h"
 
-class ElfImage : public Image
+class MachOImage : public Image
 {
   public:
 
-    ElfImage();
-    ElfImage(const char *, bool, bool, int);
-    ~ElfImage();
+    MachOImage();
+    ~MachOImage();
     void finalise();
     bool configure(std::string, std::string);
-    
+    std::string name() { return "macho"; }
+
     virtual uint64_t importAddress(std::string)
     {
         return 0;
@@ -24,14 +24,9 @@ class ElfImage : public Image
         return 0;
     }
 
-    std::string name() { return "elf"; }
-    
   protected:
     
-    int stringOffset(const char * c);
     void materialiseSection(int s);
-    bool le;
-    StringBox stringtable;
     
 };
 

@@ -21,10 +21,6 @@ uint64_t roundup(uint64_t in, uint64_t align)
 
 PEImage::PEImage()
 {
-    base_addr = 0x400000;
-    next_addr = base_addr + (4096 * 3);
-    fname = "a.exe";
-    sf_bit = false;
     arch = 34404;
     subsystem = 1; // Windows CLI
     bases[IMAGE_UNALLOCED_DATA] = 0x800000;
@@ -44,48 +40,9 @@ PEImage::~PEImage()
 
 bool PEImage::configure(std::string param, std::string val)
 {
-    if (param == "file")
-    {
-        fname = val;
-    }
-    else if (param == "bits")
-    {
-        if (val == "64")
-	{
-  	  sf_bit = true;
-	}
-        else if (val == "32")
-	{
-  	  sf_bit = false;
-	}
-        else
-	{
-	  return false;
-	}
-    }
-    else if (param == "arch")
-    {
-        arch = strtol(val.c_str(), 0, 10);
-    }
-    else if (param == "subsystem")
+    if (param == "subsystem")
     {
         subsystem = strtol(val.c_str(), 0, 10);
-    }
-    else if (param == "guard")
-    {
-        if (val == "true")
-	{
-    	    guard_page = true;
-	}
-    }
-    else if (param == "baseaddr")
-    {
-        base_addr = strtol(val.c_str(), 0, 0);
-	next_addr = base_addr + 12288;
-    }
-    else if (param == "heapaddr")
-    {
-        bases[IMAGE_UNALLOCED_DATA] = strtol(val.c_str(), 0, 0);
     }
     else if (param == "osmajor")
     {
@@ -97,7 +54,7 @@ bool PEImage::configure(std::string param, std::string val)
     }
     else
     {
-        return false;
+        return Image::configure(param, val);
     }
 
     return true;

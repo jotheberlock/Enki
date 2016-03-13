@@ -36,6 +36,7 @@ class Image : public Component
     Image();
     virtual ~Image() {}
 
+    virtual bool configure(std::string, std::string);
     void setSectionSize(int, uint64_t);
     uint64_t sectionSize(int);
     
@@ -87,6 +88,13 @@ class Image : public Component
 	
     std::vector<BaseRelocation *> relocs;
     FunctionScope * root_function;
+
+    int arch;
+    bool guard_page;
+    uint64_t base_addr;
+    uint64_t next_addr;
+    std::string fname;
+    bool sf_bit;
     
 };
 
