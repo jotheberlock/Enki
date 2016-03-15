@@ -2124,9 +2124,10 @@ Value * Funcall::codegen(Codegen * c)
         evaled_args.push_back(v);
     }
 
-    if (!ptr->type->validArgList(evaled_args))
+    std::string reason;
+    if (!ptr->type->validArgList(evaled_args,reason))
     {
-        addError(Error(&token, "Parameter mismatch!", name()));
+        addError(Error(&token, "Parameter mismatch!", name()+" - "+reason));
         return 0;
     }
 

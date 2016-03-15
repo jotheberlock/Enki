@@ -480,10 +480,14 @@ Value * FunctionType::allocStackFrame(Codegen * c, Value * faddr,
     return new_ptr;
 }
 
-bool FunctionType::validArgList(std::vector<Value *> & args)
+bool FunctionType::validArgList(std::vector<Value *> & args, std::string & reason)
 {
+    reason = "";
     if (args.size() != params.size())
     {
+        char buf[4096];
+        sprintf(buf, "expected %d arguments, got %d", params.size(), args.size());
+	reason = buf;
         return false;
     }
   
@@ -491,6 +495,12 @@ bool FunctionType::validArgList(std::vector<Value *> & args)
     {
         if (args[loopc]->type->size() != params[loopc].type->size())
         {
+  	    char buf[4096];
+	    sprintf(buf, "%s - expected %d bit argument, got %d",
+		    params[loopc].name.c_str(),
+		    params[loopc].type->size(),
+		    args[loopc]->type->size());
+	    reason = buf;
             return false;
         }
     }

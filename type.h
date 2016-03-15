@@ -34,7 +34,7 @@ class Type
         return false;
     }
 
-    virtual bool validArgList(std::vector<Value *> &)
+    virtual bool validArgList(std::vector<Value *> &, std::string &)
     {
         return false;
     }
@@ -516,7 +516,7 @@ class FunctionType : public Type
         returns.push_back(t);
     }
     
-    virtual bool validArgList(std::vector<Value *> & args);
+    virtual bool validArgList(std::vector<Value *> & args, std::string &);
 
     std::vector<StructElement> & getParams()
     {
@@ -614,9 +614,9 @@ class ExternalFunctionType : public FunctionType
         return ret;
     }
 
-    virtual bool validArgList(std::vector<Value *> & args)
+    virtual bool validArgList(std::vector<Value *> & args, std::string & reason)
     {
-        return ignore_arguments ? true : FunctionType::validArgList(args);
+        return ignore_arguments ? true : FunctionType::validArgList(args, reason);
     }
     
   protected:

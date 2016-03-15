@@ -939,6 +939,8 @@ class Parser
         next();
     }
 
+    void expectedEol();
+    
     Lexer * lexer;
     std::vector<Token> tokens;
     unsigned int count;
