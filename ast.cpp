@@ -443,6 +443,10 @@ Expr * Parser::parseBodyLine()
     if (current.type != EOL)
     {
         addError(Error(&current, "Expected EOL at end of line"));
+	while (current.type != EOL && current.type != DONE)
+	{
+	    next();
+	}
     }
     else
     {
