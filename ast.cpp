@@ -346,6 +346,7 @@ Expr * Parser::parseBodyLine()
                 if (current.type != EOL)
                 {
                     addError(Error(&current, "Expected EOL after vardef"));
+		    expectedEol();
                 }
                 else
                 {
@@ -386,6 +387,7 @@ Expr * Parser::parseBodyLine()
         if (current.type != EOL)
         {
             addError(Error(&current, "Expected EOL after pass"));
+	    expectedEol();
         }
         else
         {
@@ -399,6 +401,7 @@ Expr * Parser::parseBodyLine()
         if (current.type != EOL)
         {
             addError(Error(&current, "Expected EOL after breakpoint"));
+	    expectedEol();
         }
         else
         {
@@ -412,6 +415,7 @@ Expr * Parser::parseBodyLine()
         if (current.type != EOL)
         {
             addError(Error(&current, "Expected EOL after break"));
+	    expectedEol();
         }
         else
         {
@@ -426,6 +430,7 @@ Expr * Parser::parseBodyLine()
         if (current.type != EOL)
         {
             addError(Error(&current, "Expected EOL after continue"));
+	    expectedEol();
         }
         else
         {
@@ -443,10 +448,7 @@ Expr * Parser::parseBodyLine()
     if (current.type != EOL)
     {
         addError(Error(&current, "Expected EOL at end of line"));
-	while (current.type != EOL && current.type != DONE)
-	{
-	    next();
-	}
+	expectedEol();
     }
     else
     {
@@ -483,6 +485,7 @@ Expr * Parser::parseIf()
 	if (current.type != EOL)
 	{
 	    addError(Error(&current, "Expected EOL after if expr"));
+	    expectedEol();
 	}
 	next();
     
@@ -501,6 +504,7 @@ Expr * Parser::parseIf()
         if (current.type != EOL)
         {
             addError(Error(&current, "Expected EOL after else"));
+	    expectedEol();
         }
         next();
         if (current.type != BEGIN)
@@ -533,6 +537,7 @@ Expr * Parser::parseWhile()
     if (current.type != EOL)
     {
 	addError(Error(&current, "Expected EOL after while expr"));
+	expectedEol();
     }
     next();
     
@@ -575,6 +580,7 @@ Expr * Parser::parseReturn()
         if (current.type != EOL)
         {
             addError(Error(&current, "Expected EOL after return expression"));
+	    expectedEol();
 	    return 0;
         }
         else
@@ -606,6 +612,7 @@ Expr * Parser::parseYield()
 	if (current.type != EOL)
 	{
 	    addError(Error(&current, "Expected EOL after yield expression"));
+	    expectedEol();
 	    return 0;
 	}
 	else
@@ -795,6 +802,7 @@ Expr * Parser::parseStruct()
         if (current.type != EOL)
         {
             addError(Error(&current, "Expected EOL in struct"));
+	    expectedEol();
             return 0;
         }
         next();
@@ -975,6 +983,7 @@ Expr * Parser::parseDef()
 
                         addError(Error(&current, 
                                        "Expected EOL after return type"));
+			expectedEol();
                     }
                     else
                     {
@@ -1255,6 +1264,14 @@ Type * Parser::parseType()
     }
     
     return ret_type;
+}
+
+void Parser::expectedEol()
+{
+    while (current.type != EOL && current.type != DONE)
+    {
+        next();
+    }
 }
 
 Type * VarRefExpr::checkType(Codegen * c)
