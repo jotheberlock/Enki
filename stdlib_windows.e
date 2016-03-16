@@ -5,7 +5,6 @@ extern KERNEL32.DLL:ReadFile(Uint64 input, Byte^ buffer, Uint32 chars, Uint32^ r
 def write(Byte^ ptr) Uint64
     Uint32 count 
     count = len(ptr)
-    count = count - 1
     Uint32 written32
     Uint64 handle = 0
     handle = GetStdHandle(-11)
