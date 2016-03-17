@@ -8,22 +8,26 @@ def len(Byte^ ptr)
 
 def num_to_str(Uint64 in, Byte^ out)
     Byte^ out_end = out + 16
+    out_end^ = 0
+    out_end = out_end - 1
     Uint64 count = 8
     while count > 0
-        Byte digit1 = out^
-        digit1 = digit1 and 16
+        Byte the_digit = in and 255
+        Byte digit1 = the_digit
+        digit1 = digit1 and 15
         if digit1 < 10
             out_end^ = digit1+48
         else
             out_end^ = digit1+97
         out_end = out_end - 1
-        Byte digit2 = out^
-        digit2 = digit2 >> 4
+        Byte digit2 = the_digit
+        digit2 = digit2 / 16
         if digit2 < 10
             out_end^ = digit2+48
         else
             out_end^ = digit2+97
         out_end = out_end - 1
+        in = in / 256
         count = count - 1
 
 def to_upper(Byte^ str)
