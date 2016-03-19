@@ -2073,17 +2073,20 @@ Value * BreakpointExpr::codegen(Codegen * c)
 Value * Funcall::codegen(Codegen * c)
 {
     Value * ptr = scope->lookupLocal(name());
-    
+
     if (!ptr)
     {
         int depth = 0;
         ptr = scope->lookup(name(), depth);
-        Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
-        c->block()->add(Insn(GETADDR, addrof, ptr, Operand::usigc(depth)));
-        c->block()->add(Insn(LOAD, addrof, addrof));
-        Value * localptr = c->getTemporary(ptr->type, "local_ptr");
-        c->block()->add(Insn(MOVE, localptr, addrof));
-        ptr = localptr;
+        if (ptr)
+        {
+            Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
+            c->block()->add(Insn(GETADDR, addrof, ptr, Operand::usigc(depth)));
+            c->block()->add(Insn(LOAD, addrof, addrof));
+            Value * localptr = c->getTemporary(ptr->type, "local_ptr");
+            c->block()->add(Insn(MOVE, localptr, addrof));
+            ptr = localptr;
+        }
     }
 
     if (!ptr)
