@@ -70,6 +70,16 @@ int Amd64::regnum(std::string s)
     return -1;
 }
 
+bool Amd64::configure(std::string param, std::string val)
+{
+    if (param == "bits")
+    {
+        return false;
+    }
+
+    return Assembler::configure(param, val);
+}
+
 ValidRegs Amd64::validRegs(Insn & i)
 {
     ValidRegs ret;
@@ -108,6 +118,45 @@ ValidRegs Amd64::validRegs(Insn & i)
     return ret;
 }
 
+bool Amd64::validConst(Insn & i, int idx)
+{
+    if (i.ins == DIV || i.ins == IDIV || i.ins == REM ||
+        i.ins == IREM || i.ins == SELEQ || i.ins == SELGT ||
+            i.ins == SELGE || i.ins == SELGTS || i.ins == SELGES ||
+        i.ins == MUL || i.ins == IMUL)
+    {
+        return false;
+        }
+    
+    if (i.ins == ADD || i.ins == SUB || i.ins == MUL
+        || i.ins == IMUL || i.ins == AND || i.ins == OR
+        || i.ins == XOR || i.ins == SHL || i.ins == SHR)
+    {
+        if (idx != 2)
+        {
+            return false;
+        }
+    }
+    
+    if (i.ins == STORE || i.ins == STORE8 || i.ins == STORE16 || i.ins == STORE32 || i.ins == STORE64)
+    {
+        if (idx == 2)
+        {
+            return false;
+        }
+    }
+    
+    if (i.ins == CMP)
+    {
+        if (idx == 0)
+        {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
 int Amd64::size(BasicBlock * b)
 {
     int ret = 0;
@@ -119,7 +168,7 @@ int Amd64::size(BasicBlock * b)
         Insn & i = *it;
         i.addr = address+len();
 
-	int oldret = ret;
+        int oldret = ret;
 	
         switch (i.ins)
         {
@@ -359,7 +408,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
         Insn & i = *it;
         i.addr = address+flen();
 
-	unsigned char * oldcurrent = current;
+        unsigned char * oldcurrent = current;
 	
         switch (i.ins)
         {
@@ -1163,18 +1212,18 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 assert(false);
             }
 
-	    int siz = (int)(current - oldcurrent);
-	    if (siz > i.size)
-	    {
-	        printf("Unexpectedly large instruction! estimate %d actual %d %s\n",
-		       i.size, siz, i.toString().c_str());
-	    }
+            unsigned int siz = (unsigned int)(current - oldcurrent);
+            if (siz > i.size)
+            {
+                printf("Unexpectedly large instruction! estimate %d actual %d %s\n",
+                       i.size, siz, i.toString().c_str());
+            }
         }
-
+        
         if (current >= limit)
         {
-	    printf("Ran out of space to assemble into, %d\n", (int)(limit-base));
-	    fprintf(log_file, "Ran out of space to assemble into, %d\n", (int)(limit-base));
+            printf("Ran out of space to assemble into, %d\n", (int)(limit-base));
+            fprintf(log_file, "Ran out of space to assemble into, %d\n", (int)(limit-base));
             return false;
         }
     }

@@ -401,6 +401,8 @@ class Assembler : public Component
     
     virtual void align(uint64_t a) = 0;  // Pads with NOPs
     virtual void newFunction(Codegen *);
+
+    virtual bool configure(std::string, std::string);
     
   protected:
 

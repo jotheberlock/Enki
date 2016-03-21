@@ -180,7 +180,7 @@ bool Image::configure(std::string param, std::string val)
     }
     else
     {
-        return false;
+        return Component::configure(param, val);
     }
     
     return true;

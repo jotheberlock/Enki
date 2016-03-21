@@ -515,3 +515,27 @@ void Assembler::newFunction(Codegen * c)
     current_function = c->getScope();
     assert(current_function);
 }
+
+bool Assembler::configure(std::string param, std::string val)
+{
+    if (param == "bits")
+    {
+        if (val == "64")
+        {
+            psize = 64;
+        }
+        else if (val == "32")
+        {
+            psize = 32;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        return Component::configure(param, val);
+    }
+}
+

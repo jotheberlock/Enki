@@ -28,48 +28,12 @@ class Amd64 : public Assembler
 		return 8;
 	}
 
-    bool validConst(Insn & i, int idx)
-    {
-        if (i.ins == DIV || i.ins == IDIV || i.ins == REM ||
-            i.ins == IREM || i.ins == SELEQ || i.ins == SELGT ||
-            i.ins == SELGE || i.ins == SELGTS || i.ins == SELGES ||
-            i.ins == MUL || i.ins == IMUL)
-        {
-            return false;
-        }
-        
-        if (i.ins == ADD || i.ins == SUB || i.ins == MUL
-            || i.ins == IMUL || i.ins == AND || i.ins == OR
-            || i.ins == XOR || i.ins == SHL || i.ins == SHR)
-        {
-            if (idx != 2)
-            {
-                return false;
-            }
-        }
-
-        if (i.ins == STORE || i.ins == STORE8 || i.ins == STORE16 || i.ins == STORE32 || i.ins == STORE64)
-        {
-            if (idx == 2)
-            {
-                return false;
-            }
-        }
-
-        if (i.ins == CMP)
-        {
-            if (idx == 0)
-            {
-                return false;
-            }
-        }
-        
-        return true;
-    }
-    
+    bool validConst(Insn & i, int idx);    
 	virtual void newFunction(Codegen *);
 	virtual void align(uint64_t a);
 
+    virtual bool configure(std::string, std::string);
+    
   protected:
 
         // Is it r1, r1, r2 or r1, r1, const?

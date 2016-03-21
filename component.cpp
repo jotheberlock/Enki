@@ -4,6 +4,7 @@
 #include "pe.h"
 #include "macho.h"
 #include "amd64.h"
+#include "arm.h"
 #include "pass.h"
 #include "entrypoint.h"
 
@@ -42,6 +43,11 @@ Component * make_amd64()
     return new Amd64();   
 }
 
+Component * make_arm()
+{
+    return new Arm();
+}
+
 Component * make_amd64_unix_syscall()
 {
     return new Amd64UnixSyscallCallingConvention();
@@ -55,6 +61,11 @@ Component * make_amd64_unix()
 Component * make_amd64_windows()
 {
     return new Amd64WindowsCallingConvention();
+}
+
+Component * make_arm_unix_syscall()
+{
+    return new ArmUnixSyscallCallingConvention();
 }
 
 Component * make_threetotwo()
@@ -104,9 +115,11 @@ ComponentFactory::ComponentFactory()
     add(make_pe, "image", "pe");
     add(make_macho, "image", "macho");
     add(make_amd64, "asm", "amd64");
+    add(make_arm, "asm", "arm");
     add(make_amd64_unix_syscall, "cconv", "amd64_unix_syscall");
     add(make_amd64_unix, "cconv", "amd64_unix");
     add(make_amd64_windows, "cconv", "amd64_windows");
+    add(make_arm_unix_syscall, "cconv", "arm_unix_syscall");
     add(make_threetotwo, "pass", "threetotwo");
     add(make_sillyregalloc, "pass", "sillyregalloc");
     add(make_conditionalbranchsplitter, "pass", "conditionalbranchsplitter");
