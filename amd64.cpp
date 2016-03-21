@@ -72,7 +72,7 @@ int Amd64::regnum(std::string s)
 
 bool Amd64::configure(std::string param, std::string val)
 {
-    if (param == "bits")
+    if (param == "bits" || param == "endian")
     {
         return false;
     }

@@ -332,6 +332,7 @@ class Assembler : public Component
         address=0;
         limit=0;
         psize=0;
+        le=true;
         base=0;
 		func_base=0;
     }
@@ -412,8 +413,8 @@ class Assembler : public Component
     unsigned char * func_base;
     uint64_t address;
     int psize;
+    bool le;
     FunctionScope * current_function;
-    
 };
 
 class CallingConvention : public Component

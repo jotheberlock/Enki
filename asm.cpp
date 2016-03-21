@@ -533,9 +533,26 @@ bool Assembler::configure(std::string param, std::string val)
             return false;
         }
     }
+    else if (param == "endian")
+    {
+        if (val == "little")
+        {
+            le = true;
+        }
+        else if (val == "big")
+        {
+            le = false;
+        }
+        else
+        {
+            return false;
+        }
+    }
     else
     {
         return Component::configure(param, val);
     }
+
+    return false;
 }
 

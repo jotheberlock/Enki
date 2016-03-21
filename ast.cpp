@@ -20,13 +20,13 @@ IntegerExpr::IntegerExpr(Token * t)
     }
 
     val = 0;
-    int begin = 0;
+    unsigned int begin = 0;
     unsigned int base = 10;
 
     bool is_negative = false;
     if (t->value.size() > 1 && t->value[0] == '-')
     {
-	is_negative = true;
+        is_negative = true;
         begin++;
     }
     

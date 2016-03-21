@@ -389,7 +389,7 @@ int main(int argc, char ** argv)
 
     if (!no_stdlib)
     {
-        for (int loopc=0; loopc<config.preloads.size(); loopc++)
+        for (unsigned int loopc=0; loopc<config.preloads.size(); loopc++)
         {      
             FILE * f = config.open(config.preloads[loopc].c_str());
       
