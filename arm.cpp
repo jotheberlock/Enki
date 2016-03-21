@@ -177,7 +177,12 @@ void Arm::newFunction(Codegen * c)
 
 void Arm::align(uint64_t a)
 {
-
+    uint32_t nop = (psize == 64) ? 0xd503201f : 0xf3af1000;
+	while (currentAddr() % a)
+	{
+		*((uint32_t *)current) = nop;
+		current += 4;
+	}
 }
 
 Value * ArmUnixSyscallCallingConvention::generateCall(Codegen * c,
