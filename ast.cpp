@@ -63,8 +63,9 @@ IntegerExpr::IntegerExpr(Token * t)
     }
 
     if (is_negative)
-    {
-        val = -val;
+	{
+		int64_t * sval = (int64_t *)(&val);
+        *sval = -*sval;
     }
 }
 

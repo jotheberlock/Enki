@@ -144,6 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\amd64.h" />
+    <ClInclude Include="..\arm.h" />
     <ClInclude Include="..\asm.h" />
     <ClInclude Include="..\ast.h" />
     <ClInclude Include="..\backend.h" />
@@ -156,6 +157,7 @@
     <ClInclude Include="..\error.h" />
     <ClInclude Include="..\image.h" />
     <ClInclude Include="..\lexer.h" />
+    <ClInclude Include="..\macho.h" />
     <ClInclude Include="..\mem.h" />
     <ClInclude Include="..\pass.h" />
     <ClInclude Include="..\pe.h" />
@@ -169,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\amd64.cpp" />
+    <ClCompile Include="..\arm.cpp" />
     <ClCompile Include="..\asm.cpp" />
     <ClCompile Include="..\ast.cpp" />
     <ClCompile Include="..\backend.cpp" />
@@ -181,6 +184,7 @@
     <ClCompile Include="..\error.cpp" />
     <ClCompile Include="..\image.cpp" />
     <ClCompile Include="..\lexer.cpp" />
+    <ClCompile Include="..\macho.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\mem.cpp" />
     <ClCompile Include="..\pass.cpp" />
