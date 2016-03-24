@@ -77,13 +77,17 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
     std::list<Insn> & code = b->getCode();
 
     b->setAddr(address+flen());
-    
+
+    assert((current & 0x3) == 0);
+
     for (std::list<Insn>::iterator it = code.begin(); it != code.end();
          it++)
     {
         Insn & i = *it;
         i.addr = address+flen();
 
+	uint32_t * ins_ptr = (uint32_t *)current;
+       
         unsigned char * oldcurrent = current;
 	
         switch (i.ins)
@@ -103,6 +107,7 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             }
         }
 
+	current += 4;
         if (current >= limit)
         {
             printf("Ran out of space to assemble into, %d\n", (int)(limit-base));
