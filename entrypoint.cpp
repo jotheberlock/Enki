@@ -18,3 +18,10 @@ void LinuxEntrypoint::generateEpilogue(BasicBlock * block, FunctionScope * scope
     block->add(Insn(MOVE, Operand::reg(0), Operand::usigc(0x3c)));
     block->add(Insn(SYSCALL));
 }
+
+void MacOSEntrypoint::generateEpilogue(BasicBlock * block, FunctionScope * scope, Image *)
+{
+	block->add(Insn(MOVE, Operand::reg(7), scope->lookupLocal("__ret")));
+	block->add(Insn(MOVE, Operand::reg(0), Operand::usigc(0x2000001)));
+	block->add(Insn(SYSCALL));
+}

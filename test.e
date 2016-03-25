@@ -1,5 +1,1 @@
-Byte[20] bytes
-num_to_str(0xdeadbeefdeadbeef, @bytes)
-return write(@bytes)
-
-
+__syscall(0x2000001, 42)

@@ -249,3 +249,12 @@ uint32_t checked_32(uint64_t v)
 	assert(v < 0x100000000);
 	return v & 0xffffffff;
 }
+
+uint64_t roundup(uint64_t in, uint64_t align)
+{
+	if (in % align == 0)
+	{
+		return in;
+	}
+	return in + (align - (in % align));
+}

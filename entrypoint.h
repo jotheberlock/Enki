@@ -36,6 +36,14 @@ class LinuxEntrypoint : public Entrypoint
   virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *);
   
 };
-  
+
+class MacOSEntrypoint : public Entrypoint
+{
+public:
+
+	virtual std::string name() { return "macosentrypoint"; }
+	virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *);
+
+};
   
 #endif

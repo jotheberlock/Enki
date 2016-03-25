@@ -47,4 +47,6 @@ uint32_t checked_32(uint64_t);
 
 extern FILE * log_file;
 
+uint64_t roundup(uint64_t in, uint64_t align);
+
 #endif

@@ -78,7 +78,8 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
     b->setAddr(address+flen());
 
-    assert((current & 0x3) == 0);
+	uint64_t current_addr = (uint64_t)current;
+    assert((current_addr & 0x3) == 0);
 
     for (std::list<Insn>::iterator it = code.begin(); it != code.end();
          it++)
