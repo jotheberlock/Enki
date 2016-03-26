@@ -14,6 +14,11 @@
 #define SYSV_CC 1
 #define POSIX_SIGNALS 1
 #define LINUX_HOST 1
+#elif defined(__APPLE__)
+#define HAVE_MPROTECT 1
+#define SYSV_CC 1
+#define POSIX_SIGNALS 1
+#define MACOS_HOST 1
 #elif defined(_MSC_VER)
 #define HAVE_WINDOWS_API 1
 #define WINDOWS_CC 1

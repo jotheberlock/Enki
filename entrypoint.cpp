@@ -12,16 +12,33 @@ void WindowsEntrypoint::generateEpilogue(BasicBlock * block, FunctionScope * sco
     block->add(Insn(CALL, Operand::reg(7)));
 }
 
-void LinuxEntrypoint::generateEpilogue(BasicBlock * block, FunctionScope * scope, Image *)
+bool UnixEntrypoint::configure(std::string param, std::string val)
 {
-    block->add(Insn(MOVE, Operand::reg(7), scope->lookupLocal("__ret")));
-    block->add(Insn(MOVE, Operand::reg(0), Operand::usigc(0x3c)));
+	if (param == "syscall_number")
+	{
+		syscall_number = strtol(val.c_str(), 0, 0);
+	}
+	else if (param == "syscall_register")
+	{
+		syscall_reg = strtol(val.c_str(), 0, 0);
+	}
+	else if (param == "exitcode_register")
+	{
+		exitcode_reg = strtol(val.c_str(), 0, 0);
+	}
+	else
+	{
+		return Component::configure(param, val);
+	}
+}
+
+void UnixEntrypoint::generateEpilogue(BasicBlock * block, FunctionScope * scope, Image *)
+{
+	assert(exitcode_reg != -1);
+	assert(syscall_reg != -1);
+	assert(syscall_number != -1);
+    block->add(Insn(MOVE, Operand::reg(exitcode_reg), scope->lookupLocal("__ret")));
+    block->add(Insn(MOVE, Operand::reg(syscall_reg), Operand::usigc(syscall_number)));
     block->add(Insn(SYSCALL));
 }
 
-void MacOSEntrypoint::generateEpilogue(BasicBlock * block, FunctionScope * scope, Image *)
-{
-	block->add(Insn(MOVE, Operand::reg(7), scope->lookupLocal("__ret")));
-	block->add(Insn(MOVE, Operand::reg(0), Operand::usigc(0x2000001)));
-	block->add(Insn(SYSCALL));
-}

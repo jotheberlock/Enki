@@ -181,7 +181,7 @@ int Backend::process()
             printf("WARNING unplaced blocks:\n");
             for (int loopc=0; loopc<ubbs.size(); loopc++)
             {
-                printf("%d: %s\n", ubbs[loopc]->toString().c_str());
+				printf("%d: %s\n", loopc, ubbs[loopc]->toString().c_str());
             }
             return 1;
         }

@@ -13,14 +13,9 @@ Component * make_windowsentrypoint()
     return new WindowsEntrypoint();
 }
 
-Component * make_linuxentrypoint()
+Component * make_unixentrypoint()
 {
-    return new LinuxEntrypoint();
-}
-
-Component * make_macosentrypoint()
-{
-	return new MacOSEntrypoint();
+    return new UnixEntrypoint();
 }
 
 Component * make_memoryimage()
@@ -134,8 +129,7 @@ ComponentFactory::ComponentFactory()
     add(make_resolveconstaddr, "pass", "resolveconstaddr");
     add(make_stacksizepass, "pass", "stacksize");
     add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
-    add(make_linuxentrypoint, "entrypoint", "linuxentrypoint");
-	add(make_macosentrypoint, "entrypoint", "macosentrypoint");
+	add(make_unixentrypoint, "entrypoint", "unixentrypoint");
 }
 
 void ComponentFactory::add(ComponentMaker ptr, std::string c, std::string n)
