@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "entrypoint.h"
 #include "symbols.h"
 #include "asm.h"
@@ -30,6 +32,8 @@ bool UnixEntrypoint::configure(std::string param, std::string val)
 	{
 		return Component::configure(param, val);
 	}
+
+	return false;
 }
 
 void UnixEntrypoint::generateEpilogue(BasicBlock * block, FunctionScope * scope, Image *)
