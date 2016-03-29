@@ -34,7 +34,9 @@ class Arm : public Assembler
 	virtual void align(uint64_t a);
     
   protected:
-    
+
+    uint32_t calcImm(uint64_t raw);
+  
 };
 
 class ArmUnixSyscallCallingConvention : public CallingConvention

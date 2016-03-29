@@ -71,6 +71,23 @@ int Arm::size(BasicBlock * b)
     return ret;
 }
 
+uint32_t Arm::calcImm(uint64_t raw)
+{
+    uint32_t shift =0 ;
+    while (shift < 4)
+    {
+        uint32_t trial = (raw && 0xff) << shift;
+	if (trial == raw)
+	{
+  	    return (raw & 0xff) | (shift << 8); 
+        }
+	shift += 1;
+    }
+
+    printf("Cannot encode %ld as an Arm immediate!\n");
+    return 0;
+}
+
 bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 {
 
@@ -78,7 +95,7 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
     b->setAddr(address+flen());
 
-	uint64_t current_addr = (uint64_t)current;
+    uint64_t current_addr = (uint64_t)current;
     assert((current_addr & 0x3) == 0);
 
     for (std::list<Insn>::iterator it = code.begin(); it != code.end();
@@ -87,13 +104,33 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
         Insn & i = *it;
         i.addr = address+flen();
 
-	uint32_t * ins_ptr = (uint32_t *)current;
+	uint32_t mc = 0;
        
         unsigned char * oldcurrent = current;
 	
         switch (i.ins)
         {
-            
+  	    case MOVE:
+	    {
+
+                assert(i.oc == 2);
+
+                assert (i.ops[0].isReg());
+                assert (i.ops[1].isUsigc() ||
+			i.ops[1].isReg());
+		
+                if (i.ops[1].isUsigc())
+                {
+   		    uint32_t imm = calcImm(i.ops[1].getUsigc());
+		    mc = 0xe2d00000 | i.ops[0].getReg() << 12 | imm;
+		}
+		else
+		{
+		    mc = 0xe0d00000 | (i.ops[1].getReg() << 16) |
+		             i.ops[0].getReg() << 12;
+	        }
+		break;
+	    }
             default:
             {
                 fprintf(log_file, "Don't know how to turn %ld [%s] into arm!\n", i.ins, i.toString().c_str());
@@ -108,7 +145,7 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             }
         }
 
-	current += 4;
+	wee32(le, current, mc);
         if (current >= limit)
         {
             printf("Ran out of space to assemble into, %d\n", (int)(limit-base));
