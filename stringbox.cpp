@@ -113,7 +113,7 @@ int StringBox::add(const char * c)
 
 void StringBox::dump()
 {
-    printf("IDs %d datasize %d\n\n",idp,datap);
+    printf("IDs %d datasize %ld\n\n",idp,datap);
     for(int loopc=0;loopc<idp;loopc++)
     {
         printf("%d [%s]\n",loopc+1,data+ids[loopc]);

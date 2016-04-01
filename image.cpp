@@ -5,7 +5,7 @@
 #include "asm.h"
 #include "platform.h"
 
-FunctionRelocation::FunctionRelocation(Image * i, FunctionScope * p, uint64_t po, FunctionScope * l, uint64_t lo)
+FunctionRelocation::FunctionRelocation(Image * i, FunctionScope * p, uint64 po, FunctionScope * l, uint64 lo)
 	: BaseRelocation(i)
 {
     image = i;
@@ -18,12 +18,12 @@ FunctionRelocation::FunctionRelocation(Image * i, FunctionScope * p, uint64_t po
 void FunctionRelocation::apply()
 {
     unsigned char * patch_site = image->functionPtr(to_patch)+patch_offset;
-    uint64_t laddr = image->functionAddress(to_link);
+    uint64 laddr = image->functionAddress(to_link);
     laddr += link_offset;
     wee64(image->littleEndian(),patch_site,laddr);
 }
 
-BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_t po, uint64_t pr, BasicBlock * l)
+BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64 po, uint64 pr, BasicBlock * l)
 	: BaseRelocation(i)
 {
     image = i;
@@ -34,7 +34,7 @@ BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_
     absolute = false;
 }
 
-BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_t po, BasicBlock * l)
+BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64 po, BasicBlock * l)
 	: BaseRelocation(i)
 {
     image = i;
@@ -54,20 +54,20 @@ void BasicBlockRelocation::apply()
 	return;
     }
 
-    uint64_t baddr = to_link->getAddr();
-    uint64_t oaddr = image->functionAddress(to_patch) + patch_relative;
+    uint64 baddr = to_link->getAddr();
+    uint64 oaddr = image->functionAddress(to_patch) + patch_relative;
     
-    int32_t diff;
+    int32 diff;
     if (oaddr > baddr)
     {
-        diff = -((int32_t)(oaddr-baddr));
+        diff = -((int32)(oaddr-baddr));
     }
     else
     {
-        diff = (int32_t)(baddr-oaddr);
+        diff = (int32)(baddr-oaddr);
     }
     
-    uint64_t paddr = image->functionAddress(to_patch);
+    uint64 paddr = image->functionAddress(to_patch);
     paddr += patch_offset;
     paddr -= image->getAddr(IMAGE_CODE);
 
@@ -75,8 +75,8 @@ void BasicBlockRelocation::apply()
 }
 
 SectionRelocation::SectionRelocation(Image * i,
-                                     int p, uint64_t po,
-                                     int d, uint64_t dof)
+                                     int p, uint64 po,
+                                     int d, uint64 dof)
     : BaseRelocation(i)
 {
     patch_section = p;
@@ -88,12 +88,12 @@ SectionRelocation::SectionRelocation(Image * i,
 void SectionRelocation::apply()
 {
     unsigned char * patch_site = image->getPtr(patch_section)+patch_offset;
-    uint64_t addr = image->getAddr(dest_section)+dest_offset;
+    uint64 addr = image->getAddr(dest_section)+dest_offset;
     wee64(image->littleEndian(), patch_site, addr);
 }
 
 ExtFunctionRelocation::ExtFunctionRelocation(Image * i,
-					     FunctionScope * f, uint64_t o,
+					     FunctionScope * f, uint64 o,
 					     std::string n)
   : BaseRelocation(i)
 {
@@ -105,7 +105,7 @@ ExtFunctionRelocation::ExtFunctionRelocation(Image * i,
 void ExtFunctionRelocation::apply()
 {
     unsigned char * patch_site = image->getPtr(IMAGE_CODE)+patch_offset;
-    uint64_t addr = image->importAddress(fname);
+    uint64 addr = image->importAddress(fname);
     wee64(image->littleEndian(), patch_site, addr);
 }
 
@@ -201,7 +201,7 @@ void Image::relocate()
   relocs.clear();
 }
 
-void Image::addFunction(FunctionScope * ptr, uint64_t size)
+void Image::addFunction(FunctionScope * ptr, uint64 size)
 {
     foffsets.push_back(current_offset);
     fptrs.push_back(ptr);
@@ -228,7 +228,7 @@ unsigned char * Image::functionPtr(FunctionScope * ptr)
     return 0;
 }
 
-uint64_t Image::functionAddress(FunctionScope * ptr)
+uint64 Image::functionAddress(FunctionScope * ptr)
 {
     for (unsigned int loopc=0; loopc<fptrs.size(); loopc++)
     {
@@ -242,7 +242,7 @@ uint64_t Image::functionAddress(FunctionScope * ptr)
     return INVALID_ADDRESS;
 }
 
-uint64_t Image::functionSize(FunctionScope * ptr)
+uint64 Image::functionSize(FunctionScope * ptr)
 {
     for (unsigned int loopc=0; loopc<fptrs.size(); loopc++)
     {
@@ -283,30 +283,30 @@ void Image::addImport(std::string lib, std::string name)
   total_imports++;
  }
 
-uint64_t MemoryImage::importAddress(std::string name)
+uint64 MemoryImage::importAddress(std::string name)
 {
     for (unsigned int loopc=0; loopc<import_names.size(); loopc++)
     {
         if (import_names[loopc] == name)
         {
-            return  (uint64_t)(&import_pointers[loopc]);
+            return  (uint64)(&import_pointers[loopc]);
         }
     }
 
     return INVALID_ADDRESS;
 }
 
-void Image::setSectionSize(int t, uint64_t l)
+void Image::setSectionSize(int t, uint64 l)
 {
     sizes[t] = l;
 }
 
-uint64_t Image::sectionSize(int t)
+uint64 Image::sectionSize(int t)
 {
     return sizes[t];
 }
 
-uint64_t Image::getAddr(int t)
+uint64 Image::getAddr(int t)
 {
     if (!bases[t])
     {
@@ -344,11 +344,11 @@ void MemoryImage::materialiseSection(int s)
 {
     Mem mem;
     mems[s] = mem.getBlock(sizes[s], MEM_READ | MEM_WRITE);
-    bases[s] = (uint64_t)mems[s].ptr;
+    bases[s] = (uint64)mems[s].ptr;
     sections[s] = mems[s].ptr;
 }
 
-void MemoryImage::setImport(std::string name, uint64_t addr)
+void MemoryImage::setImport(std::string name, uint64 addr)
 {    
     for (unsigned int loopc=0; loopc<import_names.size(); loopc++)
     {
@@ -372,7 +372,7 @@ void MemoryImage::endOfImports()
             import_names.push_back(l.imports[loopc2]);
 	}
     }
-    import_pointers = new uint64_t[import_names.size()];
+    import_pointers = new uint64[import_names.size()];
 }
 
 void MemoryImage::finalise()

@@ -41,7 +41,7 @@ void Error::print()
         {
             printf(" ");
         }
-        uint64_t todo;
+        uint64 todo;
         if (ec >= bc)
         {
             todo = ec-bc+1;

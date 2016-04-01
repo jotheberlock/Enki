@@ -3,6 +3,7 @@
 #include "image.h"
 #include "asm.h"
 #include "pass.h"
+#include "entrypoint.h"
 #include <list>
 #include <string.h>
 
@@ -146,6 +147,7 @@ bool ConfigFile::processLine(std::string line)
 	  else if (command == "entrypoint")
 	  {
 		  config->entrypoint = (Entrypoint *)component_factory->make("entrypoint", val);
+          config->components["entrypoint"] = config->entrypoint;
 	  }
 	  else if (command == "file")
 	  {

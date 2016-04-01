@@ -70,6 +70,6 @@ void set_cfuncs(MemoryImage * mi)
 
 void register_cfuncs(MemoryImage * mi)
 {
-    mi->setImport("test", (uint64_t)test);
+    mi->setImport("test", (uint64)test);
 }
 

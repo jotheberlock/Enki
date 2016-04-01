@@ -121,7 +121,7 @@ void ElfImage::finalise()
     ptr++;
     wee64(le, ptr, 0x0);  // ABI version and pad
     wee16(le, ptr, 0x2);  // Executable
-    uint16_t elf_arch = 0;
+    uint16 elf_arch = 0;
     if (arch == ARCH_AMD64)
     {
         elf_arch = 0x3e;
@@ -179,15 +179,15 @@ void ElfImage::finalise()
     }
         */
     
-    uint64_t prev_base = 0;
+    uint64 prev_base = 0;
     
     for (int loopc=0; loopc<4; loopc++)
     {
         int the_one = 0;
-        uint64_t lowest_diff = 0xffffffff;
+        uint64 lowest_diff = 0xffffffff;
         for (int loopc2=0; loopc2<4; loopc2++)
         {
-            uint64_t diff = bases[loopc2] - prev_base;
+            uint64 diff = bases[loopc2] - prev_base;
             if ((bases[loopc2] > prev_base) && (diff < lowest_diff))
             {
                 lowest_diff = diff;

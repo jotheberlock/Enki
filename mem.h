@@ -1,7 +1,7 @@
 #ifndef _MEM_
 #define _MEM_
 
-#include <stdint.h>
+#include "platform.h"
 
 #define MEM_READ 1
 #define MEM_WRITE 2
@@ -23,7 +23,7 @@ class MemBlock
     }
     
     unsigned char * ptr;
-    uint64_t len;
+    uint64 len;
     
 };
 
@@ -32,7 +32,7 @@ class Mem
 {
   public:
 
-    MemBlock getBlock(uint64_t len, int perms);
+    MemBlock getBlock(uint64 len, int perms);
     void releaseBlock(MemBlock & m);
     bool changePerms(MemBlock & m, int perms);
         

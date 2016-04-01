@@ -27,7 +27,7 @@ Constants * constants = 0;
 FunctionScope * root_scope = 0;
 ComponentFactory * component_factory = 0;
 
-typedef uint64_t (*TestFunc)(uint64_t);
+typedef uint64 (*TestFunc)(uint64);
 
 Codegen * root_gc = 0;
 unsigned char * root_buf = 0;
@@ -44,16 +44,16 @@ void dumpstack()
     }
 }
 
-uint64_t text_base = 0;
-uint64_t text_len = 0;
-uint64_t data_base = 0;
-uint64_t data_len = 0;
-uint64_t rodata_base = 0;
-uint64_t rodata_len = 0;
+uint64 text_base = 0;
+uint64 text_len = 0;
+uint64 data_base = 0;
+uint64 data_len = 0;
+uint64 rodata_base = 0;
+uint64 rodata_len = 0;
 
 bool valid_pointer(unsigned char * ptr)
 {
-    uint64_t val = (uint64_t)ptr;
+    uint64 val = (uint64)ptr;
     if (val >= text_base && val < (text_base+text_len))
     {
         return true;
@@ -80,7 +80,7 @@ pthread_mutex_t dumper = PTHREAD_MUTEX_INITIALIZER;
 
 ucontext * the_ucontext = 0;
 
-void write_reg(const char * rn, uint64_t rv)
+void write_reg(const char * rn, uint64 rv)
 {
     char buf[8];
     write(1, rn, strlen(rn));
@@ -177,9 +177,9 @@ void dump_codegen(Codegen * cg)
     }
 }
 
-uint32_t getUtf8(char * & f)
+uint32 getUtf8(char * & f)
 {   
-    uint32_t val = *f;
+    uint32 val = *f;
     f++;
     
     if (!(val & 0x80))
@@ -203,7 +203,7 @@ uint32_t getUtf8(char * & f)
         return 0;
     }
 
-    uint32_t ret = val;
+    uint32 ret = val;
     
     for (int loopc=0; loopc<nobytes; loopc++)
     {
@@ -252,7 +252,7 @@ void readFile(FILE * f, Chars & input)
     char * ptr = text;
     while (ptr < text+len)
     {
-        uint32_t v = getUtf8(ptr);
+        uint32 v = getUtf8(ptr);
         if (v)
         {
 	    input.push_back(v);
@@ -351,8 +351,6 @@ int main(int argc, char ** argv)
     
     delete current_config_file;
     
-    uint64_t result = 1;
-
     bool jit = false;
     
     Image * image = config.image;

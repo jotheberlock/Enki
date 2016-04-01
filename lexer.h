@@ -1,14 +1,15 @@
 #ifndef _LEXER_
 #define _LEXER_
 
-#include <stdint.h>
 #include <vector>
 #include <list>
 #include <map>
 #include <string>
 #include <stack>
 
-typedef std::vector<uint32_t> Chars;
+#include "platform.h"
+
+typedef std::vector<uint32> Chars;
 
 #define DONE 0
 #define STRING_LITERAL 1
@@ -101,7 +102,7 @@ public:
         col=0;
     }
 
-    uint32_t val;
+    uint32 val;
     int line;
     int col;
 
@@ -210,8 +211,8 @@ public:
         }
     }
 
-    void addOp(OpRec o, uint32_t first, uint32_t second = 0);
-    bool isOp(uint32_t first, uint32_t second, bool & two_char, OpRec & rec,
+    void addOp(OpRec o, uint32 first, uint32 second = 0);
+    bool isOp(uint32 first, uint32 second, bool & two_char, OpRec & rec,
               std::string);
 
     void endLexing();
@@ -220,11 +221,11 @@ protected:
 
     ReadChar eatWhitespace();
     ReadChar eatLine();
-    void readStringLiteral(uint32_t term);
+    void readStringLiteral(uint32 term);
     void readNumber();
     void readIdentifier();
 
-    bool isCombining(uint32_t val)
+    bool isCombining(uint32 val)
     {
         if (val > 0x300 && val <= 0x36f)
             return true;
@@ -278,7 +279,7 @@ protected:
     int oldcol;
     int oldline;
     
-    std::map<uint64_t, OpRec> ops;
+    std::map<uint64, OpRec> ops;
     std::map<std::string, int> keywords;
     std::stack<int> indentations;
     std::string file;

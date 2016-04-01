@@ -78,7 +78,7 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
     b->setAddr(address+flen());
 
-	uint64_t current_addr = (uint64_t)current;
+	uint64 current_addr = (uint64)current;
     assert((current_addr & 0x3) == 0);
 
     for (std::list<Insn>::iterator it = code.begin(); it != code.end();
@@ -87,8 +87,8 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
         Insn & i = *it;
         i.addr = address+flen();
 
-	uint32_t * ins_ptr = (uint32_t *)current;
-       
+        uint32 * ins_ptr = (uint32 *)current;
+        
         unsigned char * oldcurrent = current;
 	
         switch (i.ins)
@@ -96,19 +96,19 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             
             default:
             {
-                fprintf(log_file, "Don't know how to turn %ld [%s] into arm!\n", i.ins, i.toString().c_str());
+                fprintf(log_file, "Don't know how to turn %lld [%s] into arm!\n", i.ins, i.toString().c_str());
                 assert(false);
             }
             
             unsigned int siz = (unsigned int)(current - oldcurrent);
             if (siz > i.size)
             {
-                printf("Unexpectedly large instruction! estimate %d actual %d %s\n",
+                printf("Unexpectedly large instruction! estimate %lld actual %d %s\n",
                        i.size, siz, i.toString().c_str());
             }
         }
 
-	current += 4;
+        current += 4;
         if (current >= limit)
         {
             printf("Ran out of space to assemble into, %d\n", (int)(limit-base));
@@ -120,7 +120,7 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
     return true;
 }
 
-std::string Arm::transReg(uint32_t r)
+std::string Arm::transReg(uint32 r)
 {
     if (psize == 64)
     {
@@ -169,7 +169,7 @@ void Arm::newFunction(Codegen * c)
 	Assembler::newFunction(c);
 	if (c->callConvention() == CCONV_STANDARD)
 	{
-		uint64_t addr = c->stackSize();
+		uint64 addr = c->stackSize();
         if (psize == 64)
         {
             wle64(current, addr);
@@ -181,12 +181,12 @@ void Arm::newFunction(Codegen * c)
 	}
 }
 
-void Arm::align(uint64_t a)
+void Arm::align(uint64 a)
 {
-    uint32_t nop = (psize == 64) ? 0xd503201f : 0xf3af1000;
+    uint32 nop = (psize == 64) ? 0xd503201f : 0xf3af1000;
 	while (currentAddr() % a)
 	{
-		*((uint32_t *)current) = nop;
+		*((uint32 *)current) = nop;
 		current += 4;
 	}
 }

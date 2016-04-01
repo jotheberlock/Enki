@@ -1,7 +1,6 @@
 #ifndef _IMAGE_
 #define _IMAGE_
 
-#include <stdint.h>
 #include <string>
 #include <vector>
 #include "mem.h"
@@ -37,22 +36,22 @@ class Image : public Component
     virtual ~Image() {}
 
     virtual bool configure(std::string, std::string);
-    void setSectionSize(int, uint64_t);
-    uint64_t sectionSize(int);
+    void setSectionSize(int, uint64);
+    uint64 sectionSize(int);
     
-    uint64_t getAddr(int);
+    uint64 getAddr(int);
     unsigned char * getPtr(int);
         // Fix up perms
     virtual void finalise() = 0;
     void relocate();
-    void addFunction(FunctionScope *, uint64_t);
-    uint64_t functionAddress(FunctionScope *);
-    uint64_t functionSize(FunctionScope *);
+    void addFunction(FunctionScope *, uint64);
+    uint64 functionAddress(FunctionScope *);
+    uint64 functionSize(FunctionScope *);
     unsigned char * functionPtr(FunctionScope *);
     void setRootFunction(FunctionScope *);
     
     void addImport(std::string, std::string);
-    virtual uint64_t importAddress(std::string) = 0;
+    virtual uint64 importAddress(std::string) = 0;
 
     virtual void materialiseSection(int) = 0;
     bool littleEndian()
@@ -73,26 +72,26 @@ class Image : public Component
   protected:
 
     unsigned char * sections[4];
-    uint64_t bases[4];
-    uint64_t sizes[4];
+    uint64 bases[4];
+    uint64 sizes[4];
 
-    std::vector<uint64_t> foffsets;
-    std::vector<uint64_t> fsizes;
+    std::vector<uint64> foffsets;
+    std::vector<uint64> fsizes;
     std::vector<FunctionScope *> fptrs;
     
 	std::vector<LibImport> imports;
-	uint64_t total_imports;
+	uint64 total_imports;
     
-    uint64_t current_offset;
-    uint64_t align;
+    uint64 current_offset;
+    uint64 align;
 	
     std::vector<BaseRelocation *> relocs;
     FunctionScope * root_function;
 
     int arch;
     bool guard_page;
-    uint64_t base_addr;
-    uint64_t next_addr;
+    uint64 base_addr;
+    uint64 next_addr;
     std::string fname;
     bool sf_bit;
     
@@ -105,9 +104,9 @@ class MemoryImage : public Image
     MemoryImage();
     ~MemoryImage();
     void finalise();
-    void setImport(std::string, uint64_t);
-    uint64_t importAddress(std::string);
-    uint64_t importOffset(std::string);
+    void setImport(std::string, uint64);
+    uint64 importAddress(std::string);
+    uint64 importOffset(std::string);
     void endOfImports();
 
     std::string name() { return "memory"; }
@@ -117,7 +116,7 @@ class MemoryImage : public Image
     void materialiseSection(int s);
     MemBlock mems[4];
 	std::vector<std::string> import_names;
-    uint64_t * import_pointers;
+    uint64 * import_pointers;
 
 };
 
@@ -148,15 +147,15 @@ class FunctionRelocation : public BaseRelocation
   public:
 
     FunctionRelocation(Image *,
-                       FunctionScope *, uint64_t, FunctionScope *, uint64_t);
+                       FunctionScope *, uint64, FunctionScope *, uint64);
     void apply();
     
   protected:
     
     FunctionScope * to_patch;
     FunctionScope * to_link;
-    uint64_t patch_offset;
-    uint64_t link_offset;
+    uint64 patch_offset;
+    uint64 link_offset;
     
 };
 
@@ -165,19 +164,19 @@ class BasicBlockRelocation : public BaseRelocation
   public:
 
     BasicBlockRelocation(Image *,
-                         FunctionScope *, uint64_t, uint64_t, BasicBlock *);
+                         FunctionScope *, uint64, uint64, BasicBlock *);
 
 	
     BasicBlockRelocation(Image *,
-                         FunctionScope *, uint64_t, BasicBlock *);
+                         FunctionScope *, uint64, BasicBlock *);
     void apply();
     
   protected:
     
     FunctionScope * to_patch;
     BasicBlock * to_link;
-    uint64_t patch_offset;
-    uint64_t patch_relative;
+    uint64 patch_offset;
+    uint64 patch_relative;
 	bool absolute;
 
 };
@@ -186,15 +185,15 @@ class SectionRelocation : public BaseRelocation
 {
   public:
 
-    SectionRelocation(Image *, int, uint64_t, int, uint64_t);
+    SectionRelocation(Image *, int, uint64, int, uint64);
     void apply();
 
   protected:
 
     int patch_section;
-    uint64_t patch_offset;
+    uint64 patch_offset;
     int dest_section;
-    uint64_t dest_offset;
+    uint64 dest_offset;
     
 };
 
@@ -202,13 +201,13 @@ class ExtFunctionRelocation : public BaseRelocation
 {
    public:
  
-    ExtFunctionRelocation(Image *, FunctionScope *, uint64_t, std::string);
+    ExtFunctionRelocation(Image *, FunctionScope *, uint64, std::string);
     void apply();
     
    protected:
 
     FunctionScope * to_patch;
-    uint64_t patch_offset;
+    uint64 patch_offset;
     std::string fname;
   
 };
