@@ -149,8 +149,8 @@ void PEImage::finalise()
     wle16(ptr, arch);
     wle16(ptr, 6);  // sections
     wle32(ptr, checked_32(time(0)));  // timestamp
-    wle32(ptr, symbols_base-base_addr);  // symbol table ptr
-    wle32(ptr, fptrs.size());  // no. symbols
+    wle32(ptr, checked_32(symbols_base-base_addr));  // symbol table ptr
+    wle32(ptr, checked_32(fptrs.size()));  // no. symbols
     wle16(ptr, (sf_bit ? 112 : 96) + (16*8));  // Optional header size
 
     uint16 characteristics = 0;

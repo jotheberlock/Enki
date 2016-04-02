@@ -144,10 +144,10 @@ void MachOImage::finalise()
 		}
 		else
 		{
-			wee32(le, ptr, bases[loopc]);
-			wee32(le, ptr, roundup(sizes[loopc], 4096));
-			wee32(le, ptr, bases[loopc] - base_addr);
-			wee32(le, ptr, (loopc == IMAGE_UNALLOCED_DATA) ? 0 : roundup(sizes[loopc], 4096));
+			wee32(le, ptr, checked_32(bases[loopc]));
+			wee32(le, ptr, checked_32(roundup(sizes[loopc], 4096)));
+			wee32(le, ptr, checked_32(bases[loopc] - base_addr));
+			wee32(le, ptr, (loopc == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(roundup(sizes[loopc], 4096)));
 		}
 		wee32(le, ptr, prot);   // maxprot
 		wee32(le, ptr, prot);   // initprot
@@ -175,7 +175,7 @@ void MachOImage::finalise()
         wee32(le, ptr, 16);    // count
         for (int loopc=0; loopc<16; loopc++)
         {
-  	    wee32(le, ptr, loopc == 10 ? functionAddress(root_function) : 0);
+	  	    wee32(le, ptr, loopc == 10 ? checked_32(functionAddress(root_function)) : 0);
         }
     }
     
