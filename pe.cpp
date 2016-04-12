@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#if defined(LINUX_HOST) || defined(CYGWIN_HOST)
+#if defined(POSIX_HOST)
 #include <sys/stat.h>
 #endif
 
