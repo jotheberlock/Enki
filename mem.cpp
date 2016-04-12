@@ -33,7 +33,7 @@ MemBlock Mem::getBlock(uint64 len, int perms)
 {
     MemBlock ret;
 #ifdef HAVE_MPROTECT
-    void * ptr = mmap(0, len, getFlags(perms), MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    void * ptr = mmap(0, len, getFlags(perms), MAP_PRIVATE | MAP_ANON, -1, 0);
 #elif HAVE_WINDOWS_API
 	void * ptr = VirtualAlloc(0, len, MEM_RESERVE | MEM_COMMIT, getFlags(perms));
 #endif

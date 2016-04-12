@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -70,7 +71,7 @@ bool valid_pointer(unsigned char * ptr)
 }
 
 
-#ifdef POSIX_SIGNALS
+#if defined(POSIX_SIGNALS) && defined(LINUX_HOST)
 #include <signal.h>
 #include <unistd.h>
 #include <stdlib.h>

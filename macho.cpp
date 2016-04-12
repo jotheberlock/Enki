@@ -192,7 +192,7 @@ void MachOImage::finalise()
 	}
 
     fclose(f);
-#if defined(LINUX_HOST) || defined(CYGWIN_HOST)
+#if defined(POSIX_HOST)
     chmod(fname.c_str(), 0755);
 #endif
 }
