@@ -11,6 +11,8 @@ fi
 
 if [[ `uname` == "Linux" ]]; then
     OUTPUT="./a.out"
+elif [[ `uname` == "Darwin" ]]; then
+    OUTPUT="./a.out"
 elif [[ `uname` = CYGWIN* ]]; then
     OUTPUT="./a.exe"
 else
