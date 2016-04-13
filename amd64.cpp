@@ -705,7 +705,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     
                     if (i.ops[1].isFunction())
                     {
-                        uint64 reloc = 0xdeadbeefdeadbeef;
+                        uint64 reloc = 0xdeadbeefdeadbeefLL;
                         unsigned char r = 0xb8;
                         r |= reg(i.ops[0].getReg() & 0x7);
                         *current++ = r;
@@ -718,7 +718,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     }
                     else if (i.ops[1].isBlock())
                     {
-                        uint64 reloc = 0xdeadbeefdeadbeef;
+                        uint64 reloc = 0xdeadbeefdeadbeefLL;
                         unsigned char r = 0xb8;
                         r |= reg(i.ops[0].getReg() & 0x7);
                         *current++ = r;
@@ -730,7 +730,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     }
                     else if (i.ops[1].isSection())
                     {
-                        uint64 reloc = 0xdeadbeefdeadbeef;
+                        uint64 reloc = 0xdeadbeefdeadbeefLL;
                         unsigned char r = 0xb8;
                         r |= reg(i.ops[0].getReg() & 0x7);
                         *current++ = r;
@@ -744,7 +744,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     }
                     else if (i.ops[1].isExtFunction())
                     {
-                        uint64 reloc = 0xdeadbeefdeadbeef;
+                        uint64 reloc = 0xdeadbeefdeadbeefLL;
                         unsigned char r = 0xb8;
                         r |= reg(i.ops[0].getReg() & 0x7);
                         *current++ = r;
@@ -840,7 +840,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     else
                     {
                         uint64 imm = i.ops[2].getUsigc();
-                        assert(imm < 0x100000000);
+                        assert(imm < 0x100000000LL);
                         wle32(current, (uint32)imm);
                     }
                 }
@@ -996,7 +996,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     *current++ = 0xf8 | (i.ops[0].getReg() & 0x7);
                     
                     uint64 imm = i.ops[1].getUsigc();
-                    assert(imm < 0x100000000);
+                    assert(imm < 0x100000000LL);
                     wle32(current, (uint32)imm);
                 }
                 

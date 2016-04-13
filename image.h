@@ -12,7 +12,7 @@
 #define IMAGE_UNALLOCED_DATA 3
 #define IMAGE_LAST 4
 
-#define INVALID_ADDRESS 0xdeadbeefdeadbeef
+#define INVALID_ADDRESS 0xdeadbeefdeadbeefLL
 
 #define ARCH_AMD64 1
 

@@ -246,7 +246,7 @@ void wees64(bool b, unsigned char *& c, int64 v)
 
 uint32 checked_32(uint64 v)
 {
-	assert(v < 0x100000000);
+	assert(v < 0x100000000LL);
 	return v & 0xffffffff;
 }
 

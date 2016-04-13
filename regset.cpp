@@ -12,7 +12,7 @@ void RegSet::setAll()
 {
     for (int loopc=0; loopc<REGELEMENTS; loopc++)
     {
-        regs[loopc] = 0xffffffffffffffff;
+        regs[loopc] = 0xffffffffffffffffLL;
     }
 }
 

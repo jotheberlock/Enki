@@ -1,77 +1,77 @@
 enki: main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o arm.o
-	g++ -o enki main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o arm.o -lpthread
+	g++ -o enki $(LDFLAGS) main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o arm.o -lpthread
 
 main.o : main.cpp lexer.h ast.h type.h codegen.h
-	g++ -g -c -Wall main.cpp
+	g++ $(CFLAGS) -g -c -Wall main.cpp
 
 lexer.o : lexer.cpp lexer.h
-	g++ -g -c -Wall lexer.cpp
+	g++ $(CFLAGS) -g -c -Wall lexer.cpp
 
 ast.o : ast.cpp ast.h lexer.h codegen.cpp
-	g++ -g -c -Wall ast.cpp 
+	g++ $(CFLAGS) -g -c -Wall ast.cpp 
 
 error.o : error.cpp error.h lexer.h
-	g++ -g -c -Wall error.cpp
+	g++ $(CFLAGS) -g -c -Wall error.cpp
 
 type.o : type.cpp type.h
-	g++ -g -c -Wall type.cpp
+	g++ $(CFLAGS) -g -c -Wall type.cpp
 
 asm.o : asm.cpp asm.h
-	g++ -g -c -Wall asm.cpp
+	g++ $(CFLAGS) -g -c -Wall asm.cpp
 
 codegen.o : codegen.cpp codegen.h ast.h
-	g++ -g -c -Wall codegen.cpp
+	g++ $(CFLAGS) -g -c -Wall codegen.cpp
 
 mem.o : mem.cpp mem.h platform.h
-	g++ -g -c -Wall mem.cpp
+	g++ $(CFLAGS) -g -c -Wall mem.cpp
 
 amd64.o : amd64.cpp amd64.h asm.h
-	g++ -g -c -Wall amd64.cpp
+	g++ $(CFLAGS) -g -c -Wall amd64.cpp
 
 platform.o : platform.cpp platform.h
-	g++ -g -c -Wall platform.cpp
+	g++ $(CFLAGS) -g -c -Wall platform.cpp
 
 regset.o : regset.cpp regset.h
-	g++ -g -c -Wall regset.cpp
+	g++ $(CFLAGS) -g -c -Wall regset.cpp
 
 pass.o : pass.cpp pass.h codegen.h
-	g++ -g -c -Wall pass.cpp
+	g++ $(CFLAGS) -g -c -Wall pass.cpp
 
 cfuncs.o : cfuncs.cpp cfuncs.h
-	g++ -g -c -Wall cfuncs.cpp
+	g++ $(CFLAGS) -g -c -Wall cfuncs.cpp
 
 symbols.o : symbols.cpp symbols.h codegen.h
-	g++ -g -c -Wall symbols.cpp
+	g++ $(CFLAGS) -g -c -Wall symbols.cpp
 
 image.o : image.cpp image.h mem.h
-	g++ -g -c -Wall image.cpp
+	g++ $(CFLAGS) -g -c -Wall image.cpp
 
 elf.o : elf.cpp elf.h
-	g++ -g -c -Wall elf.cpp
+	g++ $(CFLAGS) -g -c -Wall elf.cpp
 
 stringbox.o : stringbox.cpp stringbox.h
-	g++ -g -c -Wall stringbox.cpp
+	g++ $(CFLAGS) -g -c -Wall stringbox.cpp
 
 component.o : component.cpp component.h
-	g++ -g -c -Wall component.cpp
+	g++ $(CFLAGS) -g -c -Wall component.cpp
 
 configfile.o : configfile.cpp configfile.h
-	g++ -g -c -Wall configfile.cpp
+	g++ $(CFLAGS) -g -c -Wall configfile.cpp
 
 backend.o : backend.cpp backend.h
-	g++ -g -c -Wall backend.cpp
+	g++ $(CFLAGS) -g -c -Wall backend.cpp
 
 pe.o : pe.cpp pe.h
-	g++ -g -c -Wall pe.cpp
+	g++ $(CFLAGS) -g -c -Wall pe.cpp
 
 entrypoint.o : entrypoint.cpp entrypoint.h asm.h symbols.h
-	g++ -g -c -Wall entrypoint.cpp
+	g++ $(CFLAGS) -g -c -Wall entrypoint.cpp
 
 macho.o : macho.cpp macho.h
-	g++ -g -c -Wall macho.cpp
+	g++ $(CFLAGS) -g -c -Wall macho.cpp
 
 arm.o : arm.cpp arm.h
-	g++ -g -c -Wall arm.cpp
+	g++ $(CFLAGS) -g -c -Wall arm.cpp
 
 clean:
 	rm *.o enki enki.exe *~

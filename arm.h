@@ -31,11 +31,11 @@ class Arm : public Assembler
     bool validConst(Insn & i, int idx);
 
     virtual void newFunction(Codegen *);
-	virtual void align(uint64 a);
+    virtual void align(uint64 a);
     
   protected:
 
-    uint32_t calcImm(uint64_t raw);
+    uint32_t calcImm(uint64 raw);
   
 };
 

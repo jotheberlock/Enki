@@ -33,7 +33,11 @@ typedef signed short int16;
 #define WINDOWS_CC 1
 #define WINDOWS_HOST 1
 #else
-#error "Unknown host platform!"
+#warning "Unknown host platform!"
+// Guess at Posix
+#define POSIX_HOST 1
+#define SYSV_CC 1
+#define HAVE_MPROTECT 1
 #endif
 
 void wle16(unsigned char *&, uint16);

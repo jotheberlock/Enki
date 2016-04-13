@@ -20,7 +20,8 @@ class Expr
     virtual void printOp(uint64 val)
     {
         uint32 first = val & 0xffffffff;
-        uint32 second = (val & 0xffffffff00000000) >> 32;
+	uint64 big_second = val >> 32;
+        uint32 second = (uint32)big_second;
         fprintf(log_file, "%c", (char)first);
         if (second)
         {

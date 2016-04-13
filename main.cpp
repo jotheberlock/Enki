@@ -272,14 +272,16 @@ int main(int argc, char ** argv)
     FILE * hfile = findFile(ConfigFile::hostConfig().c_str());
     if (!hfile)
     {
-        printf("Can't find host config [%s]\n", ConfigFile::hostConfig().c_str());
-        return 1;
+        printf("Can't find host config [%s], running without it\n", ConfigFile::hostConfig().c_str());
     }
     Configuration hostconfig;
 
-    ConfigFile hcf(hfile, &hostconfig);
-    hcf.process();
-
+    if (hfile)
+    {
+        ConfigFile hcf(hfile, &hostconfig);
+        hcf.process();
+    }
+    
     Configuration config;
     
     ConfigFile * current_config_file = 0;

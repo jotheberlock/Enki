@@ -211,7 +211,7 @@ int Backend::process()
     fillptr = (uint64 *)config->image->getPtr(IMAGE_DATA);
     for (int loopc=0; loopc<HEAP_SIZE/8; loopc++)
     {
-        *fillptr = 0xdeadbeefdeadbeef;
+        *fillptr = 0xdeadbeefdeadbeefLL;
         fillptr++;
     }
     
