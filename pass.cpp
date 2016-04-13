@@ -228,7 +228,7 @@ void SillyRegalloc::processInsn()
     {
         if (input[loopc])
         {
-            int64_t off = regs[loopc]->stackOffset();
+            int64 off = regs[loopc]->stackOffset();
             Insn load(loadForType(regs[loopc]->type),
                       Operand::reg(loopc), Operand::reg(15),
                       Operand::sigc(off));
@@ -237,7 +237,7 @@ void SillyRegalloc::processInsn()
         }
         if (output[loopc])
         {
-            int64_t off = regs[loopc]->stackOffset();
+            int64 off = regs[loopc]->stackOffset();
             Insn store(storeForType(regs[loopc]->type), Operand::reg(15),
                       Operand::sigc(off), Operand::reg(loopc));
             store.comment = "Store "+regs[loopc]->name;
@@ -259,7 +259,7 @@ void AddressOfPass::processInsn()
 {
     if (insn.ins == GETADDR)
     {
-        uint64_t depth = insn.ops[2].getUsigc();
+        uint64 depth = insn.ops[2].getUsigc();
         Insn mover(MOVE, insn.ops[0], Operand::reg(assembler->framePointer()));
         prepend(mover);
         while (depth > 0)
@@ -299,8 +299,8 @@ void ResolveConstAddr::processInsn()
     if (insn.ins == GETCONSTADDR)
     {
         insn.ins = MOVE;
-        uint64_t offs = insn.ops[1].getUsigc();
-        uint64_t addr = constants->lookupOffset(offs)+constants->getAddress();
+        uint64 offs = insn.ops[1].getUsigc();
+        uint64 addr = constants->lookupOffset(offs)+constants->getAddress();
         insn.ops[1] = Operand::usigc(addr);
         change(insn);
     }

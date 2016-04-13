@@ -165,7 +165,7 @@ int Backend::process()
     
     config->image->setSectionSize(IMAGE_CODE, code_size);
 
-    uint64_t * fillptr = 0;
+    uint64 * fillptr = 0;
     
     config->assembler->setAddr(config->image->getAddr(IMAGE_CODE));
     config->assembler->setMem(config->image->getPtr(IMAGE_CODE),
@@ -179,7 +179,7 @@ int Backend::process()
         if (ubbs.size() != 0)
         {
             printf("WARNING unplaced blocks:\n");
-            for (int loopc=0; loopc<ubbs.size(); loopc++)
+            for (unsigned int loopc=0; loopc<ubbs.size(); loopc++)
             {
 				printf("%d: %s\n", loopc, ubbs[loopc]->toString().c_str());
             }
@@ -208,7 +208,7 @@ int Backend::process()
     }
     
     config->image->setSectionSize(IMAGE_DATA, HEAP_SIZE);
-    fillptr = (uint64_t *)config->image->getPtr(IMAGE_DATA);
+    fillptr = (uint64 *)config->image->getPtr(IMAGE_DATA);
     for (int loopc=0; loopc<HEAP_SIZE/8; loopc++)
     {
         *fillptr = 0xdeadbeefdeadbeef;

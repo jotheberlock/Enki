@@ -152,14 +152,14 @@ void Constants::fillPool(unsigned char * ptr)
     }
 }
 
-uint64_t Constants::addConstant(const char * data, int len, int align)
+uint64 Constants::addConstant(const char * data, int len, int align)
 {
     while (constantp % align)
     {
         constantp++;
     }
     
-    uint64_t ret = constants.size();
+    uint64 ret = constants.size();
     Constant c;
     c.offset = constantp;
     c.data = new char[len];
@@ -203,7 +203,7 @@ std::string Codegen::display(unsigned char * addr)
     for (unsigned int loopc=0; loopc<locals.size(); loopc++)
     {
         char buf[4096];
-        sprintf(buf, "%p %-20s %4ld/%4lx: %s\n",
+        sprintf(buf, "%p %-20s %4lld/%4llx: %s\n",
                 addr+locals[loopc]->stackOffset(),
                 locals[loopc]->name.c_str(),
                 locals[loopc]->stackOffset(),

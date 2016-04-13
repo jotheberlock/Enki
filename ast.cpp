@@ -64,7 +64,7 @@ IntegerExpr::IntegerExpr(Token * t)
 
     if (is_negative)
 	{
-		int64_t * sval = (int64_t *)(&val);
+		int64 * sval = (int64 *)(&val);
         *sval = -*sval;
     }
 }
@@ -275,8 +275,8 @@ Expr * Parser::parseUnary()
     bool dummy;
     OpRec rec;
 
-    uint32_t first = 0;
-    uint32_t second = 0;
+    uint32 first = 0;
+    uint32 second = 0;
     if (current.value.size() > 0)
     {
         first = current.value[0];
@@ -1229,7 +1229,7 @@ Type * Parser::parseType()
                 }
 
                 char buf[4096];
-                sprintf(buf, "%ld", ie->getVal());
+                sprintf(buf, "%lld", ie->getVal());
                 i += buf;
                 i += "]";
                 
@@ -1443,13 +1443,13 @@ Value * BinaryExpr::codegen(Codegen * c)
         return 0;
     }
     
-    uint64_t equality_op = (((uint64_t)'=' << 32) | '=');
-    uint64_t inequality_op = (((uint64_t)'=' << 32) | '!');
-    uint64_t lte_op = (((uint64_t)'=' << 32) | '<');
-    uint64_t gte_op = (((uint64_t)'=' << 32) | '>');
-    uint64_t eval_op = (((uint64_t)':' << 32) | '=');
-    uint64_t lshift_op = (((uint64_t)'<' << 32) | '<');
-    uint64_t rshift_op = (((uint64_t)'>' << 32) | '>');
+    uint64 equality_op = (((uint64)'=' << 32) | '=');
+    uint64 inequality_op = (((uint64)'=' << 32) | '!');
+    uint64 lte_op = (((uint64)'=' << 32) | '<');
+    uint64 gte_op = (((uint64)'=' << 32) | '>');
+    uint64 eval_op = (((uint64)':' << 32) | '=');
+    uint64 lshift_op = (((uint64)'<' << 32) | '<');
+    uint64 rshift_op = (((uint64)'>' << 32) | '>');
 
     if (token.toString() == "and")
     {
@@ -1680,7 +1680,7 @@ Value * BinaryExpr::codegen(Codegen * c)
     else
     {
         addError(Error(&token, "Unknown binop"));
-        fprintf(log_file, "Argl unknown binop %x %c for codegen!\n", op,
+        fprintf(log_file, "Argl unknown binop %llx %c for codegen!\n", op,
                 (unsigned char)(op & 0xff));
     }
     
@@ -1723,8 +1723,8 @@ Value * UnaryExpr::codegen(Codegen * c)
     }
     else
     {
-        fprintf(log_file, "Argl unknown unop %x %c for codegen!\n", op,
-                op & 0xff);
+        fprintf(log_file, "Argl unknown unop %llx %c for codegen!\n", op,
+                (char)(op & 0xff));
         addError(Error(&token, "Unknown unop"));
     }
     

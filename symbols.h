@@ -6,7 +6,8 @@
 #include <list>
 #include <vector>
 #include <assert.h>
-#include <stdint.h>
+
+#include "platform.h"
 
 class Value;
 class FunctionScope;
@@ -117,23 +118,23 @@ class FunctionScope : public SymbolScope
         return true;
     }
     
-    uint64_t getAddr()
+    uint64 getAddr()
     {
         assert(addr);
         return addr;
     }
 
-    void setAddr(uint64_t a)
+    void setAddr(uint64 a)
     {
         addr=a;
     }
 
-    void setStackSize(uint64_t s)
+    void setStackSize(uint64 s)
     {
         stack_size = s;
     }
 
-    uint64_t getStackSize()
+    uint64 getStackSize()
     {
         assert(stack_size);
         return stack_size;
@@ -144,8 +145,8 @@ class FunctionScope : public SymbolScope
     std::vector<Value *> args_list;
     FunctionScope * function;
     FunctionType * type;
-    uint64_t addr;
-    uint64_t stack_size;
+    uint64 addr;
+    uint64 stack_size;
     
 };
 

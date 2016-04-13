@@ -32,7 +32,7 @@ class Value
         is_const=false;
     }
     
-    Value(uint64_t v)
+    Value(uint64 v)
     {
         type=0;
         val=v;
@@ -57,12 +57,12 @@ class Value
         on_stack=b;
     }
 
-    uint64_t stackOffset()
+    uint64 stackOffset()
     {
         return stack_offset;
     }
 
-    void setStackOffset(uint64_t o)
+    void setStackOffset(uint64 o)
     {
         stack_offset=o;
     }
@@ -77,10 +77,10 @@ class Value
         is_const = c;
     }
     
-    uint64_t stack_offset;
+    uint64 stack_offset;
     
     bool is_number;
-    uint64_t val;
+    uint64 val;
 
     std::string name;
     Type * type;
@@ -93,7 +93,7 @@ class Constant
 {
   public:
 
-    uint64_t offset;
+    uint64 offset;
     char * data;
     int len;
 };
@@ -110,24 +110,24 @@ class Constants
 
     ~Constants();
     
-    uint64_t addConstant(const char * data, int len, int align);
-    uint64_t lookupOffset(uint64_t idx)
+    uint64 addConstant(const char * data, int len, int align);
+    uint64 lookupOffset(uint64 idx)
     {
         return constants[idx].offset;
     }
 
-    void setAddress(uint64_t a)
+    void setAddress(uint64 a)
     {
         addr=a;
     }
     
-    uint64_t getAddress()
+    uint64 getAddress()
     {
         assert(addr);
         return addr;
     }
 
-    uint64_t getSize()
+    uint64 getSize()
     {
         return constantp;
     }
@@ -137,8 +137,8 @@ class Constants
   protected:
 
     std::vector<Constant> constants;
-    uint64_t constantp;
-    uint64_t addr;
+    uint64 constantp;
+    uint64 addr;
     
 };
 
@@ -189,7 +189,7 @@ class Codegen
     }
 
     void allocateStackSlots();
-    uint64_t stackSize()
+    uint64 stackSize()
     {
         assert(stack_size != 0xdeadbeef);
         return stack_size;
@@ -321,7 +321,7 @@ class Codegen
     int count;
     int bbcount;
     BasicBlock * current_block;
-    uint64_t stack_size;
+    uint64 stack_size;
 
     bool allocated_slots;
     int cconv;

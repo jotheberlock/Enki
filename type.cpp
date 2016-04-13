@@ -10,7 +10,7 @@ Type * byte_type;
 
 void IntegerType::copy(Codegen * c, Value * a, Value * v)
 {
-    uint64_t store = STORE;
+    uint64 store = STORE;
     if (bits < 9)
     {
         store = STORE8;
@@ -258,7 +258,7 @@ void destroyTypes()
 
 std::string BoolType::display(unsigned char * addr)
 {
-    uint64_t val = *((uint64_t *)addr);
+    uint64 val = *((uint64 *)addr);
     if (val == 0)
     {
         return "false";
@@ -308,9 +308,9 @@ std::string IntegerType::display(unsigned char * addr)
 
 std::string PointerType::display(unsigned char * addr)
 {
-    uint64_t val = *((uint64_t *)addr);
+    uint64 val = *((uint64 *)addr);
     char buf[4096];
-    sprintf(buf, "%lx", val);
+    sprintf(buf, "%llx", val);
     return buf;
 }
 
@@ -486,7 +486,7 @@ bool FunctionType::validArgList(std::vector<Value *> & args, std::string & reaso
     if (args.size() != params.size())
     {
         char buf[4096];
-        sprintf(buf, "expected %d arguments, got %d", params.size(), args.size());
+        sprintf(buf, "expected %ld arguments, got %ld", params.size(), args.size());
 	reason = buf;
         return false;
     }

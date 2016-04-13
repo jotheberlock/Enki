@@ -13,8 +13,8 @@ class PEImage : public Image
     bool configure(std::string, std::string);
     void finalise();
     
-    virtual uint64_t importAddress(std::string);
-    virtual uint64_t importOffset(std::string)
+    virtual uint64 importAddress(std::string);
+    virtual uint64 importOffset(std::string)
     {
         return 0;
     }
@@ -25,8 +25,8 @@ class PEImage : public Image
 
     void materialiseSection(int s);
     int subsystem;
-    uint64_t imports_base;
-    uint64_t symbols_base;
+    uint64 imports_base;
+    uint64 symbols_base;
     int os_major;
     int os_minor;
     

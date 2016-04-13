@@ -15,7 +15,7 @@ class Amd64 : public Assembler
     int regnum(std::string);
     int size(BasicBlock *);
     bool assemble(BasicBlock *, BasicBlock *, Image *);
-    std::string transReg(uint32_t);
+    std::string transReg(uint32);
     
     ValidRegs validRegs(Insn &);
     int framePointer()
@@ -30,7 +30,7 @@ class Amd64 : public Assembler
 
     bool validConst(Insn & i, int idx);    
 	virtual void newFunction(Codegen *);
-	virtual void align(uint64_t a);
+	virtual void align(uint64 a);
 
     virtual bool configure(std::string, std::string);
     

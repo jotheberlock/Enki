@@ -5,7 +5,6 @@
 #include <string>
 #include <list>
 #include <vector>
-#include <stdint.h>
 
 #include "asm.h"
 #include "platform.h"
@@ -358,7 +357,7 @@ class ArrayType : public Type
 {
   public:
     
-    ArrayType(Type * t, uint64_t s = 0)
+    ArrayType(Type * t, uint64 s = 0)
     {
         pointed_type = t;
         siz = (int)s;
@@ -410,7 +409,7 @@ class StructElement
 
     std::string name;
     Type * type;
-    uint64_t offset;
+    uint64 offset;
 
 };
 

@@ -14,12 +14,12 @@ class ElfImage : public Image
     void finalise();
     bool configure(std::string, std::string);
     
-    virtual uint64_t importAddress(std::string)
+    virtual uint64 importAddress(std::string)
     {
         return 0;
     }
     
-    virtual uint64_t importOffset(std::string)
+    virtual uint64 importOffset(std::string)
     {
         return 0;
     }

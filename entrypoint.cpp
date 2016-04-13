@@ -19,14 +19,17 @@ bool UnixEntrypoint::configure(std::string param, std::string val)
 	if (param == "syscall_number")
 	{
 		syscall_number = strtol(val.c_str(), 0, 0);
+        return true;
 	}
 	else if (param == "syscall_register")
 	{
 		syscall_reg = strtol(val.c_str(), 0, 0);
+        return true;
 	}
 	else if (param == "exitcode_register")
 	{
 		exitcode_reg = strtol(val.c_str(), 0, 0);
+        return true;
 	}
 	else
 	{

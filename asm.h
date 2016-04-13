@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <list>
-#include <stdint.h>
 #include <stdio.h>
 
 #include "mem.h"
@@ -92,20 +91,20 @@ class Operand
     Operand(BasicBlock *);
     Operand(FunctionScope *);
 
-    uint32_t getReg();
-    uint64_t getUsigc();
-    int64_t getSigc();
+    uint32 getReg();
+    uint64 getUsigc();
+    int64 getSigc();
     Value * getValue();
     BasicBlock * getBlock();
     FunctionScope * getFunction();
-    uint64_t getSection(int &);   // e.g. 'data segment address'
+    uint64 getSection(int &);   // e.g. 'data segment address'
     std::string getExtFunction();
     
-    static Operand sigc(int64_t);
-    static Operand usigc(uint64_t);
-    static Operand reg(int32_t);
+    static Operand sigc(int64);
+    static Operand usigc(uint64);
+    static Operand reg(int32);
     static Operand reg(std::string);
-    static Operand section(int, uint64_t);
+    static Operand section(int, uint64);
     static Operand extFunction(std::string);
     
     bool eq(Operand &);
@@ -127,12 +126,12 @@ class Operand
     union
     {
         Value * v;
-        uint64_t c;
-        int64_t sc;
+        uint64 c;
+        int64 sc;
         BasicBlock * b;
-        uint32_t r;
+        uint32 r;
         FunctionScope * f;
-        uint64_t s;
+        uint64 s;
         std::string * e;
     } contents;
 };
@@ -149,7 +148,7 @@ class Insn
 	size=0;
     }
     
-    Insn(uint64_t i)
+    Insn(uint64 i)
     {
         ins=i;
         oc=0;
@@ -157,7 +156,7 @@ class Insn
 	size=0;
     }
 
-    Insn(uint64_t i, Operand o1)
+    Insn(uint64 i, Operand o1)
     {
         ins=i;
         ops[0]=o1;
@@ -166,7 +165,7 @@ class Insn
 	size=0;
     }
     
-    Insn(uint64_t i, Operand o1, Operand o2)
+    Insn(uint64 i, Operand o1, Operand o2)
     {
         ins=i;
         ops[0]=o1;
@@ -176,7 +175,7 @@ class Insn
 	size=0;
     }
     
-    Insn(uint64_t i, Operand o1, Operand o2, Operand o3)
+    Insn(uint64 i, Operand o1, Operand o2, Operand o3)
     {
         ins=i;
         ops[0]=o1;
@@ -193,9 +192,9 @@ class Insn
     bool isIn(int);
     bool isOut(int);
     
-    uint64_t ins;
-    uint64_t addr;
-    uint64_t size;
+    uint64 ins;
+    uint64 addr;
+    uint64 size;
     int oc;
     Operand ops[4];
     std::string comment;
@@ -278,12 +277,12 @@ class BasicBlock
         return (addr != 0);
     }
 
-    uint64_t getAddr()
+    uint64 getAddr()
     {
         return addr;
     }
 
-    void setAddr(uint64_t a)
+    void setAddr(uint64 a)
     {
         addr=a;
     }
@@ -304,7 +303,7 @@ class BasicBlock
     std::vector<BasicBlock *> parents;
     std::list<Insn> insns;
     std::string nam;
-    uint64_t addr;
+    uint64 addr;
     RegSet reserved_regs;
     
 };
@@ -377,7 +376,7 @@ class Assembler : public Component
     virtual int regnum(std::string) = 0;
     virtual int size(BasicBlock *) = 0;  // Size in bytes of machine code
     virtual bool assemble(BasicBlock *, BasicBlock * next, Image * image) = 0;
-    virtual std::string transReg(uint32_t) = 0;
+    virtual std::string transReg(uint32) = 0;
     virtual ValidRegs validRegs(Insn &) = 0;
     virtual bool validConst(Insn &, int) = 0;
     virtual int framePointer() = 0;
@@ -387,20 +386,20 @@ class Assembler : public Component
         return psize;
     }
     
-    uint64_t len() { return current-base; }  // From beginning of code segment
-    uint64_t flen() { return current-func_base; }   // From beginning of function
+    uint64 len() { return current-base; }  // From beginning of code segment
+    uint64 flen() { return current-func_base; }   // From beginning of function
     
-    uint64_t currentAddr()
+    uint64 currentAddr()
     {
         return address+len();
     }
     
-    void setAddr(uint64_t a)
+    void setAddr(uint64 a)
     {
         address=a;
     }
     
-    virtual void align(uint64_t a) = 0;  // Pads with NOPs
+    virtual void align(uint64 a) = 0;  // Pads with NOPs
     virtual void newFunction(Codegen *);
 
     virtual bool configure(std::string, std::string);
@@ -411,7 +410,7 @@ class Assembler : public Component
     unsigned char * current;
     unsigned char * limit;
     unsigned char * func_base;
-    uint64_t address;
+    uint64 address;
     int psize;
     bool le;
     FunctionScope * current_function;

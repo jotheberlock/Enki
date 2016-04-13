@@ -73,14 +73,14 @@ Lexer::Lexer()
     simpleToken(b, BEGIN);  // Implicit block
 }
 
-void Lexer::addOp(OpRec op, uint32_t first, uint32_t second)
+void Lexer::addOp(OpRec op, uint32 first, uint32 second)
 {
-    uint64_t s64 = second;
-    uint64_t encoded = ((s64 << 32) | first);
+    uint64 s64 = second;
+    uint64 encoded = ((s64 << 32) | first);
     ops[encoded] = op;
 }
 
-bool Lexer::isOp(uint32_t first, uint32_t second, bool & two_char,
+bool Lexer::isOp(uint32 first, uint32 second, bool & two_char,
                  OpRec & op, std::string full_value)
 {
     if (full_value == "or")
@@ -114,16 +114,16 @@ bool Lexer::isOp(uint32_t first, uint32_t second, bool & two_char,
 	return true;
     }
     
-    uint64_t s64 = second;
-    uint64_t encoded = (s64 << 32) | first;
-    std::map<uint64_t, OpRec>::iterator it1 = ops.find(encoded);
+    uint64 s64 = second;
+    uint64 encoded = (s64 << 32) | first;
+    std::map<uint64, OpRec>::iterator it1 = ops.find(encoded);
     if (it1 != ops.end())
     {
         two_char = true;
         op = (*it1).second;
         return true;
     }
-    std::map<uint64_t, OpRec>::iterator it2 = ops.find(first);
+    std::map<uint64, OpRec>::iterator it2 = ops.find(first);
     if (it2 != ops.end())
     {
         two_char = false;
@@ -149,7 +149,7 @@ ReadChar Lexer::eatWhitespace()
 ReadChar Lexer::eatLine()
 {
     ReadChar ch = next();
-    uint32_t val = ch.val;
+    uint32 val = ch.val;
     while (val != '\n' && val != 0)
     {
         ch = next();
@@ -186,7 +186,7 @@ void Lexer::readIdentifier()
     }
 }
 
-int hexdig(uint32_t val)
+int hexdig(uint32 val)
 {
     if (val >= '0' && val <= '9')
     {
@@ -206,14 +206,14 @@ int hexdig(uint32_t val)
     return -1;
 }
 
-void Lexer::readStringLiteral(uint32_t term)
+void Lexer::readStringLiteral(uint32 term)
 {
     bool not_raw = true;
     
     while(true)
     {
          ReadChar ch = next();
-         uint32_t val = ch.val;
+         uint32 val = ch.val;
          if (val == term || val == 0)
          {
              pushToken(ch);
@@ -222,7 +222,7 @@ void Lexer::readStringLiteral(uint32_t term)
          else if (val == '\\' && not_raw)
          {  
              ReadChar nch = next();
-             uint32_t val2 = nch.val;
+             uint32 val2 = nch.val;
              if (val2 == 'r')
              {
                  not_raw = false;
@@ -331,7 +331,7 @@ void Lexer::readStringLiteral(uint32_t term)
                  {
                      endToken(ch2);
                      char buf[4096];
-                     sprintf(buf, "%c %c", ch1.val, ch2.val);
+                     sprintf(buf, "%c %c", (char)ch1.val, (char)ch2.val);
                      addError(Error(&current_token, "Not a hex digit", buf));
                  }
                  else
@@ -358,7 +358,7 @@ void Lexer::readStringLiteral(uint32_t term)
                      else
                      {
                          char buf[4096];
-                         sprintf(buf, "%c", ch.val);
+                         sprintf(buf, "%c", (char)ch.val);
                          addError(Error(&current_token,
                                         "Not a binary digit", buf));
                      }
@@ -369,7 +369,7 @@ void Lexer::readStringLiteral(uint32_t term)
              {
                  endToken(nch);
                  char buf[4096];
-                 sprintf(buf, "%c (%x)", val2, val2);
+                 sprintf(buf, "%c (%x)", (char)val2, val2);
                  addError(Error(&current_token,
                                 "Unknown escape sequence",
                                 buf));
@@ -480,7 +480,7 @@ void Lexer::lex(Chars & input)
     while (true)
     {
         ReadChar begin = eatWhitespace();
-        uint32_t val = begin.val;
+        uint32 val = begin.val;
         if (val == 0)
         {
 	  /*
@@ -668,7 +668,7 @@ void Lexer::lex(Chars & input)
             dummy.ecol = begin.col;
 
             char buf[4096];
-            sprintf(buf, "%c (%x)", val, val);
+            sprintf(buf, "%c (%x)", (char)val, val);
             addError(Error(&dummy, "Unknown character",
                            buf));
         }

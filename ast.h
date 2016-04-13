@@ -17,10 +17,10 @@ class Expr
 
     virtual void print(int i) = 0;
 
-    virtual void printOp(uint64_t val)
+    virtual void printOp(uint64 val)
     {
-        uint32_t first = val & 0xffffffff;
-        uint32_t second = (val & 0xffffffff00000000) >> 32;
+        uint32 first = val & 0xffffffff;
+        uint32 second = (val & 0xffffffff00000000) >> 32;
         fprintf(log_file, "%c", (char)first);
         if (second)
         {
@@ -59,10 +59,10 @@ class IntegerExpr : public Expr
   virtual void print(int i)
   {
       indent(i);
-      fprintf(log_file, "Int %ld", val);
+      fprintf(log_file, "Int %lld", val);
   }
 
-  uint64_t getVal()
+  uint64 getVal()
   {
       return val;
   }
@@ -71,7 +71,7 @@ class IntegerExpr : public Expr
 
  protected:
 
-  uint64_t val;
+  uint64 val;
 
 };
 
@@ -139,7 +139,7 @@ class StringLiteralExpr : public Expr
       return val;
   }
 
-  uint64_t getIndex()
+  uint64 getIndex()
   {
       return idx;
   }
@@ -149,7 +149,7 @@ class StringLiteralExpr : public Expr
  protected:
 
   std::string val;
-  uint64_t idx;
+  uint64 idx;
   
 };
 
@@ -217,7 +217,7 @@ class UnaryExpr : public Expr
   {
       if(t->value.size() == 2)
       {
-          uint64_t second = t->value[1];
+          uint64 second = t->value[1];
           op = (second << 32) | t->value[0];
       }
       else if (t->value.size() == 1)
@@ -250,7 +250,7 @@ class UnaryExpr : public Expr
   
  protected:
 
-  uint64_t op;
+  uint64 op;
   Expr * expr;
   Token token;
   
@@ -433,7 +433,7 @@ class BinaryExpr : public Expr
     
       if(t->value.size() == 2)
       {
-          uint64_t second = t->value[1];
+          uint64 second = t->value[1];
           op = (second << 32) | t->value[0];
       }
       else if (t->value.size() == 1)
@@ -479,7 +479,7 @@ class BinaryExpr : public Expr
   
  protected:
 
-  uint64_t op;
+  uint64 op;
   Expr * lhs;
   Expr * rhs;
   Token token;
@@ -923,7 +923,7 @@ class Parser
         {
             current = tokens[count];
             count++;
-            fprintf(log_file, "Returning %d %c\n", current.type, current.value.size() > 0 ? current.value[0] : ' ');
+            fprintf(log_file, "Returning %d %c\n", current.type, (char)(current.value.size() > 0 ? current.value[0] : ' '));
             return current;
         } 
 

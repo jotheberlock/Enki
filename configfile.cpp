@@ -3,6 +3,7 @@
 #include "image.h"
 #include "asm.h"
 #include "pass.h"
+#include "entrypoint.h"
 #include <list>
 #include <string.h>
 
@@ -15,7 +16,7 @@ std::string ConfigFile::hostConfig()
     return "linux_host.ini";
 #endif
 #ifdef MACOS_HOST
-	return "macos_host.ini"
+	return "macos_host.ini";
 #endif
 #ifdef WINDOWS_HOST
 	return "cygwin_host.ini"; // Until something needs changes
@@ -35,7 +36,7 @@ std::string ConfigFile::nativeTargetConfig()
     return "windows_amd64_target.ini";
 #endif
 #ifdef MACOS_HOST
-	return "macos_amd64_target.ini"
+	return "macos_amd64_target.ini";
 #endif
     return "unknown host";
 }
@@ -146,6 +147,7 @@ bool ConfigFile::processLine(std::string line)
 	  else if (command == "entrypoint")
 	  {
 		  config->entrypoint = (Entrypoint *)component_factory->make("entrypoint", val);
+          config->components["entrypoint"] = config->entrypoint;
 	  }
 	  else if (command == "file")
 	  {
