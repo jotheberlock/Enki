@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #ifdef HOST_BIG_ENDIAN
 void wle16(unsigned char *& ptr, uint16 v)
@@ -71,80 +72,73 @@ void wles64(unsigned char *& ptr, int64 v)
 
 void wbe16(unsigned char *& ptr, uint16 v)
 {
-    *((uint16 *)ptr) = v;
+    memcpy(ptr, &v, 2);
     ptr += 2;
 }
 
 void wbe32(unsigned char *& ptr, uint32 v)
 {
-    *((uint32 *)ptr) = v;
+    memcpy(ptr, &v, 4);
     ptr += 4;
 }
 
 void wbe64(unsigned char *& ptr, uint64 v)
 {
-    *((uint64 *)ptr) = v;
+    memcpy(ptr, &v, 8);
     ptr += 8;
 }
 
 void wbes16(unsigned char *& ptr, int16 v)
 {
-    uint16 us;
-    *((int16 *)(&us)) = v;
-    wle16(ptr, us);
+    memcpy(ptr, &v, 2);
+    ptr += 2;
 }
 
 void wbes32(unsigned char *& ptr, int32 v)
 {
-    uint32 us;
-    *((int32 *)(&us)) = v;
-    wle32(ptr, us);
+    memcpy(ptr, &v, 4);
+    ptr += 4;
 }
 
 void wbes64(unsigned char *& ptr, int64 v)
 {
-    uint64 us;
-    *((int64 *)(&us)) = v;
-    wle64(ptr, us);
+    memcpy(ptr, &v, 8);
 }
 #else
 void wle16(unsigned char *& ptr, uint16 v)
 {
-    *((uint16 *)ptr) = v;
+    memcpy(ptr, &v, 2);
     ptr += 2;
 }
 
 void wle32(unsigned char *& ptr, uint32 v)
 {
-    *((uint32 *)ptr) = v;
+    memcpy(ptr, &v, 4);
     ptr += 4;
 }
 
 void wle64(unsigned char *& ptr, uint64 v)
 {
-    *((uint64 *)ptr) = v;
+    memcpy(ptr, &v, 8);
     ptr += 8;
 }
 
 void wles16(unsigned char *& ptr, int16 v)
 {
-    uint16 us;
-    *((int16 *)(&us)) = v;
-    wle16(ptr, us);
+    memcpy(ptr, &v, 2);
+    ptr += 2;
 }
 
 void wles32(unsigned char *& ptr, int32 v)
 {
-    uint32 us;
-    *((int32 *)(&us)) = v;
-    wle32(ptr, us);
+    memcpy(ptr, &v, 4);
+    ptr += 4;
 }
 
 void wles64(unsigned char *& ptr, int64 v)
 {
-    uint64 us;
-    *((int64 *)(&us)) = v;
-    wle64(ptr, us);
+    memcpy(ptr, &v, 8);
+    ptr += 8;
 }
 
 void wbe16(unsigned char *& ptr, uint16 v)
