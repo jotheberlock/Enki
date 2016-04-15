@@ -71,12 +71,12 @@ int Arm::size(BasicBlock * b)
     return ret;
 }
 
-uint32_t Arm::calcImm(uint64 raw)
+uint32 Arm::calcImm(uint64 raw)
 {
-    uint32_t shift =0 ;
+    uint32 shift =0 ;
     while (shift < 4)
     {
-        uint32_t trial = (raw && 0xff) << shift;
+        uint32 trial = (raw && 0xff) << shift;
 	if (trial == raw)
 	{
   	    return (raw & 0xff) | (shift << 8); 
@@ -95,7 +95,7 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
     b->setAddr(address+flen());
 
-    uint64_t current_addr = (uint64_t)current;
+    uint64 current_addr = (uint64)current;
     assert((current_addr & 0x3) == 0);
 
     for (std::list<Insn>::iterator it = code.begin(); it != code.end();
@@ -104,7 +104,7 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
         Insn & i = *it;
         i.addr = address+flen();
 
-	uint32_t mc = 0;
+	uint32 mc = 0;
 
         unsigned char * oldcurrent = current;
 	
@@ -121,7 +121,7 @@ bool Arm::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		
                 if (i.ops[1].isUsigc())
                 {
-   		    uint32_t imm = calcImm(i.ops[1].getUsigc());
+   		    uint32 imm = calcImm(i.ops[1].getUsigc());
 		    mc = 0xe2d00000 | i.ops[0].getReg() << 12 | imm;
 		}
 		else
