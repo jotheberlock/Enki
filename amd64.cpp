@@ -232,10 +232,10 @@ int Amd64::size(BasicBlock * b)
                     {
                         ret += 9;
                     }
-		    else if (i.ops[1].isExtFunction())
-		    {
-			ret += 9;
-		    }
+                    else if (i.ops[1].isExtFunction())
+                    {
+                        ret += 9;
+                    }
                     else
                     {
                         uint64 val;

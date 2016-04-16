@@ -33,6 +33,8 @@ class Arm32 : public Assembler
     virtual void newFunction(Codegen *);
     virtual void align(uint64 a);
     
+    virtual bool configure(std::string, std::string);
+    
   protected:
 
     uint32 calcImm(uint64 raw);

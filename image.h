@@ -15,6 +15,7 @@
 #define INVALID_ADDRESS 0xdeadbeefdeadbeefLL
 
 #define ARCH_AMD64 1
+#define ARCH_ARM32 2
 
 class FunctionScope;
 class BasicBlock;
