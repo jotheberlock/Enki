@@ -65,6 +65,8 @@ typedef std::vector<uint32> Chars;
 #define EVAL_FUNCVAR 48
 #define FPTR 49
 
+#define ELIF 50
+
 class Token
 {
 public:

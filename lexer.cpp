@@ -64,6 +64,7 @@ Lexer::Lexer()
     keywords["xor"] = BINOP;
     keywords["extern"] = EXTERN;
     keywords["fptr"] = FPTR;
+    keywords["elif"] = ELIF;
     
     oldcol = -1;
     oldline = -1;

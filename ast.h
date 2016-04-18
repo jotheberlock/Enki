@@ -311,32 +311,55 @@ class Block : public Expr
 
 };
 
+class IfClause
+{
+ public:
+ 
+    IfClause(Expr * c, Block * b)
+    {
+        condition=c;
+        body=b;
+    }
+
+    ~IfClause()
+    {
+        delete condition;
+        delete body;
+    }
+    
+    Expr * condition;
+    Block * body;
+};
+
 class If : public Expr
 {
  public:
 
     If(Expr * c, Block * b, Block * f)
     {
-        condition = c;
-        body = b;
+        clauses.push_back(IfClause(c,b));
         elseblock = f;
     }
 
     ~If()
     {
-        delete condition;
-        delete body;
         delete elseblock;
     }
     
     virtual void print(int i)
     {
         indent(i);
-        fprintf(log_file, "if ");
-        condition->print(0);
-        fprintf(log_file, "\n");
-        body->print(i+1);
-        if (elseblock)
+
+	for (std::list<IfClause>::iterator it = clauses.begin();
+	     it != clauses.end(); it++)
+        {
+	  fprintf(log_file, (it == clauses.begin()) ?  "if " : "elif ");
+	  (*it).condition->print(0);
+	  fprintf(log_file, "\n");
+	  (*it).body->print(i+1);
+	}
+	
+	if (elseblock)
         {
             fprintf(log_file, "\n");
             indent(i);
@@ -349,8 +372,7 @@ class If : public Expr
     
  protected:
 
-    Expr * condition;
-    Block * body;
+    std::list<IfClause> clauses;
     Block * elseblock;
     
 };

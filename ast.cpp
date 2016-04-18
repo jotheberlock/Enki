@@ -1899,23 +1899,49 @@ Value * While::codegen(Codegen * c)
 
 Value * If::codegen(Codegen * c)
 {
-    Value * v = condition->codegen(c);
-    c->block()->add(Insn(CMP, v, Operand::usigc(0)));
-        // Generate the if part
-    BasicBlock * ifb = c->newBlock("if_true");
     BasicBlock * elb = 0;
     if (elseblock)
     {
         elb = c->newBlock("if_false");
     }
-
+    
     BasicBlock * endb = c->newBlock("endif");
 
-    c->block()->add(Insn(BNE, ifb, elb ? elb : endb));
+    int count = 0;
+    BasicBlock ** ifs = new BasicBlock *[clauses.size()+1];   
+    for (std::list<IfClause>::iterator it = clauses.begin();
+       it != clauses.end(); it++)
+    {
+        char buf[4096];
+        sprintf(buf, "if_true_%d", count);
+	ifs[count] = c->newBlock(buf);
+        count++;
+    }
+    ifs[count] = (elb? elb : endb);
     
-    c->setBlock(ifb);
-    body->codegen(c);
-    c->block()->add(Insn(BRA, endb));
+    count = 0;
+    for (std::list<IfClause>::iterator it = clauses.begin();
+       it != clauses.end(); it++)
+     {
+        if (count > 0)
+        {
+  	    ifs[count-1]->add(Insn(BRA, ifs[count]));
+        }
+
+        char buf[4096];
+        sprintf(buf, "if_clause_%d", count);
+	BasicBlock * ifc = c->newBlock(buf);
+	c->setBlock(ifc);
+	
+        IfClause & ic = *it;
+	Value * v = ic.condition->codegen(c);
+	c->block()->add(Insn(CMP, v, Operand::usigc(0)));
+	c->block()->add(Insn(BNE, ifs[count+1]));   
+	c->setBlock(ifs[count]);
+	ic.body->codegen(c);
+	c->block()->add(Insn(BRA, endb));
+	count++;
+    }
     
     if (elb)
     {
