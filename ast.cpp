@@ -1899,8 +1899,6 @@ Value * While::codegen(Codegen * c)
 
 Value * If::codegen(Codegen * c)
 {
-    printf("Doing codegen\n");
-    
     BasicBlock * elb = 0;
     if (elseblock)
     {
@@ -1910,7 +1908,6 @@ Value * If::codegen(Codegen * c)
     BasicBlock * endb = c->newBlock("endif");
 
     unsigned int count = 0;
-    printf("Clauses size %d\n", clauses.size());
     
     BasicBlock ** ifs = new BasicBlock *[clauses.size()+2];
     for (count=0; count<clauses.size(); count++)
@@ -1918,7 +1915,6 @@ Value * If::codegen(Codegen * c)
         char buf[4096];
         sprintf(buf, "if_true_%d", count);
         ifs[count] = c->newBlock(buf);
-        printf("%d is %p\n", count, ifs[count]);
     }
     ifs[count] = (elb? elb : endb);
     
@@ -1939,9 +1935,8 @@ Value * If::codegen(Codegen * c)
         IfClause * ic = *it;
         Value * v = ic->condition->codegen(c);
         c->block()->add(Insn(CMP, v, Operand::usigc(0)));
-        printf(">>> %d %p\n", count, ifs[count+1]);
         
-        c->block()->add(Insn(BNE, ifs[count+1]));   
+        c->block()->add(Insn(BNE, ifs[count], ifs[count+1]));   
         c->setBlock(ifs[count]);
         ic->body->codegen(c);
         c->block()->add(Insn(BRA, endb));

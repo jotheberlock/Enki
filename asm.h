@@ -162,7 +162,7 @@ class Insn
         ops[0]=o1;
         oc=1;
         addr=0;
-	size=0;
+        size=0;
     }
     
     Insn(uint64 i, Operand o1, Operand o2)

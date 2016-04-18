@@ -317,14 +317,12 @@ class IfClause
  
     IfClause(Expr * c, Block * b)
     {
-        printf("Making %p %p\n", c, b);
         condition=c;
         body=b;
     }
 
     ~IfClause()
     {
-        printf("Deleting %p %p\n", condition, body);
         delete condition;
         delete body;
     }

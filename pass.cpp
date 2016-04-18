@@ -114,6 +114,7 @@ void ConditionalBranchSplitter::processInsn()
     {
         Insn eq(BRA, insn.ops[1]);
         append(eq);
+        
         insn.oc = 1;
         change(insn);
     }
