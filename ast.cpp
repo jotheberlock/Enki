@@ -1899,6 +1899,8 @@ Value * While::codegen(Codegen * c)
 
 Value * If::codegen(Codegen * c)
 {
+    printf("Doing codegen\n");
+    
     BasicBlock * elb = 0;
     if (elseblock)
     {
@@ -1907,40 +1909,43 @@ Value * If::codegen(Codegen * c)
     
     BasicBlock * endb = c->newBlock("endif");
 
-    int count = 0;
-    BasicBlock ** ifs = new BasicBlock *[clauses.size()+1];   
-    for (std::list<IfClause>::iterator it = clauses.begin();
-       it != clauses.end(); it++)
+    unsigned int count = 0;
+    printf("Clauses size %d\n", clauses.size());
+    
+    BasicBlock ** ifs = new BasicBlock *[clauses.size()+2];
+    for (count=0; count<clauses.size(); count++)
     {
         char buf[4096];
         sprintf(buf, "if_true_%d", count);
-	ifs[count] = c->newBlock(buf);
-        count++;
+        ifs[count] = c->newBlock(buf);
+        printf("%d is %p\n", count, ifs[count]);
     }
     ifs[count] = (elb? elb : endb);
     
     count = 0;
-    for (std::list<IfClause>::iterator it = clauses.begin();
+    for (std::list<IfClause *>::iterator it = clauses.begin();
        it != clauses.end(); it++)
      {
         if (count > 0)
         {
-  	    ifs[count-1]->add(Insn(BRA, ifs[count]));
+            ifs[count-1]->add(Insn(BRA, ifs[count]));
         }
 
         char buf[4096];
         sprintf(buf, "if_clause_%d", count);
-	BasicBlock * ifc = c->newBlock(buf);
-	c->setBlock(ifc);
+        BasicBlock * ifc = c->newBlock(buf);
+        c->setBlock(ifc);
 	
-        IfClause & ic = *it;
-	Value * v = ic.condition->codegen(c);
-	c->block()->add(Insn(CMP, v, Operand::usigc(0)));
-	c->block()->add(Insn(BNE, ifs[count+1]));   
-	c->setBlock(ifs[count]);
-	ic.body->codegen(c);
-	c->block()->add(Insn(BRA, endb));
-	count++;
+        IfClause * ic = *it;
+        Value * v = ic->condition->codegen(c);
+        c->block()->add(Insn(CMP, v, Operand::usigc(0)));
+        printf(">>> %d %p\n", count, ifs[count+1]);
+        
+        c->block()->add(Insn(BNE, ifs[count+1]));   
+        c->setBlock(ifs[count]);
+        ic->body->codegen(c);
+        c->block()->add(Insn(BRA, endb));
+        count++;
     }
     
     if (elb)

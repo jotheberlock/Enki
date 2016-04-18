@@ -317,12 +317,14 @@ class IfClause
  
     IfClause(Expr * c, Block * b)
     {
+        printf("Making %p %p\n", c, b);
         condition=c;
         body=b;
     }
 
     ~IfClause()
     {
+        printf("Deleting %p %p\n", condition, body);
         delete condition;
         delete body;
     }
@@ -337,12 +339,17 @@ class If : public Expr
 
     If(Expr * c, Block * b, Block * f)
     {
-        clauses.push_back(IfClause(c,b));
+        clauses.push_back(new IfClause(c,b));
         elseblock = f;
     }
 
     ~If()
     {
+        for (std::list<IfClause *>::iterator it = clauses.begin();
+	     it != clauses.end(); it++)
+        {
+            delete *it;
+        }
         delete elseblock;
     }
     
@@ -350,13 +357,13 @@ class If : public Expr
     {
         indent(i);
 
-	for (std::list<IfClause>::iterator it = clauses.begin();
+	for (std::list<IfClause *>::iterator it = clauses.begin();
 	     it != clauses.end(); it++)
-        {
-	  fprintf(log_file, (it == clauses.begin()) ?  "if " : "elif ");
-	  (*it).condition->print(0);
-	  fprintf(log_file, "\n");
-	  (*it).body->print(i+1);
+    {
+        fprintf(log_file, (it == clauses.begin()) ?  "if " : "elif ");
+        (*it)->condition->print(0);
+        fprintf(log_file, "\n");
+        (*it)->body->print(i+1);
 	}
 	
 	if (elseblock)
@@ -372,7 +379,7 @@ class If : public Expr
     
  protected:
 
-    std::list<IfClause> clauses;
+    std::list<IfClause *> clauses;
     Block * elseblock;
     
 };
