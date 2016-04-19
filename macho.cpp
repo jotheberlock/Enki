@@ -11,7 +11,7 @@
 MachOImage::MachOImage()
 {
     bases[IMAGE_UNALLOCED_DATA] = 0x800000;
-    sizes[IMAGE_UNALLOCED_DATA] = 4096;
+    sizes[IMAGE_UNALLOCED_DATA] = 4096 * 16;
     le = true;
     arch_subtype = 0;
 }

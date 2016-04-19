@@ -482,23 +482,53 @@ Expr * Parser::parseIf()
 
     Block * b = 0;
     Block * e = 0;
+
+    If * ifexpr = new If();
     
-	if (current.type != EOL)
-	{
-	    addError(Error(&current, "Expected EOL after if expr"));
-	    expectedEol();
-	}
-	next();
+    if (current.type != EOL)
+    {
+	addError(Error(&current, "Expected EOL after if expr"));
+	expectedEol();
+	return 0;
+    }
+    next();
     
-	if (current.type != BEGIN)
-	{
-  	    addError(Error(&current, "Expected block after if"));
+    if (current.type != BEGIN)
+    {
+	addError(Error(&current, "Expected block after if"));
+	return 0;
     }
     else
     {
         b = (Block *)parseBlock();
+	ifexpr->addClause(c,b);
     }
+
+    while (current.type == ELIF)
+    {
+        next();
+        Expr * elifc = parseExpr();
+      
+	if (current.type != EOL)
+	{
+	    addError(Error(&current, "Expected EOL after elif expr"));
+	    expectedEol();
+	    return 0;
+        }
+	next();
     
+	if (current.type != BEGIN)
+	{
+	    addError(Error(&current, "Expected block after elif"));
+	    return 0;
+        }
+	else
+        {
+	    Block * elifb = (Block *)parseBlock();
+	    ifexpr->addClause(elifc, elifb);
+        }
+    }
+	
     if (current.type == ELSE)
     {
         next();
@@ -506,26 +536,22 @@ Expr * Parser::parseIf()
         {
             addError(Error(&current, "Expected EOL after else"));
 	    expectedEol();
+	    return 0;
         }
         next();
         if (current.type != BEGIN)
         {
             addError(Error(&current, "Expected block after else"));
+	    return 0;
         }
         else
         {
             e = (Block *)parseBlock();
+	    ifexpr->addElse(e);
         }
     }
-    
-    if(c && b)
-    {
-        return new If(c,b,e);
-    }
-    else
-    {
-        return 0;
-    }
+
+    return ifexpr;
 }
 
 Expr * Parser::parseWhile()
@@ -1910,13 +1936,18 @@ Value * If::codegen(Codegen * c)
     unsigned int count = 0;
     
     BasicBlock ** ifs = new BasicBlock *[clauses.size()+2];
+    BasicBlock ** ifcs = new BasicBlock *[clauses.size()+2];
     for (count=0; count<clauses.size(); count++)
     {
         char buf[4096];
         sprintf(buf, "if_true_%d", count);
         ifs[count] = c->newBlock(buf);
+
+        sprintf(buf, "if_clause_%d", count);
+        ifcs[count] = c->newBlock(buf);
     }
     ifs[count] = (elb? elb : endb);
+    ifcs[count] = ifs[count];
     
     count = 0;
     for (std::list<IfClause *>::iterator it = clauses.begin();
@@ -1927,16 +1958,13 @@ Value * If::codegen(Codegen * c)
             ifs[count-1]->add(Insn(BRA, ifs[count]));
         }
 
-        char buf[4096];
-        sprintf(buf, "if_clause_%d", count);
-        BasicBlock * ifc = c->newBlock(buf);
-        c->setBlock(ifc);
+        c->setBlock(ifcs[count]);
 	
         IfClause * ic = *it;
         Value * v = ic->condition->codegen(c);
         c->block()->add(Insn(CMP, v, Operand::usigc(0)));
         
-        c->block()->add(Insn(BNE, ifs[count], ifs[count+1]));   
+        c->block()->add(Insn(BNE, ifs[count], ifcs[count+1]));   
         c->setBlock(ifs[count]);
         ic->body->codegen(c);
         c->block()->add(Insn(BRA, endb));

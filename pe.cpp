@@ -15,7 +15,7 @@ PEImage::PEImage()
     arch = 34404;
     subsystem = 1; // Windows CLI
     bases[IMAGE_UNALLOCED_DATA] = 0x800000;
-    sizes[IMAGE_UNALLOCED_DATA] = 4096;
+    sizes[IMAGE_UNALLOCED_DATA] = 4096*16;
     os_major = 6;  // Default to Vista
     os_minor = 0;
     fname = "a.exe";

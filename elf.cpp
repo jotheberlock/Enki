@@ -13,7 +13,7 @@ ElfImage::ElfImage()
 {
     le = true;
     bases[IMAGE_UNALLOCED_DATA] = 0x800000;
-    sizes[IMAGE_UNALLOCED_DATA] = 4096;    
+    sizes[IMAGE_UNALLOCED_DATA] = 4096 * 16;    
 }
 
 ElfImage::ElfImage(const char * f, bool s, bool l, int a)

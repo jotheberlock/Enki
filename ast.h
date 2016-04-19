@@ -335,10 +335,9 @@ class If : public Expr
 {
  public:
 
-    If(Expr * c, Block * b, Block * f)
+    If()
     {
-        clauses.push_back(new IfClause(c,b));
-        elseblock = f;
+      elseblock = 0;
     }
 
     ~If()
@@ -349,6 +348,16 @@ class If : public Expr
             delete *it;
         }
         delete elseblock;
+    }
+
+    void addElse(Block * e)
+    {
+        elseblock = e;
+    }
+    
+    void addClause(Expr * c, Block * b)
+    {
+        clauses.push_back(new IfClause(c,b));
     }
     
     virtual void print(int i)
