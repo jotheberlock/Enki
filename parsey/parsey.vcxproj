@@ -144,7 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\amd64.h" />
-    <ClInclude Include="..\arm.h" />
+    <ClInclude Include="..\arm32.h" />
     <ClInclude Include="..\asm.h" />
     <ClInclude Include="..\ast.h" />
     <ClInclude Include="..\backend.h" />
@@ -171,7 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\amd64.cpp" />
-    <ClCompile Include="..\arm.cpp" />
+    <ClCompile Include="..\arm32.cpp" />
     <ClCompile Include="..\asm.cpp" />
     <ClCompile Include="..\ast.cpp" />
     <ClCompile Include="..\backend.cpp" />
