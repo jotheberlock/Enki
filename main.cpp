@@ -226,14 +226,15 @@ uint32 getUtf8(char * & f)
 
 FILE * findFile(std::string name)
 {
-    FILE * f = 0;
-    if (f = fopen(name.c_str(), "rb"))
+    FILE * f = fopen(name.c_str(), "rb");
+    if (f)
     {
         return f;
     }
-    name = std::string("../")+name;
 
-    if (f = fopen(name.c_str(), "rb"))
+    name = std::string("../")+name;
+    f = fopen(name.c_str(), "rb");
+    if (f)
     {
         return f;
     }
@@ -357,7 +358,7 @@ int main(int argc, char ** argv)
     bool jit = false;
     
     Image * image = config.image;
-    MemoryImage * macros = new MemoryImage();
+    //MemoryImage * macros = new MemoryImage();
 
     log_file = fopen("log.txt", "w");
     if (!log_file)

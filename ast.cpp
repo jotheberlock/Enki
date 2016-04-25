@@ -1979,6 +1979,10 @@ Value * If::codegen(Codegen * c)
     }
     
     c->setBlock(endb);
+
+    delete[] ifs;
+    delete[] ifcs;
+    
     return 0;
 }
 
