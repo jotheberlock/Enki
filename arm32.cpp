@@ -99,6 +99,21 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	
         switch (i.ins)
         {
+	    case SYSCALL:
+	    {
+	        assert(i.oc == 1 || i.oc == 0);
+		if (i.oc == 1)
+		{
+		    assert(i.ops[0].isUsigc());
+		    assert(i.ops[0].getUsigc() > 0xffffff);
+		    mc = (0xe << 28) | (0xf << 24) | i.ops[1].getUsigc();
+		}
+		else
+		{
+		    mc = (0xe << 28) | (0xf << 24);  // assume SWI 0 if not specified
+		}
+	        break;
+	    }
             case MOVE:
             {
                 assert(i.oc == 2);
