@@ -303,11 +303,77 @@ void Arm32::align(uint64 a)
 	}
 }
 
-Value * ArmUnixSyscallCallingConvention::generateCall(Codegen * c,
+Value * ArmLinuxSyscallCallingConvention::generateCall(Codegen * c,
                                                       Value * fptr,
                                                       std::vector<Value *> & args)
 {
-    return 0;
+    BasicBlock * current = c->block();
+    RegSet res;
+        // kernel destroys rcx, r11
+    res.set(assembler->regnum("r0"));
+    res.set(assembler->regnum("r1"));
+    res.set(assembler->regnum("r2"));
+    res.set(assembler->regnum("r3"));
+    res.set(assembler->regnum("r4"));
+    res.set(assembler->regnum("r5"));
+
+    res.set(assembler->regnum("r7"));
+    
+    current->setReservedRegs(res);
+    
+    if (args.size() > 7)
+    {
+        fprintf(log_file, "Warning, syscall passed more than 6 args!\n");
+    }
+    else if (args.size() < 1)
+    {
+        fprintf(log_file, "No syscall number passed!\n");
+    }
+    
+    for (unsigned int loopc=0; loopc<args.size(); loopc++)
+    {
+        int dest = 9999;
+        if (loopc == 0)
+        {
+                // Syscall number
+            dest = assembler->regnum("r7");
+        }
+        else if (loopc == 1)
+        {
+            dest = assembler->regnum("r0");
+        }
+        else if (loopc == 2)
+        {
+            dest = assembler->regnum("r1");
+        }
+        else if (loopc == 3)
+        {
+            dest = assembler->regnum("r2");
+        }
+        else if (loopc == 4)
+        {
+            dest = assembler->regnum("r3");
+        }
+        else if (loopc == 5)
+        {
+            dest = assembler->regnum("r4");
+        }
+        else if (loopc == 6)
+        {
+            dest = assembler->regnum("r5");
+        }
+        current->add(Insn(MOVE, Operand::reg(dest), args[loopc]));
+    }
+
+    current->add(Insn(SYSCALL));
+    Value * ret = c->getTemporary(register_type, "ret");
+    current->add(Insn(MOVE, ret, Operand::reg("r0")));
+    
+    BasicBlock * postsyscall = c->newBlock("postsyscall");
+    current->add(Insn(BRA, Operand(postsyscall)));
+    c->setBlock(postsyscall);
+    
+    return ret;
 }
 
 

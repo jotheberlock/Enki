@@ -63,9 +63,9 @@ Component * make_amd64_windows()
     return new Amd64WindowsCallingConvention();
 }
 
-Component * make_arm_unix_syscall()
+Component * make_arm_linux_syscall()
 {
-    return new ArmUnixSyscallCallingConvention();
+    return new ArmLinuxSyscallCallingConvention();
 }
 
 Component * make_threetotwo()
@@ -119,7 +119,7 @@ ComponentFactory::ComponentFactory()
     add(make_amd64_unix_syscall, "cconv", "amd64_unix_syscall");
     add(make_amd64_unix, "cconv", "amd64_unix");
     add(make_amd64_windows, "cconv", "amd64_windows");
-    add(make_arm_unix_syscall, "cconv", "arm_unix_syscall");
+    add(make_arm_linux_syscall, "cconv", "arm_linux_syscall");
     add(make_threetotwo, "pass", "threetotwo");
     add(make_sillyregalloc, "pass", "sillyregalloc");
     add(make_conditionalbranchsplitter, "pass", "conditionalbranchsplitter");
@@ -129,7 +129,7 @@ ComponentFactory::ComponentFactory()
     add(make_resolveconstaddr, "pass", "resolveconstaddr");
     add(make_stacksizepass, "pass", "stacksize");
     add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
-	add(make_unixentrypoint, "entrypoint", "unixentrypoint");
+    add(make_unixentrypoint, "entrypoint", "unixentrypoint");
 }
 
 void ComponentFactory::add(ComponentMaker ptr, std::string c, std::string n)

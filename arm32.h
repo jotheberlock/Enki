@@ -41,7 +41,7 @@ class Arm32 : public Assembler
   
 };
 
-class ArmUnixSyscallCallingConvention : public CallingConvention
+class ArmLinuxSyscallCallingConvention : public CallingConvention
 {
   public:
     
