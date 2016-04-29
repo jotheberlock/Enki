@@ -390,6 +390,7 @@ std::string Insn::insToString()
         case SELGES: return "selges";
         case SELGTS: return "selgts";
         case GETSTACKSIZE: return "getstacksize";
+        case LOADHIGH: return "loadhigh";
         default: return "<unknown!>";
     }
 }

@@ -72,6 +72,8 @@
 
 #define GETSTACKSIZE 57
 
+#define LOADHIGH 58
+
 class Value;
 class BasicBlock;
 class FunctionScope;
@@ -119,6 +121,32 @@ class Operand
     bool isFunction();
     bool isSection();
     bool isExtFunction();
+
+    bool isReloc()
+    {
+        return isBlock() || isFunction() || isSection() || isExtFunction();
+    }
+
+    bool isPartial()
+    {
+        return !(begin == 0 && end == 0);
+    }
+
+    unsigned char getBegin()
+    {
+        return begin;
+    }
+
+    unsigned char getEnd()
+    {
+        return end;
+    }
+
+    void setPartial(unsigned char b, unsigned char e)
+    {
+        begin = b;
+        end = e;
+    }
     
   protected:
 
@@ -134,6 +162,11 @@ class Operand
         uint64 s;
         std::string * e;
     } contents;
+
+    // For relocatable types, begin and end bits
+    unsigned char begin;  
+    unsigned char end;
+    
 };
 
 class Insn
