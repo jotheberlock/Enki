@@ -50,6 +50,20 @@ int Arm32::size(BasicBlock * b)
                 i.size = 8;
                 break;
             }
+	    case MOVE:
+	    {
+ 	        if (i.ops[1].isReloc() || i.ops[1].isSigc() || i.ops[1].isUsigc())
+		{
+		    ret += 8;
+		    i.size = 8;
+		}
+		else
+		{
+		    ret += 4;
+		    i.size = 4;
+	        }
+	        break;
+	    }
             default:
             {
                 ret += 4;
@@ -60,7 +74,7 @@ int Arm32::size(BasicBlock * b)
     return ret;
 }
 
-uint32 Arm32::calcImm(uint64 raw)
+bool Arm32::calcImm(uint64 raw, uint32 & result)
 {
     uint32 shift = 0;
     while (shift < 4)
@@ -68,13 +82,13 @@ uint32 Arm32::calcImm(uint64 raw)
         uint32 trial = (raw & 0xff) << shift;
         if (trial == raw)
         {
-            return (raw & 0xff) | (shift << 8); 
+            result = (raw & 0xff) | (shift << 8);
+            return true;
         }
         shift += 1;
     }
 
-    printf("Cannot encode %lld as an Arm immediate!\n", raw);
-    return 0;
+    return false;
 }
 
 bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
@@ -122,11 +136,12 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 assert (i.ops[1].isUsigc() || i.ops[1].isSigc() ||
                         i.ops[1].isFunction() || i.ops[1].isReg() ||
                         i.ops[1].isBlock() || i.ops[1].isSection() || i.ops[1].isExtFunction());
-                
+
                 if (i.ops[1].isUsigc() || i.ops[1].isSigc() ||
                     i.ops[1].isFunction() || i.ops[1].isBlock() ||
                     i.ops[1].isSection() || i.ops[1].isExtFunction())
                 {
+ 		    uint32_t val = 0xdeadbeef;
                     if (i.ops[1].isFunction())
                     {
 
@@ -145,7 +160,6 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     }
                     else
                     {
-                        uint32 val;
                         if (i.ops[1].isUsigc())
                         {
                             val = i.ops[1].getUsigc();
@@ -155,9 +169,8 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                             int32 tmp = i.ops[1].getSigc();
                             val = *((uint32 *)&tmp);
                         }
-                        
-                        uint32 imm = calcImm(val);
-                        mc = 0xe2d00000 | i.ops[0].getReg() << 12 | imm;
+			
+			// ARMv7 movw/movt goes here
                     }
                 }
                 else

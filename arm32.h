@@ -37,7 +37,7 @@ class Arm32 : public Assembler
     
   protected:
 
-    uint32 calcImm(uint64 raw);
+    bool calcImm(uint64 raw, uint32 & result);
   
 };
 
