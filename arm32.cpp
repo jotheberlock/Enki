@@ -50,20 +50,20 @@ int Arm32::size(BasicBlock * b)
                 i.size = 8;
                 break;
             }
-	    case MOVE:
-	    {
- 	        if (i.ops[1].isReloc() || i.ops[1].isSigc() || i.ops[1].isUsigc())
-		{
-		    ret += 8;
-		    i.size = 8;
-		}
-		else
-		{
-		    ret += 4;
-		    i.size = 4;
-	        }
-	        break;
-	    }
+            case MOVE:
+            {
+                if (i.ops[1].isReloc() || i.ops[1].isSigc() || i.ops[1].isUsigc())
+                {
+                    ret += 8;
+                    i.size = 8;
+                }
+                else
+                {
+                    ret += 4;
+                    i.size = 4;
+                }
+                break;
+            }
             default:
             {
                 ret += 4;
@@ -113,21 +113,21 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	
         switch (i.ins)
         {
-	    case SYSCALL:
-	    {
-	        assert(i.oc == 1 || i.oc == 0);
-		if (i.oc == 1)
-		{
-		    assert(i.ops[0].isUsigc());
-		    assert(i.ops[0].getUsigc() > 0xffffff);
-		    mc = (0xe << 28) | (0xf << 24) | i.ops[1].getUsigc();
-		}
-		else
-		{
-		    mc = (0xe << 28) | (0xf << 24);  // assume SWI 0 if not specified
-		}
-	        break;
-	    }
+            case SYSCALL:
+            {
+                assert(i.oc == 1 || i.oc == 0);
+                if (i.oc == 1)
+                {
+                    assert(i.ops[0].isUsigc());
+                    assert(i.ops[0].getUsigc() > 0xffffff);
+                    mc = (0xe << 28) | (0xf << 24) | i.ops[0].getUsigc();
+                }
+                else
+                {
+                    mc = (0xe << 28) | (0xf << 24);  // assume SWI 0 if not specified
+                }
+                break;
+            }
             case MOVE:
             {
                 assert(i.oc == 2);
@@ -141,7 +141,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     i.ops[1].isFunction() || i.ops[1].isBlock() ||
                     i.ops[1].isSection() || i.ops[1].isExtFunction())
                 {
- 		    uint32_t val = 0xdeadbeef;
+                    uint32 val = 0xdeadbeef;
                     if (i.ops[1].isFunction())
                     {
 
@@ -169,14 +169,54 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                             int32 tmp = i.ops[1].getSigc();
                             val = *((uint32 *)&tmp);
                         }
-			
-			// ARMv7 movw/movt goes here
                     }
+                    
+                        // ARMv7 movw/movt goes here
+                    mc = 0xe3000000 | (val & 0xfff) | (((val >> 12) & 0xf) << 16) | (i.ops[0].getReg() << 12);
+                    wee32(le, current, mc);
+                    val = val >> 16;
+                    mc = 0xe3400000 | (val & 0xfff) | (((val >> 12) & 0xf) << 16) | (i.ops[0].getReg() << 12);
                 }
                 else
                 {
-                    mc = 0xe0d00000 | (i.ops[1].getReg() << 16) |
+                    mc = 0xe1a00000 | (i.ops[1].getReg()) |
                         i.ops[0].getReg() << 12;
+                }
+                
+                break;
+            }
+            case ADD:
+            case SUB:
+            {
+                uint32 op = 0;
+                if (i.ins == ADD)
+                {
+                    op = 0x00800000;
+                }
+                else if (i.ins == SUB)
+                {
+                    op = 0x00400000;
+                }
+
+                if (i.ops[2].isUsigc() || i.ops[2].isSigc())
+                {
+                    uint32 val = 0;
+                    if (i.ops[2].isUsigc())
+                    {
+                        val = i.ops[1].getUsigc();
+                    }
+                    else
+                    {
+                        int32 tmp = i.ops[2].getSigc();
+                        val = *((uint32 *)&tmp);
+                    }
+                    uint32 cooked = 0;
+                    assert(calcImm(val, cooked));
+                    mc = 0xe2000000 | op | (i.ops[0].getReg() << 12) | (i.ops[1].getReg() << 16) | cooked;
+                }
+                else
+                {
+                    mc = 0xe0000000 | op | (i.ops[0].getReg() << 12) | (i.ops[1].getReg() << 16) | i.ops[2].getReg();
                 }
                 
                 break;
@@ -185,6 +225,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             {
                 fprintf(log_file, "Don't know how to turn %lld [%s] into arm!\n", i.ins, i.toString().c_str());
                     // assert(false);
+                mc = 0xe1a00000; // NOP
             }
             
             unsigned int siz = (unsigned int)(current - oldcurrent);
