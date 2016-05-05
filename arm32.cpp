@@ -128,6 +128,30 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 }
                 break;
             }
+ 	    case LOAD8:
+ 	    case LOADS8:
+	    case LOAD16:
+	    case LOADS16:
+	    case LOAD:
+	    case LOAD32:
+	    {
+                assert(i.oc == 2 || i.oc == 3);
+		break;
+	    }
+  	    case STORE8:
+	    case STORE16:
+	    case STORE:
+	    case STORE32:
+	    {
+                assert(i.oc == 2 || i.oc == 3);
+	        break;
+	    }
+	    case LOAD64:
+	    case STORE64:
+	    {
+  	        printf("64-bit load/store attempted on 32-bit ARM!\n");
+	        break;
+	    }
             case MOVE:
             {
                 assert(i.oc == 2);
