@@ -362,11 +362,10 @@ class If : public Expr
     
     virtual void print(int i)
     {
-        indent(i);
-
 	for (std::list<IfClause *>::iterator it = clauses.begin();
 	     it != clauses.end(); it++)
     {
+		indent(i);
         fprintf(log_file, (it == clauses.begin()) ?  "if " : "elif ");
         (*it)->condition->print(0);
         fprintf(log_file, "\n");
@@ -375,7 +374,6 @@ class If : public Expr
 	
 	if (elseblock)
         {
-            fprintf(log_file, "\n");
             indent(i);
             fprintf(log_file, "else\n");
             elseblock->print(i+1);
