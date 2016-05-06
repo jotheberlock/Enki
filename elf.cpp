@@ -134,7 +134,7 @@ void ElfImage::finalise()
     {
         printf("Unknown arch for ELF! %d\n", arch);
     }
-    wee16(le, ptr, elf_arch);
+	wee16(le, ptr, elf_arch);
     wee32(le, ptr, 0x1);  // Version
 
     int no_pheaders = 4;
@@ -220,9 +220,9 @@ void ElfImage::finalise()
             flags = 0x6;
         }
        
-        wee32(le, ptr, flags);  // Flags
         if (sf_bit)
         {
+			wee32(le, ptr, flags);  // Flags
             wee64(le, ptr, bases[the_one]-base_addr);
             wee64(le, ptr, bases[the_one]);
             wee64(le, ptr, bases[the_one]);
@@ -237,6 +237,7 @@ void ElfImage::finalise()
             wee32(le, ptr, checked_32(bases[the_one]));
             wee32(le, ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(sizes[the_one]));
             wee32(le, ptr, checked_32(sizes[the_one]));
+			wee32(le, ptr, flags);  // Flags
             wee32(le, ptr, 0);
         }
     }

@@ -40,8 +40,10 @@ typedef signed short int16;
 #define HAVE_MPROTECT 1
 #endif
 
-#if defined(_BIG_ENDIAN) || (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+#ifndef _MSC_VER
+#if (_BIG_ENDIAN == 1) || (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
 #define HOST_BIG_ENDIAN
+#endif
 #endif
 
 void wle16(unsigned char *&, uint16);
