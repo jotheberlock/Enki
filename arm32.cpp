@@ -132,10 +132,48 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
  	    case LOADS8:
 	    case LOAD16:
 	    case LOADS16:
+	    case LOADS32:
 	    case LOAD:
 	    case LOAD32:
 	    {
                 assert(i.oc == 2 || i.oc == 3);
+
+		int32_t val = 0;
+		uint32_t uval = 0;
+		if (i.oc == 3)
+		{
+		    val = (int32)i.ops[2].getSigc();
+		    // Can probably be higher for 32-bits...
+		    assert(val > -256);
+		    assert(val < 256);
+		    uval = *((uint32_t *)(&val));
+	        }
+		
+		if (i.ins == LOAD || i.ins == LOAD32 || i.ins == LOADS32)
+		{
+  		    mc = 0xe5900000 | (uval & 0xff) | i.ops[0].getReg() << 12
+		      | i.ops[1].getReg() << 16;
+		}
+		else if (i.ins == LOAD8)
+		{
+	  	    mc = 0xe5d000ff | (uval & 0xff) | i.ops[0].getReg() << 12
+		        | i.ops[1].getReg() << 16;
+		}
+	        else if (i.ins == LOAD16)
+	        {
+  		    mc = 0xe1d000b0 | (uval & 0xf) | (uval & 0xf0 << 4) |
+		       i.ops[0].getReg() << 12 || i.ops[1].getReg() << 16;
+	        }
+	        else if (i.ins == LOADS8)
+		{
+		    mc = 0xe1d000d0 | (uval & 0xf) | (uval & 0xf0 << 4) |
+		       i.ops[0].getReg() << 12 || i.ops[1].getReg() << 16;
+		}
+		else if (i.ins == LOADS16)
+		{
+		    mc = 0xe1d000f0 | (uval & 0xf) | (uval & 0xf0 << 4) |
+		       i.ops[0].getReg() << 12 || i.ops[1].getReg() << 16;
+		}
 		break;
 	    }
   	    case STORE8:
@@ -144,6 +182,36 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	    case STORE32:
 	    {
                 assert(i.oc == 2 || i.oc == 3);
+		int32_t val = 0;
+		uint32_t uval = 0;
+
+		int dest = 1;
+		if (i.oc == 3)
+		{
+		    val = (int32)i.ops[1].getSigc();
+		    // Can probably be higher for 32-bits...
+		    assert(val > -256);
+		    assert(val < 256);
+		    uval = *((uint32_t *)(&val));
+		    dest = 2;
+	        }
+		
+	        if (i.ins == STORE || i.ins == STORE32)
+		{
+  		    mc = 0xe5800000 | (uval & 0xff) | i.ops[0].getReg() << 12
+		      | i.ops[dest].getReg() << 16;
+		}
+		else if (i.ins == STORE16)
+		{
+  		    mc = 0xe1c000b0 | (uval & 0xf) | (uval & 0xf0 << 4) |
+		       i.ops[0].getReg() << 12 || i.ops[dest].getReg() << 16;
+		}
+		else if (i.ins == STORE8)
+		{
+  		    mc = 0xe5c000f0 | (uval & 0xf) | (uval & 0xf0 << 4) |
+		       i.ops[0].getReg() << 12 || i.ops[dest].getReg() << 16;
+		}
+		
 	        break;
 	    }
 	    case LOAD64:
