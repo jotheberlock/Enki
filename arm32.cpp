@@ -138,15 +138,15 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	    {
                 assert(i.oc == 2 || i.oc == 3);
 
-		int32_t val = 0;
-		uint32_t uval = 0;
+		int32 val = 0;
+		uint32 uval = 0;
 		if (i.oc == 3)
 		{
 		    val = (int32)i.ops[2].getSigc();
 		    // Can probably be higher for 32-bits...
 		    assert(val > -256);
 		    assert(val < 256);
-		    uval = *((uint32_t *)(&val));
+		    uval = *((uint32 *)(&val));
 	        }
 		
 		if (i.ins == LOAD || i.ins == LOAD32 || i.ins == LOADS32)
@@ -182,8 +182,8 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	    case STORE32:
 	    {
                 assert(i.oc == 2 || i.oc == 3);
-		int32_t val = 0;
-		uint32_t uval = 0;
+		int32 val = 0;
+		uint32 uval = 0;
 
 		int dest = 1;
 		if (i.oc == 3)
@@ -192,7 +192,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		    // Can probably be higher for 32-bits...
 		    assert(val > -256);
 		    assert(val < 256);
-		    uval = *((uint32_t *)(&val));
+		    uval = *((uint32 *)(&val));
 		    dest = 2;
 	        }
 		
