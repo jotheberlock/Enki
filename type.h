@@ -540,12 +540,12 @@ class FunctionType : public Type
     
     int size()
     {
-        return 64;
+        return assembler->pointerSize();
     }
 
     int align()
     {
-        return 64;
+        return assembler->pointerSize();
     }
 
     Value * allocStackFrame(Codegen *, Value *, Value *&, Funcall *, Type *);
@@ -603,7 +603,7 @@ class ExternalFunctionType : public FunctionType
     
     int size()
     {
-        return 64;
+        return assembler->pointerSize();
     }
 
     std::string name()

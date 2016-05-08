@@ -67,9 +67,45 @@ SectionRelocation::SectionRelocation(Image * i,
     dest_offset = dof;
 }
 
+void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
+{
+    val = val >> rshift;
+    val = val & mask;
+    val = val << lshift;
+
+    if (sf)
+    {
+            //uint64 to_write = ree64(le, ptr+offset);
+        uint64 to_write = *((uint64 *)(ptr+offset));
+        to_write = to_write | val;
+        unsigned char * poffset = ptr+offset;
+        wee64(le, poffset, to_write);
+    }
+    else
+    {
+//        uint32 to_write = ree32(le, ptr+offset);
+        uint32 to_write = *((uint32 *)(ptr+offset));
+        to_write = to_write | (uint32)val;
+        unsigned char * poffset = ptr+offset;
+        wee32(le, poffset, to_write);
+    }
+}
+
 void SectionRelocation::apply()
 {
     unsigned char * patch_site = image->getPtr(patch_section)+patch_offset;
+
+    if (relocs.size() > 0)
+    {
+        for (std::list<Reloc>::iterator it = relocs.begin();
+             it !=relocs.end(); it++)
+        {
+            (*it).apply(image->littleEndian(), patch_site, getValue());
+        }
+        
+        return;
+    }
+    
     wee64(image->littleEndian(), patch_site, getValue());
 }
 

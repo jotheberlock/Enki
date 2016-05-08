@@ -1,6 +1,7 @@
 #include "arm32.h"
 #include "platform.h"
 #include "codegen.h"
+#include "image.h"
 
 int Arm32::regnum(std::string s)
 {
@@ -12,7 +13,7 @@ int Arm32::regnum(std::string s)
     }
     else if (s == "sp")
     {
-            ret = 13;
+        ret = 13;
     }
     else if (s == "lr")
     {
@@ -198,18 +199,18 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		
 	        if (i.ins == STORE || i.ins == STORE32)
 		{
-  		    mc = 0xe5800000 | (uval & 0xff) | i.ops[0].getReg() << 12
-		      | i.ops[dest].getReg() << 16;
+  		    mc = 0xe5800000 | (uval & 0xff) | i.ops[dest].getReg() << 12
+		      | i.ops[0].getReg() << 16;
 		}
 		else if (i.ins == STORE16)
 		{
   		    mc = 0xe1c000b0 | (uval & 0xf) | (uval & 0xf0 << 4) |
-		       i.ops[0].getReg() << 12 || i.ops[dest].getReg() << 16;
+		       i.ops[dest].getReg() << 12 || i.ops[0].getReg() << 16;
 		}
 		else if (i.ins == STORE8)
 		{
   		    mc = 0xe5c000f0 | (uval & 0xf) | (uval & 0xf0 << 4) |
-		       i.ops[0].getReg() << 12 || i.ops[dest].getReg() << 16;
+		       i.ops[dest].getReg() << 12 || i.ops[0].getReg() << 16;
 		}
 		
 	        break;
@@ -244,7 +245,15 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     }
                     else if (i.ops[1].isSection())
                     {
-
+                        int s;
+                        uint64 o = i.ops[1].getSection(s);
+                        SectionRelocation * sr = new SectionRelocation(image, IMAGE_CODE, len(), s, o);
+                        sr->addReloc(0, 0, 0xfff, 0, false);
+                        sr->addReloc(0, 12, 0xf, 16, false);
+                        sr->addReloc(4, 16, 0xfff, 0, false);
+                        sr->addReloc(4, 28, 0xf, 16, false);
+                        wee32(le, current, 0xe3000000 | i.ops[0].getReg() << 12);
+                        mc = 0xe3400000 | i.ops[0].getReg() << 12 ;
                     }
                     else if (i.ops[1].isExtFunction())
                     {
@@ -261,13 +270,14 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                             int32 tmp = i.ops[1].getSigc();
                             val = *((uint32 *)&tmp);
                         }
-                    }
                     
                         // ARMv7 movw/movt goes here
-                    mc = 0xe3000000 | (val & 0xfff) | (((val >> 12) & 0xf) << 16) | (i.ops[0].getReg() << 12);
-                    wee32(le, current, mc);
-                    val = val >> 16;
-                    mc = 0xe3400000 | (val & 0xfff) | (((val >> 12) & 0xf) << 16) | (i.ops[0].getReg() << 12);
+                        mc = 0xe3000000 | (val & 0xfff) | (((val >> 12) & 0xf) << 16) | (i.ops[0].getReg() << 12);
+                        wee32(le, current, mc);
+                        val = val >> 16;
+                        mc = 0xe3400000 | (val & 0xfff) | (((val >> 12) & 0xf) << 16) | (i.ops[0].getReg() << 12);
+                    }
+                    
                 }
                 else
                 {
@@ -357,9 +367,13 @@ std::string Arm32::transReg(uint32 r)
     {
         return "lr";
     }
-    else
+    else if (r == 15)
     {
         return "pc";
+    }
+    else
+    {
+        assert(false);
     }
 }
 

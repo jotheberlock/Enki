@@ -238,7 +238,7 @@ void initialiseTypes()
 
     if (assembler->pointerSize() == 64)
     {
-	types["Uint64"] = register_type;
+        types["Uint64"] = register_type;
     }
     else
     {

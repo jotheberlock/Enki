@@ -227,11 +227,12 @@ void SillyRegalloc::processInsn()
 
     for (int loopc=0; loopc<256; loopc++)
     {
+        int fp = assembler->framePointer();
         if (input[loopc])
         {
             int64 off = regs[loopc]->stackOffset();
             Insn load(loadForType(regs[loopc]->type),
-                      Operand::reg(loopc), Operand::reg(15),
+                      Operand::reg(loopc), Operand::reg(fp),
                       Operand::sigc(off));
             load.comment = "Load "+regs[loopc]->name;
             prepend(load);
@@ -239,7 +240,7 @@ void SillyRegalloc::processInsn()
         if (output[loopc])
         {
             int64 off = regs[loopc]->stackOffset();
-            Insn store(storeForType(regs[loopc]->type), Operand::reg(15),
+            Insn store(storeForType(regs[loopc]->type), Operand::reg(fp),
                       Operand::sigc(off), Operand::reg(loopc));
             store.comment = "Store "+regs[loopc]->name;
             append(store);

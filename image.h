@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include "mem.h"
 #include "component.h"
 
@@ -121,6 +122,22 @@ class MemoryImage : public Image
 
 };
 
+class Reloc
+{
+  public:
+    
+    uint64 offset;  // from base pointer
+        // Extract bits to write - shift right then mask
+    uint64 rshift;
+    uint64 mask;
+        // How many bits to shift left into relocation
+    uint64 lshift;
+    bool sf;
+
+    void apply(bool, unsigned char *, uint64);
+    
+};
+
 class BaseRelocation
 {
   public:
@@ -134,10 +151,24 @@ class BaseRelocation
     virtual ~BaseRelocation()
     {
     }
+
+    void addReloc(uint64 o, uint64 r, uint64 m,
+                  uint64 l, bool sf)
+    {
+        Reloc reloc;
+        reloc.offset = o;
+        reloc.rshift = r;
+        reloc.mask = m;
+        reloc.lshift = l;
+        reloc.sf = sf;
+        relocs.push_back(reloc);
+    }
     
     virtual void apply() = 0;
     virtual uint64 getValue() = 0;
-        
+
+    std::list<Reloc> relocs;
+    
   protected:
 
     Image * image;
