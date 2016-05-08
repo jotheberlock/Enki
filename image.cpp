@@ -18,9 +18,7 @@ FunctionRelocation::FunctionRelocation(Image * i, FunctionScope * p, uint64 po, 
 void FunctionRelocation::apply()
 {
     unsigned char * patch_site = image->functionPtr(to_patch)+patch_offset;
-    uint64 laddr = image->functionAddress(to_link);
-    laddr += link_offset;
-    wee64(image->littleEndian(),patch_site,laddr);
+    wee64(image->littleEndian(),patch_site,getValue());
 }
 
 BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64 po, uint64 pr, BasicBlock * l)
@@ -31,10 +29,9 @@ BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64 
     patch_offset = po;
     patch_relative = pr;
     to_link = l;
-    absolute = false;
 }
 
-BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64 po, BasicBlock * l)
+AbsoluteBasicBlockRelocation::AbsoluteBasicBlockRelocation(Image * i, FunctionScope * p, uint64 po, BasicBlock * l)
 	: BaseRelocation(i)
 {
     image = i;
@@ -42,36 +39,21 @@ BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64 
     patch_offset = po;
     patch_relative = po;
     to_link = l;
-    absolute = true;
+}
+
+void AbsoluteBasicBlockRelocation::apply()
+{
+    unsigned char * patch_site = image->functionPtr(to_patch)+patch_offset;
+    wees64(image->littleEndian(), patch_site, getValue());
 }
 
 void BasicBlockRelocation::apply()
 {
     unsigned char * patch_site = image->functionPtr(to_patch)+patch_offset;
-    if (absolute)
-    {
-	wees64(image->littleEndian(), patch_site, to_link->getAddr());
-	return;
-    }
-
-    uint64 baddr = to_link->getAddr();
-    uint64 oaddr = image->functionAddress(to_patch) + patch_relative;
-    
-    int32 diff;
-    if (oaddr > baddr)
-    {
-        diff = -((int32)(oaddr-baddr));
-    }
-    else
-    {
-        diff = (int32)(baddr-oaddr);
-    }
-    
-    uint64 paddr = image->functionAddress(to_patch);
-    paddr += patch_offset;
-    paddr -= image->getAddr(IMAGE_CODE);
-
-    wees32(image->littleEndian(), patch_site, diff);
+    uint64 swizzle = getValue();
+    int64 sswizzle = *((int64 *)&swizzle);
+    int32 sswizzle32 = (int32)sswizzle;
+    wees32(image->littleEndian(), patch_site, sswizzle32);
 }
 
 SectionRelocation::SectionRelocation(Image * i,
@@ -88,8 +70,7 @@ SectionRelocation::SectionRelocation(Image * i,
 void SectionRelocation::apply()
 {
     unsigned char * patch_site = image->getPtr(patch_section)+patch_offset;
-    uint64 addr = image->getAddr(dest_section)+dest_offset;
-    wee64(image->littleEndian(), patch_site, addr);
+    wee64(image->littleEndian(), patch_site, getValue());
 }
 
 ExtFunctionRelocation::ExtFunctionRelocation(Image * i,
@@ -105,8 +86,7 @@ ExtFunctionRelocation::ExtFunctionRelocation(Image * i,
 void ExtFunctionRelocation::apply()
 {
     unsigned char * patch_site = image->getPtr(IMAGE_CODE)+patch_offset;
-    uint64 addr = image->importAddress(fname);
-    wee64(image->littleEndian(), patch_site, addr);
+    wee64(image->littleEndian(), patch_site, getValue());
 }
 
 Image::Image()
@@ -384,3 +364,45 @@ void MemoryImage::finalise()
     mem.changePerms(mems[IMAGE_UNALLOCED_DATA], MEM_READ | MEM_WRITE);
 }
 
+uint64 FunctionRelocation::getValue()
+{
+    uint64 laddr = image->functionAddress(to_link);
+    laddr += link_offset;
+    return laddr;
+}
+
+uint64 AbsoluteBasicBlockRelocation::getValue()
+{
+    return to_link->getAddr();
+}
+
+uint64 BasicBlockRelocation::getValue()
+{
+    uint64 baddr = to_link->getAddr();
+    uint64 oaddr = image->functionAddress(to_patch) + patch_relative;
+    
+    int64 diff;
+    if (oaddr > baddr)
+    {
+        diff = -((int32)(oaddr-baddr));
+    }
+    else
+    {
+        diff = (int32)(baddr-oaddr);
+    }
+    
+    uint64 * ptr = (uint64 *)(&diff);
+    return *ptr;
+}
+
+uint64 SectionRelocation::getValue()
+{
+    uint64 addr = image->getAddr(dest_section)+dest_offset;
+    return addr;
+}
+
+uint64 ExtFunctionRelocation::getValue()
+{
+    uint64 addr = image->importAddress(fname);
+    return addr;
+}

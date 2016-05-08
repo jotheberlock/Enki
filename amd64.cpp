@@ -723,7 +723,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         r |= reg(i.ops[0].getReg() & 0x7);
                         *current++ = r;
                         
-						new BasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
+						new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
                         //relocs.push_back(Relocation(REL_A64, len()+8, len(),
                         //                            i.ops[1].getBlock()));
                         wle64(current, reloc);
