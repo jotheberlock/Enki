@@ -52,6 +52,9 @@ void wle64(unsigned char *&, uint64);
 void wles16(unsigned char *&, int16);
 void wles32(unsigned char *&, int32);
 void wles64(unsigned char *&, int64);
+uint16 rle16(unsigned char *);
+uint32 rle32(unsigned char *);
+uint64 rle64(unsigned char *);
 
 void wbe16(unsigned char *&, uint16);
 void wbe32(unsigned char *&, uint32);
@@ -59,6 +62,9 @@ void wbe64(unsigned char *&, uint64);
 void wbes16(unsigned char *&, int16);
 void wbes32(unsigned char *&, int32);
 void wbes64(unsigned char *&, int64);
+uint16 rbe16(unsigned char *);
+uint32 rbe32(unsigned char *);
+uint64 rbe64(unsigned char *);
 
 void wee16(bool, unsigned char *&, uint16);
 void wee32(bool, unsigned char *&, uint32);
@@ -66,6 +72,10 @@ void wee64(bool, unsigned char *&, uint64);
 void wees16(bool, unsigned char *&, int16);
 void wees32(bool, unsigned char *&, int32);
 void wees64(bool, unsigned char *&, int64);
+uint16 ree16(bool, unsigned char *);
+uint32 ree32(bool, unsigned char *);
+uint64 ree64(bool, unsigned char *);
+
 
 uint32 checked_32(uint64);
 

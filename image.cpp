@@ -75,16 +75,14 @@ void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 
     if (sf)
     {
-            //uint64 to_write = ree64(le, ptr+offset);
-        uint64 to_write = *((uint64 *)(ptr+offset));
+        uint64 to_write = ree64(le, ptr+offset);
         to_write = to_write | val;
         unsigned char * poffset = ptr+offset;
         wee64(le, poffset, to_write);
     }
     else
     {
-//        uint32 to_write = ree32(le, ptr+offset);
-        uint32 to_write = *((uint32 *)(ptr+offset));
+        uint32 to_write = ree32(le, ptr+offset);
         to_write = to_write | (uint32)val;
         unsigned char * poffset = ptr+offset;
         wee32(le, poffset, to_write);

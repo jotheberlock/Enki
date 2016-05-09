@@ -37,7 +37,6 @@ void wle64(unsigned char *& ptr, uint64 v)
     ptr += 8;
 }
 
-
 void wles16(unsigned char *& ptr, int16 v)
 {
     unsigned char * p = (unsigned char *)&v;
@@ -208,6 +207,50 @@ void wbes64(unsigned char *& ptr, int64 v)
 
 #endif
 
+uint16 rle16(unsigned char * ptr)
+{
+    uint16 ret;
+    ret = ptr[0] | (ptr[1] << 8);
+    return ret;
+}
+
+uint32 rle32(unsigned char * ptr)
+{
+    uint32 ret;
+    ret = ptr[0] | (ptr[1] << 8) | (ptr[2] << 16) | (ptr[3] << 24);
+    return ret;
+}
+
+uint64 rle64(unsigned char * ptr)
+{
+    uint64 ret;
+    ret = ptr[0] | ((uint64)ptr[1] << 8) | ((uint64)ptr[2] << 16) | ((uint64)ptr[3] << 24) |
+      ((uint64)ptr[4] << 32) | ((uint64)ptr[5] << 40) | ((uint64)ptr[6] << 48) | ((uint64)ptr[7] << 56);
+    return ret;
+}
+
+uint16 rbe16(unsigned char * ptr)
+{
+    uint16 ret;
+    ret = ptr[1] | (ptr[0] << 8);
+    return ret;
+}
+
+uint32 rbe32(unsigned char * ptr)
+{
+    uint32 ret;
+    ret = ptr[3] | (ptr[2] << 8) | (ptr[1] << 16) | (ptr[0] << 24);
+    return ret;
+}
+
+uint64 rbe64(unsigned char * ptr)
+{
+    uint64 ret;
+    ret = ptr[7] | ((uint64)ptr[6] << 8) | ((uint64)ptr[5] << 16) | ((uint64)ptr[4] << 24) |
+      ((uint64)ptr[3] << 32) | ((uint64)ptr[2] << 40) | ((uint64)ptr[1] << 48) | ((uint64)ptr[0] << 56);
+    return ret;
+}
+
 void wee16(bool b, unsigned char *& c, uint16 v)
 {
     b ? wle16(c,v) : wbe16(c,v);
@@ -236,6 +279,21 @@ void wees32(bool b, unsigned char *& c, int32 v)
 void wees64(bool b, unsigned char *& c, int64 v)
 {
     b ? wles64(c,v) : wbes64(c,v);
+}
+
+uint16 ree16(bool b, unsigned char * c)
+{
+    return b ? rle16(c) : rbe16(c);
+}
+
+uint32 ree32(bool b, unsigned char * c)
+{
+    return b ? rle32(c) : rbe32(c);
+}
+
+uint64 ree64(bool b, unsigned char * c)
+{
+    return b ? rle64(c) : rbe64(c);
 }
 
 uint32 checked_32(uint64 v)
