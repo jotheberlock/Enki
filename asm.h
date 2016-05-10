@@ -339,7 +339,8 @@ class Assembler : public Component
         psize=0;
         le=true;
         base=0;
-		func_base=0;
+	func_base=0;
+	convert_64_to_32=false;
     }
 
     virtual ~Assembler()
@@ -378,7 +379,7 @@ class Assembler : public Component
         return (pointerSize() * 4) / 8;
     }
 
-	virtual int functionAlignment() = 0;
+    virtual int functionAlignment() = 0;
     virtual int regnum(std::string) = 0;
     virtual int size(BasicBlock *) = 0;  // Size in bytes of machine code
     virtual bool assemble(BasicBlock *, BasicBlock * next, Image * image) = 0;
@@ -409,6 +410,10 @@ class Assembler : public Component
     virtual void newFunction(Codegen *);
 
     virtual bool configure(std::string, std::string);
+    bool convertUint64()
+    {
+        return convert_64_to_32;
+    }
     
   protected:
 
@@ -420,6 +425,8 @@ class Assembler : public Component
     int psize;
     bool le;
     FunctionScope * current_function;
+    bool convert_64_to_32;
+    
 };
 
 class CallingConvention : public Component

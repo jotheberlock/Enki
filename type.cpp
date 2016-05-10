@@ -236,7 +236,7 @@ void initialiseTypes()
     types["Byte"] = byte_type;
     register_type = new IntegerType(true, assembler->pointerSize());
 
-    if (assembler->pointerSize() == 64)
+    if (assembler->pointerSize() == 64 && (!assembler->convertUint64()))
     {
         types["Uint64"] = register_type;
     }
