@@ -166,7 +166,8 @@ class BaseRelocation
     
     virtual void apply() = 0;
     virtual uint64 getValue() = 0;
-
+    virtual unsigned char * getPtr() = 0;
+    
     std::list<Reloc> relocs;
     
   protected:
@@ -183,6 +184,7 @@ class FunctionRelocation : public BaseRelocation
                        FunctionScope *, uint64, FunctionScope *, uint64);
     void apply();
     uint64 getValue();
+    unsigned char * getPtr();
     
   protected:
     
@@ -202,6 +204,7 @@ class BasicBlockRelocation : public BaseRelocation
 
     void apply();
     uint64 getValue();
+    unsigned char * getPtr();
     
   protected:
     
@@ -222,6 +225,7 @@ class AbsoluteBasicBlockRelocation : public BaseRelocation
                          FunctionScope *, uint64, BasicBlock *);
     void apply();
     uint64 getValue();
+    unsigned char * getPtr();
     
   protected:
     
@@ -229,7 +233,7 @@ class AbsoluteBasicBlockRelocation : public BaseRelocation
     BasicBlock * to_link;
     uint64 patch_offset;
     uint64 patch_relative;
-	bool absolute;
+    bool absolute;
 
 };
 
@@ -241,6 +245,7 @@ class SectionRelocation : public BaseRelocation
     SectionRelocation(Image *, int, uint64, int, uint64);
     void apply();
     uint64 getValue();
+    unsigned char * getPtr();
     
   protected:
 
@@ -258,6 +263,7 @@ class ExtFunctionRelocation : public BaseRelocation
     ExtFunctionRelocation(Image *, FunctionScope *, uint64, std::string);
     void apply();
     uint64 getValue();
+    unsigned char * getPtr();
     
    protected:
 

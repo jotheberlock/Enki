@@ -440,3 +440,28 @@ uint64 ExtFunctionRelocation::getValue()
     uint64 addr = image->importAddress(fname);
     return addr;
 }
+
+unsigned char * FunctionRelocation::getPtr()
+{
+    return image->functionPtr(to_patch)+patch_offset;
+}
+
+unsigned char * AbsoluteBasicBlockRelocation::getPtr()
+{
+    return image->functionPtr(to_patch)+patch_offset;
+}
+
+unsigned char * BasicBlockRelocation::getPtr()
+{
+    return image->functionPtr(to_patch)+patch_offset;
+}
+
+unsigned char * SectionRelocation::getPtr()
+{
+    return image->getPtr(patch_section)+patch_offset;
+}
+
+unsigned char * ExtFunctionRelocation::getPtr()
+{
+    return image->getPtr(IMAGE_CODE)+patch_offset;
+}
