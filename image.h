@@ -144,8 +144,8 @@ class BaseRelocation
 
     BaseRelocation(Image * i)
     {
-      image=i;
-      i->addReloc(this);
+        image=i;
+        i->addReloc(this);
     }
 
     virtual ~BaseRelocation()
@@ -163,8 +163,19 @@ class BaseRelocation
         reloc.sf = sf;
         relocs.push_back(reloc);
     }
+
+    // Simple 'just write it here no masking' helpers
+    void add32()
+    {
+        addReloc(0, 0, 0, 0, false);
+    }
+
+    void add64()
+    {
+        addReloc(0, 0, 0, 0, true);
+    }
     
-    virtual void apply() = 0;
+    void apply();
     virtual uint64 getValue() = 0;
     virtual unsigned char * getPtr() = 0;
     
@@ -182,7 +193,6 @@ class FunctionRelocation : public BaseRelocation
 
     FunctionRelocation(Image *,
                        FunctionScope *, uint64, FunctionScope *, uint64);
-    void apply();
     uint64 getValue();
     unsigned char * getPtr();
     
@@ -202,7 +212,6 @@ class BasicBlockRelocation : public BaseRelocation
     BasicBlockRelocation(Image *,
                          FunctionScope *, uint64, uint64, BasicBlock *);
 
-    void apply();
     uint64 getValue();
     unsigned char * getPtr();
     
@@ -212,7 +221,6 @@ class BasicBlockRelocation : public BaseRelocation
     BasicBlock * to_link;
     uint64 patch_offset;
     uint64 patch_relative;
-	bool absolute;
 
 };
 
@@ -223,7 +231,6 @@ class AbsoluteBasicBlockRelocation : public BaseRelocation
 	
     AbsoluteBasicBlockRelocation(Image *,
                          FunctionScope *, uint64, BasicBlock *);
-    void apply();
     uint64 getValue();
     unsigned char * getPtr();
     
@@ -233,7 +240,6 @@ class AbsoluteBasicBlockRelocation : public BaseRelocation
     BasicBlock * to_link;
     uint64 patch_offset;
     uint64 patch_relative;
-    bool absolute;
 
 };
 
@@ -243,7 +249,6 @@ class SectionRelocation : public BaseRelocation
   public:
 
     SectionRelocation(Image *, int, uint64, int, uint64);
-    void apply();
     uint64 getValue();
     unsigned char * getPtr();
     
@@ -261,7 +266,6 @@ class ExtFunctionRelocation : public BaseRelocation
    public:
  
     ExtFunctionRelocation(Image *, FunctionScope *, uint64, std::string);
-    void apply();
     uint64 getValue();
     unsigned char * getPtr();
     

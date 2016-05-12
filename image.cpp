@@ -15,12 +15,6 @@ FunctionRelocation::FunctionRelocation(Image * i, FunctionScope * p, uint64 po, 
     link_offset = lo;
 }
 
-void FunctionRelocation::apply()
-{
-    unsigned char * patch_site = image->functionPtr(to_patch)+patch_offset;
-    wee64(image->littleEndian(),patch_site,getValue());
-}
-
 BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64 po, uint64 pr, BasicBlock * l)
 	: BaseRelocation(i)
 {
@@ -41,21 +35,6 @@ AbsoluteBasicBlockRelocation::AbsoluteBasicBlockRelocation(Image * i, FunctionSc
     to_link = l;
 }
 
-void AbsoluteBasicBlockRelocation::apply()
-{
-    unsigned char * patch_site = image->functionPtr(to_patch)+patch_offset;
-    wees64(image->littleEndian(), patch_site, getValue());
-}
-
-void BasicBlockRelocation::apply()
-{
-    unsigned char * patch_site = image->functionPtr(to_patch)+patch_offset;
-    uint64 swizzle = getValue();
-    int64 sswizzle = *((int64 *)&swizzle);
-    int32 sswizzle32 = (int32)sswizzle;
-    wees32(image->littleEndian(), patch_site, sswizzle32);
-}
-
 SectionRelocation::SectionRelocation(Image * i,
                                      int p, uint64 po,
                                      int d, uint64 dof)
@@ -69,6 +48,19 @@ SectionRelocation::SectionRelocation(Image * i,
 
 void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 {
+    if (mask == 0)
+    {
+        if (sf)
+	{
+  	    wee64(le, ptr, val);
+	}
+	else
+	{
+  	    wee32(le, ptr, val & 0xffffffff);
+	}
+	return;
+    }
+  
     val = val >> rshift;
     val = val & mask;
     val = val << lshift;
@@ -89,22 +81,14 @@ void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
     }
 }
 
-void SectionRelocation::apply()
+void BaseRelocation::apply()
 {
-    unsigned char * patch_site = image->getPtr(patch_section)+patch_offset;
-
-    if (relocs.size() > 0)
+    unsigned char * patch_site = getPtr();
+    for (std::list<Reloc>::iterator it = relocs.begin();
+	 it !=relocs.end(); it++)
     {
-        for (std::list<Reloc>::iterator it = relocs.begin();
-             it !=relocs.end(); it++)
-        {
-            (*it).apply(image->littleEndian(), patch_site, getValue());
-        }
-        
-        return;
+	(*it).apply(image->littleEndian(), patch_site, getValue());
     }
-    
-    wee64(image->littleEndian(), patch_site, getValue());
 }
 
 ExtFunctionRelocation::ExtFunctionRelocation(Image * i,
@@ -115,12 +99,6 @@ ExtFunctionRelocation::ExtFunctionRelocation(Image * i,
     to_patch = f;
     patch_offset = o;
     fname = n;
-}
-
-void ExtFunctionRelocation::apply()
-{
-    unsigned char * patch_site = image->getPtr(IMAGE_CODE)+patch_offset;
-    wee64(image->littleEndian(), patch_site, getValue());
 }
 
 Image::Image()

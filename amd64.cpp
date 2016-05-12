@@ -710,8 +710,9 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         r |= reg(i.ops[0].getReg() & 0x7);
                         *current++ = r;
                         
-						assert(current_function);
-						new FunctionRelocation(image, current_function, flen(), i.ops[1].getFunction(), 0);
+			assert(current_function);
+			FunctionRelocation * fr = new FunctionRelocation(image, current_function, flen(), i.ops[1].getFunction(), 0);
+			fr->add64();
                         //relocs.push_back(Relocation(REL_A64, len()+8, len(),
                         //                            i.ops[1].getFunction()));
                         wle64(current, reloc);
@@ -723,7 +724,8 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         r |= reg(i.ops[0].getReg() & 0x7);
                         *current++ = r;
                         
-						new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
+			AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
+			abbr->add64();
                         //relocs.push_back(Relocation(REL_A64, len()+8, len(),
                         //                            i.ops[1].getBlock()));
                         wle64(current, reloc);
@@ -737,7 +739,8 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
                         int s;
                         uint64 o = i.ops[1].getSection(s);
-			new SectionRelocation(image, IMAGE_CODE, len(), s, o);
+			SectionRelocation * sr = new SectionRelocation(image, IMAGE_CODE, len(), s, o);
+			sr->add64();
                         //relocs.push_back(Relocation(REL_A64, len()+8, len(),
                         //                            i.ops[1].getBlock()));
                         wle64(current, reloc);
@@ -748,7 +751,8 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         unsigned char r = 0xb8;
                         r |= reg(i.ops[0].getReg() & 0x7);
                         *current++ = r;
-			new ExtFunctionRelocation(image, current_function, len(), i.ops[1].getExtFunction());
+			ExtFunctionRelocation * efr = new ExtFunctionRelocation(image, current_function, len(), i.ops[1].getExtFunction());
+			efr->add64();
                         //relocs.push_back(Relocation(REL_A64, len()+8, len(),
                         //                            i.ops[1].getBlock()));
                         wle64(current, reloc);
@@ -1029,8 +1033,8 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 {
                     assert(i.ins == BRA);
                     *current++ = 0xe9;
-                    new BasicBlockRelocation(image, current_function, flen(), flen()+4, i.ops[0].getBlock());
-
+                    BasicBlockRelocation * bbr = new BasicBlockRelocation(image, current_function, flen(), flen()+4, i.ops[0].getBlock());
+		    bbr->add32();
                     //relocs.push_back(Relocation(REL_S32, currentAddr()+4, len(),
                     //                            i.ops[0].getBlock()));
                     wle32(current, 0xdeadbeef);
@@ -1072,7 +1076,8 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         assert(false);
                 }
                 
-				new BasicBlockRelocation(image, current_function, flen(), flen()+4, i.ops[0].getBlock());
+		BasicBlockRelocation * bbr = new BasicBlockRelocation(image, current_function, flen(), flen()+4, i.ops[0].getBlock());
+		bbr->add32();
                 wle32(current, 0xdeadbeef);
                 break;
             }
