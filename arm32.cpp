@@ -234,30 +234,26 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     i.ops[1].isFunction() || i.ops[1].isBlock() ||
                     i.ops[1].isSection() || i.ops[1].isExtFunction())
                 {
-                    uint32 val = 0xdeadbeef;
+		    uint32 val = 0xdeadbeef;
+		    BaseRelocation * br = 0;
                     if (i.ops[1].isFunction())
                     {
-
+		        assert(current_function);
+		        br = new FunctionRelocation(image, current_function, flen(), i.ops[1].getFunction(), 0);
                     }
                     else if (i.ops[1].isBlock())
                     {
-
+			br = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
                     }
                     else if (i.ops[1].isSection())
                     {
                         int s;
                         uint64 o = i.ops[1].getSection(s);
-                        SectionRelocation * sr = new SectionRelocation(image, IMAGE_CODE, len(), s, o);
-                        sr->addReloc(0, 0, 0xfff, 0, false);
-                        sr->addReloc(0, 12, 0xf, 16, false);
-                        sr->addReloc(4, 16, 0xfff, 0, false);
-                        sr->addReloc(4, 28, 0xf, 16, false);
-                        wee32(le, current, 0xe3000000 | i.ops[0].getReg() << 12);
-                        mc = 0xe3400000 | i.ops[0].getReg() << 12 ;
+                        br = new SectionRelocation(image, IMAGE_CODE, len(), s, o);
                     }
                     else if (i.ops[1].isExtFunction())
                     {
-
+		        br = new ExtFunctionRelocation(image, current_function, len(), i.ops[1].getExtFunction());
                     }
                     else
                     {
@@ -270,14 +266,21 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                             int32 tmp = i.ops[1].getSigc();
                             val = *((uint32 *)&tmp);
                         }
-                    
-                        // ARMv7 movw/movt goes here
-                        mc = 0xe3000000 | (val & 0xfff) | (((val >> 12) & 0xf) << 16) | (i.ops[0].getReg() << 12);
-                        wee32(le, current, mc);
-                        val = val >> 16;
-                        mc = 0xe3400000 | (val & 0xfff) | (((val >> 12) & 0xf) << 16) | (i.ops[0].getReg() << 12);
                     }
-                    
+		    
+		    if (br)
+		    {
+                        br->addReloc(0, 0, 0xfff, 0, false);
+                        br->addReloc(0, 12, 0xf, 16, false);
+                        br->addReloc(4, 16, 0xfff, 0, false);
+                        br->addReloc(4, 28, 0xf, 16, false);
+		    }
+		    
+		    // ARMv7 movw/movt
+		    mc = 0xe3000000 | (val & 0xfff) | (((val >> 12) & 0xf) << 16) | (i.ops[0].getReg() << 12);
+		    wee32(le, current, mc);
+		    val = val >> 16;
+		    mc = 0xe3400000 | (val & 0xfff) | (((val >> 12) & 0xf) << 16) | (i.ops[0].getReg() << 12);
                 }
                 else
                 {
