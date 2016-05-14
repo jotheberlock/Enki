@@ -292,7 +292,16 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             }
             case ADD:
             case SUB:
+            case AND:
+            case OR:
+            case XOR:
             {
+                assert(i.oc == 3);
+                assert(i.ops[0].isReg());
+                assert(i.ops[1].isReg());
+                assert(i.ops[2].isReg() || i.ops[2].isUsigc() ||
+                       i.ops[2].isSigc());
+                
                 uint32 op = 0;
                 if (i.ins == ADD)
                 {
@@ -302,13 +311,25 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 {
                     op = 0x00400000;
                 }
-
+                else if (i.ins == AND)
+                {
+                    op = 0x00000000;
+                }
+                else if (i.ins == OR)
+                {
+                    op = 0x01800000;
+                }
+                else if (i.ins == XOR)
+                {
+                    op = 0x00200000;
+                }
+                
                 if (i.ops[2].isUsigc() || i.ops[2].isSigc())
                 {
                     uint32 val = 0;
                     if (i.ops[2].isUsigc())
                     {
-                        val = i.ops[1].getUsigc();
+                        val = i.ops[2].getUsigc();
                     }
                     else
                     {
@@ -325,6 +346,42 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 }
                 
                 break;
+            }
+            case CMP:
+            {
+                assert(i.oc == 2);
+                assert(i.ops[0].isReg());
+                assert(i.ops[1].isReg() || i.ops[1].isUsigc() || i.ops[1].isSigc());            
+                if (i.ops[1].isUsigc() || i.ops[1].isSigc())
+                {
+                    uint32 val = 0;
+                    if (i.ops[1].isUsigc())
+                    {
+                        val = i.ops[1].getUsigc();
+                    }
+                    else
+                    {
+                        int32 tmp = i.ops[1].getSigc();
+                        val = *((uint32 *)&tmp);
+                    }
+                    uint32 cooked = 0;
+                    assert(calcImm(val, cooked));
+                    mc = 0xe3500000 | (i.ops[0].getReg() << 16) | cooked;
+                }
+                else
+                {
+                    mc = 0xe1500000 | (i.ops[0].getReg() << 16) | i.ops[1].getReg();
+                }
+                
+                break;
+            }
+            case NOT:
+            {
+                assert(i.oc == 2);
+                assert(i.ops[0].isReg());
+                assert(i.ops[1].isReg());
+                mc = 0xe2600000 | (i.ops[0].getReg() << 12) |
+                    (i.ops[1].getReg() << 16);
             }
             default:
             {

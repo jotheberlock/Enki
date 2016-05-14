@@ -566,4 +566,3 @@ bool Assembler::configure(std::string param, std::string val)
 
     return true;
 }
-
