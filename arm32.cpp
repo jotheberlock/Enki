@@ -347,6 +347,55 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 
                 break;
             }
+            case SHL:
+            case SHR:
+            case SAR:
+            case RCL:
+            case RCR:
+            case ROL:
+            case ROR:
+            {
+                assert(i.oc == 3);
+                assert(i.ops[0].isReg());
+                assert(i.ops[1].isReg());
+                assert(i.ops[2].isReg() || i.ops[2],isUsigc());
+                uint32 op = 0;
+                if (i.ins == SHL)
+                {
+                    op = 0xe1a00010;
+                }
+                else if (i.ins == SHR)
+                {
+                    op = 0xe1a00030;
+                }
+                else if (i.ins == SAR)
+                {
+                    op = 0xe1a00050;
+                }
+                else if (i.ins == RCL)
+                {
+                        // ? carry
+                }
+                else if (i.ins == RCR)
+                {
+                        // ? carry
+                }
+                else if (i.ins == ROL)
+                {
+                        // ? magic
+                }
+                else if (i.ins == ROR)
+                {
+                    op = 0xe1a00070;
+                }
+
+                    // Fill in r2
+                
+                op |= i.ops[0].getReg() << 12;
+                op |= i.ops[1].getReg();
+                
+                break;
+            }
             case CMP:
             {
                 assert(i.oc == 2);
