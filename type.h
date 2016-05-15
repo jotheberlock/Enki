@@ -114,6 +114,11 @@ class Type
     {
         return false;
     }
+
+    virtual bool isSigned()
+    {
+        return false;
+    }
     
     virtual int size() = 0;
     virtual int align() = 0;
@@ -184,10 +189,15 @@ class IntegerType : public Type
 
     IntegerType(bool u, int s)
     {
-        un_signed = u;
+        is_signed = u;
         bits = s;
     }
 
+    bool isSigned()
+    {
+        return !is_signed;
+    }
+    
     std::string display(unsigned char *);
     
     // Address of target, source
@@ -205,7 +215,7 @@ class IntegerType : public Type
     std::string name()
     {
         std::string ret;
-        if (un_signed)
+        if (!is_signed)
             ret += "U";
         char buf[4096];
         sprintf(buf, "int%d", bits);
@@ -225,7 +235,7 @@ class IntegerType : public Type
 
   protected:
 
-    bool un_signed;
+    bool is_signed;
     int bits;
     
 };

@@ -292,6 +292,8 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             }
             case ADD:
             case SUB:
+            case ADDS:
+            case SUBS:
             case AND:
             case OR:
             case XOR:
@@ -307,10 +309,18 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 {
                     op = 0x00800000;
                 }
+                else if (i.ins == ADDS)
+                {
+                    op = 0x00900000;
+                }
                 else if (i.ins == SUB)
                 {
                     op = 0x00400000;
                 }
+                else if (i.ins == SUBS)
+                {
+                    op = 0x00500000;
+                }                
                 else if (i.ins == AND)
                 {
                     op = 0x00000000;
@@ -358,8 +368,10 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 assert(i.oc == 3);
                 assert(i.ops[0].isReg());
                 assert(i.ops[1].isReg());
-                assert(i.ops[2].isReg() || i.ops[2],isUsigc());
+                assert(i.ops[2].isReg() || i.ops[2].isUsigc());
                 uint32 op = 0;
+                uint32 const_shift = (i.ops[2].isUsigc()) ?
+                    i.ops[2].getUsigc() : 0;
                 if (i.ins == SHL)
                 {
                     op = 0xe1a00010;
@@ -375,25 +387,32 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 else if (i.ins == RCL)
                 {
                         // ? carry
+                    assert(false);
                 }
                 else if (i.ins == RCR)
                 {
                         // ? carry
+                    assert(false);
                 }
                 else if (i.ins == ROL)
                 {
-                        // ? magic
+                    op = 0xe1a00070;
+                    const_shift = 32 - const_shift;
                 }
                 else if (i.ins == ROR)
                 {
                     op = 0xe1a00070;
                 }
-
-                    // Fill in r2
                 
                 op |= i.ops[0].getReg() << 12;
                 op |= i.ops[1].getReg();
+
+                if (i.ops[2].isUsigc())
+                {
+                    op |= 0x00000040;
+                }
                 
+                op |= const_shift << 7;
                 break;
             }
             case CMP:

@@ -173,7 +173,7 @@ Type * lookupType(std::string n)
         if (sscanf(n.c_str(), "Uint%d", &size) == 1)
         {
             fprintf(log_file, "Uint match %d\n", size);
-            Type * t = new IntegerType(true, size);
+            Type * t = new IntegerType(false, size);
             types[n] = t;
             return t;
         }
@@ -181,7 +181,7 @@ Type * lookupType(std::string n)
         if (sscanf(n.c_str(), "Int%d", &size) == 1)
         {
             fprintf(log_file, "Int match %d\n", size);
-            Type * t = new IntegerType(false, size);
+            Type * t = new IntegerType(true, size);
             types[n] = t;
             return t;
         }

@@ -390,6 +390,8 @@ std::string Insn::insToString()
         case SELGES: return "selges";
         case SELGTS: return "selgts";
         case GETSTACKSIZE: return "getstacksize";
+        case ADDS: return "adds";
+        case SUBS: return "subs";
         default: return "<unknown!>";
     }
 }
@@ -488,15 +490,15 @@ int loadForType(Type * t)
 {
     if (t->size() == 8)
     {
-        return LOAD8;
+        return t->isSigned() ? LOADS8 : LOAD8;
     }
     else if (t->size() == 16)
     {
-        return LOAD16;
+        return t->isSigned() ? LOADS16 : LOAD16;
     }
     else if (t->size() == 32)
     {
-        return LOAD32;
+        return t->isSigned() ? LOADS32 : LOAD32;
     }
     else if (t->size() == 64)
     {

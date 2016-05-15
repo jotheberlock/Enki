@@ -38,7 +38,6 @@
 #define NOT 30
 #define SHL 31
 #define SHR 32
-#define SAL SHL
 #define SAR 34
 #define RCL 35
 #define RCR 36
@@ -71,6 +70,9 @@
 #define SELGTS 56
 
 #define GETSTACKSIZE 57
+
+#define ADDS 58
+#define SUBS 59
 
 class Value;
 class BasicBlock;

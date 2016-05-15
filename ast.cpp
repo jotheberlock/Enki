@@ -1460,6 +1460,24 @@ Value * IdentifierExpr::codegen(Codegen * c)
     return value;
 }
 
+static bool binary_result(Value * l, Value * r, Type * & t)
+{
+    if (!l->type || !r->type)
+    {
+        t = register_type;
+        return false;
+    }
+
+    t = l->type;
+    
+    if (l->type->isSigned() || r->type->isSigned())
+    {
+        return true;
+    }
+
+    return false;
+}
+
 Value * BinaryExpr::codegen(Codegen * c)
 {
     Value * rh = rhs->codegen(c);
@@ -1520,37 +1538,47 @@ Value * BinaryExpr::codegen(Codegen * c)
     else if (op == '+')
     {
         Value * lh = lhs->codegen(c);
-        Value * v = c->getTemporary(register_type, "add");
+        Type * t = 0;
+        bool is_signed = binary_result(lh,rh,t);
+        Value * v = c->getTemporary(t, "add");
         fprintf(log_file, ">>> Adding an add\n");
-        c->block()->add(Insn(ADD, v, lh, rh));
+        c->block()->add(Insn(is_signed ? ADDS : ADD, v, lh, rh));
         return v;
     }
     else if (op == '-')
     {
         Value * lh = lhs->codegen(c);
-        Value * v = c->getTemporary(register_type, "sub");
-        c->block()->add(Insn(SUB, v, lh, rh));
+        Type * t = 0;
+        bool is_signed = binary_result(lh,rh,t);
+        Value * v = c->getTemporary(t, "sub");
+        c->block()->add(Insn(is_signed ? SUBS : SUB, v, lh, rh));
         return v;        
     }
     else if (op == '*')
     {
         Value * lh = lhs->codegen(c);
-        Value * v = c->getTemporary(register_type, "mul");
-        c->block()->add(Insn(MUL, v, lh, rh));
+        Type * t = 0;
+        bool is_signed = binary_result(lh,rh,t);
+        Value * v = c->getTemporary(t, "mul");
+        c->block()->add(Insn(is_signed ? IMUL : MUL, v, lh, rh));
         return v;
     }
     else if (op == '/')
     {
         Value * lh = lhs->codegen(c);
-        Value * v = c->getTemporary(register_type, "div");
-        c->block()->add(Insn(DIV, v, lh, rh));
+        Type * t = 0;
+        bool is_signed = binary_result(lh,rh,t);
+        Value * v = c->getTemporary(t, "div");
+        c->block()->add(Insn(is_signed ? IDIV : DIV, v, lh, rh));
         return v;
     }
     else if (op == '%')
     {
         Value * lh = lhs->codegen(c);
-        Value * v = c->getTemporary(register_type, "rem");
-        c->block()->add(Insn(REM, v, lh, rh));
+        Type * t = 0;
+        bool is_signed = binary_result(lh,rh,t);
+        Value * v = c->getTemporary(t, "rem");
+        c->block()->add(Insn(is_signed ? IREM : REM, v, lh, rh));
         return v;
     }
     else if (op == lshift_op)
@@ -1563,8 +1591,10 @@ Value * BinaryExpr::codegen(Codegen * c)
     else if (op == rshift_op)
     {
         Value * lh = lhs->codegen(c);
-        Value * v = c->getTemporary(register_type, "rshift");
-        c->block()->add(Insn(SHR, v, lh, rh));
+        Type * t = 0;
+        bool is_signed = binary_result(lh,rh,t);
+        Value * v = c->getTemporary(t, "rshift");
+        c->block()->add(Insn(is_signed ? SAR : SHR, v, lh, rh));
         return v;
     }
     else if (op == '&')
