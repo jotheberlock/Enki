@@ -11,6 +11,10 @@ int Arm32::regnum(std::string s)
         sscanf(s.c_str()+1, "%d", &ret);
             assert(ret<16);
     }
+    else if (s == "ip")
+    {
+        ret = 12;
+    }
     else if (s == "sp")
     {
         ret = 13;
@@ -484,11 +488,15 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 std::string Arm32::transReg(uint32 r)
 {
     assert(r < 16);
-    if (r < 13)
+    if (r < 12)
     {
         char buf[4096];
         sprintf(buf, "r%d", r);
         return buf;
+    }
+    else if (r == 12)
+    {
+        return "ip";
     }
     else if (r == 13)
     {
