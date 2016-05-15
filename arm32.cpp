@@ -409,7 +409,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
                 if (i.ops[2].isUsigc())
                 {
-                    op |= 0x00000040;
+                    op |= 0x00000060;
                 }
                 
                 op |= const_shift << 7;
