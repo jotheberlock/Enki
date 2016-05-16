@@ -1468,13 +1468,16 @@ static bool binary_result(Value * l, Value * r, Type * & t)
         return false;
     }
 
-    t = l->type;
-    
-    if (l->type->isSigned() || r->type->isSigned())
+    // C rules - if either operand is unsigned, so is result
+    if (l->type->isSigned() && r->type->isSigned())
     {
-        return true;
+        t = signed_register_type;
     }
-
+    else
+    {
+	t = register_type;
+    }
+    
     return false;
 }
 
@@ -1539,7 +1542,7 @@ Value * BinaryExpr::codegen(Codegen * c)
     {
         Value * lh = lhs->codegen(c);
         Type * t = 0;
-        bool is_signed = binary_result(lh,rh,t);
+        binary_result(lh,rh,t);
         Value * v = c->getTemporary(t, "add");
         fprintf(log_file, ">>> Adding an add\n");
         c->block()->add(Insn(ADD, v, lh, rh));
@@ -1549,7 +1552,7 @@ Value * BinaryExpr::codegen(Codegen * c)
     {
         Value * lh = lhs->codegen(c);
         Type * t = 0;
-        bool is_signed = binary_result(lh,rh,t);
+        binary_result(lh,rh,t);
         Value * v = c->getTemporary(t, "sub");
         c->block()->add(Insn(SUB, v, lh, rh));
         return v;        

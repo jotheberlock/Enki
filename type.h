@@ -642,6 +642,7 @@ void initialiseTypes();
 void destroyTypes();
 
 extern Type * register_type;
+extern Type * signed_register_type;
 extern Type * byte_type;
 
 #endif

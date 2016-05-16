@@ -5,8 +5,9 @@
 #include "symbols.h"
 
 std::map<std::string, Type *> types;
-Type * register_type;
-Type * byte_type;
+Type * register_type = 0;
+Type * signed_register_type = 0;
+Type * byte_type = 0;
 
 void IntegerType::copy(Codegen * c, Value * a, Value * v)
 {
@@ -234,15 +235,17 @@ void initialiseTypes()
     types["Void"] = new VoidType();
     byte_type = new IntegerType(true, 8);
     types["Byte"] = byte_type;
-    register_type = new IntegerType(true, assembler->pointerSize());
-
+    register_type = new IntegerType(false, assembler->pointerSize());
+    signed_register_type = new IntegerType(true, assembler->pointerSize());
     if (assembler->pointerSize() == 64 && (!assembler->convertUint64()))
     {
         types["Uint64"] = register_type;
+	types["Int64"] = signed_register_type;
     }
     else
     {
         types["Uint32"] = register_type;
+	types["Int32"] = signed_register_type;
     }
     types["Byte^"] = new PointerType(byte_type);
 }
