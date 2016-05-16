@@ -1542,7 +1542,7 @@ Value * BinaryExpr::codegen(Codegen * c)
         bool is_signed = binary_result(lh,rh,t);
         Value * v = c->getTemporary(t, "add");
         fprintf(log_file, ">>> Adding an add\n");
-        c->block()->add(Insn(is_signed ? ADDS : ADD, v, lh, rh));
+        c->block()->add(Insn(ADD, v, lh, rh));
         return v;
     }
     else if (op == '-')
@@ -1551,7 +1551,7 @@ Value * BinaryExpr::codegen(Codegen * c)
         Type * t = 0;
         bool is_signed = binary_result(lh,rh,t);
         Value * v = c->getTemporary(t, "sub");
-        c->block()->add(Insn(is_signed ? SUBS : SUB, v, lh, rh));
+        c->block()->add(Insn(SUB, v, lh, rh));
         return v;        
     }
     else if (op == '*')

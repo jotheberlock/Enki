@@ -71,9 +71,6 @@
 
 #define GETSTACKSIZE 57
 
-#define ADDS 58
-#define SUBS 59
-
 class Value;
 class BasicBlock;
 class FunctionScope;

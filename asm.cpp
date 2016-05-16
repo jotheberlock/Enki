@@ -390,8 +390,6 @@ std::string Insn::insToString()
         case SELGES: return "selges";
         case SELGTS: return "selgts";
         case GETSTACKSIZE: return "getstacksize";
-        case ADDS: return "adds";
-        case SUBS: return "subs";
         default: return "<unknown!>";
     }
 }

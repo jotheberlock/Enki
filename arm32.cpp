@@ -296,8 +296,6 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             }
             case ADD:
             case SUB:
-            case ADDS:
-            case SUBS:
             case AND:
             case OR:
             case XOR:
@@ -313,18 +311,10 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 {
                     op = 0x00800000;
                 }
-                else if (i.ins == ADDS)
-                {
-                    op = 0x00900000;
-                }
                 else if (i.ins == SUB)
                 {
                     op = 0x00400000;
                 }
-                else if (i.ins == SUBS)
-                {
-                    op = 0x00500000;
-                }                
                 else if (i.ins == AND)
                 {
                     op = 0x00000000;

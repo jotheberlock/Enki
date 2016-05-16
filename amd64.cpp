@@ -271,8 +271,8 @@ int Amd64::size(BasicBlock * b)
             case SUB:
             case AND:
             case OR:
-            case XOR:
-            {
+	    case XOR:
+	    {
                 if (i.ops[2].isUsigc() || i.ops[2].isSigc())
                 {                    
                     ret += 7;
