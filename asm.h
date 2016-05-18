@@ -355,7 +355,7 @@ class Assembler : public Component
     void setPtr(unsigned char * ptr)
     {
         current = ptr;
-		func_base = ptr;
+	func_base = ptr;
     }
 
     int dynamicLinkOffset()

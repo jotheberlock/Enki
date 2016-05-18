@@ -98,7 +98,6 @@ bool Arm32::calcImm(uint64 raw, uint32 & result)
 
 bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 {
-
     std::list<Insn> & code = b->getCode();
 
     b->setAddr(address+flen());
@@ -124,7 +123,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 if (i.oc == 1)
                 {
                     assert(i.ops[0].isUsigc());
-                    assert(i.ops[0].getUsigc() > 0xffffff);
+                    assert(i.ops[0].getUsigc() <= 0xffffff);
                     mc = (0xe << 28) | (0xf << 24) | i.ops[0].getUsigc();
                 }
                 else
@@ -451,7 +450,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             default:
             {
                 fprintf(log_file, "Don't know how to turn %lld [%s] into arm!\n", i.ins, i.toString().c_str());
-                    // assert(false);
+                assert(false);
                 mc = 0xe1a00000; // NOP
             }
             
@@ -574,22 +573,22 @@ bool Arm32::validConst(Insn & i, int idx)
 
 void Arm32::newFunction(Codegen * c)
 {
-	Assembler::newFunction(c);
-	if (c->callConvention() == CCONV_STANDARD)
-	{
-		uint64 addr = c->stackSize();
+    Assembler::newFunction(c);
+    if (c->callConvention() == CCONV_STANDARD)
+    {
+        uint64 addr = c->stackSize();
         wle32(current, checked_32(addr));
-	}
+    }  
 }
 
 void Arm32::align(uint64 a)
 {
     uint32 nop = 0xf3af1000;
-	while (currentAddr() % a)
-	{
-		*((uint32 *)current) = nop;
-		current += 4;
-	}
+    while (currentAddr() % a)
+    {
+	*((uint32 *)current) = nop;
+	current += 4;
+    }
 }
 
 Value * ArmLinuxSyscallCallingConvention::generateCall(Codegen * c,
