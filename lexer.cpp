@@ -65,6 +65,7 @@ Lexer::Lexer()
     keywords["extern"] = EXTERN;
     keywords["fptr"] = FPTR;
     keywords["elif"] = ELIF;
+    keywords["const"] = CONST;
     
     oldcol = -1;
     oldline = -1;
