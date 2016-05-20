@@ -19,6 +19,12 @@ class Type
 
     virtual std::string name() = 0;
     virtual std::string display(unsigned char *) = 0;
+
+    Type()
+    {
+	is_const=false;
+    }
+    
     virtual ~Type()
     {
     }
@@ -119,9 +125,23 @@ class Type
     {
         return false;
     }
+
+    bool isConst()
+    {
+        return is_const;
+    }
+
+    void setConst(bool b)
+    {
+        is_const=b;
+    }
     
     virtual int size() = 0;
     virtual int align() = 0;
+
+   protected:
+
+    bool is_const;
     
 };
 

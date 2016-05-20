@@ -66,7 +66,6 @@ typedef std::vector<uint32> Chars;
 #define FPTR 49
 
 #define ELIF 50
-#define CONST 51
 
 class Token
 {

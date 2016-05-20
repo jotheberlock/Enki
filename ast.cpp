@@ -1169,6 +1169,13 @@ Expr * Parser::parseFptr()
 
 Type * Parser::parseType()
 {
+    bool is_const = false;
+    if (current.type == CONST)
+    {
+        is_const = true;
+        next();
+    }
+    
     Expr * ie = parseIdentifier();
     if (!ie)
     {
@@ -1288,6 +1295,11 @@ Type * Parser::parseType()
     if(ret_type && is_activation)
     {
         ret_type = new ActivationType(ret_type);
+    }
+
+    if (is_const)
+    {
+	ret_type->setConst(true);
     }
     
     return ret_type;
