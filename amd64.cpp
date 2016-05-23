@@ -1145,6 +1145,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             case SELGES:
             case SELGTS:
             {
+	        assert(i.oc == 3);
                 assert(i.ops[0].isReg());
                 assert(i.ops[1].isReg());
                 assert(i.ops[2].isReg());

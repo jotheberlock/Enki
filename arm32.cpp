@@ -446,7 +446,50 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 assert(i.ops[1].isReg());
                 mc = 0xe2600000 | (i.ops[0].getReg() << 12) |
                     (i.ops[1].getReg() << 16);
-            }
+            }	   
+            case SELEQ:
+            case SELGE:
+            case SELGT:
+            case SELGES:
+            case SELGTS:
+            {
+   	        assert(i.oc == 3);
+                assert(i.ops[0].isReg());
+                assert(i.ops[1].isReg());
+                assert(i.ops[2].isReg());
+		uint32 op1 = 0;
+		uint32 op2 = 0;
+		if (i.ins == SELEQ)
+		{
+		    op1 = 0x00000000;
+		    op2 = 0x10000000;
+		}
+		else if (i.ins == SELGE)
+		{ 
+		    op1 = 0x20000000;
+		    op2 = 0x30000000;
+	        }
+		else if (i.ins == SELGT)
+		{
+	  	    op1 = 0x80000000;
+		    op2 = 0x90000000;
+	        }
+		else if (i.ins == SELGES)
+	        {
+		    op1 = 0xa0000000;
+		    op2 = 0xb0000000;
+	        }
+		else if (i.ins == SELGTS)
+	        {
+		    op1 = 0xc0000000;
+		    op2 = 0xd0000000; 
+	        }
+
+		mc = op1 | 0x01a00000 | (i.ops[1].getReg()) |
+		        i.ops[0].getReg() << 12;
+                mc = op2 | 0x01a00000 | (i.ops[2].getReg()) |
+                        i.ops[0].getReg() << 12;
+	    }
             default:
             {
                 fprintf(log_file, "Don't know how to turn %lld [%s] into arm!\n", i.ins, i.toString().c_str());
