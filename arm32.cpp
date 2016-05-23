@@ -124,7 +124,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 {
                     assert(i.ops[0].isUsigc());
                     assert(i.ops[0].getUsigc() <= 0xffffff);
-                    mc = (0xe << 28) | (0xf << 24) | i.ops[0].getUsigc();
+                    mc = (0xe << 28) | (0xf << 24) | (uint32)i.ops[0].getUsigc();
                 }
                 else
                 {
@@ -262,11 +262,11 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     {
                         if (i.ops[1].isUsigc())
                         {
-                            val = i.ops[1].getUsigc();
+                            val = (uint32)i.ops[1].getUsigc();
                         }
                         else
                         {
-                            int32 tmp = i.ops[1].getSigc();
+                            int32 tmp = (int32)i.ops[1].getSigc();
                             val = *((uint32 *)&tmp);
                         }
                     }
@@ -332,11 +332,11 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     uint32 val = 0;
                     if (i.ops[2].isUsigc())
                     {
-                        val = i.ops[2].getUsigc();
+                        val = (uint32)i.ops[2].getUsigc();
                     }
                     else
                     {
-                        int32 tmp = i.ops[2].getSigc();
+                        int32 tmp = (int32)i.ops[2].getSigc();
                         val = *((uint32 *)&tmp);
                     }
                     uint32 cooked = 0;
@@ -364,7 +364,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 assert(i.ops[2].isReg() || i.ops[2].isUsigc());
                 uint32 op = 0;
                 uint32 const_shift = (i.ops[2].isUsigc()) ?
-                    i.ops[2].getUsigc() : 0;
+                    (uint32)i.ops[2].getUsigc() : 0;
 
                 assert(const_shift < 32);
                 assert(const_shift > 0);
@@ -421,11 +421,11 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     uint32 val = 0;
                     if (i.ops[1].isUsigc())
                     {
-                        val = i.ops[1].getUsigc();
+                        val = (uint32)i.ops[1].getUsigc();
                     }
                     else
                     {
-                        int32 tmp = i.ops[1].getSigc();
+                        int32 tmp = (int32)i.ops[1].getSigc();
                         val = *((uint32 *)&tmp);
                     }
                     uint32 cooked = 0;
@@ -546,6 +546,8 @@ std::string Arm32::transReg(uint32 r)
     {
         assert(false);
     }
+
+	return ""; // Shut compiler up
 }
 
 bool Arm32::configure(std::string param, std::string val)
