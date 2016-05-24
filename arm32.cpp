@@ -513,9 +513,10 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		else
 		{
   		    mc = 0xeadeadbe;
+		    // Branch offset is stored >> 2
 		    BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
-				current_function, flen(), flen()+9, i.ops[0].getBlock());
-		    bbr->addReloc(0, 0, 0x00ffffff, 0, false);
+				current_function, flen(), flen()+4, i.ops[0].getBlock());
+		    bbr->addReloc(0, 2, 0x00ffffff, 0, false);
 	        }
 		break;
 	    }
@@ -556,8 +557,8 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		
 		mc = cond | 0x0adeadbe;
 		BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
-								      current_function, flen(), flen()+9, i.ops[0].getBlock());
-		bbr->addReloc(0, 0, 0x00ffffff, 0, false);
+								      current_function, flen(), flen()+4, i.ops[0].getBlock());
+		bbr->addReloc(0, 1, 0x00ffffff, 0, false);
 		break;
 	    }
    	    case DIV:
