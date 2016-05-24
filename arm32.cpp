@@ -81,16 +81,25 @@ int Arm32::size(BasicBlock * b)
 
 bool Arm32::calcImm(uint64 raw, uint32 & result)
 {
+    // ARM encodes constants as an 8-bit value, rotated right by
+    // 0-30 bits
+  
     uint32 shift = 0;
-    while (shift < 4)
+    uint32 trial = raw & 0xff;
+    for (shift=0; shift<31; shift++)
     {
-        uint32 trial = (raw & 0xff) << shift;
+        bool lsb_set = trial & 0x1;
+	trial = trial >> 1;
+	if (lsb_set)
+	{
+  	    trial = trial & 0x80;
+	}
+
         if (trial == raw)
         {
             result = (raw & 0xff) | (shift << 8);
             return true;
         }
-        shift += 1;
     }
 
     return false;
@@ -446,6 +455,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 assert(i.ops[1].isReg());
                 mc = 0xe2600000 | (i.ops[0].getReg() << 12) |
                     (i.ops[1].getReg() << 16);
+		break;
             }	   
             case SELEQ:
             case SELGE:
@@ -489,6 +499,80 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		        i.ops[0].getReg() << 12;
                 mc = op2 | 0x01a00000 | (i.ops[2].getReg()) |
                         i.ops[0].getReg() << 12;
+		break;
+	    }
+	    case BRA:
+	    {
+ 	        assert(i.oc == 1);
+	        assert(i.ops[0].isReg() || i.ops[0].isBlock());
+		if (i.ops[0].isReg())
+		{
+		    // mov pc, <reg>
+  		    mc = 0xe1a0f000 | i.ops[0].getReg(); 
+		}
+		else
+		{
+  		    mc = 0xeadeadbe;
+		    BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
+				current_function, flen(), flen()+9, i.ops[0].getBlock());
+		    bbr->addReloc(0, 0, 0x00ffffff, 0, false);
+	        }
+		break;
+	    }
+            case BNE:
+            case BEQ:
+            case BG:
+            case BLE:
+            case BL:
+            case BGE:
+            {
+                assert(i.oc == 1);
+                assert(i.ops[0].isBlock());
+		uint32 cond = 0;
+		if (i.ins == BNE)
+		{
+ 	 	    cond = 0x10000000;
+		}
+		else if (i.ins == BEQ)
+		{
+  		    cond = 0x10000000;
+		}
+		else if (i.ins == BG)
+	        {
+		    cond = 0x80000000;
+	        }
+		else if (i.ins == BLE)
+	        {
+	  	    cond = 0x90000000;
+	        }
+		else if (i.ins == BL)
+	        {
+		    cond = 0x30000000;
+	        }
+		else if (i.ins == BGE)
+	        {
+		    cond = 0x20000000;
+	        }
+		
+		mc = cond | 0x0adeadbe;
+		BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
+								      current_function, flen(), flen()+9, i.ops[0].getBlock());
+		bbr->addReloc(0, 0, 0x00ffffff, 0, false);
+		break;
+	    }
+   	    case DIV:
+	    case IDIV:
+	    {
+  	        mc = (i.ins == DIV) ? 0xe730f010 : 0x3710f010;
+		mc = mc | i.ops[0].getReg() << 16 | i.ops[1].getReg() |
+		     i.ops[2].getReg() << 8;
+		break;
+	    }
+	    case REM:
+	    case IREM:
+	    {
+	        assert(false);  // Doesn't exist on ARM
+	        break;
 	    }
             default:
             {
@@ -585,7 +669,7 @@ bool Arm32::validConst(Insn & i, int idx)
         i.ins == MUL || i.ins == IMUL)
     {
         return false;
-        }
+    }
     
     if (i.ins == ADD || i.ins == SUB || i.ins == MUL
         || i.ins == IMUL || i.ins == AND || i.ins == OR
