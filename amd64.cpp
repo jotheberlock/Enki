@@ -101,6 +101,14 @@ ValidRegs Amd64::validRegs(Insn & i)
         ret.clobbers.set(2);
         useAll = false;
     }
+    else if (i.ins == SHL || i.ins == SHR)
+    {
+        if (!i.ops[2].isSigc() && !i.ops[2].isUsigc())
+	{
+	    // Must be RCX
+	    ret.ops[2].set(1);
+	}
+    }
     
     for (int loopc=0; loopc<16; loopc++)
     {
@@ -902,19 +910,32 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             case ROL:
             case ROR:
             {
-                assert(isRRC(i));
-                assert(i.ops[2].isUsigc());
-                
+  	        assert (i.oc == 3);
+
+                unsigned char rr = reg(i.ops[0].getReg()) & 0x7;
+		
+	        if (i.ops[0].isReg() && i.ops[1].isReg() && i.ops[2].isReg())
+		{
+	 	    assert(i.ins == SHL || i.ins == SHR);
+	 	    unsigned char rr1 = reg(i.ops[1].getReg()) & 0x7;
+		    *current++ = 0x48 | rexreg(i.ops[2].getReg(), i.ops[0].getReg());
+		    *current++ = 0xf;
+		    *current++ = (i.ins == SHL ? 0xa5 : 0xad);
+		    *current++ = 0xc0 | (rr1 << 3) | rr;
+		    break;
+		}
+	      
                 if (reg(i.ops[0].getReg()) < 8)
                 {
-                        *current++ = 0x48;
+		    *current++ = 0x48;
                 }
                 else
                 {
-                        *current++ = 0x49;
+		    *current++ = 0x49;
                 }
-
-                unsigned char rr = reg(i.ops[0].getReg()) & 0x7;
+		
+	        assert(isRRC(i));
+                assert(i.ops[2].isUsigc());
 
                 *current++ = 0xc1;
                 switch (i.ins)

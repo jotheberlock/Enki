@@ -575,6 +575,16 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	        assert(false);  // Doesn't exist on ARM
 	        break;
 	    }
+	    case MUL:
+	    {
+  	        mc = 0xe0000090 | i.ops[0].getReg() << 16 |
+  	  	     i.ops[1].getReg() | i.ops[2].getReg() << 8;
+	    }
+  	    case IMUL:
+	    {
+	        assert(false);   // Need to handle 64 bit result
+		break;
+	    }
             default:
             {
                 fprintf(log_file, "Don't know how to turn %lld [%s] into arm!\n", i.ins, i.toString().c_str());
