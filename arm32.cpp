@@ -141,6 +141,11 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 }
                 break;
             }
+	    case BREAKP:
+	    {
+	        mc = 0xe1200070;
+	        break;
+	    }
  	    case LOAD8:
  	    case LOADS8:
 	    case LOAD16:
