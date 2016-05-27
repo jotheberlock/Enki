@@ -30,7 +30,11 @@ std::string ConfigFile::nativeTargetConfig()
     return "windows_amd64_target.ini";
 #endif
 #ifdef LINUX_HOST
+#ifdef  __arm__
+    return "linux_arm32_target.ini";
+#else
     return "linux_amd64_target.ini";
+#endif
 #endif
 #ifdef WINDOWS_HOST
     return "windows_amd64_target.ini";
