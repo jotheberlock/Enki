@@ -75,7 +75,6 @@ void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
     else
     {
         uint32 to_write = ree32(le, ptr+offset);
-        printf("Applying onto %x\n", to_write);
         to_write = to_write | (uint32)val;
         unsigned char * poffset = ptr+offset;
         wee32(le, poffset, to_write);
