@@ -88,20 +88,21 @@ bool Arm32::calcImm(uint64 raw, uint32 & result)
     uint32 trial = raw & 0xff;
     for (shift=0; shift<31; shift++)
     {
-        bool lsb_set = trial & 0x1;
-	trial = trial >> 1;
-	if (lsb_set)
-	{
-  	    trial = trial & 0x80;
-	}
-
         if (trial == raw)
         {
             result = (raw & 0xff) | (shift << 8);
             return true;
         }
+	
+        bool lsb_set = trial & 0x1;
+	trial = trial >> 1;
+	if (lsb_set)
+	{
+  	    trial = trial | 0x80;
+	}
     }
 
+    printf("Error, cannot encode %llx as an ARM constant!\n", raw);
     return false;
 }
 
@@ -647,7 +648,7 @@ std::string Arm32::transReg(uint32 r)
         assert(false);
     }
 
-	return ""; // Shut compiler up
+    return ""; // Shut compiler up
 }
 
 bool Arm32::configure(std::string param, std::string val)
