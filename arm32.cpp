@@ -252,7 +252,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     i.ops[1].isFunction() || i.ops[1].isBlock() ||
                     i.ops[1].isSection() || i.ops[1].isExtFunction())
                 {
-		    uint32 val = 0xdeadbeef;
+		    uint32 val = 0x0;
 		    BaseRelocation * br = 0;
                     if (i.ops[1].isFunction())
                     {
