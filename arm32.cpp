@@ -585,6 +585,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	    {
   	        mc = 0xe0000090 | i.ops[0].getReg() << 16 |
   	  	     i.ops[1].getReg() | i.ops[2].getReg() << 8;
+            break;
 	    }
   	    case IMUL:
 	    {
