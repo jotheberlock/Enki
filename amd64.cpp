@@ -131,7 +131,7 @@ bool Amd64::validConst(Insn & i, int idx)
     if (i.ins == DIV || i.ins == IDIV || i.ins == REM ||
         i.ins == IREM || i.ins == SELEQ || i.ins == SELGT ||
             i.ins == SELGE || i.ins == SELGTS || i.ins == SELGES ||
-        i.ins == MUL || i.ins == IMUL)
+        i.ins == MUL || i.ins == IMUL || i.ins == NOT)
     {
         return false;
         }
