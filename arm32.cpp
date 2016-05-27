@@ -459,7 +459,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 assert(i.oc == 2);
                 assert(i.ops[0].isReg());
                 assert(i.ops[1].isReg());
-                mc = 0xe2600000 | (i.ops[0].getReg() << 12) |
+                mc = 0xe1e00000 | (i.ops[0].getReg() << 12) |
                     (i.ops[1].getReg() << 16);
 		break;
             }	   
