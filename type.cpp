@@ -240,18 +240,21 @@ void initialiseTypes()
     if (assembler->pointerSize() == 64)
     {
         types["Uint64"] = register_type;
-	types["Int64"] = signed_register_type;
+        types["Int64"] = signed_register_type;
     }
     else
     {
         types["Uint32"] = register_type;
-	types["Int32"] = signed_register_type;
+        types["Int32"] = signed_register_type;
     }
-
+    
+    types["Uint"] = register_type;
+    types["Int"] = signed_register_type;
+        
     if (assembler->convertUint64())
     {
         types["Uint64"] = register_type;
-	types["Int64"] = signed_register_type;
+        types["Int64"] = signed_register_type;
     }
     
     types["Byte^"] = new PointerType(byte_type);
