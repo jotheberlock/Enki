@@ -190,4 +190,22 @@ class StackSizePass :  public OptimisationPass
     
 };
 
+class RemWithDivPass : public OptimisationPass
+{
+  public:
+
+    RemWithDivPass()
+        : OptimisationPass()
+    {
+    }
+
+    virtual std::string name()
+    {
+        return "RemWithDivPass";
+    }
+
+    virtual void processInsn();
+
+};
+
 #endif

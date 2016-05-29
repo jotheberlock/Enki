@@ -318,3 +318,21 @@ void StackSizePass::processInsn()
         change(insn);
     }
 }
+
+void RemWithDivPass::processInsn()
+{
+    if (insn.ins == REM || insn.ins == IREM)
+    {
+            // Some architectures e.g. ARM have hardware division
+            // but no remainder instruction. Because division truncates,
+            // we can calculate remainder as
+            // rem = dividend - ((dividend / divisor) * divisor)
+        bool is_signed = (insn.ins == IREM);
+        insn.ins = is_signed ? IDIV : DIV;
+        change(insn);
+        Insn mul(is_signed ? IMUL : MUL, insn.ops[0], insn.ops[0], insn.ops[2]);
+        append(mul);
+        Insn sub(SUB, insn.ops[0], insn.ops[1], insn.ops[0]);
+        append(sub);
+    }
+}
