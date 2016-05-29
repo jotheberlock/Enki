@@ -414,7 +414,8 @@ void ElfImage::finalise()
     for (unsigned int loopc=0; loopc<fptrs.size(); loopc++)
     {
         int idx = stringOffset(fptrs[loopc]->name().c_str());
-        int add = (fptrs[loopc] == root_function ? 0 : 8); // Hack to avoid stack size at beginning
+        int to_add = sf_bit ? 8 : 4;
+        int add = (fptrs[loopc] == root_function ? 0 : to_add); // Hack to avoid stack size at beginning
         
         if (sf_bit)
         {
