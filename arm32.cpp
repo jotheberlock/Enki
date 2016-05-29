@@ -503,6 +503,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 		mc = op1 | 0x01a00000 | (i.ops[1].getReg()) |
 		        i.ops[0].getReg() << 12;
+        wee32(le, current, mc);
                 mc = op2 | 0x01a00000 | (i.ops[2].getReg()) |
                         i.ops[0].getReg() << 12;
 		break;
@@ -518,10 +519,10 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		else
 		{
-  		    mc = 0xeadeadbe;
+  		    mc = 0xea000000;
 		    // Branch offset is stored >> 2
 		    BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
-				current_function, flen(), flen()+4, i.ops[0].getBlock());
+				current_function, flen(), flen()+8, i.ops[0].getBlock());
 		    bbr->addReloc(0, 2, 0x00ffffff, 0, false);
 	        }
 		break;
@@ -542,7 +543,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		else if (i.ins == BEQ)
 		{
-  		    cond = 0x10000000;
+  		    cond = 0x00000000;
 		}
 		else if (i.ins == BG)
 	        {
@@ -561,10 +562,10 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		    cond = 0x20000000;
 	        }
 		
-		mc = cond | 0x0adeadbe;
+		mc = cond | 0x0a000000;
 		BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
-								      current_function, flen(), flen()+4, i.ops[0].getBlock());
-		bbr->addReloc(0, 1, 0x00ffffff, 0, false);
+								      current_function, flen(), flen()+8, i.ops[0].getBlock());
+		bbr->addReloc(0, 2, 0x00ffffff, 0, false);
 		break;
 	    }
    	    case DIV:
