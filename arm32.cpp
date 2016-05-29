@@ -227,8 +227,8 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		else if (i.ins == STORE8)
 		{
-  		    mc = 0xe5c00000 | (uval & 0xfff) | (uval & 0xf0 << 4) |
-		       i.ops[dest].getReg() << 12 || i.ops[0].getReg() << 16;
+  		    mc = 0xe5c00000 | (uval & 0xfff) |
+		       i.ops[dest].getReg() << 12 | i.ops[0].getReg() << 16;
 		}
 		
 	        break;

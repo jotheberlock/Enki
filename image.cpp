@@ -380,7 +380,6 @@ uint64 FunctionRelocation::getValue()
 {
     uint64 laddr = image->functionAddress(to_link);
     laddr += link_offset;
-    printf("%llx %llx\n", laddr, link_offset);
     return laddr;
 }
 
