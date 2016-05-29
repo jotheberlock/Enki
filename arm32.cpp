@@ -568,7 +568,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		break;
 	    }
    	    case DIV:
-	    case IDIV:
+	    case DIVS:
 	    {
   	        mc = (i.ins == DIV) ? 0xe730f010 : 0x3710f010;
 		mc = mc | i.ops[0].getReg() << 16 | i.ops[1].getReg() |
@@ -576,7 +576,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		break;
 	    }
 	    case REM:
-	    case IREM:
+	    case REMS:
 	    {
 	        assert(false);  // Doesn't exist on ARM
 	        break;
@@ -587,7 +587,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
   	  	     i.ops[1].getReg() | i.ops[2].getReg() << 8;
             break;
 	    }
-  	    case IMUL:
+  	    case MULS:
 	    {
 	        assert(false);   // Need to handle 64 bit result
 		break;
@@ -681,16 +681,16 @@ ValidRegs Arm32::validRegs(Insn & i)
 
 bool Arm32::validConst(Insn & i, int idx)
 {
-    if (i.ins == DIV || i.ins == IDIV || i.ins == REM ||
-        i.ins == IREM || i.ins == SELEQ || i.ins == SELGT ||
+    if (i.ins == DIV || i.ins == DIVS || i.ins == REM ||
+        i.ins == REMS || i.ins == SELEQ || i.ins == SELGT ||
             i.ins == SELGE || i.ins == SELGTS || i.ins == SELGES ||
-        i.ins == MUL || i.ins == IMUL || i.ins == NOT)
+        i.ins == MUL || i.ins == MULS || i.ins == NOT)
     {
         return false;
     }
     
     if (i.ins == ADD || i.ins == SUB || i.ins == MUL
-        || i.ins == IMUL || i.ins == AND || i.ins == OR
+        || i.ins == MULS || i.ins == AND || i.ins == OR
         || i.ins == XOR || i.ins == SHL || i.ins == SHR)
     {
         if (idx != 2)

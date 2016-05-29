@@ -370,7 +370,7 @@ std::string Insn::insToString()
         case RCR: return "rcr";
         case ROL: return "rol";
         case ROR: return "ror";
-        case IMUL: return "imul";
+        case MULS: return "imul";
         case BEQ: return "beq";
         case BNE: return "bne";
         case BRA: return "bra";
@@ -379,9 +379,9 @@ std::string Insn::insToString()
         case BL: return "bl";
         case BGE: return "bge";
         case DIV: return "div";
-        case IDIV: return "idiv";
+        case DIVS: return "idiv";
         case REM: return "rem";
-        case IREM: return "irem";
+        case REMS: return "irem";
         case BREAKP: return "breakp";
         case CALL: return "call";
         case SELEQ: return "seleq";

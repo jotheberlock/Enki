@@ -1575,7 +1575,7 @@ Value * BinaryExpr::codegen(Codegen * c)
         Type * t = 0;
         bool is_signed = binary_result(lh,rh,t);
         Value * v = c->getTemporary(t, "mul");
-        c->block()->add(Insn(is_signed ? IMUL : MUL, v, lh, rh));
+        c->block()->add(Insn(is_signed ? MULS : MUL, v, lh, rh));
         return v;
     }
     else if (op == '/')
@@ -1584,7 +1584,7 @@ Value * BinaryExpr::codegen(Codegen * c)
         Type * t = 0;
         bool is_signed = binary_result(lh,rh,t);
         Value * v = c->getTemporary(t, "div");
-        c->block()->add(Insn(is_signed ? IDIV : DIV, v, lh, rh));
+        c->block()->add(Insn(is_signed ? DIVS : DIV, v, lh, rh));
         return v;
     }
     else if (op == '%')
@@ -1593,7 +1593,7 @@ Value * BinaryExpr::codegen(Codegen * c)
         Type * t = 0;
         bool is_signed = binary_result(lh,rh,t);
         Value * v = c->getTemporary(t, "rem");
-        c->block()->add(Insn(is_signed ? IREM : REM, v, lh, rh));
+        c->block()->add(Insn(is_signed ? REMS : REM, v, lh, rh));
         return v;
     }
     else if (op == lshift_op)

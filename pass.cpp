@@ -93,9 +93,9 @@ void OptimisationPass::run()
 void ThreeToTwoPass::processInsn()
 {
     if (insn.ins == ADD || insn.ins == SUB || insn.ins == MUL ||
-        insn.ins == IMUL || insn.ins == DIV || insn.ins == DIV ||
+        insn.ins == MULS || insn.ins == DIV || insn.ins == DIV ||
         insn.ins == AND || insn.ins == OR || insn.ins == XOR ||
-        insn.ins == NOT || insn.ins == REM || insn.ins == IREM ||
+        insn.ins == NOT || insn.ins == REM || insn.ins == REMS ||
         insn.ins == SHL || insn.ins == SHR)
     {
         if (!insn.ops[0].eq(insn.ops[1]))
@@ -321,16 +321,16 @@ void StackSizePass::processInsn()
 
 void RemWithDivPass::processInsn()
 {
-    if (insn.ins == REM || insn.ins == IREM)
+    if (insn.ins == REM || insn.ins == REMS)
     {
             // Some architectures e.g. ARM have hardware division
             // but no remainder instruction. Because division truncates,
             // we can calculate remainder as
             // rem = dividend - ((dividend / divisor) * divisor)
-        bool is_signed = (insn.ins == IREM);
-        insn.ins = is_signed ? IDIV : DIV;
+        bool is_signed = (insn.ins == REMS);
+        insn.ins = is_signed ? DIVS : DIV;
         change(insn);
-        Insn mul(is_signed ? IMUL : MUL, insn.ops[0], insn.ops[0], insn.ops[2]);
+        Insn mul(is_signed ? MULS : MUL, insn.ops[0], insn.ops[0], insn.ops[2]);
         append(mul);
         Insn sub(SUB, insn.ops[0], insn.ops[1], insn.ops[0]);
         append(sub);

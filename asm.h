@@ -43,7 +43,7 @@
 #define RCR 36
 #define ROL 37
 #define ROR 38
-#define IMUL 39
+#define MULS 39
 
 #define BEQ 11
 #define BNE 12
@@ -53,10 +53,10 @@
 #define BL 42
 #define BGE 43
 #define DIV 44
-#define IDIV 45
+#define DIVS 45
 #define NOP 46
 #define REM 47
-#define IREM 48
+#define REMS 48
 
 #define BREAKP 49
 #define CALL 50
