@@ -170,12 +170,12 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		
 		if (i.ins == LOAD || i.ins == LOAD32 || i.ins == LOADS32)
 		{
-  		    mc = 0xe5900000 | (uval & 0xff) | i.ops[0].getReg() << 12
+  		    mc = 0xe5900000 | (uval & 0xfff) | i.ops[0].getReg() << 12
 		      | i.ops[1].getReg() << 16;
 		}
 		else if (i.ins == LOAD8)
 		{
-	  	    mc = 0xe5d000ff | (uval & 0xff) | i.ops[0].getReg() << 12
+	  	    mc = 0xe5d00000 | (uval & 0xfff) | i.ops[0].getReg() << 12
 		        | i.ops[1].getReg() << 16;
 		}
 	        else if (i.ins == LOAD16)
@@ -217,7 +217,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		
 	        if (i.ins == STORE || i.ins == STORE32)
 		{
-  		    mc = 0xe5800000 | (uval & 0xff) | i.ops[dest].getReg() << 12
+  		    mc = 0xe5800000 | (uval & 0xfff) | i.ops[dest].getReg() << 12
 		      | i.ops[0].getReg() << 16;
 		}
 		else if (i.ins == STORE16)
@@ -227,7 +227,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		else if (i.ins == STORE8)
 		{
-  		    mc = 0xe5c000f0 | (uval & 0xf) | (uval & 0xf0 << 4) |
+  		    mc = 0xe5c00000 | (uval & 0xfff) | (uval & 0xf0 << 4) |
 		       i.ops[dest].getReg() << 12 || i.ops[0].getReg() << 16;
 		}
 		
@@ -512,11 +512,11 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	    {
  	        assert(i.oc == 1);
 	        assert(i.ops[0].isReg() || i.ops[0].isBlock());
-		if (i.ops[0].isReg())
-		{
-		    // mov pc, <reg>
-  		    mc = 0xe1a0f000 | i.ops[0].getReg(); 
-		}
+            if (i.ops[0].isReg())
+            {
+                    // mov pc, <reg>
+                mc = 0xe1a0f000 | i.ops[0].getReg(); 
+            }
 		else
 		{
   		    mc = 0xea000000;
