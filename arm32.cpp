@@ -381,8 +381,12 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 uint32 const_shift = (i.ops[2].isUsigc()) ?
                     (uint32)i.ops[2].getUsigc() : 0;
 
-                assert(const_shift < 32);
-                assert(const_shift > 0);
+                if (i.ops[2].isUsigc())
+                {
+                    assert(const_shift < 32);
+                    assert(const_shift > 0);
+                }
+                
                 if (i.ins == SHL)
                 {
                     op = 0xe1a00000;
