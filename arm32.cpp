@@ -385,15 +385,15 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 assert(const_shift > 0);
                 if (i.ins == SHL)
                 {
-                    op = 0xe1a00010;
+                    op = 0xe1a00000;
                 }
                 else if (i.ins == SHR)
                 {
-                    op = 0xe1a00030;
+                    op = 0xe1a00020;
                 }
                 else if (i.ins == SAR)
                 {
-                    op = 0xe1a00050;
+                    op = 0xe1a00040;
                 }
                 else if (i.ins == RCL)
                 {
@@ -407,22 +407,16 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 }
                 else if (i.ins == ROL)
                 {
-                    op = 0xe1a00070;
+                    op = 0xe1a00060;
                     const_shift = 32 - const_shift;
                 }
                 else if (i.ins == ROR)
                 {
-                    op = 0xe1a00070;
+                    op = 0xe1a00060;
                 }
                 
                 mc = op | i.ops[0].getReg() << 12 | i.ops[1].getReg();
-
-                if (i.ops[2].isUsigc())
-                {
-                    op |= 0x00000060;
-                }
-                
-                op |= const_shift << 7;
+                mc |= const_shift << 7;
                 break;
             }
             case CMP:
