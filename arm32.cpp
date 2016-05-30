@@ -420,7 +420,16 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 }
                 
                 mc = op | i.ops[0].getReg() << 12 | i.ops[1].getReg();
-                mc |= const_shift << 7;
+
+		if (i.ops[2].isReg())
+		{
+       		    mc |= 0x10;
+  		    mc |= i.ops[2].getReg() << 8; 
+		}
+		else
+		{
+		    mc |= const_shift << 7;
+		}
                 break;
             }
             case CMP:
