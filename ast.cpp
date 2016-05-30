@@ -1484,10 +1484,11 @@ static bool binary_result(Value * l, Value * r, Type * & t)
     if (l->type->isSigned() && r->type->isSigned())
     {
         t = signed_register_type;
+        return true;
     }
     else
     {
-	t = register_type;
+        t = register_type;
     }
     
     return false;
