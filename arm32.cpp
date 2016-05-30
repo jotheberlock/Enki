@@ -415,8 +415,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     op = 0xe1a00070;
                 }
                 
-                op |= i.ops[0].getReg() << 12;
-                op |= i.ops[1].getReg();
+                mc = op | i.ops[0].getReg() << 12 | i.ops[1].getReg();
 
                 if (i.ops[2].isUsigc())
                 {
