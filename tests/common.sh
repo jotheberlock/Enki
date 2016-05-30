@@ -87,6 +87,13 @@ function linuxonly()
 	fi
 }
 
+function amd64only()
+{
+    if [[ `uname -m` != "x86_64" ]]; then
+	skip
+    fi
+}
+
 function windowsonly()
 {
 	if [[ ! `uname` =~ CYGWIN* ]]; then
