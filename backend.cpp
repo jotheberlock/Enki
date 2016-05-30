@@ -42,7 +42,7 @@ int Backend::process()
     {
         gc->setCallConvention(CCONV_RAW);
         gc->block()->add(Insn(MOVE, Operand::reg(config->assembler->framePointer()),
-                              Operand::section(IMAGE_DATA, 0)));
+                              Operand::section(IMAGE_UNALLOCED_DATA, 0)));
         
         Value * v = root_scope->lookupLocal("__activation");
         assert(v);
