@@ -777,21 +777,11 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                             int64 tmp = i.ops[1].getSigc();
                             val = *((uint64 *)&tmp);
                         }
-                        
-                        bool big = (val > 0xffffffff);
-                        if (big)
-                        {
-                            unsigned char r = 0xb8;
-                            r |= reg(i.ops[0].getReg() & 0x7);
-                            *current++ = r;
-                            wle64(current, val);
-                        }
-                        else
-                        {
-                            *current++ = 0xc7;
-                            *current++ = 0xc0 | reg(i.ops[0].getReg() & 0x7);
-                            wle32(current, (uint32)val);
-                        }
+			
+			unsigned char r = 0xb8;
+			r |= reg(i.ops[0].getReg() & 0x7);
+			*current++ = r;
+			wle64(current, val);
                     }
                 }
                 else

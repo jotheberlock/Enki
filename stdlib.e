@@ -15,14 +15,18 @@ def num_to_str(Uint64 in, Byte^ out)
         Byte the_digit = in & 255
         Byte digit1 = the_digit
         digit1 = digit1 & 15
-        if digit1 < 10
+        if in == 0
+            out_end^ = 32
+        elif digit1 < 10
             out_end^ = digit1+48
         else
             out_end^ = digit1+87
         out_end = out_end - 1
         Byte digit2 = the_digit
         digit2 = digit2 >> 4
-        if digit2 < 10
+        if in == 0
+            out_end^ = 32
+        elif digit2 < 10
             out_end^ = digit2+48
         else
             out_end^ = digit2+87
