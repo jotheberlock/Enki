@@ -123,7 +123,7 @@ void StructType::calcAddress(Codegen * c, Value * a, Expr * i)
 
 void StructType::calc()
 {
-    siz = 0;
+    siz = parent ? parent->size() : 0;
     
     for (unsigned int loopc=0; loopc<members.size(); loopc++)
     {
@@ -142,13 +142,17 @@ void StructType::calc()
 
 Type * StructType::fieldType(std::string n)
 {
-
     for (unsigned int loopc=0; loopc<members.size(); loopc++)
     {
         if (members[loopc].name == n)
         {
             return members[loopc].type;
         }
+    }
+
+    if (parent)
+    {
+	return fieldType(n);
     }
     
     return 0;

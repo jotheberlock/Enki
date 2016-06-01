@@ -61,10 +61,10 @@ IntegerExpr::IntegerExpr(Token * t)
 	val *= base;
 	val = val + n;
     }
-
+ 
     if (is_negative)
-	{
-		int64 * sval = (int64 *)(&val);
+      {
+	int64 * sval = (int64 *)(&val);
         *sval = -*sval;
     }
 }
@@ -799,7 +799,35 @@ Expr * Parser::parseStruct()
     StructType * st = new StructType(sname, type == UNION);
     addType(st, sname); // Add here so it can reference itself
 
-    next();
+    if (current.type == OPEN_BRACKET)
+    {
+        next();
+	if (current.type != IDENTIFIER)
+	{
+  	    addError(Error(&current, "Expected identifier for parent"));
+	    return 0;
+        }
+	IdentifierExpr * pie = (IdentifierExpr *)parseIdentifier();
+	std::string pname = pie->getString();
+	Type * pt = lookupType(pname);
+	if (!pt)
+	{
+   	     addError(Error(&current, "Could not find parent type", pname));
+	     return 0;
+	}
+	if (!pt->canField())
+	{
+	    addError(Error(&current, "Parent type must be a struct"));
+	    return 0;
+	}
+	st->setParent(pt);
+	next();
+	next();
+    }
+    else
+    {
+	next();
+    }
     
     if (current.type != BEGIN)
     {
@@ -807,7 +835,7 @@ Expr * Parser::parseStruct()
         return 0;
     }
     next();
-    
+     
     while (current.type != END)
     {
         Type * t = parseType();

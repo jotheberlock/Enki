@@ -452,6 +452,7 @@ class StructType : public Type
         nam=n;
         siz=0;
         is_union=u;
+	parent=0;
     }
 
     std::string display(unsigned char *);
@@ -465,6 +466,11 @@ class StructType : public Type
         members.push_back(se);
     }
 
+    void setParent(Type * st)
+    {
+        parent = st;
+    }
+    
     virtual void copy(Codegen *, Value *, Value *);
     virtual bool canCopy(Type *);
     
@@ -496,6 +502,7 @@ class StructType : public Type
     
   protected:
 
+    Type * parent;
     std::vector<StructElement> members;
     std::string nam;
     int siz;

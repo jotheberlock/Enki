@@ -752,7 +752,7 @@ class StructExpr : public Expr
     {
         type = t;
     }
-    
+
     virtual void print(int i)
     {
         indent(i);

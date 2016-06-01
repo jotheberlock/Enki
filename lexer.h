@@ -167,7 +167,7 @@ public:
             return true;
         if (r.val >= '0' && r.val <= '9')
             return true;
-        if (r.val == '?' || r.val == '_' || r.val == '-' || r.val == ':' || r.val == '.')
+        if (r.val == '?' || r.val == '_' || r.val == '-' || r.val == ':')
             return true;
         if (r.val > 127)
             return true;
