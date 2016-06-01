@@ -1,6 +1,6 @@
-extern KERNEL32.DLL:WriteFile(Uint64 output, Byte^ buffer, Uint32 chars, Uint32^ written, Uint64 overlapped)
-extern KERNEL32.DLL:GetStdHandle(Uint64 handle)
-extern KERNEL32.DLL:ReadFile(Uint64 input, Byte^ buffer, Uint32 chars, Uint32^ read, Uint64 overlapped)
+extern KERNEL32:WriteFile(Uint64 output, Byte^ buffer, Uint32 chars, Uint32^ written, Uint64 overlapped)
+extern KERNEL32:GetStdHandle(Uint64 handle)
+extern KERNEL32:ReadFile(Uint64 input, Byte^ buffer, Uint32 chars, Uint32^ read, Uint64 overlapped)
 
 def write(Byte^ ptr) Uint64
     Uint32 count 

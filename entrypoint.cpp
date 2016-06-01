@@ -7,7 +7,7 @@
 
 void WindowsEntrypoint::generateEpilogue(BasicBlock * block, FunctionScope * scope, Image * image)
 {
-    image->addImport("KERNEL32.DLL", "ExitProcess");
+    image->addImport("KERNEL32", "ExitProcess");
     block->add(Insn(MOVE, Operand::reg(1), scope->lookupLocal("__ret")));
     block->add(Insn(MOVE, Operand::reg(7), Operand::extFunction("ExitProcess")));
     block->add(Insn(LOAD, Operand::reg(7), Operand::reg(7)));

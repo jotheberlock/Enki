@@ -362,10 +362,12 @@ void PEImage::finalise()
         wle32(ptr, checked_32(table_offset));  // Lookup table
         wle32(ptr, 0);   // Timestamp
         wle32(ptr, 0);   // Forwarder
-        strcpy((char *)nameptr, imports[loopc].name.c_str());
+
+	std::string dllname = imports[loopc].name+".DLL";
+        strcpy((char *)nameptr, dllname.c_str());
         uint64 offy = (imports_base - base_addr) + hints_offset + (nameptr-namebase);
         wle32(ptr, checked_32(offy));   // DLL name
-        nameptr += strlen(imports[loopc].name.c_str())+1;
+        nameptr += strlen(dllname.c_str())+1;
         wle32(ptr, checked_32((imports_base - base_addr)+table_size+ilt_size+count));   // Address of IAT
         count += ((imports[loopc].imports.size()+1) * (sf_bit ? 8 : 4));
     }
