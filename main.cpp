@@ -266,8 +266,48 @@ void readFile(FILE * f, Chars & input)
     input.push_back('\n');
 }
 
+bool sanity_check()
+{
+    if (sizeof(uint16) != 2)
+    {
+        printf("Uint16 is size %ld!\n", sizeof(uint16));
+	return false;
+    }
+    if (sizeof(uint32) != 4)
+    {
+        printf("Uint32 is size %ld!\n", sizeof(uint32));
+	return false;
+    }
+    if (sizeof(uint64) != 8)
+    {
+        printf("Uint64 is size %ld!\n", sizeof(uint64));
+	return false;
+    }
+    uint32 test = 0xdeadbeef;
+    unsigned char * ptr = (unsigned char *)(&test);
+#ifdef HOST_BIG_ENDIAN
+      if (*ptr != 0xde)
+      {
+	  printf("This platform is little-endian, expected big-endian!\n");
+	  return false;
+      }
+#else
+      if (*ptr != 0xef)
+      {
+	  printf("This platform is big-endian, expected little-endian!\n");
+  	  return false;
+      }
+#endif
+      return true;
+}
+
 int main(int argc, char ** argv)
 {
+    if (!sanity_check())
+    {
+        return 1;
+    }
+  
     component_factory = new ComponentFactory();
 
     FILE * hfile = findFile(ConfigFile::hostConfig().c_str());
