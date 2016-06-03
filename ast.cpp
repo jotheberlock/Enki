@@ -1637,8 +1637,8 @@ Value * BinaryExpr::codegen(Codegen * c)
         Value * lh = lhs->codegen(c);
         Type * t = 0;
         bool is_signed = binary_result(lh,rh,t);
-        Value * v = c->getTemporary(t, "rshift");
-        c->block()->add(Insn(is_signed ? SAR : SHR, v, lh, rh));
+        Value * v = c->getTemporary(lh->type ? lh->type : register_type, "rshift");
+        c->block()->add(Insn((lh->type ? lh->type->isSigned() : true) ? SAR : SHR, v, lh, rh));
         return v;
     }
     else if (op == '&')

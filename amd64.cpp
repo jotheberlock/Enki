@@ -101,7 +101,7 @@ ValidRegs Amd64::validRegs(Insn & i)
         ret.clobbers.set(2);
         useAll = false;
     }
-    else if (i.ins == SHL || i.ins == SHR)
+    else if (i.ins == SHL || i.ins == SHR || i.ins == SAR)
     {
         if (!i.ops[2].isSigc() && !i.ops[2].isUsigc())
 	{
@@ -138,7 +138,7 @@ bool Amd64::validConst(Insn & i, int idx)
     
     if (i.ins == ADD || i.ins == SUB || i.ins == MUL
         || i.ins == MULS || i.ins == AND || i.ins == OR
-        || i.ins == XOR || i.ins == SHL || i.ins == SHR)
+        || i.ins == XOR || i.ins == SHL || i.ins == SHR || i.ins == SAR)
     {
         if (idx != 2)
         {
@@ -904,14 +904,30 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
                 unsigned char rr = reg(i.ops[0].getReg()) & 0x7;
 		
-	        if (i.ops[0].isReg() && i.ops[1].isReg() && i.ops[2].isReg())
-		{
-	 	    assert(i.ins == SHL || i.ins == SHR);
-	 	    unsigned char rr1 = reg(i.ops[1].getReg()) & 0x7;
-		    *current++ = 0x48 | rexreg(i.ops[2].getReg(), i.ops[0].getReg());
-		    *current++ = 0xf;
-		    *current++ = (i.ins == SHL ? 0xa5 : 0xad);
-		    *current++ = 0xc0 | (rr1 << 3) | rr;
+				if (i.ops[0].isReg() && i.ops[1].isReg() && i.ops[2].isReg())
+				{
+					assert(i.ins == SHL || i.ins == SHR || i.ins == SAR);
+					if (i.ins == SAR)
+					{
+						if (reg(i.ops[0].getReg()) < 8)
+						{
+							*current++ = 0x48;
+						}
+						else
+						{
+							*current++ = 0x49;
+						}
+						*current++ = 0xd3;
+						*current++ = 0xf8 | rr;
+					}
+					else
+					{
+						unsigned char rr1 = reg(i.ops[1].getReg()) & 0x7;
+						*current++ = 0x48 | rexreg(i.ops[2].getReg(), i.ops[0].getReg());
+						*current++ = 0xf;
+						*current++ = (i.ins == SHL ? 0xa5 : 0xad);
+						*current++ = 0xc0 | (rr1 << 3) | rr;
+					}
 		    break;
 		}
 	      
