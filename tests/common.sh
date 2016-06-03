@@ -22,10 +22,11 @@ fi
 function compile()
 {
     $COMPILER $1 &> "$0_compileroutput.txt"
-    if [[ $? -ne 0 ]]; then
+	RESULT=$?
+    if [[ $RESULT -ne 0 ]]; then
 	echo -n "$0: "
 	tput setf 1
-	echo "NOT COMPILED"
+	echo "NOT COMPILED - $RESULT"
 	tput op
 	exit 2
     fi
