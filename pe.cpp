@@ -267,7 +267,7 @@ void PEImage::finalise()
         
         char sname[8];
         memset(sname, 0, 8);
-        uint32 flags;
+        uint32 flags = 0;
 
         if (the_one == IMAGE_CODE)
         {
