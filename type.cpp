@@ -123,7 +123,11 @@ void StructType::calcAddress(Codegen * c, Value * a, Expr * i)
 
 void StructType::calc()
 {
-    siz = parent ? parent->size() : 0;
+    siz = 0;
+    if (!is_union && parent)
+    {
+        siz = parent->size();
+    }
     
     for (unsigned int loopc=0; loopc<members.size(); loopc++)
     {
@@ -137,6 +141,11 @@ void StructType::calc()
         {
             siz += members[loopc].type->size();
         }
+    }
+
+    if (is_union)
+    {
+        siz = parent->size() > siz ? parent->size() : siz;
     }
 }
 
