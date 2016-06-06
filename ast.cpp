@@ -986,7 +986,8 @@ Expr * Parser::parseDef()
                                            name,
                                            ft);
 
-    DefExpr * ret = new DefExpr(ft, fs, is_macro, is_extern, v, name, lib);
+    DefExpr * ret = new DefExpr(ft, fs, is_macro, is_extern, is_generic,
+                                v, name, lib);
     
     if (current.type != OPEN_BRACKET)
     {
@@ -2300,7 +2301,14 @@ Value * DefExpr::codegen(Codegen * c)
 	c->block()->add(Insn(LOAD, ptr, addr_of_extfunc));
         return ptr;
     }
-	
+
+    if (is_generic)
+    {
+            // Do something here
+        return 0;
+    }
+
+    
     FunctionScope * to_call = scope->lookup_function(name);
     assert(to_call);
     c->block()->add(Insn(MOVE, ptr, Operand(to_call)));

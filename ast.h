@@ -769,12 +769,13 @@ class DefExpr : public Expr
 {
   public:
 
-    DefExpr(FunctionType * t, FunctionScope * fs, bool is_m, bool is_e, Value * p, std::string n, std::string l = "")
+    DefExpr(FunctionType * t, FunctionScope * fs, bool is_m, bool is_e, bool is_g, Value * p, std::string n, std::string l = "")
     {
         type = t;
         scope = fs;
         is_macro = is_m;
 		is_extern = is_e;
+        is_generic = is_g;
 		name = n;
 		libname = l;
 		body = 0;
@@ -823,6 +824,7 @@ class DefExpr : public Expr
     FunctionScope * scope;
     bool is_macro;
     bool is_extern;
+    bool is_generic;
 	std::string name;
 	std::string libname;
 	Value * ptr;
