@@ -440,7 +440,7 @@ Expr * Parser::parseBodyLine()
 
         return new Continue(current);
     }
-    else if (current.type == DEF || current.type == MACRO || current.type == EXTERN)
+    else if (current.type == DEF || current.type == MACRO || current.type == EXTERN || current.type == GENERIC)
     {
         return parseDef();
     }
@@ -935,7 +935,8 @@ Expr * Parser::parseDef()
 
     bool is_macro = (current.type == MACRO);
     bool is_extern = (current.type == EXTERN);
-    
+	bool is_generic = (current.type == GENERIC);
+
     next();
 
     if (current.type != IDENTIFIER)
@@ -952,14 +953,18 @@ Expr * Parser::parseDef()
     size_t pos = name.find(":");
     if (pos != std::string::npos)
     {
-	lib = name.substr(0, pos);
-	name = name.substr(pos+1);
+		lib = name.substr(0, pos);
+		name = name.substr(pos+1);
     }
     
-    if (is_extern)
-    {
-        ft = new ExternalFunctionType(calling_convention);
-    }
+	if (is_extern)
+	{
+		ft = new ExternalFunctionType(calling_convention);
+	}
+	else if (is_generic)
+	{
+		ft = new GenericFunctionType();
+	}
     else
     {
         ft = new FunctionType(is_macro);
@@ -1003,7 +1008,7 @@ Expr * Parser::parseDef()
             {
                 next();
 
-		if (is_extern)
+		if (is_extern || is_generic)
 		{
 		    current_scope = current_scope->parent();		    
 		    if (already_added)
@@ -1038,13 +1043,13 @@ Expr * Parser::parseDef()
 
                         addError(Error(&current, 
                                        "Expected EOL after return type"));
-			expectedEol();
+					expectedEol();
                     }
                     else
                     {
 		        next();
 
-			if (is_extern)
+			if (is_extern || is_generic)
 			{
 			    current_scope = current_scope->parent();
   			    return ret;
@@ -1077,22 +1082,34 @@ Expr * Parser::parseDef()
         }
         else
         {    
-            Type * t = parseType();
-            if (!t)
-            {
-                addError(Error(&current, "Expected type"));
-                current_scope = current_scope->parent();
-                return ret;
-            }
-            
-            if (current.type != IDENTIFIER)
-            {
-                addError(Error(&current, "Expected identifier"));
-            }
-            
-            IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
-            ft->addParam(ie->getString(), t);
-            fs->addArg(new Value(ie->getString(), t));
+			if (is_generic)
+			{
+				if (current.type != IDENTIFIER)
+				{
+					addError(Error(&current, "Expected identifier"));
+				}
+				IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
+				ft->addParam(ie->getString(), 0);
+			}
+			else
+			{
+				Type * t = parseType();
+				if (!t)
+				{
+					addError(Error(&current, "Expected type"));
+					current_scope = current_scope->parent();
+					return ret;
+				}
+
+				if (current.type != IDENTIFIER)
+				{
+					addError(Error(&current, "Expected identifier"));
+				}
+
+				IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
+				ft->addParam(ie->getString(), t);
+				fs->addArg(new Value(ie->getString(), t));
+			}
         }
     }
 

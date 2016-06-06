@@ -530,3 +530,9 @@ Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * 
 {
     return convention->generateCall(c,fp,args);
 }
+
+Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
+	std::vector<Value *> & args)
+{
+	return 0;
+}

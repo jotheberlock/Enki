@@ -605,7 +605,11 @@ class FunctionType : public Type
 	    {
 	        ret += ",";
 	    }
-	    ret += params[loopc].type->name();
+		if (params[loopc].type)
+		{
+			ret += params[loopc].type->name()+" ";
+		}
+		ret += params[loopc].name;
         }
 	ret += ")";
 	return ret;
@@ -660,6 +664,38 @@ class ExternalFunctionType : public FunctionType
     CallingConvention * convention;
     bool ignore_arguments;
     
+};
+
+class GenericFunctionType : public FunctionType
+{
+public:
+
+	GenericFunctionType()
+		: FunctionType(false)
+	{
+	}
+
+	virtual Value * generateFuncall(Codegen * c, Funcall * f, Value * fp,
+		std::vector<Value *> & args);
+
+	int size()
+	{
+		return assembler->pointerSize();
+	}
+
+	std::string name()
+	{
+		std::string ret = "generic ";
+		ret += FunctionType::name();
+		return ret;
+	}
+
+	// Should at least validate sizes/basic types match...
+	virtual bool validArgList(std::vector<Value *> & args, std::string & reason)
+	{
+		return args.size() == params.size();
+	}
+
 };
 
 
