@@ -826,6 +826,7 @@ Expr * Parser::parseStruct()
     }
     else
     {
+		st->addMember("rtti", register_type);
 	next();
     }
     
