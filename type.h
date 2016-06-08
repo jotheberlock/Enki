@@ -139,6 +139,9 @@ class Type
     virtual int size() = 0;
     virtual int align() = 0;
 
+	// make an instance of this type optionally with = v
+	virtual bool construct(Codegen *, Value * t, Value * v) { return v ? false : true;  }
+
    protected:
 
     bool is_const;
@@ -253,6 +256,8 @@ class IntegerType : public Type
         return (bits/8)*8;
     }
 
+	virtual bool construct(Codegen *, Value * t, Value * v);
+
   protected:
 
     bool is_signed;
@@ -312,7 +317,9 @@ class PointerType : public Type
     {
         return pointed_type;
     }
-    
+
+	virtual bool construct(Codegen *, Value * t, Value * v);
+
   protected:
 
     Type * pointed_type;
@@ -337,7 +344,7 @@ class ActivationType : public Type
     
     virtual bool inRegister()
     {
-        return false;
+        return true;
     }
 
     
@@ -376,6 +383,8 @@ class ActivationType : public Type
     {
         return "<generator>";
     }
+
+	virtual bool construct(Codegen *, Value * t, Value * v);
     
   protected:
 

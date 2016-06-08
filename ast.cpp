@@ -1475,16 +1475,20 @@ void VarDefExpr::print(int i)
 
 Value * VarDefExpr::codegen(Codegen * c)
 {
+	Value * r = 0;
     if (assigned)
     {
-        Value * r = assigned->codegen(c);
-	if (r && r->type && r->type->canActivate() && (!value->type->canActivate()))
-	{
-  	    r = r->type->getActivatedValue(c, r);
-	}
-	c->block()->add(Insn(MOVE, value, r));
+        r = assigned->codegen(c);
+		if (r && r->type && r->type->canActivate() && (!value->type->canActivate()))
+		{
+  			r = r->type->getActivatedValue(c, r);
+		}
     }
 
+	if (!value->type->construct(c, value, r))
+	{
+		printf("Can't construct! Type %s to %s\n", value->type->name().c_str(), r->type ? r->type->name().c_str() : "<number>");
+	}
     return 0;
 }
 

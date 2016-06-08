@@ -45,6 +45,54 @@ void IntegerType::copy(Codegen * c, Value * a, Value * v)
     }
 }
 
+bool IntegerType::construct(Codegen * c, Value * t, Value * v)
+{
+	if (v)
+	{
+		if (v->type)
+		{
+			if (!v->type->inRegister())
+			{
+				return false;
+			}
+		}
+		c->block()->add(Insn(MOVE, t, v));
+	}
+	return true;
+}
+
+bool PointerType::construct(Codegen * c, Value * t, Value * v)
+{
+	if (v)
+	{
+		if (v->type)
+		{
+			if (!v->type->inRegister())
+			{
+				return false;
+			}
+		}
+		c->block()->add(Insn(MOVE, t, v));
+	}
+	return true;
+}
+
+bool ActivationType::construct(Codegen * c, Value * t, Value * v)
+{
+	if (v)
+	{
+		if (v->type)
+		{
+			if (!v->type->inRegister())
+			{
+				return false;
+			}
+		}
+		c->block()->add(Insn(MOVE, t, v));
+	}
+	return true;
+}
+
 Value * ActivationType::getActivatedValue(Codegen * c, Value * act)
 {
     Value * ret = c->getTemporary(activatedType(), "activation_return");
