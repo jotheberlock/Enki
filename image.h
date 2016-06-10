@@ -11,7 +11,9 @@
 #define IMAGE_DATA 1
 #define IMAGE_CONST_DATA 2
 #define IMAGE_UNALLOCED_DATA 3
-#define IMAGE_LAST 4
+#define IMAGE_RTTI 4
+#define IMAGE_MTABLES 5    // generic method tables
+#define IMAGE_LAST 6
 
 #define INVALID_ADDRESS 0xdeadbeefdeadbeefLL
 
@@ -73,9 +75,9 @@ class Image : public Component
 
   protected:
 
-    unsigned char * sections[4];
-    uint64 bases[4];
-    uint64 sizes[4];
+    unsigned char * sections[IMAGE_LAST];
+    uint64 bases[IMAGE_LAST];
+    uint64 sizes[IMAGE_LAST];
 
     std::vector<uint64> foffsets;
     std::vector<uint64> fsizes;

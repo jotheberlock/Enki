@@ -60,7 +60,7 @@ bool ElfImage::configure(std::string param, std::string val)
 
 ElfImage::~ElfImage()
 {
-    for (int loopc=0; loopc<4; loopc++)
+    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
     {
         delete[] sections[loopc];
     }
@@ -86,6 +86,9 @@ void ElfImage::finalise()
     stringtable.add(".data");
     stringtable.add(".bss");
     stringtable.add(".symtab");
+    stringtable.add(".rtti");
+    stringtable.add(".mtables");
+    
     for (unsigned int loopc=0; loopc<fptrs.size(); loopc++)
     {
         stringtable.add(fptrs[loopc]->name().c_str());
@@ -136,7 +139,7 @@ void ElfImage::finalise()
 	wee16(le, ptr, elf_arch);
     wee32(le, ptr, 0x1);  // Version
 
-    int no_pheaders = 4;
+    int no_pheaders = IMAGE_LAST;
     
     if (sf_bit)
     {
@@ -184,11 +187,11 @@ void ElfImage::finalise()
     
     uint64 prev_base = 0;
     
-    for (int loopc=0; loopc<4; loopc++)
+    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
     {
         int the_one = 0;
         uint64 lowest_diff = 0xffffffff;
-        for (int loopc2=0; loopc2<4; loopc2++)
+        for (int loopc2=0; loopc2<IMAGE_LAST; loopc2++)
         {
             uint64 diff = bases[loopc2] - prev_base;
             if ((bases[loopc2] > prev_base) && (diff < lowest_diff))
@@ -206,11 +209,11 @@ void ElfImage::finalise()
         {
             flags = 0x5;
         }
-        else if (the_one == IMAGE_DATA)
+        else if (the_one == IMAGE_DATA || the_one == IMAGE_MTABLES)
         {
             flags = 0x6;
         }
-        else if (the_one == IMAGE_CONST_DATA)
+        else if (the_one == IMAGE_CONST_DATA || the_one == IMAGE_RTTI)
         {
             flags = 0x4;
         }
@@ -334,7 +337,7 @@ void ElfImage::finalise()
         wee32(le, ptr, 16);   // entsize
     }
 
-    for (int loopc=0; loopc<4; loopc++)
+    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
     {
         int name = 0;
         int type = 0;
@@ -363,7 +366,19 @@ void ElfImage::finalise()
             flags = 0x3;
             type = 8;
         }
-
+        else if (loopc == IMAGE_RTTI)
+        {
+             name = stringOffset(".rtti");
+             flags = 0x2;
+             type = 1;
+        }
+        else if (loopc == IMAGE_MTABLES)
+        {
+            name = stringOffset(".mtables");
+            flags = 0x3;
+            type = 1;
+        }
+        
         wee32(le, ptr, name);  // name        
         wee32(le, ptr, type);  // type
         if (sf_bit)

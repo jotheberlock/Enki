@@ -103,7 +103,7 @@ ExtFunctionRelocation::ExtFunctionRelocation(Image * i,
 
 Image::Image()
 {
-    for (int loopc=0; loopc<4; loopc++)
+    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
     {
         sections[loopc] = 0;
         bases[loopc] = 0;

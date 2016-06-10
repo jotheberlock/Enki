@@ -23,7 +23,7 @@ PEImage::PEImage()
 
 PEImage::~PEImage()
 {
-    for (int loopc=0; loopc<4; loopc++)
+    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
     {
         delete[] sections[loopc];
     }
@@ -53,7 +53,9 @@ bool PEImage::configure(std::string param, std::string val)
 
 void PEImage::endOfImports()
 {
-    materialiseSection(3);
+    materialiseSection(IMAGE_UNALLOCED_DATA);
+    materialiseSection(IMAGE_RTTI);
+    materialiseSection(IMAGE_MTABLES);
     imports_base = next_addr;
     next_addr += 4096;
     symbols_base = next_addr;
@@ -71,15 +73,15 @@ uint64 PEImage::importAddress(std::string s)
     for (unsigned int loopc=0; loopc<imports.size(); loopc++)
     {
         LibImport & l = imports[loopc];
-	for (unsigned int loopc2=0; loopc2<l.imports.size(); loopc2++)
-	{
-  	    if (l.imports[loopc2] == s)
-	    {
-	      return base_offset;
-	    }
-	    base_offset += stride;
+        for (unsigned int loopc2=0; loopc2<l.imports.size(); loopc2++)
+        {
+            if (l.imports[loopc2] == s)
+            {
+                return base_offset;
+            }
+            base_offset += stride;
         }
-	base_offset += stride;
+        base_offset += stride;
     }
     printf("Can't find import [%s]!\n", s.c_str());
     return 0xdeadbeef;
@@ -147,7 +149,7 @@ void PEImage::finalise()
     // COFF header
     unsigned char * ptr = header;
     wle16(ptr, arch);
-    wle16(ptr, 6);  // sections
+    wle16(ptr, IMAGE_LAST+2);  // sections
     wle32(ptr, checked_32(time(0)));  // timestamp
     wle32(ptr, checked_32(symbols_base-base_addr));  // symbol table ptr
     wle32(ptr, checked_32(fptrs.size()));  // no. symbols
@@ -243,11 +245,11 @@ void PEImage::finalise()
 
     int code_section = 0;
     
-    for (int loopc=0; loopc<4; loopc++)
+    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
     { 
         int the_one = -1;
         uint64 lowest_diff = 0xffffffff;
-        for (int loopc2=0; loopc2<4; loopc2++)
+        for (int loopc2=0; loopc2<IMAGE_LAST; loopc2++)
         {
             uint64 diff = bases[loopc2] - prev_base;
             if ((bases[loopc2] > prev_base) && (diff < lowest_diff))
@@ -259,7 +261,7 @@ void PEImage::finalise()
 
         if (the_one == -1)
         {
-   	    printf("Cannot find correct section for %d!\n", the_one);
+            printf("Cannot find correct section for %d!\n", the_one);
             return;
         }
         
@@ -290,7 +292,17 @@ void PEImage::finalise()
             strcpy(sname, ".bss");
             flags = 0x80 | 0x40000000 | 0x80000000 | 0x600000;
         }
-
+        else if (the_one == IMAGE_RTTI)
+        {
+            strcpy(sname, ".rtti");
+            flags = 0x40 | 0x40000000;
+        }
+        else if (the_one == IMAGE_MTABLES)
+        {
+            strcpy(sname, ".mtables");
+            flags = 0x40 | 0x40000000 | 0x80000000;
+        }
+        
         memcpy(ptr, sname, 8);
         ptr += 8;
         wle32(ptr, checked_32(roundup(sizes[the_one] ? sizes[the_one] : 4096,4096)));
@@ -335,7 +347,7 @@ void PEImage::finalise()
     fwrite(header, 4096, 1, f);
     delete[] header;
     
-    for (int loopc=0; loopc<4; loopc++)
+    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
     {
         if (loopc != IMAGE_UNALLOCED_DATA)
         {

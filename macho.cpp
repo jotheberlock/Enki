@@ -18,7 +18,7 @@ MachOImage::MachOImage()
 
 MachOImage::~MachOImage()
 {
-    for (int loopc=0; loopc<4; loopc++)
+    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
     {
         delete[] sections[loopc];
     }
@@ -72,7 +72,7 @@ void MachOImage::finalise()
     wee32(le, ptr, arch);
     wee32(le, ptr, arch_subtype);   // cpu subtype
     wee32(le, ptr, 0x2);   // filetype - executable
-    wee32(le, ptr, 0x6);   // no. cmds
+    wee32(le, ptr, IMAGE_LAST+2);   // no. cmds
 	wee32(le, ptr, sf_bit ? ((72 * 5)+184) : ((56 * 5)+80));   // size of cmds
     wee32(le, ptr, 0x1);   // flags - no undefs
     if (sf_bit)
@@ -107,7 +107,7 @@ void MachOImage::finalise()
 	wee32(le, ptr, 0);      // nsects
 	wee32(le, ptr, 0x4);    // flags - no reloc
 
-    for (int loopc=0; loopc<4; loopc++)
+    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
 	{
 		wee32(le, ptr, sf_bit ? 0x19 : 0x1);  // command type
 		wee32(le, ptr, sf_bit ? 72 : 56);     // command size
@@ -133,6 +133,17 @@ void MachOImage::finalise()
 			strcpy(buf, "__BSS");
 			prot = 0x3;
 		}
+        else if (loopc == IMAGE_RTTI)
+        {
+            strcpy(buf, "__RTTI");
+            prot = 0x1;
+        }
+        else if (loopc == IMAGE_MTABLES)
+        {
+            strcpy(buf, "__MTABLES");
+            prot = 0x3;
+        }
+        
 		strcpy((char *)ptr, buf);
 		ptr += 16;
 		if (sf_bit)
@@ -182,7 +193,7 @@ void MachOImage::finalise()
     fwrite(header, 4096, 1, f);
     delete[] header;
 
-	for (int loopc = 0; loopc<4; loopc++)
+	for (int loopc = 0; loopc<IMAGE_LAST; loopc++)
 	{
 		if (loopc != IMAGE_UNALLOCED_DATA)
 		{
