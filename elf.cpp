@@ -221,7 +221,11 @@ void ElfImage::finalise()
         {
             flags = 0x6;
         }
-       
+        else
+        {
+            assert(false);
+        }
+        
         if (sf_bit)
         {
 			wee32(le, ptr, flags);  // Flags

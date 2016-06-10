@@ -143,6 +143,10 @@ void MachOImage::finalise()
             strcpy(buf, "__MTABLES");
             prot = 0x3;
         }
+        else
+        {
+            assert(false);
+        }
         
 		strcpy((char *)ptr, buf);
 		ptr += 16;

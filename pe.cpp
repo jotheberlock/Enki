@@ -302,6 +302,10 @@ void PEImage::finalise()
             strcpy(sname, ".mtables");
             flags = 0x40 | 0x40000000 | 0x80000000;
         }
+        else
+        {
+            assert(false);
+        }
         
         memcpy(ptr, sname, 8);
         ptr += 8;
