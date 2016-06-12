@@ -13,6 +13,10 @@ class Codegen;
 class Value;
 class Expr;
 
+// Should probably distinguish ranges for basic v
+// struct/union types at some point
+extern uint64 class_id_counter;
+
 class Type
 {
   public:
@@ -22,11 +26,17 @@ class Type
 
     Type()
     {
-	is_const=false;
+        is_const=false;
+        class_id = class_id_counter++;
     }
     
     virtual ~Type()
     {
+    }
+
+    uint64 classId()
+    {
+        return class_id;
     }
     
     virtual bool canCopy(Type *)
@@ -142,8 +152,9 @@ class Type
 	// make an instance of this type optionally with = v
 	virtual bool construct(Codegen *, Value * t, Value * v) { return v ? false : true;  }
 
-   protected:
+  protected:
 
+    uint64 class_id;
     bool is_const;
     
 };
@@ -707,9 +718,24 @@ public:
 
 };
 
+class Types
+{
+  public:
+    
+    Types();
+    ~Types();
+    Type * lookup(std::string);
+    void add(Type *, std::string);
+    std::map<std::string, Type *> & get();
 
-Type * lookupType(std::string);
-void addType(Type *, std::string);
+  protected:
+    
+    std::map<std::string, Type *> types;
+    
+};
+
+extern Types * types;
+
 void initialiseTypes();
 void destroyTypes();
 

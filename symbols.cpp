@@ -105,7 +105,7 @@ FunctionScope::FunctionScope(SymbolScope * p, std::string n, FunctionType * ft)
     addr = 0;
     stack_size = 0;
     
-    Type * byteptr = lookupType("Byte^");
+    Type * byteptr = types->lookup("Byte^");
     assert(byteptr);
     
     add(new Value("__oldframe", byteptr));

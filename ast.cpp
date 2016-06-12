@@ -789,7 +789,7 @@ Expr * Parser::parseStruct()
 
     IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
     std::string sname = ie->getString();
-    Type * t = lookupType(sname);
+    Type * t = types->lookup(sname);
     if (t)
     {
         addError(Error(&current, "Type already defined", sname));
@@ -797,7 +797,7 @@ Expr * Parser::parseStruct()
     }
 
     StructType * st = new StructType(sname, type == UNION);
-    addType(st, sname); // Add here so it can reference itself
+    types->add(st, sname); // Add here so it can reference itself
 
     if (current.type == OPEN_BRACKET)
     {
@@ -809,7 +809,7 @@ Expr * Parser::parseStruct()
         }
 	IdentifierExpr * pie = (IdentifierExpr *)parseIdentifier();
 	std::string pname = pie->getString();
-	Type * pt = lookupType(pname);
+	Type * pt = types->lookup(pname);
 	if (!pt)
 	{
    	     addError(Error(&current, "Could not find parent type", pname));
@@ -1067,7 +1067,7 @@ Expr * Parser::parseDef()
                             ret->setBody(body);
                         }
 
-                        addType(ft, ie->getString());
+                        types->add(ft, ie->getString());
                         current_scope = current_scope->parent();
                         return ret;
                     }
@@ -1210,7 +1210,7 @@ Expr * Parser::parseFptr()
     }
 
     std::string tname = ((IdentifierExpr *)ie)->getString();
-    addType(ft, tname);
+    types->add(ft, tname);
     return 0;
 }
 
@@ -1233,7 +1233,7 @@ Type * Parser::parseType()
         // Look up base type
     std::string i = ((IdentifierExpr *)ie)->getString();
     
-    Type * ret_type = lookupType(i);
+    Type * ret_type = types->lookup(i);
     if (!ret_type)
     {
         fprintf(log_file, "Looked up [%s], didn't find it\n", i.c_str());
@@ -1252,13 +1252,13 @@ Type * Parser::parseType()
             fprintf(log_file, "Pointy!\n");
             i += "^";
             
-            Type * t = lookupType(i);
+            Type * t = types->lookup(i);
             if (!t)
             {
                 fprintf(log_file, "New pointer type!\n");
                 t = new PointerType(ret_type);
                 ret_type = t;
-                addType(ret_type, i);    
+                types->add(ret_type, i);    
             }
             else
             {
@@ -1285,13 +1285,13 @@ Type * Parser::parseType()
             if (current.type == CLOSE_SQUARE)
             {
                 i += "]";
-                Type * t = lookupType(i);
+                Type * t = types->lookup(i);
                 
                 if (!t)
                 {
                     t = new ArrayType(ret_type);
                     ret_type = t;
-                    addType(ret_type, i);    
+                    types->add(ret_type, i);    
                 }
                 else
                 {
@@ -1313,12 +1313,12 @@ Type * Parser::parseType()
                 i += buf;
                 i += "]";
                 
-                Type * t = lookupType(i);
+                Type * t = types->lookup(i);
                 if (!t)
                 {
                     t = new ArrayType(ret_type, ie->getVal());
                     ret_type = t;
-                    addType(ret_type, i);    
+                    types->add(ret_type, i);    
                 }
                 else
                 {

@@ -20,6 +20,7 @@
 #include "component.h"
 #include "configfile.h"
 #include "backend.h"
+#include "rtti.h"
 
 Assembler * assembler = 0;
 CallingConvention * calling_convention = 0;
@@ -27,6 +28,8 @@ FILE * log_file = 0;
 Constants * constants = 0;
 FunctionScope * root_scope = 0;
 ComponentFactory * component_factory = 0;
+Types * types = 0;
+Rtti * rtti = 0;
 
 typedef uint64 (*TestFunc)(uint64);
 
@@ -309,7 +312,8 @@ int main(int argc, char ** argv)
     }
   
     component_factory = new ComponentFactory();
-
+    rtti = new Rtti();
+    
     FILE * hfile = findFile(ConfigFile::hostConfig().c_str());
     if (!hfile)
     {
@@ -409,7 +413,7 @@ int main(int argc, char ** argv)
 
     constants = new Constants();
     assembler = config.assembler;
-    initialiseTypes();
+    types = new Types();
     FunctionType * root_type = new FunctionType(false);
     root_type->addReturn(register_type);
     
@@ -515,7 +519,7 @@ int main(int argc, char ** argv)
 
     fprintf(log_file, "\n\n\nCodegen:\n\n\n");
 
-    Type * byteptr = lookupType("Byte^");
+    Type * byteptr = types->lookup("Byte^");
     assert(byteptr);
 
     root_scope->add(new Value("__activation", byteptr));

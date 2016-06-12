@@ -1,13 +1,11 @@
-#include <map>
-
 #include "type.h"
 #include "codegen.h"
 #include "symbols.h"
 
-std::map<std::string, Type *> types;
 Type * register_type = 0;
 Type * signed_register_type = 0;
 Type * byte_type = 0;
+uint64 class_id_counter = 1;  // 0 is unknown class
 
 void IntegerType::copy(Codegen * c, Value * a, Value * v)
 {
@@ -219,7 +217,49 @@ void FunctionType::calc()
 {
 }
 
-Type * lookupType(std::string n)
+void StructType::copy(Codegen * c, Value * to, Value * from)
+{
+    Value * fa = c->getTemporary(register_type, "structaddr");
+    c->block()->add(Insn(GETADDR, fa, from));
+    Value * v = c->getTemporary(byte_type, "copy");
+    for (int loopc=0; loopc<siz/8; loopc++)
+    {
+        // Needs more better        
+        c->block()->add(Insn(LOAD8, v, fa));
+        c->block()->add(Insn(STORE8, to, v));
+        c->block()->add(Insn(ADD, fa, Operand::usigc(1)));
+        c->block()->add(Insn(ADD, to, Operand::usigc(1)));
+    }    
+}
+
+bool StructType::canCopy(Type * t)
+{
+    if (t == this)
+    {
+        for (unsigned int loopc=0; loopc<members.size(); loopc++)
+	{
+	    if(!members[loopc].type->canCopy(members[loopc].type))
+	    {
+	        return false;
+	    }
+	}
+        return true;
+    }
+
+    return false;
+}
+
+std::map<std::string, Type *> & Types::get()
+{
+    return types;
+}
+
+void Types::add(Type * t, std::string n)
+{
+    types[n] = t;
+}  
+
+Type * Types::lookup(std::string n)
 {
     std::map<std::string, Type *>::iterator it = types.find(n);
     if (it != types.end())
@@ -253,44 +293,7 @@ Type * lookupType(std::string n)
     return 0;
 }
 
-void StructType::copy(Codegen * c, Value * to, Value * from)
-{
-    Value * fa = c->getTemporary(register_type, "structaddr");
-    c->block()->add(Insn(GETADDR, fa, from));
-    Value * v = c->getTemporary(byte_type, "copy");
-    for (int loopc=0; loopc<siz/8; loopc++)
-    {
-        // Needs more better        
-        c->block()->add(Insn(LOAD8, v, fa));
-        c->block()->add(Insn(STORE8, to, v));
-        c->block()->add(Insn(ADD, fa, Operand::usigc(1)));
-        c->block()->add(Insn(ADD, to, Operand::usigc(1)));
-    }    
-}
-
-bool StructType::canCopy(Type * t)
-{
-    if (t == this)
-    {
-        for (unsigned int loopc=0; loopc<members.size(); loopc++)
-	{
-	    if(!members[loopc].type->canCopy(members[loopc].type))
-	    {
-	        return false;
-	    }
-	}
-        return true;
-    }
-
-    return false;
-}
-
-void addType(Type * t, std::string n)
-{
-    types[n] = t;
-}  
-
-void initialiseTypes()
+Types::Types()
 {
     types["Bool"] = new BoolType();
     types["Void"] = new VoidType();
@@ -321,7 +324,7 @@ void initialiseTypes()
     types["Byte^"] = new PointerType(byte_type);
 }
 
-void destroyTypes()
+Types::~Types()
 {
     for (std::map<std::string, Type *>::iterator it = types.begin();
          it != types.end(); it++)
