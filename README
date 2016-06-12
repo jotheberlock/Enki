@@ -1,0 +1,21 @@
+Enki is a toy statically-typed, statically-compiled programming
+language, wherein I experiment with the following:
+
+A common ABI across operating systems, such that a file with the
+same machine code could run on Windows, Linux and MacOS (or Windows Mobile,
+Android and iOS).
+
+A spaghetti stack/support for closures and generators.
+
+Direct code generation to machine code and native executable files for x86-64
+and ARM - no assembler here.
+
+It's currently at least in the ballpark of being as expressive as C (structs,
+arrays, functions, function pointers, variously-sized integers) - no
+floating point or memory management as such so far, though. Also pretty
+much no optimisation whatsoever as yet.
+
+Yes, I have heard about LLVM - but LL is indeed a VM, and it Vs the things
+I'm most interested in messing around with, i.e. calling conventions (both
+in the sense of 'what goes in what register' and also it assumes you have
+a conventional C-style stack) and object file formats.
