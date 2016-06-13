@@ -152,6 +152,11 @@ class Type
 	// make an instance of this type optionally with = v
 	virtual bool construct(Codegen *, Value * t, Value * v) { return v ? false : true;  }
 
+    virtual Type * getParent()
+    {
+        return 0;
+    }
+    
   protected:
 
     uint64 class_id;
@@ -489,6 +494,11 @@ class StructType : public Type
     void setParent(Type * st)
     {
         parent = st;
+    }
+
+    Type * getParent()
+    {
+        return parent;
     }
     
     virtual void copy(Codegen *, Value *, Value *);
