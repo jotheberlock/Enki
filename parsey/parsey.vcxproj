@@ -163,6 +163,7 @@
     <ClInclude Include="..\pe.h" />
     <ClInclude Include="..\platform.h" />
     <ClInclude Include="..\regset.h" />
+    <ClInclude Include="..\rtti.h" />
     <ClInclude Include="..\stringbox.h" />
     <ClInclude Include="..\symbols.h" />
     <ClInclude Include="..\type.h" />
@@ -191,6 +192,7 @@
     <ClCompile Include="..\pe.cpp" />
     <ClCompile Include="..\platform.cpp" />
     <ClCompile Include="..\regset.cpp" />
+    <ClCompile Include="..\rtti.cpp" />
     <ClCompile Include="..\stringbox.cpp" />
     <ClCompile Include="..\symbols.cpp" />
     <ClCompile Include="..\type.cpp" />
