@@ -54,7 +54,6 @@ bool PEImage::configure(std::string param, std::string val)
 void PEImage::endOfImports()
 {
     materialiseSection(IMAGE_UNALLOCED_DATA);
-    materialiseSection(IMAGE_RTTI);
     materialiseSection(IMAGE_MTABLES);
     imports_base = next_addr;
     next_addr += 4096;
@@ -467,24 +466,4 @@ void PEImage::finalise()
 #if defined(POSIX_HOST)
     chmod(fname.c_str(), 0755);
 #endif
-}
-
-void PEImage::materialiseSection(int s)
-{
-    sections[s] = new unsigned char[sizes[s]];
-    bases[s] = next_addr;
-    next_addr += sizes[s];
-    if (!sizes[s])
-    {
-        next_addr++;
-    }
-    while (next_addr % 4096)
-    {
-        next_addr++;
-    }
-
-    if (guard_page)
-    {
-        next_addr += 4096;   
-    }
 }

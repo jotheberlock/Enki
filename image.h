@@ -57,7 +57,7 @@ class Image : public Component
     void addImport(std::string, std::string);
     virtual uint64 importAddress(std::string) = 0;
 
-    virtual void materialiseSection(int) = 0;
+    virtual void materialiseSection(int);
     bool littleEndian()
     {
         return true;
@@ -118,7 +118,7 @@ class MemoryImage : public Image
   protected:
 
     void materialiseSection(int s);
-    MemBlock mems[4];
+    MemBlock mems[IMAGE_LAST];
 	std::vector<std::string> import_names;
     uint64 * import_pointers;
 

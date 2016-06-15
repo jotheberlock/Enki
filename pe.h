@@ -23,7 +23,6 @@ class PEImage : public Image
     
  protected:
 
-    void materialiseSection(int s);
     int subsystem;
     uint64 imports_base;
     uint64 symbols_base;

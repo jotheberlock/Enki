@@ -29,7 +29,6 @@ class ElfImage : public Image
   protected:
     
     int stringOffset(const char * c);
-    void materialiseSection(int s);
     bool le;
     StringBox stringtable;
     

@@ -4,6 +4,9 @@
 #include "image.h"
 #include "error.h"
 #include "entrypoint.h"
+#include "rtti.h"
+
+#include <string.h>
 
 extern FILE * log_file;
 extern void dump_codegen(Codegen * cg);
@@ -93,7 +96,11 @@ int Backend::process()
     config->image->setSectionSize(IMAGE_CONST_DATA, constants->getSize());
     constants->setAddress(config->image->getAddr(IMAGE_CONST_DATA));
     constants->fillPool(config->image->getPtr(IMAGE_CONST_DATA));
-     
+
+    rtti->finalise();
+    config->image->setSectionSize(IMAGE_RTTI, rtti->size());
+    memcpy(config->image->getPtr(IMAGE_RTTI), rtti->getData(), rtti->size());
+    
     std::vector<OptimisationPass *> passes = config->passes;
     
     for(std::list<Codegen *>::iterator cit = codegens.begin();

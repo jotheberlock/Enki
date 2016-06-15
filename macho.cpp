@@ -211,21 +211,3 @@ void MachOImage::finalise()
     chmod(fname.c_str(), 0755);
 #endif
 }
-
-void MachOImage::materialiseSection(int s)
-{
-    sections[s] = new unsigned char[sizes[s]];
-    bases[s] = next_addr;
-    next_addr += sizes[s];
-    next_addr += 4096;
-    while (next_addr % 4096)
-    {
-        next_addr++;
-    }
-
-    if (guard_page)
-    {
-        next_addr += 4096;   // Create a guard page
-    }
-}
-
