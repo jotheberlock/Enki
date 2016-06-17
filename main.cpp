@@ -525,6 +525,8 @@ int main(int argc, char ** argv)
     root_scope->add(new Value("__activation", byteptr));
     root_scope->add(new Value("__stackptr", byteptr));
 
+    rtti->finalise();
+    
     Backend output(&config, parse.tree());
     return output.process();
 }

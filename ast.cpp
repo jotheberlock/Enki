@@ -2113,8 +2113,15 @@ Value * VarRefExpr::codegen(Codegen * c)
                 }
                 case VARREF_MEMBER:
                 {
-                    etype = etype->fieldType(((IdentifierExpr *)vre.subs)
-                                             ->getString());
+                    std::string fname = ((IdentifierExpr *)vre.subs)->getString();
+                    etype = etype->fieldType(fname);
+
+                    if (!etype)
+                    {
+                        printf("Cannot find member field %s!\n", fname.c_str());
+                        return 0;
+                    }
+                    
                     break;
                 }
                 default:
@@ -2122,7 +2129,7 @@ Value * VarRefExpr::codegen(Codegen * c)
                     fprintf(log_file, "???");
                     break;
                 }
-            }	
+            }
         }
         
         Value * ret = c->getTemporary(etype, "deref_ret");

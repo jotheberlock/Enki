@@ -24,6 +24,7 @@ void Rtti::finalise()
          it != tmap.end(); it++)
     {
         Type * t = (*it).second;
+        
         wle64(ptr, t->classId());
         strcpy((char *)ptr, t->name().c_str());
         ptr += strlen(t->name().c_str())+1;
@@ -36,6 +37,12 @@ void Rtti::finalise()
 
 uint64 Rtti::lookup(uint64 id)
 {
+    if (!data)
+    {
+        printf("Lookup before data!\n");
+        assert(false);
+    }
+    
     std::map<uint64, uint64>::iterator it = indexes.find(id);
     if (it == indexes.end())
     {

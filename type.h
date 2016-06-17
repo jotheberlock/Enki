@@ -472,13 +472,7 @@ class StructType : public Type
 {
   public:
 
-    StructType(std::string n, bool u)
-    {
-        nam=n;
-        siz=0;
-        is_union=u;
-	parent=0;
-    }
+    StructType(std::string n, bool u);
 
     std::string display(unsigned char *);
     
@@ -529,6 +523,8 @@ class StructType : public Type
     {
         return nam;
     }
+
+	virtual bool construct(Codegen *, Value * t, Value * v);
     
   protected:
 

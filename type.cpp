@@ -1,6 +1,8 @@
 #include "type.h"
 #include "codegen.h"
 #include "symbols.h"
+#include "image.h"
+#include "rtti.h"
 
 Type * register_type = 0;
 Type * signed_register_type = 0;
@@ -247,6 +249,28 @@ bool StructType::canCopy(Type * t)
     }
 
     return false;
+}
+
+StructType::StructType(std::string n, bool u)
+{
+    nam=n;
+    siz=0;
+    is_union=u;
+    parent=0;
+    addMember("class", register_type);
+}
+
+bool StructType::construct(Codegen * c, Value * t, Value *)
+{
+    Value * v = c->getTemporary(register_type, "struct_addr");
+    c->block()->add(Insn(GETADDR, v, t, Operand::usigc(0)));
+    Value * ra = c->getTemporary(register_type, "rtti_addr");
+    uint64 offs = rtti->lookup(classId());
+        
+    c->block()->add(Insn(MOVE, ra,
+                         Operand::section(IMAGE_RTTI,offs)));
+    c->block()->add(Insn(STORE, v, ra));
+    return true;
 }
 
 std::map<std::string, Type *> & Types::get()

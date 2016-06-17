@@ -97,7 +97,6 @@ int Backend::process()
     constants->setAddress(config->image->getAddr(IMAGE_CONST_DATA));
     constants->fillPool(config->image->getPtr(IMAGE_CONST_DATA));
 
-    rtti->finalise();
     config->image->setSectionSize(IMAGE_RTTI, rtti->size());
     memcpy(config->image->getPtr(IMAGE_RTTI), rtti->getData(), rtti->size());
     
