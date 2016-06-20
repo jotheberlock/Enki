@@ -796,39 +796,41 @@ Expr * Parser::parseStruct()
         return 0;
     }
 
-    StructType * st = new StructType(sname, type == UNION);
-    types->add(st, sname); // Add here so it can reference itself
+    StructType * st = 0;
 
     if (current.type == OPEN_BRACKET)
     {
         next();
-	if (current.type != IDENTIFIER)
-	{
-  	    addError(Error(&current, "Expected identifier for parent"));
-	    return 0;
+        if (current.type != IDENTIFIER)
+        {
+            addError(Error(&current, "Expected identifier for parent"));
+            return 0;
         }
-	IdentifierExpr * pie = (IdentifierExpr *)parseIdentifier();
-	std::string pname = pie->getString();
-	Type * pt = types->lookup(pname);
-	if (!pt)
-	{
-   	     addError(Error(&current, "Could not find parent type", pname));
-	     return 0;
-	}
-	if (!pt->canField())
-	{
-	    addError(Error(&current, "Parent type must be a struct"));
-	    return 0;
-	}
-	st->setParent(pt);
-	next();
-	next();
+        IdentifierExpr * pie = (IdentifierExpr *)parseIdentifier();
+        std::string pname = pie->getString();
+        Type * pt = types->lookup(pname);
+        if (!pt)
+        {
+            addError(Error(&current, "Could not find parent type", pname));
+            return 0;
+        }
+        if (!pt->canField())
+        {
+            addError(Error(&current, "Parent type must be a struct"));
+            return 0;
+        }
+        st = new StructType(sname, type == UNION, pt);
+        next();
+        next();
     }
     else
     {
+        st = new StructType(sname, type == UNION, 0);
 		st->addMember("rtti", register_type);
-	next();
+        next();
     }
+    
+    types->add(st, sname); // Add here so it can reference itself
     
     if (current.type != BEGIN)
     {
@@ -1658,8 +1660,6 @@ Value * BinaryExpr::codegen(Codegen * c)
     else if (op == rshift_op)
     {
         Value * lh = lhs->codegen(c);
-        Type * t = 0;
-        bool is_signed = binary_result(lh,rh,t);
         Value * v = c->getTemporary(lh->type ? lh->type : register_type, "rshift");
         c->block()->add(Insn((lh->type ? lh->type->isSigned() : true) ? SAR : SHR, v, lh, rh));
         return v;

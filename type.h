@@ -472,7 +472,7 @@ class StructType : public Type
 {
   public:
 
-    StructType(std::string n, bool u);
+    StructType(std::string n, bool u, Type * p);
 
     std::string display(unsigned char *);
     
@@ -483,11 +483,6 @@ class StructType : public Type
         se.name = n;
         se.type = t;
         members.push_back(se);
-    }
-
-    void setParent(Type * st)
-    {
-        parent = st;
     }
 
     Type * getParent()
