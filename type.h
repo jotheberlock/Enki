@@ -53,6 +53,11 @@ class Type
     {
         return false;
     }
+
+    virtual int argCount()
+    {
+        return 0;
+    }
     
     virtual Value * generateFuncall(Codegen *, Funcall *, Value *,
                                     std::vector<Value *> & args)
@@ -577,12 +582,17 @@ class FunctionType : public Type
 
     std::vector<StructElement> & getParams()
     {
-	return params;
+        return params;
     }
     
     std::vector<Type *> & getReturns()
     {
         return returns;
+    }
+
+    int argCount()
+    {
+        return params.size();
     }
     
     void calc();
