@@ -974,8 +974,11 @@ Expr * Parser::parseDef()
     }
 
     bool already_added = false;
+
+        // Need to add proper argument overloading for generics...
     
     Value * v = new Value(name, ft);
+
     if (is_extern && current_scope->lookup_function(name))
     {
         already_added = true;

@@ -12,6 +12,7 @@
 class Codegen;
 class Value;
 class Expr;
+class FunctionType;
 
 // Should probably distinguish ranges for basic v
 // struct/union types at some point
@@ -150,6 +151,11 @@ class Type
     {
         is_const=b;
     }
+
+    virtual bool isGeneric()
+    {
+        return false;
+    }
     
     virtual int size() = 0;
     virtual int align() = 0;
@@ -161,6 +167,8 @@ class Type
     {
         return 0;
     }
+
+    virtual void registerSpecialiser(FunctionType *) {}
     
   protected:
 
@@ -727,6 +735,20 @@ public:
 		return args.size() == params.size();
 	}
 
+    bool isGeneric()
+    {
+        return true;
+    }
+
+    void registerSpecialiser(FunctionType * ft)
+    {
+        specialisations.push_back(ft);
+    }
+
+  protected:
+
+    std::list<FunctionType *> specialisations;
+    
 };
 
 class Types
