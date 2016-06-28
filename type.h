@@ -600,7 +600,7 @@ class FunctionType : public Type
 
     int argCount()
     {
-        return params.size();
+        return (int)params.size();
     }
     
     void calc();

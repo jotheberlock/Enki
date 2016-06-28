@@ -28,7 +28,7 @@ void Rtti::finalise()
         wle64(ptr, t->classId());
         strcpy((char *)ptr, t->name().c_str());
         ptr += strlen(t->name().c_str())+1;
-        while ((unsigned long)ptr & 0x7)
+        while ((uint64)ptr & 0x7)
         {
             ptr++;
         }
