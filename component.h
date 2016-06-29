@@ -6,31 +6,31 @@
 
 class Component
 {
- public:
+public:
 
-  virtual bool configure(std::string, std::string)
-  {
-      return false;
-  }
-  
+	virtual bool configure(std::string, std::string)
+	{
+		return false;
+	}
+
 };
 
 typedef Component * (*ComponentMaker)();
 
 class ComponentFactory
 {
- public:
+public:
 
-  ComponentFactory();
-  void add(ComponentMaker, std::string, std::string);
-  Component * make(std::string, std::string);
+	ComponentFactory();
+	void add(ComponentMaker, std::string, std::string);
+	Component * make(std::string, std::string);
 
- protected:
-  
-  std::map<std::string, ComponentMaker> makers;
-  
+protected:
+
+	std::map<std::string, ComponentMaker> makers;
+
 };
 
 extern ComponentFactory * component_factory;
- 
+
 #endif

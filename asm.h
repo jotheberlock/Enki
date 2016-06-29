@@ -79,131 +79,131 @@ class Assembler;
 
 class Operand
 {
-  public:
+public:
 
-    Operand()
-    {
-        type=0;
-    }
-    
-    Operand(Value *);
-    Operand(BasicBlock *);
-    Operand(FunctionScope *);
+	Operand()
+	{
+		type = 0;
+	}
 
-    uint32 getReg();
-    uint64 getUsigc();
-    int64 getSigc();
-    Value * getValue();
-    BasicBlock * getBlock();
-    FunctionScope * getFunction();
-    uint64 getSection(int &);   // e.g. 'data segment address'
-    std::string getExtFunction();
-    
-    static Operand sigc(int64);
-    static Operand usigc(uint64);
-    static Operand reg(int32);
-    static Operand reg(std::string);
-    static Operand section(int, uint64);
-    static Operand extFunction(std::string);
-    
-    bool eq(Operand &);
-    
-    std::string toString();
+	Operand(Value *);
+	Operand(BasicBlock *);
+	Operand(FunctionScope *);
 
-    bool isUsigc();
-    bool isSigc();
-    bool isReg();
-    bool isValue();
-    bool isBlock();
-    bool isFunction();
-    bool isSection();
-    bool isExtFunction();
+	uint32 getReg();
+	uint64 getUsigc();
+	int64 getSigc();
+	Value * getValue();
+	BasicBlock * getBlock();
+	FunctionScope * getFunction();
+	uint64 getSection(int &);   // e.g. 'data segment address'
+	std::string getExtFunction();
 
-    bool isReloc()
-    {
-        return isBlock() || isFunction() || isSection() || isExtFunction();
-    }
-    
-  protected:
+	static Operand sigc(int64);
+	static Operand usigc(uint64);
+	static Operand reg(int32);
+	static Operand reg(std::string);
+	static Operand section(int, uint64);
+	static Operand extFunction(std::string);
 
-    int type;
-    union
-    {
-        Value * v;
-        uint64 c;
-        int64 sc;
-        BasicBlock * b;
-        uint32 r;
-        FunctionScope * f;
-        uint64 s;
-        std::string * e;
-    } contents;
-    
+	bool eq(Operand &);
+
+	std::string toString();
+
+	bool isUsigc();
+	bool isSigc();
+	bool isReg();
+	bool isValue();
+	bool isBlock();
+	bool isFunction();
+	bool isSection();
+	bool isExtFunction();
+
+	bool isReloc()
+	{
+		return isBlock() || isFunction() || isSection() || isExtFunction();
+	}
+
+protected:
+
+	int type;
+	union
+	{
+		Value * v;
+		uint64 c;
+		int64 sc;
+		BasicBlock * b;
+		uint32 r;
+		FunctionScope * f;
+		uint64 s;
+		std::string * e;
+	} contents;
+
 };
 
 class Insn
 {
-  public:
+public:
 
-    Insn()
-    {
-        ins=NOP;
-        oc=0;
-        addr=0;
-	size=0;
-    }
-    
-    Insn(uint64 i)
-    {
-        ins=i;
-        oc=0;
-        addr=0;
-	size=0;
-    }
+	Insn()
+	{
+		ins = NOP;
+		oc = 0;
+		addr = 0;
+		size = 0;
+	}
 
-    Insn(uint64 i, Operand o1)
-    {
-        ins=i;
-        ops[0]=o1;
-        oc=1;
-        addr=0;
-        size=0;
-    }
-    
-    Insn(uint64 i, Operand o1, Operand o2)
-    {
-        ins=i;
-        ops[0]=o1;
-        ops[1]=o2;
-        oc=2;
-        addr=0;
-	size=0;
-    }
-    
-    Insn(uint64 i, Operand o1, Operand o2, Operand o3)
-    {
-        ins=i;
-        ops[0]=o1;
-        ops[1]=o2;
-        ops[2]=o3;
-        oc=3;
-        addr=0;
-	size=0;
-    }
+	Insn(uint64 i)
+	{
+		ins = i;
+		oc = 0;
+		addr = 0;
+		size = 0;
+	}
 
-    std::string toString();  // Full instruction with operands
-    std::string insToString();
+	Insn(uint64 i, Operand o1)
+	{
+		ins = i;
+		ops[0] = o1;
+		oc = 1;
+		addr = 0;
+		size = 0;
+	}
 
-    bool isIn(int);
-    bool isOut(int);
-    
-    uint64 ins;
-    uint64 addr;
-    uint64 size;
-    int oc;
-    Operand ops[4];
-    std::string comment;
-    
+	Insn(uint64 i, Operand o1, Operand o2)
+	{
+		ins = i;
+		ops[0] = o1;
+		ops[1] = o2;
+		oc = 2;
+		addr = 0;
+		size = 0;
+	}
+
+	Insn(uint64 i, Operand o1, Operand o2, Operand o3)
+	{
+		ins = i;
+		ops[0] = o1;
+		ops[1] = o2;
+		ops[2] = o3;
+		oc = 3;
+		addr = 0;
+		size = 0;
+	}
+
+	std::string toString();  // Full instruction with operands
+	std::string insToString();
+
+	bool isIn(int);
+	bool isOut(int);
+
+	uint64 ins;
+	uint64 addr;
+	uint64 size;
+	int oc;
+	Operand ops[4];
+	std::string comment;
+
 };
 
 class Type;
@@ -212,113 +212,113 @@ int loadForType(Type *);
 
 class BasicBlock
 {
-  public:
+public:
 
-    BasicBlock(std::string n)
-    {
-        nam=n;
-        addr=0;
-    }
-    
-    std::string name()
-    {
-        return nam;
-    }
+	BasicBlock(std::string n)
+	{
+		nam = n;
+		addr = 0;
+	}
 
-    void addChild(BasicBlock * b)
-    {
-        for (unsigned int loopc=0; loopc<children.size(); loopc++)
-        {
-            if (children[loopc] == b)
-            {
-                return;
-            }            
-        }
-        
-        children.push_back(b);
-        b->parents.push_back(this);
-    }
-    
-    void add(Insn i)
-    {
-        insns.push_back(i);
-    }
-    
-    std::string toString();
+	std::string name()
+	{
+		return nam;
+	}
 
-    void setCode(std::list<Insn> ins)
-    {
-        insns = ins;
-    }
-    
-    void append(BasicBlock & b)
-    {
-        std::list<Insn>::iterator it;
-        for (it=b.insns.begin(); it!=b.insns.end(); it++)
-        {
-            insns.push_back(*it);
-        }
-    }
+	void addChild(BasicBlock * b)
+	{
+		for (unsigned int loopc = 0; loopc < children.size(); loopc++)
+		{
+			if (children[loopc] == b)
+			{
+				return;
+			}
+		}
 
-    std::vector<BasicBlock *> & getChildren()
-    {
-        return children;
-    }
+		children.push_back(b);
+		b->parents.push_back(this);
+	}
 
-    std::vector<BasicBlock *> getParents()
-    {
-        return parents;
-    }
+	void add(Insn i)
+	{
+		insns.push_back(i);
+	}
 
-    static void calcRelationships(std::vector<BasicBlock *> & blocks);
-    
-    std::list<Insn> & getCode()
-    {
-        return insns;
-    }
+	std::string toString();
 
-    bool hasAddr()
-    {
-        return (addr != 0);
-    }
+	void setCode(std::list<Insn> ins)
+	{
+		insns = ins;
+	}
 
-    uint64 getAddr()
-    {
-        return addr;
-    }
+	void append(BasicBlock & b)
+	{
+		std::list<Insn>::iterator it;
+		for (it = b.insns.begin(); it != b.insns.end(); it++)
+		{
+			insns.push_back(*it);
+		}
+	}
 
-    void setAddr(uint64 a)
-    {
-        addr=a;
-    }
+	std::vector<BasicBlock *> & getChildren()
+	{
+		return children;
+	}
 
-    RegSet getReservedRegs()
-    {
-        return reserved_regs;
-    }
+	std::vector<BasicBlock *> getParents()
+	{
+		return parents;
+	}
 
-    void setReservedRegs(RegSet r)
-    {
-        reserved_regs = r;
-    }
-    
-  protected:
+	static void calcRelationships(std::vector<BasicBlock *> & blocks);
 
-    std::vector<BasicBlock *> children;
-    std::vector<BasicBlock *> parents;
-    std::list<Insn> insns;
-    std::string nam;
-    uint64 addr;
-    RegSet reserved_regs;
-    
+	std::list<Insn> & getCode()
+	{
+		return insns;
+	}
+
+	bool hasAddr()
+	{
+		return (addr != 0);
+	}
+
+	uint64 getAddr()
+	{
+		return addr;
+	}
+
+	void setAddr(uint64 a)
+	{
+		addr = a;
+	}
+
+	RegSet getReservedRegs()
+	{
+		return reserved_regs;
+	}
+
+	void setReservedRegs(RegSet r)
+	{
+		reserved_regs = r;
+	}
+
+protected:
+
+	std::vector<BasicBlock *> children;
+	std::vector<BasicBlock *> parents;
+	std::list<Insn> insns;
+	std::string nam;
+	uint64 addr;
+	RegSet reserved_regs;
+
 };
 
 class ValidRegs
 {
-  public:
-    
-    RegSet ops[3];
-    RegSet clobbers;
+public:
+
+	RegSet ops[3];
+	RegSet clobbers;
 };
 
 class Function;
@@ -328,119 +328,119 @@ class Image;
 
 class Assembler : public Component
 {
-  public:
+public:
 
-    Assembler()
-    {
-        current=0;
-        address=0;
-        limit=0;
-        psize=0;
-        le=true;
-        base=0;
-	func_base=0;
-	convert_64_to_32=false;
-    }
+	Assembler()
+	{
+		current = 0;
+		address = 0;
+		limit = 0;
+		psize = 0;
+		le = true;
+		base = 0;
+		func_base = 0;
+		convert_64_to_32 = false;
+	}
 
-    virtual ~Assembler()
-    {
-    }
-    
-    void setMem(unsigned char * b, unsigned char * l)
-    {
-        base = b;
-        limit = l;
-    }
+	virtual ~Assembler()
+	{
+	}
 
-    void setPtr(unsigned char * ptr)
-    {
-        current = ptr;
-	func_base = ptr;
-    }
+	void setMem(unsigned char * b, unsigned char * l)
+	{
+		base = b;
+		limit = l;
+	}
 
-    int dynamicLinkOffset()
-    {
-        return (pointerSize() * 1) / 8;
-    }
-    
-    int ipOffset()
-    {
-        return (pointerSize() * 2) / 8;
-    }
-    
-    int staticLinkOffset()
-    {
-        return (pointerSize() * 3) / 8;
-    }
-    
-    int returnOffset()
-    {
-        return (pointerSize() * 4) / 8;
-    }
+	void setPtr(unsigned char * ptr)
+	{
+		current = ptr;
+		func_base = ptr;
+	}
 
-    virtual int functionAlignment() = 0;
-    virtual int regnum(std::string) = 0;
-    virtual int size(BasicBlock *) = 0;  // Size in bytes of machine code
-    virtual bool assemble(BasicBlock *, BasicBlock * next, Image * image) = 0;
-    virtual std::string transReg(uint32) = 0;
-    virtual ValidRegs validRegs(Insn &) = 0;
-    virtual bool validConst(Insn &, int) = 0;
-    virtual int framePointer() = 0;
-    int pointerSize()  // in bits
-    {
-        assert(psize != 0);
-        return psize;
-    }
-    
-    uint64 len() { return current-base; }  // From beginning of code segment
-    uint64 flen() { return current-func_base; }   // From beginning of function
-    
-    uint64 currentAddr()
-    {
-        return address+len();
-    }
-    
-    void setAddr(uint64 a)
-    {
-        address=a;
-    }
-    
-    virtual void align(uint64 a) = 0;  // Pads with NOPs
-    virtual void newFunction(Codegen *);
+	int dynamicLinkOffset()
+	{
+		return (pointerSize() * 1) / 8;
+	}
 
-    virtual bool configure(std::string, std::string);
-    bool convertUint64()
-    {
-        return convert_64_to_32;
-    }
-    
-  protected:
+	int ipOffset()
+	{
+		return (pointerSize() * 2) / 8;
+	}
 
-    unsigned char * base;
-    unsigned char * current;
-    unsigned char * limit;
-    unsigned char * func_base;
-    uint64 address;
-    int psize;
-    bool le;
-    FunctionScope * current_function;
-    bool convert_64_to_32;
-    
+	int staticLinkOffset()
+	{
+		return (pointerSize() * 3) / 8;
+	}
+
+	int returnOffset()
+	{
+		return (pointerSize() * 4) / 8;
+	}
+
+	virtual int functionAlignment() = 0;
+	virtual int regnum(std::string) = 0;
+	virtual int size(BasicBlock *) = 0;  // Size in bytes of machine code
+	virtual bool assemble(BasicBlock *, BasicBlock * next, Image * image) = 0;
+	virtual std::string transReg(uint32) = 0;
+	virtual ValidRegs validRegs(Insn &) = 0;
+	virtual bool validConst(Insn &, int) = 0;
+	virtual int framePointer() = 0;
+	int pointerSize()  // in bits
+	{
+		assert(psize != 0);
+		return psize;
+	}
+
+	uint64 len() { return current - base; }  // From beginning of code segment
+	uint64 flen() { return current - func_base; }   // From beginning of function
+
+	uint64 currentAddr()
+	{
+		return address + len();
+	}
+
+	void setAddr(uint64 a)
+	{
+		address = a;
+	}
+
+	virtual void align(uint64 a) = 0;  // Pads with NOPs
+	virtual void newFunction(Codegen *);
+
+	virtual bool configure(std::string, std::string);
+	bool convertUint64()
+	{
+		return convert_64_to_32;
+	}
+
+protected:
+
+	unsigned char * base;
+	unsigned char * current;
+	unsigned char * limit;
+	unsigned char * func_base;
+	uint64 address;
+	int psize;
+	bool le;
+	FunctionScope * current_function;
+	bool convert_64_to_32;
+
 };
 
 class CallingConvention : public Component
-{ 
-  public:
+{
+public:
 
-    virtual ~CallingConvention()
-    {
-    }
-    
-    virtual void generatePrologue(BasicBlock *, FunctionScope *) = 0;
-    virtual void generateEpilogue(BasicBlock *, FunctionScope *) = 0;
-    virtual Value * generateCall(Codegen *, Value *,
-                                 std::vector<Value *> &) = 0;
-    
+	virtual ~CallingConvention()
+	{
+	}
+
+	virtual void generatePrologue(BasicBlock *, FunctionScope *) = 0;
+	virtual void generateEpilogue(BasicBlock *, FunctionScope *) = 0;
+	virtual Value * generateCall(Codegen *, Value *,
+		std::vector<Value *> &) = 0;
+
 };
 
 extern Assembler * assembler;

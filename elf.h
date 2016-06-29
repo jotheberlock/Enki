@@ -6,32 +6,32 @@
 
 class ElfImage : public Image
 {
-  public:
+public:
 
-    ElfImage();
-    ElfImage(const char *, bool, bool, int);
-    ~ElfImage();
-    void finalise();
-    bool configure(std::string, std::string);
-    
-    virtual uint64 importAddress(std::string)
-    {
-        return 0;
-    }
-    
-    virtual uint64 importOffset(std::string)
-    {
-        return 0;
-    }
+	ElfImage();
+	ElfImage(const char *, bool, bool, int);
+	~ElfImage();
+	void finalise();
+	bool configure(std::string, std::string);
 
-    std::string name() { return "elf"; }
-    
-  protected:
-    
-    int stringOffset(const char * c);
-    bool le;
-    StringBox stringtable;
-    
+	virtual uint64 importAddress(std::string)
+	{
+		return 0;
+	}
+
+	virtual uint64 importOffset(std::string)
+	{
+		return 0;
+	}
+
+	std::string name() { return "elf"; }
+
+protected:
+
+	int stringOffset(const char * c);
+	bool le;
+	StringBox stringtable;
+
 };
 
 #endif

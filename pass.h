@@ -7,204 +7,204 @@
 
 class OptimisationPass : public Component
 {
-  public:
+public:
 
-    OptimisationPass();
-    virtual ~OptimisationPass() {}
-    
-    virtual void processInsn() {}
-    virtual void beginBlock() {}
-    virtual void endBlock() {}
+	OptimisationPass();
+	virtual ~OptimisationPass() {}
 
-    virtual std::string name()
-    {
-        return "<null>";
-    }
-    
-    void run();
+	virtual void processInsn() {}
+	virtual void beginBlock() {}
+	virtual void endBlock() {}
 
-    void prepend(Insn);
-    void append(Insn);
-    void change(Insn);
-    void removeInsn();
-    
-    virtual void init(Codegen *);
-    
-  protected:
+	virtual std::string name()
+	{
+		return "<null>";
+	}
 
-    Codegen * cg;
-    BasicBlock * block;
-    BasicBlock * next_block;
-    Insn insn;
+	void run();
 
-    std::list<Insn> to_append;
-    std::vector<BasicBlock *>::iterator bit;
-    std::list<Insn>::iterator iit;
-    
+	void prepend(Insn);
+	void append(Insn);
+	void change(Insn);
+	void removeInsn();
+
+	virtual void init(Codegen *);
+
+protected:
+
+	Codegen * cg;
+	BasicBlock * block;
+	BasicBlock * next_block;
+	Insn insn;
+
+	std::list<Insn> to_append;
+	std::vector<BasicBlock *>::iterator bit;
+	std::list<Insn>::iterator iit;
+
 };
 
 class ThreeToTwoPass : public OptimisationPass
 {
-  public:
+public:
 
-    ThreeToTwoPass()
-        : OptimisationPass()
-    {}
+	ThreeToTwoPass()
+		: OptimisationPass()
+	{}
 
-    virtual std::string name()
-    {
-        return "ThreeToTwo";
-    }
-    
-    virtual void processInsn();
+	virtual std::string name()
+	{
+		return "ThreeToTwo";
+	}
+
+	virtual void processInsn();
 
 };
 
 class SillyRegalloc : public OptimisationPass
 {
-  public:
+public:
 
-    SillyRegalloc()
-        : OptimisationPass()
-    {}
-    
-    virtual void processInsn();
-    virtual void init(Codegen *);
+	SillyRegalloc()
+		: OptimisationPass()
+	{}
 
-    virtual std::string name()
-    {
-        return "SillyRegalloc";
-    }
-    
-  protected:
+	virtual void processInsn();
+	virtual void init(Codegen *);
 
-    int alloc(Value *, RegSet &, RegSet &);
-    int findFree(RegSet &, RegSet &);
-    
-    Value * regs[256];
-    bool input[256];
-    bool output[256];
-    
+	virtual std::string name()
+	{
+		return "SillyRegalloc";
+	}
+
+protected:
+
+	int alloc(Value *, RegSet &, RegSet &);
+	int findFree(RegSet &, RegSet &);
+
+	Value * regs[256];
+	bool input[256];
+	bool output[256];
+
 };
 
 class ConditionalBranchSplitter : public OptimisationPass
 {
-  public:
+public:
 
-    ConditionalBranchSplitter()
-        : OptimisationPass()
-    {}
+	ConditionalBranchSplitter()
+		: OptimisationPass()
+	{}
 
-    virtual std::string name()
-    {
-        return "ConditionalBranchSplitter";
-    }
-    
-    virtual void processInsn();
+	virtual std::string name()
+	{
+		return "ConditionalBranchSplitter";
+	}
+
+	virtual void processInsn();
 
 };
 
 class BranchRemover : public OptimisationPass
 {
-  public:
+public:
 
-    BranchRemover()
-        : OptimisationPass()
-    {}
-    
-    virtual std::string name()
-    {
-        return "BranchRemover";
-    }
-    
-    virtual void processInsn();
+	BranchRemover()
+		: OptimisationPass()
+	{}
+
+	virtual std::string name()
+	{
+		return "BranchRemover";
+	}
+
+	virtual void processInsn();
 
 };
-    
+
 class AddressOfPass : public OptimisationPass
 {
-  public:
+public:
 
-    AddressOfPass()
-        : OptimisationPass()
-    {}
-    
-    virtual std::string name()
-    {
-        return "AddressOf";
-    }
-    
-    virtual void processInsn();
+	AddressOfPass()
+		: OptimisationPass()
+	{}
+
+	virtual std::string name()
+	{
+		return "AddressOf";
+	}
+
+	virtual void processInsn();
 
 };
 
 class ConstMover : public OptimisationPass
 {
-  public:
+public:
 
-    ConstMover()
-        : OptimisationPass()
-    {}
-    
-    virtual std::string name()
-    {
-        return "ConstMover";
-    }
-    
-    virtual void processInsn();
+	ConstMover()
+		: OptimisationPass()
+	{}
+
+	virtual std::string name()
+	{
+		return "ConstMover";
+	}
+
+	virtual void processInsn();
 
 };
 
 class ResolveConstAddr : public OptimisationPass
 {
-  public:
+public:
 
-    ResolveConstAddr()
-        : OptimisationPass()
-    {}
-    
-    virtual std::string name()
-    {
-        return "ResolveConstAddr";
-    }
-    
-    virtual void processInsn();
+	ResolveConstAddr()
+		: OptimisationPass()
+	{}
+
+	virtual std::string name()
+	{
+		return "ResolveConstAddr";
+	}
+
+	virtual void processInsn();
 
 };
 
-class StackSizePass :  public OptimisationPass
+class StackSizePass : public OptimisationPass
 {
-  public:
+public:
 
-    StackSizePass()
-        : OptimisationPass()
-    {
-    }
-    
-    virtual std::string name()
-    {
-        return "StackSizePass";
-    }
-    
-    virtual void processInsn();
-    
+	StackSizePass()
+		: OptimisationPass()
+	{
+	}
+
+	virtual std::string name()
+	{
+		return "StackSizePass";
+	}
+
+	virtual void processInsn();
+
 };
 
 class RemWithDivPass : public OptimisationPass
 {
-  public:
+public:
 
-    RemWithDivPass()
-        : OptimisationPass()
-    {
-    }
+	RemWithDivPass()
+		: OptimisationPass()
+	{
+	}
 
-    virtual std::string name()
-    {
-        return "RemWithDivPass";
-    }
+	virtual std::string name()
+	{
+		return "RemWithDivPass";
+	}
 
-    virtual void processInsn();
+	virtual void processInsn();
 
 };
 

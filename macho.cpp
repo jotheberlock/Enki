@@ -10,75 +10,75 @@
 
 MachOImage::MachOImage()
 {
-    bases[IMAGE_UNALLOCED_DATA] = 0x800000;
-    sizes[IMAGE_UNALLOCED_DATA] = 4096 * 16;
-    le = true;
-    arch_subtype = 0;
+	bases[IMAGE_UNALLOCED_DATA] = 0x800000;
+	sizes[IMAGE_UNALLOCED_DATA] = 4096 * 16;
+	le = true;
+	arch_subtype = 0;
 }
 
 MachOImage::~MachOImage()
 {
-    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
-    {
-        delete[] sections[loopc];
-    }
+	for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
+	{
+		delete[] sections[loopc];
+	}
 }
 
 bool MachOImage::configure(std::string param, std::string val)
 {
-    if (param == "endian")
-    {
-        if (val == "little")
-        {
-            le = true;
-        }
-        else if (val == "big")
-        {
-            le = false;
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else if (param == "arch_subtype")
-    {
-        arch_subtype = strtol(val.c_str(), 0, 10);
-    }
-    else
-    {
-        return Image::configure(param, val);
-    }
+	if (param == "endian")
+	{
+		if (val == "little")
+		{
+			le = true;
+		}
+		else if (val == "big")
+		{
+			le = false;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else if (param == "arch_subtype")
+	{
+		arch_subtype = strtol(val.c_str(), 0, 10);
+	}
+	else
+	{
+		return Image::configure(param, val);
+	}
 
-    return true;
+	return true;
 }
 
 void MachOImage::finalise()
 {
-    FILE * f = fopen(fname.c_str(), "wb+");
-    if (!f)
-    {
-        printf("Can't open %s\n", fname.c_str());
-        return;
-    }
+	FILE * f = fopen(fname.c_str(), "wb+");
+	if (!f)
+	{
+		printf("Can't open %s\n", fname.c_str());
+		return;
+	}
 
-    unsigned char * header = new unsigned char[4096];
-    memset(header, 0, 4096);
-    
-    unsigned char * ptr = header;
+	unsigned char * header = new unsigned char[4096];
+	memset(header, 0, 4096);
 
-    uint32 magic = (sf_bit) ? 0xfeedfacf : 0xfeedface;
-    wee32(le, ptr, magic);
-    wee32(le, ptr, arch);
-    wee32(le, ptr, arch_subtype);   // cpu subtype
-    wee32(le, ptr, 0x2);   // filetype - executable
-    wee32(le, ptr, IMAGE_LAST+2);   // no. cmds
-	wee32(le, ptr, sf_bit ? ((72 * 5)+184) : ((56 * 5)+80));   // size of cmds
-    wee32(le, ptr, 0x1);   // flags - no undefs
-    if (sf_bit)
-    {
-        wee32(le, ptr, 0x0); // Reserved
-    }
+	unsigned char * ptr = header;
+
+	uint32 magic = (sf_bit) ? 0xfeedfacf : 0xfeedface;
+	wee32(le, ptr, magic);
+	wee32(le, ptr, arch);
+	wee32(le, ptr, arch_subtype);   // cpu subtype
+	wee32(le, ptr, 0x2);   // filetype - executable
+	wee32(le, ptr, IMAGE_LAST + 2);   // no. cmds
+	wee32(le, ptr, sf_bit ? ((72 * 5) + 184) : ((56 * 5) + 80));   // size of cmds
+	wee32(le, ptr, 0x1);   // flags - no undefs
+	if (sf_bit)
+	{
+		wee32(le, ptr, 0x0); // Reserved
+	}
 
 	// Write a page zero
 	wee32(le, ptr, sf_bit ? 0x19 : 0x1);  // command type
@@ -107,7 +107,7 @@ void MachOImage::finalise()
 	wee32(le, ptr, 0);      // nsects
 	wee32(le, ptr, 0x4);    // flags - no reloc
 
-    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
+	for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
 	{
 		wee32(le, ptr, sf_bit ? 0x19 : 0x1);  // command type
 		wee32(le, ptr, sf_bit ? 72 : 56);     // command size
@@ -133,21 +133,21 @@ void MachOImage::finalise()
 			strcpy(buf, "__BSS");
 			prot = 0x3;
 		}
-        else if (loopc == IMAGE_RTTI)
-        {
-            strcpy(buf, "__RTTI");
-            prot = 0x1;
-        }
-        else if (loopc == IMAGE_MTABLES)
-        {
-            strcpy(buf, "__MTABLES");
-            prot = 0x3;
-        }
-        else
-        {
-            assert(false);
-        }
-        
+		else if (loopc == IMAGE_RTTI)
+		{
+			strcpy(buf, "__RTTI");
+			prot = 0x1;
+		}
+		else if (loopc == IMAGE_MTABLES)
+		{
+			strcpy(buf, "__MTABLES");
+			prot = 0x3;
+		}
+		else
+		{
+			assert(false);
+		}
+
 		strcpy((char *)ptr, buf);
 		ptr += 16;
 		if (sf_bit)
@@ -168,36 +168,36 @@ void MachOImage::finalise()
 		wee32(le, ptr, prot);   // initprot
 		wee32(le, ptr, 0);      // nsects
 		wee32(le, ptr, 0x4);    // flags - no reloc
-    }
+	}
 
-    // note this is x86-specific right now!
-    if (sf_bit)
-    {
-        wee32(le, ptr, 0x5);
-        wee32(le, ptr, 184);
+	// note this is x86-specific right now!
+	if (sf_bit)
+	{
+		wee32(le, ptr, 0x5);
+		wee32(le, ptr, 184);
 		wee32(le, ptr, 0x4);
 		wee32(le, ptr, 42);
-		for (int loopc=0; loopc<42; loopc++)
-        {
-  	    wee64(le, ptr, loopc == 16 ? functionAddress(root_function) : 0);
-        }
-    }
-    else
-    {
-        wee32(le, ptr, 0x5);   // LC_UNIXTHREAD
-        wee32(le, ptr, 80);    // size
-        wee32(le, ptr, 1);     // flavour
-        wee32(le, ptr, 16);    // count
-        for (int loopc=0; loopc<16; loopc++)
-        {
-	  	    wee32(le, ptr, loopc == 10 ? checked_32(functionAddress(root_function)) : 0);
-        }
-    }
-    
-    fwrite(header, 4096, 1, f);
-    delete[] header;
+		for (int loopc = 0; loopc < 42; loopc++)
+		{
+			wee64(le, ptr, loopc == 16 ? functionAddress(root_function) : 0);
+		}
+	}
+	else
+	{
+		wee32(le, ptr, 0x5);   // LC_UNIXTHREAD
+		wee32(le, ptr, 80);    // size
+		wee32(le, ptr, 1);     // flavour
+		wee32(le, ptr, 16);    // count
+		for (int loopc = 0; loopc < 16; loopc++)
+		{
+			wee32(le, ptr, loopc == 10 ? checked_32(functionAddress(root_function)) : 0);
+		}
+	}
 
-	for (int loopc = 0; loopc<IMAGE_LAST; loopc++)
+	fwrite(header, 4096, 1, f);
+	delete[] header;
+
+	for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
 	{
 		if (loopc != IMAGE_UNALLOCED_DATA)
 		{
@@ -206,8 +206,8 @@ void MachOImage::finalise()
 		}
 	}
 
-    fclose(f);
+	fclose(f);
 #if defined(POSIX_HOST)
-    chmod(fname.c_str(), 0755);
+	chmod(fname.c_str(), 0755);
 #endif
 }

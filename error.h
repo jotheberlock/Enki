@@ -8,23 +8,23 @@ class Token;
 
 class Error
 {
- public:
+public:
 
-  Error(Token * t, std::string m, std::string d = "");
-  
-  Error()
-  {
-      br=0; bc=0; er=0; ec=0;
-  }
+	Error(Token * t, std::string m, std::string d = "");
 
-  void print();
+	Error()
+	{
+		br = 0; bc = 0; er = 0; ec = 0;
+	}
 
- protected:
+	void print();
 
-  std::string file;
-  int br, bc, er, ec;
-  std::string message;
-  std::string detail;
+protected:
+
+	std::string file;
+	int br, bc, er, ec;
+	std::string message;
+	std::string detail;
 
 };
 

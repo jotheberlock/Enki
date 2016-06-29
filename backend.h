@@ -7,16 +7,16 @@
 
 class Backend
 {
- public:
+public:
 
-    Backend(Configuration *, Expr *);
-    int process();
-    
- protected:
+	Backend(Configuration *, Expr *);
+	int process();
 
-    Configuration * config;
-    Expr * root_expr;
-    std::list<Codegen *> codegens;
+protected:
+
+	Configuration * config;
+	Expr * root_expr;
+	std::list<Codegen *> codegens;
 
 };
 

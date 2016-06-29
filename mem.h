@@ -9,34 +9,34 @@
 
 class MemBlock
 {
-  public:
+public:
 
-    MemBlock()
-    {
-        ptr=0;
-        len=0;
-    }
+	MemBlock()
+	{
+		ptr = 0;
+		len = 0;
+	}
 
-    bool isNull()
-    {
-        return ptr==0;
-    }
-    
-    unsigned char * ptr;
-    uint64 len;
-    
+	bool isNull()
+	{
+		return ptr == 0;
+	}
+
+	unsigned char * ptr;
+	uint64 len;
+
 };
 
 
 class Mem
 {
-  public:
+public:
 
-    MemBlock getBlock(uint64 len, int perms);
-    void releaseBlock(MemBlock & m);
-    bool changePerms(MemBlock & m, int perms);
-        
+	MemBlock getBlock(uint64 len, int perms);
+	void releaseBlock(MemBlock & m);
+	bool changePerms(MemBlock & m, int perms);
+
 };
 
-        
+
 #endif

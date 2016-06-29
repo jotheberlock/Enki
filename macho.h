@@ -6,29 +6,29 @@
 
 class MachOImage : public Image
 {
-  public:
+public:
 
-    MachOImage();
-    ~MachOImage();
-    void finalise();
-    bool configure(std::string, std::string);
-    std::string name() { return "macho"; }
+	MachOImage();
+	~MachOImage();
+	void finalise();
+	bool configure(std::string, std::string);
+	std::string name() { return "macho"; }
 
-    virtual uint64 importAddress(std::string)
-    {
-        return 0;
-    }
-    
-    virtual uint64 importOffset(std::string)
-    {
-        return 0;
-    }
+	virtual uint64 importAddress(std::string)
+	{
+		return 0;
+	}
 
-  protected:
-    
-    bool le;
-    int arch_subtype;
-    
+	virtual uint64 importOffset(std::string)
+	{
+		return 0;
+	}
+
+protected:
+
+	bool le;
+	int arch_subtype;
+
 };
 
 #endif

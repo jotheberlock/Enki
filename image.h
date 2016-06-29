@@ -34,249 +34,249 @@ public:
 
 class Image : public Component
 {
-  public:
+public:
 
-    Image();
-    virtual ~Image() {}
+	Image();
+	virtual ~Image() {}
 
-    virtual bool configure(std::string, std::string);
-    void setSectionSize(int, uint64);
-    uint64 sectionSize(int);
-    
-    uint64 getAddr(int);
-    unsigned char * getPtr(int);
-        // Fix up perms
-    virtual void finalise() = 0;
-    void relocate();
-    void addFunction(FunctionScope *, uint64);
-    uint64 functionAddress(FunctionScope *);
-    uint64 functionSize(FunctionScope *);
-    unsigned char * functionPtr(FunctionScope *);
-    void setRootFunction(FunctionScope *);
-    
-    void addImport(std::string, std::string);
-    virtual uint64 importAddress(std::string) = 0;
+	virtual bool configure(std::string, std::string);
+	void setSectionSize(int, uint64);
+	uint64 sectionSize(int);
 
-    virtual void materialiseSection(int);
-    bool littleEndian()
-    {
-        return true;
-    }
-    
-    void addReloc(BaseRelocation * b)
-    {
-        relocs.push_back(b);
-    }
+	uint64 getAddr(int);
+	unsigned char * getPtr(int);
+	// Fix up perms
+	virtual void finalise() = 0;
+	void relocate();
+	void addFunction(FunctionScope *, uint64);
+	uint64 functionAddress(FunctionScope *);
+	uint64 functionSize(FunctionScope *);
+	unsigned char * functionPtr(FunctionScope *);
+	void setRootFunction(FunctionScope *);
 
-    virtual void endOfImports()
-    {}
+	void addImport(std::string, std::string);
+	virtual uint64 importAddress(std::string) = 0;
 
-    virtual std::string name() = 0;
+	virtual void materialiseSection(int);
+	bool littleEndian()
+	{
+		return true;
+	}
 
-  protected:
+	void addReloc(BaseRelocation * b)
+	{
+		relocs.push_back(b);
+	}
 
-    unsigned char * sections[IMAGE_LAST];
-    uint64 bases[IMAGE_LAST];
-    uint64 sizes[IMAGE_LAST];
+	virtual void endOfImports()
+	{}
 
-    std::vector<uint64> foffsets;
-    std::vector<uint64> fsizes;
-    std::vector<FunctionScope *> fptrs;
-    
+	virtual std::string name() = 0;
+
+protected:
+
+	unsigned char * sections[IMAGE_LAST];
+	uint64 bases[IMAGE_LAST];
+	uint64 sizes[IMAGE_LAST];
+
+	std::vector<uint64> foffsets;
+	std::vector<uint64> fsizes;
+	std::vector<FunctionScope *> fptrs;
+
 	std::vector<LibImport> imports;
 	uint64 total_imports;
-    
-    uint64 current_offset;
-    uint64 align;
-	
-    std::vector<BaseRelocation *> relocs;
-    FunctionScope * root_function;
 
-    int arch;
-    bool guard_page;
-    uint64 base_addr;
-    uint64 next_addr;
-    std::string fname;
-    bool sf_bit;
-    
+	uint64 current_offset;
+	uint64 align;
+
+	std::vector<BaseRelocation *> relocs;
+	FunctionScope * root_function;
+
+	int arch;
+	bool guard_page;
+	uint64 base_addr;
+	uint64 next_addr;
+	std::string fname;
+	bool sf_bit;
+
 };
 
 class MemoryImage : public Image
 {
-  public:
+public:
 
-    MemoryImage();
-    ~MemoryImage();
-    void finalise();
-    void setImport(std::string, uint64);
-    uint64 importAddress(std::string);
-    uint64 importOffset(std::string);
-    void endOfImports();
+	MemoryImage();
+	~MemoryImage();
+	void finalise();
+	void setImport(std::string, uint64);
+	uint64 importAddress(std::string);
+	uint64 importOffset(std::string);
+	void endOfImports();
 
-    std::string name() { return "memory"; }
-    
-  protected:
+	std::string name() { return "memory"; }
 
-    void materialiseSection(int s);
-    MemBlock mems[IMAGE_LAST];
+protected:
+
+	void materialiseSection(int s);
+	MemBlock mems[IMAGE_LAST];
 	std::vector<std::string> import_names;
-    uint64 * import_pointers;
+	uint64 * import_pointers;
 
 };
 
 class Reloc
 {
-  public:
-    
-    uint64 offset;  // from base pointer
-        // Extract bits to write - shift right then mask
-    uint64 rshift;
-    uint64 mask;
-        // How many bits to shift left into relocation
-    uint64 lshift;
-    bool sf;
+public:
 
-    void apply(bool, unsigned char *, uint64);
-    
+	uint64 offset;  // from base pointer
+		// Extract bits to write - shift right then mask
+	uint64 rshift;
+	uint64 mask;
+	// How many bits to shift left into relocation
+	uint64 lshift;
+	bool sf;
+
+	void apply(bool, unsigned char *, uint64);
+
 };
 
 class BaseRelocation
 {
-  public:
+public:
 
-    BaseRelocation(Image * i)
-    {
-        image=i;
-        i->addReloc(this);
-    }
+	BaseRelocation(Image * i)
+	{
+		image = i;
+		i->addReloc(this);
+	}
 
-    virtual ~BaseRelocation()
-    {
-    }
+	virtual ~BaseRelocation()
+	{
+	}
 
-    void addReloc(uint64 o, uint64 r, uint64 m,
-                  uint64 l, bool sf)
-    {
-        Reloc reloc;
-        reloc.offset = o;
-        reloc.rshift = r;
-        reloc.mask = m;
-        reloc.lshift = l;
-        reloc.sf = sf;
-        relocs.push_back(reloc);
-    }
+	void addReloc(uint64 o, uint64 r, uint64 m,
+		uint64 l, bool sf)
+	{
+		Reloc reloc;
+		reloc.offset = o;
+		reloc.rshift = r;
+		reloc.mask = m;
+		reloc.lshift = l;
+		reloc.sf = sf;
+		relocs.push_back(reloc);
+	}
 
-    // Simple 'just write it here no masking' helpers
-    void add32()
-    {
-        addReloc(0, 0, 0, 0, false);
-    }
+	// Simple 'just write it here no masking' helpers
+	void add32()
+	{
+		addReloc(0, 0, 0, 0, false);
+	}
 
-    void add64()
-    {
-        addReloc(0, 0, 0, 0, true);
-    }
-    
-    void apply();
-    virtual uint64 getValue() = 0;
-    virtual unsigned char * getPtr() = 0;
-    
-    std::list<Reloc> relocs;
-    
-  protected:
+	void add64()
+	{
+		addReloc(0, 0, 0, 0, true);
+	}
 
-    Image * image;
-    
+	void apply();
+	virtual uint64 getValue() = 0;
+	virtual unsigned char * getPtr() = 0;
+
+	std::list<Reloc> relocs;
+
+protected:
+
+	Image * image;
+
 };
 
 class FunctionRelocation : public BaseRelocation
 {
-  public:
+public:
 
-    FunctionRelocation(Image *,
-                       FunctionScope *, uint64, FunctionScope *, uint64);
-    uint64 getValue();
-    unsigned char * getPtr();
-    
-  protected:
-    
-    FunctionScope * to_patch;
-    FunctionScope * to_link;
-    uint64 patch_offset;
-    uint64 link_offset;
-    
+	FunctionRelocation(Image *,
+		FunctionScope *, uint64, FunctionScope *, uint64);
+	uint64 getValue();
+	unsigned char * getPtr();
+
+protected:
+
+	FunctionScope * to_patch;
+	FunctionScope * to_link;
+	uint64 patch_offset;
+	uint64 link_offset;
+
 };
 
 class BasicBlockRelocation : public BaseRelocation
 {
-  public:
+public:
 
-    BasicBlockRelocation(Image *,
-                         FunctionScope *, uint64, uint64, BasicBlock *);
+	BasicBlockRelocation(Image *,
+		FunctionScope *, uint64, uint64, BasicBlock *);
 
-    uint64 getValue();
-    unsigned char * getPtr();
-    
-  protected:
-    
-    FunctionScope * to_patch;
-    BasicBlock * to_link;
-    uint64 patch_offset;
-    uint64 patch_relative;
+	uint64 getValue();
+	unsigned char * getPtr();
+
+protected:
+
+	FunctionScope * to_patch;
+	BasicBlock * to_link;
+	uint64 patch_offset;
+	uint64 patch_relative;
 
 };
 
 
 class AbsoluteBasicBlockRelocation : public BaseRelocation
 {
-  public:
-	
-    AbsoluteBasicBlockRelocation(Image *,
-                         FunctionScope *, uint64, BasicBlock *);
-    uint64 getValue();
-    unsigned char * getPtr();
-    
-  protected:
-    
-    FunctionScope * to_patch;
-    BasicBlock * to_link;
-    uint64 patch_offset;
-    uint64 patch_relative;
+public:
+
+	AbsoluteBasicBlockRelocation(Image *,
+		FunctionScope *, uint64, BasicBlock *);
+	uint64 getValue();
+	unsigned char * getPtr();
+
+protected:
+
+	FunctionScope * to_patch;
+	BasicBlock * to_link;
+	uint64 patch_offset;
+	uint64 patch_relative;
 
 };
 
 
 class SectionRelocation : public BaseRelocation
 {
-  public:
+public:
 
-    SectionRelocation(Image *, int, uint64, int, uint64);
-    uint64 getValue();
-    unsigned char * getPtr();
-    
-  protected:
+	SectionRelocation(Image *, int, uint64, int, uint64);
+	uint64 getValue();
+	unsigned char * getPtr();
 
-    int patch_section;
-    uint64 patch_offset;
-    int dest_section;
-    uint64 dest_offset;
-    
+protected:
+
+	int patch_section;
+	uint64 patch_offset;
+	int dest_section;
+	uint64 dest_offset;
+
 };
 
 class ExtFunctionRelocation : public BaseRelocation
 {
-   public:
- 
-    ExtFunctionRelocation(Image *, FunctionScope *, uint64, std::string);
-    uint64 getValue();
-    unsigned char * getPtr();
-    
-   protected:
+public:
 
-    FunctionScope * to_patch;
-    uint64 patch_offset;
-    std::string fname;
-  
+	ExtFunctionRelocation(Image *, FunctionScope *, uint64, std::string);
+	uint64 getValue();
+	unsigned char * getPtr();
+
+protected:
+
+	FunctionScope * to_patch;
+	uint64 patch_offset;
+	std::string fname;
+
 };
 
 #endif

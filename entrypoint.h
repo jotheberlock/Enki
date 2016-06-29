@@ -12,32 +12,32 @@ class Image;
 
 class Entrypoint : public Component
 {
- public:
+public:
 
-  virtual std::string name() = 0;
-  virtual void generatePrologue(BasicBlock *, FunctionScope *, Image *) {}
-  virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *) {}
-  
+	virtual std::string name() = 0;
+	virtual void generatePrologue(BasicBlock *, FunctionScope *, Image *) {}
+	virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *) {}
+
 };
 
 class WindowsEntrypoint : public Entrypoint
 {
- public:
+public:
 
-  virtual std::string name() { return "windowsentrypoint"; }
-  virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *);
+	virtual std::string name() { return "windowsentrypoint"; }
+	virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *);
 };
 
 // Ends with an exit() syscall as appropriate for the platform
 class UnixEntrypoint : public Entrypoint
 {
- public:
+public:
 
 	UnixEntrypoint() { syscall_number = -1; exitcode_reg = -1; }
 	virtual bool configure(std::string, std::string);
 	virtual std::string name() { return "unixentrypoint"; }
 	virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *);
-  
+
 protected:
 
 	int syscall_number;
@@ -45,5 +45,5 @@ protected:
 	int exitcode_reg;
 
 };
-  
+
 #endif
