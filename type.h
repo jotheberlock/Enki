@@ -168,6 +168,13 @@ public:
 		return 0;
 	}
 
+	// Used for picking which overloaded function to use
+	// Lower the better (more specialised) match, or -1 means doesn't match
+	virtual int score(Type * t)
+	{
+		return (t==this) ? 0 : -1;
+	}
+
 	virtual void registerSpecialiser(FunctionType *) {}
 
 protected:
@@ -283,6 +290,23 @@ public:
 	int align()
 	{
 		return (bits / 8) * 8;
+	}
+
+	int score(Type * t)
+	{
+		// Probably needs handling better
+		if (!t->canDeref() && t->inRegister())
+		{
+			if (t->size() == size())
+			{
+				return 0;
+			}
+			else if (t->size() < size())
+			{
+				return 1;
+			}
+		}
+		return -1;
 	}
 
 	virtual bool construct(Codegen *, Value * t, Value * v);
@@ -530,6 +554,28 @@ public:
 	std::string name()
 	{
 		return nam;
+	}
+
+	int score(Type * t)
+	{
+		if (t == this)
+		{
+			return 0;
+		}
+
+		int score = 1;
+		Type * p = getParent();
+		while (p)
+		{
+			if (p == t)
+			{
+				return score;
+			}
+			score++;
+			p = p->getParent();
+		}
+
+		return -1;
 	}
 
 	virtual bool construct(Codegen *, Value * t, Value * v);
