@@ -136,3 +136,8 @@ std::string SymbolScope::fqName()
 	}
 	return ret;
 }
+
+bool FunctionScope::isGeneric()
+{
+	return type->isGeneric();
+}

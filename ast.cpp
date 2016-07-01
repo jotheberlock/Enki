@@ -976,10 +976,13 @@ Expr * Parser::parseDef()
 	bool already_added = false;
 
 	// Need to add proper argument overloading for generics...
+	FunctionScope * prev = current_scope->lookup_function(name);
+	// So, for a generic function, only the generic function exists in the scope, and it is
+	// the address of the function table. Ignore specialisers other than tacking them onto the generic.
 
 	Value * v = new Value(name, ft);
 
-	if (is_extern && current_scope->lookup_function(name))
+	if ((is_extern || is_generic) && prev)
 	{
 		already_added = true;
 	}
@@ -991,6 +994,10 @@ Expr * Parser::parseDef()
 	FunctionScope * fs = new FunctionScope(current_scope,
 		name,
 		ft);
+	if (prev && prev->isGeneric())
+	{
+		prev->addSpecialiser(fs);
+	}
 
 	DefExpr * ret = new DefExpr(ft, fs, is_macro, is_extern, is_generic,
 		v, name, lib);

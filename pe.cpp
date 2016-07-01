@@ -266,7 +266,7 @@ void PEImage::finalise()
 
 		prev_base = bases[the_one];
 
-		char sname[8];
+		char sname[16];
 		memset(sname, 0, 8);
 		uint32 flags = 0;
 
