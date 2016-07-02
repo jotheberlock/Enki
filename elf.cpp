@@ -466,7 +466,7 @@ void ElfImage::finalise()
 	fseek(f, 4096, SEEK_SET);
 	fwrite(stringtable.getData(), stringtable.dataSize(), 1, f);
 
-	for (int loopc = 0; loopc < 4; loopc++)
+	for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
 	{
 		if (loopc != IMAGE_UNALLOCED_DATA)
 		{
