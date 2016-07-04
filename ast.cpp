@@ -819,7 +819,7 @@ Expr * Parser::parseStruct()
 			addError(Error(&current, "Parent type must be a struct"));
 			return 0;
 		}
-		st = new StructType(sname, type == UNION, pt);
+		st = new StructType(sname, type == UNION, (StructType *)pt);
 		next();
 		next();
 	}

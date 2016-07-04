@@ -251,7 +251,7 @@ bool StructType::canCopy(Type * t)
 	return false;
 }
 
-StructType::StructType(std::string n, bool u, Type * p)
+StructType::StructType(std::string n, bool u, StructType * p)
 {
 	nam = n;
 	siz = 0;
@@ -266,6 +266,10 @@ StructType::StructType(std::string n, bool u, Type * p)
 			addMember("current_type", register_type);
 		}
 	}
+    else
+    {
+        p->registerChild(this);
+    }
 }
 
 bool StructType::construct(Codegen * c, Value * t, Value *)

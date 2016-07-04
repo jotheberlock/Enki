@@ -509,7 +509,7 @@ class StructType : public Type
 {
 public:
 
-	StructType(std::string n, bool u, Type * p);
+	StructType(std::string n, bool u, StructType * p);
 
 	std::string display(unsigned char *);
 
@@ -522,11 +522,21 @@ public:
 		members.push_back(se);
 	}
 
-	Type * getParent()
+	StructType * getParent()
 	{
 		return parent;
 	}
 
+    void registerChild(StructType * t)
+    {
+        children.push_back(t);
+    }
+
+    std::vector<StructType *> & getChildren()
+    {
+        return children;
+    }
+    
 	virtual void copy(Codegen *, Value *, Value *);
 	virtual bool canCopy(Type *);
 
@@ -582,8 +592,9 @@ public:
 
 protected:
 
-	Type * parent;
+	StructType * parent;
 	std::vector<StructElement> members;
+    std::vector<StructType *> children;
 	std::string nam;
 	int siz;
 	bool is_union;
