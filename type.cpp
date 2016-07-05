@@ -270,6 +270,12 @@ StructType::StructType(std::string n, bool u, StructType * p)
     {
         p->registerChild(this);
     }
+
+        // Shouldn't be able to make pointer to this type before it's defined
+    assert(!types->lookup(name()+"^"));
+        // So for each struct there is a pointer to the struct with
+        // the class id of the struct + 1
+    new PointerType(this);
 }
 
 bool StructType::construct(Codegen * c, Value * t, Value *)
