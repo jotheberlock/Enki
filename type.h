@@ -789,6 +789,11 @@ public:
 	// Should at least validate sizes/basic types match...
 	virtual bool validArgList(std::vector<Value *> & args, std::string & reason)
 	{
+        if (args.size() != params.size())
+        {
+            reason = "Differing number of arguments";
+        }
+        
 		return args.size() == params.size();
 	}
 
@@ -801,7 +806,7 @@ public:
 	{
 		specialisations.push_back(ft);
 	}
-
+    
 protected:
 
 	std::list<FunctionType *> specialisations;
