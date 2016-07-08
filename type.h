@@ -14,6 +14,8 @@ class Value;
 class Expr;
 class FunctionType;
 
+class FunctionScope;
+
 // Should probably distinguish ranges for basic v
 // struct/union types at some point
 extern uint64 class_id_counter;
@@ -175,7 +177,7 @@ public:
 		return (t==this) ? 0 : -1;
 	}
 
-	virtual void registerSpecialiser(FunctionType *) {}
+	virtual void registerSpecialiser(FunctionScope *) {}
 
 protected:
 
@@ -802,14 +804,14 @@ public:
 		return true;
 	}
 
-	void registerSpecialiser(FunctionType * ft)
+	void registerSpecialiser(FunctionScope * ft)
 	{
 		specialisations.push_back(ft);
 	}
     
 protected:
 
-	std::list<FunctionType *> specialisations;
+	std::list<FunctionScope *> specialisations;
 
 };
 

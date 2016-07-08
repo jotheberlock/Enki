@@ -98,10 +98,6 @@ FunctionScope::FunctionScope(SymbolScope * p, std::string n, FunctionType * ft)
 	: SymbolScope(p, n)
 {
 	type = ft;
-	if (p)
-	{
-		p->addFunction(this);
-	}
 	addr = 0;
 	stack_size = 0;
 
