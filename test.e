@@ -1,5 +1,21 @@
-Uint foo = 0
+struct Foo
+   Uint64 a
 
-while foo < 5
-    foo = foo + 1
+struct Bar(Foo)
+   Uint64 b
 
+generic foo(param)
+
+def foo(Uint64 param)
+   write("Uint64")
+
+def foo(Byte^ param)
+   write("Byte^")
+
+def foo(Foo^ param)
+   write("Foo^")
+
+def foo(Bar^ param)
+   write("Bar^")
+
+foo(42)

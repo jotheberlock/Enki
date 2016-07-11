@@ -984,6 +984,7 @@ protected:
 	Token current;
 	Expr * root;
 	SymbolScope * current_scope;
+	int generic_counter;
 
 };
 

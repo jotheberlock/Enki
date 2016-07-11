@@ -636,5 +636,10 @@ Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * 
 Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 	std::vector<Value *> & args)
 {
+	printf("Generate generic funcall! Candidates:\n");
+	for (std::list<FunctionScope *>::iterator it = specialisations.begin(); it != specialisations.end(); it++)
+	{
+		printf("%s\n", (*it)->getType()->name().c_str());
+	}
 	return 0;
 }

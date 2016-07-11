@@ -96,11 +96,6 @@ public:
 
 	bool isGeneric();
 
-	void addSpecialiser(FunctionScope * fs)
-	{
-		specialisers.push_back(fs);
-	}
-
 	virtual FunctionScope * currentFunction();
 	virtual FunctionScope * parentFunction();
 
@@ -149,7 +144,6 @@ public:
 
 protected:
 
-	std::vector<FunctionScope *> specialisers;
 	std::vector<Value *> args_list;
 	FunctionScope * function;
 	FunctionType * type;

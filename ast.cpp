@@ -104,6 +104,7 @@ Parser::Parser(Lexer * l)
 	lexer = l;
 	tokens = lexer->tokens();
 	count = 0;
+	generic_counter = 0;
 	next();
 	if (current.type != BEGIN)
 	{
@@ -981,14 +982,41 @@ Expr * Parser::parseDef()
 	// So, for a generic function, only the generic function exists in the scope, and it is
 	// the address of the function table. Ignore specialisers other than tacking them onto the generic.
 
-	Value * v = new Value(name, ft);
+	Value * v = 0;  
 
-	if ((is_extern || is_generic) && prev)
+	if (prev)
+	{
+		if (prev->isGeneric())
+		{
+			printf("Found generic!\n");
+		}
+		else
+		{
+			printf("Found non-generic %s\n", prev->fqName().c_str());
+		}
+	}
+
+	if (prev && (is_extern || prev->isGeneric()))
 	{
 		already_added = true;
+		if (is_extern)
+		{
+			printf("Already added\n");
+			// Needs fixed
+		}
+		else
+		{
+			char buf[4096];
+			sprintf(buf, "__generic_%s_%d", name.c_str(), generic_counter);
+			v = new Value(buf, ft);
+			current_scope->add(v);
+			generic_counter++;
+		}
 	}
 	else
 	{
+		printf("Adding new variable %s\n", name.c_str());
+		v = new Value(name, ft);
 		current_scope->add(v);
 	}
 
@@ -997,9 +1025,13 @@ Expr * Parser::parseDef()
 		ft);
 	if (prev && prev->isGeneric())
 	{
-		prev->addSpecialiser(fs);
+		printf("Adding specialiser\n");
+		prev->getType()->registerSpecialiser(fs);
 	}
-
+	else
+	{
+		current_scope->addFunction(fs);
+	}
 	DefExpr * ret = new DefExpr(ft, fs, is_macro, is_extern, is_generic,
 		v, name, lib);
 
