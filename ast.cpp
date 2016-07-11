@@ -108,6 +108,7 @@ Parser::Parser(Lexer * l)
 	if (current.type != BEGIN)
 	{
 		addError(Error(&current, "Expected beginning block"));
+        root = 0;
 	}
 	else
 	{
