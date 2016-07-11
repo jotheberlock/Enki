@@ -30,6 +30,7 @@ FunctionScope * root_scope = 0;
 ComponentFactory * component_factory = 0;
 Types * types = 0;
 Rtti * rtti = 0;
+Mtables * mtables = 0;
 
 typedef uint64(*TestFunc)(uint64);
 
@@ -412,6 +413,7 @@ int main(int argc, char ** argv)
 	}
 
 	constants = new Constants();
+    mtables = new Mtables();
 	assembler = config.assembler;
 	types = new Types();
 	FunctionType * root_type = new FunctionType(false);

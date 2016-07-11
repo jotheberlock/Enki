@@ -831,7 +831,28 @@ protected:
 
 };
 
+class MtableEntry
+{
+  public:
+
+    unsigned char * data;
+    int len;
+};
+
+class Mtables
+{
+  public:
+
+    void add(unsigned char *, int);
+
+  protected:
+
+    std::list<MtableEntry> entries;
+    
+};
+
 extern Types * types;
+extern Mtables * mtables;
 
 void initialiseTypes();
 void destroyTypes();
