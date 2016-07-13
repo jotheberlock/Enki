@@ -517,7 +517,6 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 	if (rets.size() == 0)
 	{
 		printf("Function has no return types!\n");
-		return 0;
 	}
 
 	for (unsigned int loopc = 0; loopc < rets.size(); loopc++)
