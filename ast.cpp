@@ -1232,6 +1232,7 @@ Expr * Parser::parseFptr()
 		else
 		{
 			addError(Error(&current, "Expected comma in fptr definition"));
+            return 0;
 		}
 		ft->addParam(n, t);
 	}
