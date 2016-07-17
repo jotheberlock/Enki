@@ -698,7 +698,7 @@ bool Arm32::validConst(Insn & i, int idx)
 
 	if (i.ins == ADD || i.ins == SUB || i.ins == MUL
 		|| i.ins == MULS || i.ins == AND || i.ins == OR
-		|| i.ins == XOR || i.ins == SHL || i.ins == SHR)
+		|| i.ins == XOR || i.ins == SHL || i.ins == SHR || i.ins == SAR)
 	{
 		if (idx != 2)
 		{
