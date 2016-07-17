@@ -79,6 +79,11 @@ int ElfImage::stringOffset(const char * c)
 
 void ElfImage::finalise()
 {
+    if (bases[IMAGE_MTABLES] == 0)
+    {
+        materialiseSection(IMAGE_MTABLES);
+    }
+    
 	stringtable.clear();
 	stringtable.add(""); // Null byte at start
 	stringtable.add(".text");
