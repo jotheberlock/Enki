@@ -603,6 +603,7 @@ protected:
 
 };
 
+typedef std::vector<uint64> FunctionSignature;
 
 class FunctionType : public Type
 {
@@ -621,6 +622,16 @@ public:
 		return true;
 	}
 
+    FunctionSignature getSignature()
+    {
+        std::vector<uint64> ret;
+        for (unsigned int loopc=0; loopc<params.size(); loopc++)
+        {
+            ret.push_back(params[loopc].type->classId());
+        }
+        return ret;
+    }
+    
 	virtual bool isMacro()
 	{
 		return is_macro;
