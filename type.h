@@ -119,6 +119,21 @@ public:
 		return 0;
 	}
 
+        // Given Foo^^^ return Foo and depth of dereferences
+        // Assumes count is 0-initialised
+    Type * baseDeref(int & count)
+    {
+        count += 1;
+        if (canDeref())
+        {
+            return derefType()->baseDeref(count);
+        }
+        else
+        {
+            return this;
+        }
+    }
+    
 	virtual Type * fieldType(std::string)
 	{
 		return 0;
