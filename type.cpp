@@ -632,13 +632,21 @@ Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * 
 	return convention->generateCall(c, fp, args);
 }
 
+static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
+{
+    return (a->getType()->getSignature()) >
+        (b->getType()->getSignature());
+}
+
 Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 	std::vector<Value *> & args)
 {
+    std::sort(specialisations.begin(), specialisations.end(), cmp_func);
 	printf("Generate generic funcall! Candidates:\n");
-	for (std::list<FunctionScope *>::iterator it = specialisations.begin(); it != specialisations.end(); it++)
+	for (std::vector<FunctionScope *>::iterator it = specialisations.begin(); it != specialisations.end(); it++)
 	{
 		printf("%s\n", (*it)->getType()->name().c_str());
 	}
+
 	return 0;
 }

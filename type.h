@@ -837,7 +837,7 @@ public:
     
 protected:
 
-	std::list<FunctionScope *> specialisations;
+	std::vector<FunctionScope *> specialisations;
 
 };
 
