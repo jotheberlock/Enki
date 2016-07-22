@@ -641,6 +641,8 @@ static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
 Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 	std::vector<Value *> & args)
 {
+    std::map<FunctionSignature, FunctionScope *> already_seen;
+    
     std::sort(specialisations.begin(), specialisations.end(), cmp_func);
 	printf("Generate generic funcall! Candidates:\n");
 	for (std::vector<FunctionScope *>::iterator it = specialisations.begin(); it != specialisations.end(); it++)
