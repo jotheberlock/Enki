@@ -837,8 +837,11 @@ public:
     
 protected:
 
+    void processFunction(FunctionScope *);
+    
 	std::vector<FunctionScope *> specialisations;
-
+    std::map<FunctionSignature, FunctionScope *> already_seen;
+    
 };
 
 class Types

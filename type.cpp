@@ -641,14 +641,36 @@ static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
 Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 	std::vector<Value *> & args)
 {
-    std::map<FunctionSignature, FunctionScope *> already_seen;
-    
     std::sort(specialisations.begin(), specialisations.end(), cmp_func);
 	printf("Generate generic funcall! Candidates:\n");
 	for (std::vector<FunctionScope *>::iterator it = specialisations.begin(); it != specialisations.end(); it++)
 	{
 		printf("%s\n", (*it)->getType()->name().c_str());
+        processFunction(*it);
 	}
 
 	return 0;
+}
+
+void GenericFunctionType::processFunction(FunctionScope * fs)
+{
+    int count;
+    Type * actual = fs->getType()->getParams()[0].type->baseDeref(count);
+    Type * p = actual;
+    while (p)
+    {
+        FunctionSignature fsig;
+        fsig.push_back(p->classId());
+        if (already_seen.find(fsig) != already_seen.end())
+        {
+            printf("  %s already handled, replacing\n", p->name().c_str());
+        }
+        else
+        {
+            printf("  %s -> %s\n", actual->name().c_str(), p->name().c_str());
+        }
+        already_seen[fsig] = fs;
+        
+        p = p->getParent();
+    }
 }
