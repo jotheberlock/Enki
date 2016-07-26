@@ -478,9 +478,9 @@ std::string StructType::display(unsigned char * addr)
 Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 	std::vector<Value *> & args)
 {
-	std::vector<Type *> rets = c->getScope()->getType()->getReturns();
+	Type * ret = c->getScope()->getType()->getReturn();
 	Value * to_add = 0;
-	Value * new_frame = allocStackFrame(c, fp, to_add, f, rets.size() == 0 ? register_type : rets[0]);
+	Value * new_frame = allocStackFrame(c, fp, to_add, f, ret_type == 0 ? register_type : ret_type);
 
 	Value * fp_holder = c->getTemporary(register_type, "fp_holder");
 	c->block()->add(Insn(MOVE, fp_holder, fp));
@@ -514,19 +514,18 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 
 	int current_offset = assembler->returnOffset();
 
-	if (rets.size() == 0)
+	if (ret == 0)
 	{
 		printf("Function has no return types!\n");
 	}
-
-	for (unsigned int loopc = 0; loopc < rets.size(); loopc++)
+    else
 	{
-		int align = rets[loopc]->align() / 8;
+		int align = ret->align() / 8;
 		while (current_offset % align)
 		{
 			current_offset++;
 		}
-		current_offset += rets[loopc]->size() / 8;
+		current_offset += ret->size() / 8;
 	}
 
 	for (unsigned int loopc = 0; loopc < args.size(); loopc++)

@@ -628,6 +628,7 @@ public:
 	{
 		siz = 0;
 		is_macro = m;
+        ret_type = 0;
 	}
 
 	// Address of target, source
@@ -668,7 +669,7 @@ public:
 
 	void addReturn(Type * t)
 	{
-		returns.push_back(t);
+        ret_type = t;
 	}
 
 	virtual bool validArgList(std::vector<Value *> & args, std::string &);
@@ -678,9 +679,9 @@ public:
 		return params;
 	}
 
-	std::vector<Type *> & getReturns()
+	Type * getReturn()
 	{
-		return returns;
+		return ret_type;
 	}
 
 	int argCount()
@@ -714,13 +715,9 @@ public:
 	std::string name()
 	{
 		std::string ret;
-		for (unsigned int loopc = 0; loopc < returns.size(); loopc++)
+        if (ret_type)
 		{
-			if (loopc > 0)
-			{
-				ret += ",";
-			}
-			ret += returns[loopc]->name();
+			ret += ret_type->name();
 		}
 		ret += "(";
 		for (unsigned int loopc = 0; loopc < params.size(); loopc++)
@@ -742,7 +739,7 @@ public:
 protected:
 
 	std::vector<StructElement> params;
-	std::vector<Type *> returns;
+	Type * ret_type;
 
 	int siz;
 	bool is_macro;
