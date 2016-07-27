@@ -653,6 +653,11 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * f
 
 void GenericFunctionType::processFunction(FunctionScope * fs)
 {
+    if (fs->getType()->getParams().size() < 1)
+    {
+        return;
+    }
+    
     int count;
     Type * actual = fs->getType()->getParams()[0].type->baseDeref(count);
     Type * p = actual;
