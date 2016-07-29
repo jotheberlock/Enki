@@ -869,11 +869,24 @@ class Mtables
 {
   public:
 
-    void add(unsigned char *, int);
-
+    void add(unsigned char * d, int l)
+    {
+        MtableEntry me;
+        me.data = d;
+        me.len = l;
+        entries.push_back(me);
+        len += l;
+    }
+    
+    uint64 size()
+    {
+        return len;
+    }
+    
   protected:
 
     std::list<MtableEntry> entries;
+    uint64 len;
     
 };
 

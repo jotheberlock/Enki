@@ -661,6 +661,7 @@ void GenericFunctionType::processFunction(FunctionScope * fs)
     int count;
     Type * actual = fs->getType()->getParams()[0].type->baseDeref(count);
     Type * p = actual;
+
     while (p)
     {
         FunctionSignature fsig;

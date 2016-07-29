@@ -181,7 +181,8 @@ int Parser::getPrecedence()
 		return -1;
 	}
 
-	if (!lexer->isOp(current.value[0], current.value.size() == 1 ? 0 : current.value[1], dummy, rec, current.toString()))
+	if (!lexer->isOp(current.value[0], current.value.size() == 1 ? 0 : current.value[1],
+                     dummy, rec, current.toString()))
 	{
 		return -1;
 	}
@@ -2171,6 +2172,7 @@ Value * VarRefExpr::codegen(Codegen * c)
 			default:
 			{
 				fprintf(log_file, "???");
+                return 0;
 				break;
 			}
 			}
