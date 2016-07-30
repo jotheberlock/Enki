@@ -184,7 +184,7 @@ public:
 	{
 		return 0;
 	}
-
+    
 	// Used for picking which overloaded function to use
 	// Lower the better (more specialised) match, or -1 means doesn't match
 	virtual int score(Type * t)
@@ -787,6 +787,8 @@ protected:
 
 };
 
+typedef std::vector<uint64> MtableEntry;
+
 class GenericFunctionType : public FunctionType
 {
 public:
@@ -837,7 +839,7 @@ protected:
     void processFunction(FunctionScope *);
     
 	std::vector<FunctionScope *> specialisations;
-    std::map<FunctionSignature, FunctionScope *> already_seen;
+    std::vector<MtableEntry> mtable;
     
 };
 
@@ -857,7 +859,7 @@ protected:
 
 };
 
-class MtableEntry
+class MtableSlot
 {
   public:
 
@@ -871,7 +873,7 @@ class Mtables
 
     void add(unsigned char * d, int l)
     {
-        MtableEntry me;
+        MtableSlot me;
         me.data = d;
         me.len = l;
         entries.push_back(me);
@@ -885,7 +887,7 @@ class Mtables
     
   protected:
 
-    std::list<MtableEntry> entries;
+    std::list<MtableSlot> entries;
     uint64 len;
     
 };

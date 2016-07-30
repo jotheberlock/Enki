@@ -653,29 +653,28 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * f
 
 void GenericFunctionType::processFunction(FunctionScope * fs)
 {
-    if (fs->getType()->getParams().size() < 1)
+    std::vector<StructElement> & params = fs->getType()->getParams();
+    MtableEntry me;
+    for (unsigned int loopc=0; loopc<params.size(); loopc++)
     {
-        return;
-    }
-    
-    int count;
-    Type * actual = fs->getType()->getParams()[0].type->baseDeref(count);
-    Type * p = actual;
-
-    while (p)
-    {
-        FunctionSignature fsig;
-        fsig.push_back(p->classId());
-        if (already_seen.find(fsig) != already_seen.end())
+        Type * t = params[loopc].type;
+            // Probably don't want to keep dynamic_cast indefinitely
+        StructType * st = dynamic_cast<StructType *>(t);
+        if (st)
         {
-            printf("  %s already handled, replacing\n", p->name().c_str());
+            std::vector<StructType *> c = st->getChildren();
+            me.push_back(1+c.size());
+            me.push_back(t->classId());
+            for (unsigned int loopc2=0; loopc2<c.size(); loopc2++)
+            {
+                me.push_back(c[loopc]->classId());
+            }
         }
         else
         {
-            printf("  %s -> %s\n", actual->name().c_str(), p->name().c_str());
+            me.push_back(1);
+            me.push_back(t->classId());
         }
-        already_seen[fsig] = fs;
-        
-        p = p->getParent();
     }
+    mtable.push_back(me);
 }
