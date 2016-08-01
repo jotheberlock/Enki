@@ -648,6 +648,14 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * f
         processFunction(*it);
 	}
 
+    int size = 0;
+    int bits = assembler->pointerSize() / 8;
+    for (int loopc=0; loopc<mtable.size(); loopc++)
+    {
+        size = size + bits * 2; // Entry size at start, pointer at end
+        size = size + bits * mtables[loopc].size();
+    }
+    
 	return 0;
 }
 
