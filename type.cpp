@@ -647,14 +647,6 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * f
 		printf("%s\n", (*it)->getType()->name().c_str());
         processFunction(*it);
 	}
-
-    int size = 0;
-    int bits = assembler->pointerSize() / 8;
-    for (int loopc=0; loopc<mtable.size(); loopc++)
-    {
-        size = size + bits * 2; // Entry size at start, pointer at end
-        size = size + bits * mtables[loopc].size();
-    }
     
 	return 0;
 }
@@ -662,7 +654,8 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * f
 void GenericFunctionType::processFunction(FunctionScope * fs)
 {
     std::vector<StructElement> & params = fs->getType()->getParams();
-    MtableEntry me;
+    MtablesEntry me;
+    me.ptr = fs;
     for (unsigned int loopc=0; loopc<params.size(); loopc++)
     {
         Type * t = params[loopc].type;
@@ -671,17 +664,17 @@ void GenericFunctionType::processFunction(FunctionScope * fs)
         if (st)
         {
             std::vector<StructType *> c = st->getChildren();
-            me.push_back(1+c.size());
-            me.push_back(t->classId());
+            me.table.push_back(1+c.size());
+            me.table.push_back(t->classId());
             for (unsigned int loopc2=0; loopc2<c.size(); loopc2++)
             {
-                me.push_back(c[loopc]->classId());
+                me.table.push_back(c[loopc]->classId());
             }
         }
         else
         {
-            me.push_back(1);
-            me.push_back(t->classId());
+            me.table.push_back(1);
+            me.table.push_back(t->classId());
         }
     }
     mtable.push_back(me);

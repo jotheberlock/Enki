@@ -787,7 +787,12 @@ protected:
 
 };
 
-typedef std::vector<uint64> MtableEntry;
+class MtablesEntry
+{
+  public:
+    std::vector<uint64> table;
+    FunctionScope * ptr;
+};
 
 class GenericFunctionType : public FunctionType
 {
@@ -839,7 +844,7 @@ protected:
     void processFunction(FunctionScope *);
     
 	std::vector<FunctionScope *> specialisations;
-    std::vector<MtableEntry> mtable;
+    std::vector<MtablesEntry> mtable;
     
 };
 
@@ -859,37 +864,19 @@ protected:
 
 };
 
-class MtableSlot
-{
-  public:
-
-    unsigned char * data;
-    int len;
-};
-
 class Mtables
 {
   public:
 
-    void add(unsigned char * d, int l)
+    void add(MtablesEntry & e)
     {
-        MtableSlot me;
-        me.data = d;
-        me.len = l;
-        entries.push_back(me);
-        len += l;
+        entries.push_back(e);
     }
-    
-    uint64 size()
-    {
-        return len;
-    }
-    
+      
   protected:
 
-    std::list<MtableSlot> entries;
-    uint64 len;
-    
+    std::list<MtablesEntry> entries;
+
 };
 
 extern Types * types;
