@@ -794,6 +794,14 @@ class MtablesEntry
     FunctionScope * ptr;
 };
 
+class Mtable
+{
+  public:
+    
+    Value * fun;
+    std::vector<MtablesEntry> entries;
+};
+
 class GenericFunctionType : public FunctionType
 {
 public:
@@ -867,15 +875,15 @@ protected:
 class Mtables
 {
   public:
-
-    void add(MtablesEntry & e)
+    
+    void add(Mtable & e)
     {
         entries.push_back(e);
     }
-      
+
   protected:
 
-    std::list<MtablesEntry> entries;
+    std::list<Mtable> entries;
 
 };
 

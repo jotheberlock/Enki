@@ -640,6 +640,8 @@ static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
 Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 	std::vector<Value *> & args)
 {
+    Mtable table;
+    table.fun = fp;
     std::sort(specialisations.begin(), specialisations.end(), cmp_func);
 	printf("Generate generic funcall! Candidates:\n");
 	for (std::vector<FunctionScope *>::iterator it = specialisations.begin(); it != specialisations.end(); it++)
@@ -647,7 +649,8 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * f
 		printf("%s\n", (*it)->getType()->name().c_str());
         processFunction(*it);
 	}
-    
+    table.entries = mtable;
+    mtables->add(table);
 	return 0;
 }
 
