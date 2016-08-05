@@ -875,6 +875,10 @@ protected:
 class Mtables
 {
   public:
+
+    Mtables()
+    {
+    } 
     
     void add(Mtable & e)
     {
@@ -883,8 +887,14 @@ class Mtables
 
   protected:
 
+    uint64 sizeEntry(Mtable &, bool sf)
+    {
+        int count = entries.size()+2; // Size counter at beginning, counter at end
+        return count * (sf ? 8 : 4);
+    }
+    
     std::list<Mtable> entries;
-
+    
 };
 
 extern Types * types;

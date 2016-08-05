@@ -659,6 +659,7 @@ void GenericFunctionType::processFunction(FunctionScope * fs)
     std::vector<StructElement> & params = fs->getType()->getParams();
     MtablesEntry me;
     me.ptr = fs;
+    
     for (unsigned int loopc=0; loopc<params.size(); loopc++)
     {
         Type * t = params[loopc].type;
