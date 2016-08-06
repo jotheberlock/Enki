@@ -4,6 +4,7 @@
 #include "symbols.h"
 #include "asm.h"
 #include "platform.h"
+#include "type.h"
 
 FunctionRelocation::FunctionRelocation(Image * i, FunctionScope * p, uint64 po, FunctionScope * l, uint64 lo)
 	: BaseRelocation(i)
@@ -399,7 +400,16 @@ void MemoryImage::finalise()
 
 uint64 FunctionRelocation::getValue()
 {
-	uint64 laddr = image->functionAddress(to_link);
+    uint64 laddr = 0;
+    if (to_link->getType()->isGeneric())
+    {
+        laddr = mtables->lookup(to_link) + image->getAddr(IMAGE_MTABLES);
+    }
+    else
+    {
+        laddr = image->functionAddress(to_link);
+    }
+    
 	laddr += link_offset;
 	return laddr;
 }

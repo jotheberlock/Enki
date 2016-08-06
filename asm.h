@@ -414,6 +414,11 @@ public:
 		return convert_64_to_32;
 	}
 
+    bool littleEndian()
+    {
+        return le;
+    }
+    
 protected:
 
 	unsigned char * base;

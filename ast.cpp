@@ -2360,17 +2360,16 @@ Value * DefExpr::codegen(Codegen * c)
 		return ptr;
 	}
 
-	if (is_generic)
-	{
-		// Do something here
-		return 0;
-	}
-
-
 	FunctionScope * to_call = scope->lookup_function(name);
 	assert(to_call);
 	c->block()->add(Insn(MOVE, ptr, Operand(to_call)));
 
+    if (is_generic)
+    {
+        mtables->add(to_call);
+        return ptr;
+    }
+    
 	scope->addFunction(new FunctionScope(scope, type->name(), type));
 
 	Codegen * ch = new Codegen(body, scope);

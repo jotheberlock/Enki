@@ -163,7 +163,7 @@ void ElfImage::finalise()
 	wee16(le, ptr, sf_bit ? 56 : 32); // pheader size
 	wee16(le, ptr, no_pheaders);
 	wee16(le, ptr, sf_bit ? 64 : 40); // section header size
-	wee16(le, ptr, 7);  // Number of sections
+	wee16(le, ptr, 9);  // Number of sections
 	wee16(le, ptr, 1);  // Section with strings
 
 		/*
@@ -383,6 +383,7 @@ void ElfImage::finalise()
 		}
 		else if (loopc == IMAGE_MTABLES)
 		{
+            printf(">>> mtables!\n");
 			name = stringOffset(".mtables");
 			flags = 0x3;
 			type = 1;

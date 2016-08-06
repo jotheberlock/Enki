@@ -640,25 +640,18 @@ static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
 Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 	std::vector<Value *> & args)
 {
-    Mtable table;
-    table.fun = fp;
-    std::sort(specialisations.begin(), specialisations.end(), cmp_func);
-	printf("Generate generic funcall! Candidates:\n");
-	for (std::vector<FunctionScope *>::iterator it = specialisations.begin(); it != specialisations.end(); it++)
-	{
-		printf("%s\n", (*it)->getType()->name().c_str());
-        processFunction(*it);
-	}
-    table.entries = mtable;
-    mtables->add(table);
 	return 0;
 }
 
-void GenericFunctionType::processFunction(FunctionScope * fs)
+std::vector<FunctionScope *> & GenericFunctionType::getSpecialisations()
+{
+    std::sort(specialisations.begin(), specialisations.end(), cmp_func);
+    return specialisations;
+}
+
+void Mtables::processFunction(FunctionScope * fs)
 {
     std::vector<StructElement> & params = fs->getType()->getParams();
-    MtablesEntry me;
-    me.ptr = fs;
     
     for (unsigned int loopc=0; loopc<params.size(); loopc++)
     {
@@ -668,18 +661,53 @@ void GenericFunctionType::processFunction(FunctionScope * fs)
         if (st)
         {
             std::vector<StructType *> c = st->getChildren();
-            me.table.push_back(1+c.size());
-            me.table.push_back(t->classId());
+            data.push_back(1+c.size());
+            data.push_back(t->classId());
             for (unsigned int loopc2=0; loopc2<c.size(); loopc2++)
             {
-                me.table.push_back(c[loopc]->classId());
+                data.push_back(c[loopc]->classId());
             }
         }
         else
         {
-            me.table.push_back(1);
-            me.table.push_back(t->classId());
+            data.push_back(1);
+            data.push_back(t->classId());
         }
     }
-    mtable.push_back(me);
+}
+
+void Mtables::generateTables()
+{
+    for (std::list<FunctionScope *>::iterator it = entries.begin(); it != entries.end(); it++)
+    {
+        GenericFunctionType * gft = (GenericFunctionType *)(*it)->getType();
+        printf("Processing generic %s\n", gft->name().c_str());
+        offsets[(*it)] = data.size();
+        std::vector<FunctionScope *> specialisations = gft->getSpecialisations();
+        for (std::vector<FunctionScope *>::iterator it2 = specialisations.begin();
+             it2 != specialisations.end(); it2++)
+        {
+            printf("  %s\n", (*it2)->getType()->name().c_str());
+            processFunction(*it2);
+        }  
+    } 
+}
+
+void Mtables::createSection(Image * i, Assembler * a)
+{
+    sf_bit = (a->pointerSize() == 64);
+    bool le = a->littleEndian();
+    i->setSectionSize(IMAGE_MTABLES, data.size() * (sf_bit ? 8 : 4));
+    unsigned char * ptr = i->getPtr(IMAGE_MTABLES);
+    for (unsigned int loopc=0; loopc<data.size(); loopc++)
+    {
+        if (sf_bit)
+        {
+            wee64(le, ptr, data[loopc]);
+        }
+        else
+        {
+            wee32(le, ptr, checked_32(data[loopc]));
+        }   
+    } 
 }

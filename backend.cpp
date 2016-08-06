@@ -109,8 +109,7 @@ int Backend::process()
 		cg->allocateStackSlots();
 
 		BasicBlock::calcRelationships(cg->getBlocks());
-
-
+        
 		int count = 0;
 		for (std::vector<OptimisationPass *>::iterator it = passes.begin();
 		it != passes.end(); it++)
@@ -178,6 +177,9 @@ int Backend::process()
 		config->image->getPtr(IMAGE_CODE) +
 		config->image->sectionSize(IMAGE_CODE));
 
+    mtables->generateTables();
+    mtables->createSection(config->image, config->assembler);
+    
 	for (std::list<Codegen *>::iterator cit = codegens.begin();
 	cit != codegens.end(); cit++)
 	{

@@ -798,7 +798,7 @@ class Mtable
 {
   public:
     
-    Value * fun;
+    FunctionScope * fun;
     std::vector<MtablesEntry> entries;
 };
 
@@ -819,6 +819,8 @@ public:
 		return assembler->pointerSize();
 	}
 
+    void generateTable();
+    
 	std::string name()
 	{
 		std::string ret = "generic ";
@@ -846,13 +848,12 @@ public:
 	{
 		specialisations.push_back(ft);
 	}
+
+    std::vector<FunctionScope *> & getSpecialisations();
     
 protected:
-
-    void processFunction(FunctionScope *);
     
 	std::vector<FunctionScope *> specialisations;
-    std::vector<MtablesEntry> mtable;
     
 };
 
@@ -872,28 +873,39 @@ protected:
 
 };
 
+class Image;
+
 class Mtables
 {
   public:
 
     Mtables()
     {
+        sf_bit = false;
     } 
     
-    void add(Mtable & e)
+    void add(FunctionScope * e)
     {
         entries.push_back(e);
     }
+    uint64 lookup(FunctionScope* fs)
+    {
+        return offsets[fs] * (sf_bit ? 8 : 4);
+    }
 
+        // This fills num_data with ints
+    void generateTables();
+        // This turns them into bytes in the image
+    void createSection(Image *, Assembler *);
+    
   protected:
 
-    uint64 sizeEntry(Mtable &, bool sf)
-    {
-        int count = entries.size()+2; // Size counter at beginning, counter at end
-        return count * (sf ? 8 : 4);
-    }
+    void processFunction(FunctionScope *);
     
-    std::list<Mtable> entries;
+    std::list<FunctionScope *> entries;
+    std::map<FunctionScope *, uint64> offsets;
+    std::vector<uint64> data;
+    bool sf_bit;
     
 };
 
