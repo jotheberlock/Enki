@@ -383,7 +383,6 @@ void ElfImage::finalise()
 		}
 		else if (loopc == IMAGE_MTABLES)
 		{
-            printf(">>> mtables!\n");
 			name = stringOffset(".mtables");
 			flags = 0x3;
 			type = 1;

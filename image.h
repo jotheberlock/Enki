@@ -207,6 +207,21 @@ protected:
 
 };
 
+class MtableRelocation : public BaseRelocation
+{
+  public:
+
+    MtableRelocation(Image *, FunctionScope *, uint64);
+    uint64 getValue();
+    unsigned char * getPtr();
+    
+  protected:
+
+    uint64 patch_offset;
+    FunctionScope * to_link;
+    
+};
+
 class BasicBlockRelocation : public BaseRelocation
 {
 public:

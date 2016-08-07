@@ -875,6 +875,20 @@ protected:
 
 class Image;
 
+class MtableEntry
+{
+  public:
+
+    MtableEntry()
+    {
+        target=0;
+    }
+    
+    std::vector<uint64> table;
+    FunctionScope * target;
+    
+};
+
 class Mtables
 {
   public:
@@ -882,6 +896,7 @@ class Mtables
     Mtables()
     {
         sf_bit = false;
+        offset = 0;
     } 
     
     void add(FunctionScope * e)
@@ -904,7 +919,8 @@ class Mtables
     
     std::list<FunctionScope *> entries;
     std::map<FunctionScope *, uint64> offsets;
-    std::vector<uint64> data;
+    std::vector<MtableEntry> data;
+    uint64 offset;  // in words
     bool sf_bit;
     
 };

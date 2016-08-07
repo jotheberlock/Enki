@@ -651,6 +651,9 @@ std::vector<FunctionScope *> & GenericFunctionType::getSpecialisations()
 
 void Mtables::processFunction(FunctionScope * fs)
 {
+    MtableEntry me;
+    me.target = fs;
+    
     std::vector<StructElement> & params = fs->getType()->getParams();
     
     for (unsigned int loopc=0; loopc<params.size(); loopc++)
@@ -661,19 +664,21 @@ void Mtables::processFunction(FunctionScope * fs)
         if (st)
         {
             std::vector<StructType *> c = st->getChildren();
-            data.push_back(1+c.size());
-            data.push_back(t->classId());
+            me.table.push_back(1+c.size());
+            me.table.push_back(t->classId());
             for (unsigned int loopc2=0; loopc2<c.size(); loopc2++)
             {
-                data.push_back(c[loopc]->classId());
+                me.table.push_back(c[loopc]->classId());
             }
         }
         else
         {
-            data.push_back(1);
-            data.push_back(t->classId());
+            me.table.push_back(1);
+            me.table.push_back(t->classId());
         }
     }
+    data.push_back(me);
+    offset += me.table.size() + 2;
 }
 
 void Mtables::generateTables()
@@ -682,14 +687,16 @@ void Mtables::generateTables()
     {
         GenericFunctionType * gft = (GenericFunctionType *)(*it)->getType();
         printf("Processing generic %s\n", gft->name().c_str());
-        offsets[(*it)] = data.size();
+        offsets[(*it)] = offset;
         std::vector<FunctionScope *> specialisations = gft->getSpecialisations();
         for (std::vector<FunctionScope *>::iterator it2 = specialisations.begin();
              it2 != specialisations.end(); it2++)
         {
             printf("  %s\n", (*it2)->getType()->name().c_str());
             processFunction(*it2);
-        }  
+        }
+        MtableEntry term;
+        data.push_back(term);
     } 
 }
 
@@ -697,17 +704,43 @@ void Mtables::createSection(Image * i, Assembler * a)
 {
     sf_bit = (a->pointerSize() == 64);
     bool le = a->littleEndian();
-    i->setSectionSize(IMAGE_MTABLES, data.size() * (sf_bit ? 8 : 4));
+    i->setSectionSize(IMAGE_MTABLES, offset * (sf_bit ? 8 : 4));
     unsigned char * ptr = i->getPtr(IMAGE_MTABLES);
+    unsigned char * orig = ptr;
     for (unsigned int loopc=0; loopc<data.size(); loopc++)
     {
+        MtableEntry & me = data[loopc];
+        int len = me.table.size() + 2;
+        len *= sf_bit ? 8 : 4;
+        
         if (sf_bit)
         {
-            wee64(le, ptr, data[loopc]);
+            wee64(le, ptr, len);
+            for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
+            {
+                wee64(le, ptr, me.table[loopc]);
+            }
+
+            if (me.target)
+            {
+                MtableRelocation * mr = new MtableRelocation(i, me.target, ptr-orig);
+                mr->add64();
+                wee64(le, ptr, 0xfeedbeeffeedbeef);
+            }
         }
         else
         {
-            wee32(le, ptr, checked_32(data[loopc]));
+            wee32(le, ptr, len);
+            for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
+            {
+                wee32(le, ptr, me.table[loopc]);
+            }
+            if (me.target)
+            {
+                MtableRelocation * mr = new MtableRelocation(i, me.target, ptr-orig);
+                mr->add32();
+                wee32(le, ptr, 0xfeedbeef);
+            }
         }   
-    } 
+    }
 }

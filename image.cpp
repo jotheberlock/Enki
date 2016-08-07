@@ -47,6 +47,14 @@ SectionRelocation::SectionRelocation(Image * i,
 	dest_offset = dof;
 }
 
+MtableRelocation::MtableRelocation(Image * i, FunctionScope * f,
+                                   uint64 o)
+    : BaseRelocation(i)
+{
+    patch_offset = o;
+    to_link = f;
+}
+
 void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 {
 	if (mask == 0)
@@ -473,4 +481,15 @@ unsigned char * SectionRelocation::getPtr()
 unsigned char * ExtFunctionRelocation::getPtr()
 {
 	return image->getPtr(IMAGE_CODE) + patch_offset;
+}
+
+unsigned char * MtableRelocation::getPtr()
+{
+    printf("Patch offset %x\n", patch_offset);
+    return image->getPtr(IMAGE_MTABLES) + patch_offset;
+}
+
+uint64 MtableRelocation::getValue()
+{
+    return image->functionAddress(to_link);
 }
