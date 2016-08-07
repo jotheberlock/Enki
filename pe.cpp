@@ -54,7 +54,10 @@ bool PEImage::configure(std::string param, std::string val)
 void PEImage::endOfImports()
 {
 	materialiseSection(IMAGE_UNALLOCED_DATA);
-	materialiseSection(IMAGE_MTABLES);
+	if (bases[IMAGE_MTABLES] == 0)
+	{
+		materialiseSection(IMAGE_MTABLES);
+	}
 	imports_base = next_addr;
 	next_addr += 4096;
 	symbols_base = next_addr;
