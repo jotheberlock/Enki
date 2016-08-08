@@ -671,6 +671,21 @@ void Mtables::processFunction(FunctionScope * fs)
                 me.table.push_back(c[loopc]->classId());
             }
         }
+        else if (t->canDeref() && t->derefType()->canField())
+        {
+            StructType * st = dynamic_cast<StructType *>(t->derefType());
+            if (st)
+            {
+                    // Pointer-to-X is class ID of X + 1
+                std::vector<StructType *> c = st->getChildren();
+                me.table.push_back(1+c.size());
+                me.table.push_back(t->classId()+1);
+                for (unsigned int loopc2=0; loopc2<c.size(); loopc2++)
+                {
+                    me.table.push_back(c[loopc]->classId()+1);
+                }
+            }
+        }
         else
         {
             me.table.push_back(1);
