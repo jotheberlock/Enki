@@ -864,6 +864,7 @@ public:
 	Types();
 	~Types();
 	Type * lookup(std::string);
+    Type * lookup(uint64); // By class ID
 	void add(Type *, std::string);
 	std::map<std::string, Type *> & get();
 

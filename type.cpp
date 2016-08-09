@@ -301,6 +301,20 @@ void Types::add(Type * t, std::string n)
 	types[n] = t;
 }
 
+Type * Types::lookup(uint64 id)
+{
+	std::map<std::string, Type *>::iterator it;
+    for (it = types.begin(); it != types.end(); it++)
+    {
+        if ((*it).second->classId() == id)
+        {
+            return (*it).second;
+        }
+    }
+
+    return 0;
+}
+
 Type * Types::lookup(std::string n)
 {
 	std::map<std::string, Type *>::iterator it = types.find(n);
