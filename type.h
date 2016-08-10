@@ -667,7 +667,7 @@ public:
 		params.push_back(se);
 	}
 
-	void addReturn(Type * t)
+	void setReturn(Type * t)
 	{
         ret_type = t;
 	}

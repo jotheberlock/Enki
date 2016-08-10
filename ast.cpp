@@ -1084,7 +1084,7 @@ Expr * Parser::parseDef()
 				Type * t = parseType();
 				if (t)
 				{
-					ft->addReturn(t);
+					ft->setReturn(t);
 					if (current.type != EOL)
 					{
 						fprintf(log_file, ">>>>> %d\n", current.type);
@@ -1241,7 +1241,7 @@ Expr * Parser::parseFptr()
 	Type * t = parseType();
 	if (t)
 	{
-		ft->addReturn(t);
+		ft->setReturn(t);
 	}
 	else
 	{
