@@ -530,7 +530,7 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 
 	if (ret == 0)
 	{
-		printf("Function has no return types!\n");
+		printf("Function has no return type!\n");
 	}
     else
 	{
