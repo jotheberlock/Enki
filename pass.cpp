@@ -7,15 +7,16 @@ OptimisationPass::OptimisationPass()
 	next_block = 0;
 }
 
-void OptimisationPass::init(Codegen * c)
+void OptimisationPass::init(Codegen * c, Configuration * cf)
 {
 	cg = c;
+    config = cf;
 	block = 0;
 }
 
-void SillyRegalloc::init(Codegen * c)
+void SillyRegalloc::init(Codegen * c, Configuration * cf)
 {
-	OptimisationPass::init(c);
+	OptimisationPass::init(c, cf);
 	for (int loopc = 0; loopc < 256; loopc++)
 	{
 		regs[loopc] = 0;
@@ -315,6 +316,17 @@ void StackSizePass::processInsn()
 		insn.ins = MOVE;
 		insn.oc = 2;
 		insn.ops[1] = Operand::usigc(cg->stackSize());
+		change(insn);
+	}
+}
+
+void BitSizePass::processInsn()
+{
+	if (insn.ins == GETBITSIZE)
+	{
+		insn.ins = MOVE;
+		insn.oc = 2;
+		insn.ops[1] = Operand::usigc(config->assembler->pointerSize() / 8);
 		change(insn);
 	}
 }

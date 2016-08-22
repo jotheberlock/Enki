@@ -108,6 +108,11 @@ Component * make_stacksizepass()
 	return new StackSizePass();
 }
 
+Component * make_bitsizepass()
+{
+	return new BitSizePass();
+}
+
 Component  * make_remwithdivpass()
 {
 	return new RemWithDivPass();
@@ -133,6 +138,7 @@ ComponentFactory::ComponentFactory()
 	add(make_constmover, "pass", "constmover");
 	add(make_resolveconstaddr, "pass", "resolveconstaddr");
 	add(make_stacksizepass, "pass", "stacksize");
+	add(make_stacksizepass, "pass", "bitsize");
 	add(make_remwithdivpass, "pass", "remwithdiv");
 	add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
 	add(make_unixentrypoint, "entrypoint", "unixentrypoint");

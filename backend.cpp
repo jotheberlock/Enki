@@ -123,7 +123,7 @@ int Backend::process()
 			fprintf(log_file, "Running pass %s, before:\n\n",
 				op->name().c_str());
 			dump_codegen(cg);
-			op->init(cg);
+			op->init(cg, config);
 			op->run();
 			fprintf(log_file, "\nAfter pass %s:\n\n", op->name().c_str());
 			dump_codegen(cg);

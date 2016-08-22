@@ -70,6 +70,7 @@
 #define SELGTS 56
 
 #define GETSTACKSIZE 57
+#define GETBITSIZE 58
 
 class Value;
 class BasicBlock;

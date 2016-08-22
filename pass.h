@@ -4,6 +4,7 @@
 #include "codegen.h"
 #include "regset.h"
 #include "component.h"
+#include "configfile.h"
 
 class OptimisationPass : public Component
 {
@@ -28,11 +29,13 @@ public:
 	void change(Insn);
 	void removeInsn();
 
-	virtual void init(Codegen *);
+	virtual void init(Codegen *, Configuration *);
 
 protected:
 
 	Codegen * cg;
+    Configuration * config;
+    
 	BasicBlock * block;
 	BasicBlock * next_block;
 	Insn insn;
@@ -69,7 +72,7 @@ public:
 	{}
 
 	virtual void processInsn();
-	virtual void init(Codegen *);
+	virtual void init(Codegen *, Configuration *);
 
 	virtual std::string name()
 	{
@@ -184,6 +187,24 @@ public:
 	virtual std::string name()
 	{
 		return "StackSizePass";
+	}
+
+	virtual void processInsn();
+
+};
+
+class BitSizePass : public OptimisationPass
+{
+public:
+
+	BitSizePass()
+		: OptimisationPass()
+	{
+	}
+
+	virtual std::string name()
+	{
+		return "BitSizePass";
 	}
 
 	virtual void processInsn();
