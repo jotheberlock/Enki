@@ -382,6 +382,10 @@ Types::Types()
 
 Types::~Types()
 {
+        // Avoid double delete
+    types.erase("Uint");
+    types.erase("Int");
+    
 	for (std::map<std::string, Type *>::iterator it = types.begin();
 	it != types.end(); it++)
 	{
