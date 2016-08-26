@@ -228,9 +228,8 @@ int Backend::process()
 	config->image->setRootFunction(gc->getScope());
 	config->image->finalise();
 
-	char buf[4096];
-	sprintf(buf, "%s_out.bin", config->name.c_str());
-	FILE * dump = fopen(buf, "wb");
+    std::string fname = config->name+"_out.bin";
+	FILE * dump = fopen(fname.c_str(), "wb");
 	fwrite(config->image->getPtr(IMAGE_CODE), config->image->sectionSize(IMAGE_CODE), 1, dump);
 	fclose(dump);
 

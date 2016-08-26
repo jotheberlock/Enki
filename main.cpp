@@ -443,7 +443,7 @@ int main(int argc, char ** argv)
 
 			if (!f)
 			{
-				printf("No preload input file %s\n", config.preloads[loopc].c_str());
+				printf("Preload input file %s not found!\n", config.preloads[loopc].c_str());
 				return 1;
 			}
 
@@ -464,7 +464,7 @@ int main(int argc, char ** argv)
 
 			if (!f)
 			{
-				printf("No input file\n");
+				printf("Input file %s not found\n", fname);
 				return 1;
 			}
 

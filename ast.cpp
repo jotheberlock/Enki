@@ -1008,7 +1008,7 @@ Expr * Parser::parseDef()
 		else
 		{
 			char buf[4096];
-			sprintf(buf, "__generic_%s_%d", name.c_str(), generic_counter);
+			sprintf(buf, "_generic_%s_%d", name.c_str(), generic_counter);
 			v = new Value(buf, ft);
 			current_scope->add(v);
 			generic_counter++;
