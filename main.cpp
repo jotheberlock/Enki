@@ -252,9 +252,14 @@ void readFile(FILE * f, Chars & input)
 	int len = ftell(f);
 	char * text = new char[len];
 	fseek(f, 0, SEEK_SET);
-	fread(text, len, 1, f);
+	int read = fread(text, len, 1, f);
 	fclose(f);
-
+    if (read != len)
+    {
+        printf("readFile got read result of %d!\n", read);
+        return;
+    }
+    
 	char * ptr = text;
 	while (ptr < text + len)
 	{

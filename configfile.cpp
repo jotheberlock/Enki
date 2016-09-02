@@ -61,6 +61,7 @@ void ConfigFile::process()
 	char buf[4096];
 	while (true)
 	{
+        memset(buf, 0, 4096);
 		fgets(buf, 4096, file);
 		if (feof(file))
 		{
@@ -107,7 +108,7 @@ bool ConfigFile::processLine(std::string line)
 			}
 			else
 			{
-				printf("Can't include %s!\n", val.c_str());
+				printf("Can't open include file %s!\n", val.c_str());
 			}
 		}
 		else if (command == "name")
