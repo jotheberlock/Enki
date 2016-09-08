@@ -419,7 +419,9 @@ public:
     {
         return le;
     }
-    
+
+    virtual int numRegs() = 0;
+         
 protected:
 
 	unsigned char * base;

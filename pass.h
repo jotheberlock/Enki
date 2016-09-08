@@ -63,6 +63,8 @@ public:
 
 };
 
+#define MAXREGS 256
+
 class SillyRegalloc : public OptimisationPass
 {
 public:
@@ -71,6 +73,13 @@ public:
 		: OptimisationPass()
 	{}
 
+    ~SillyRegalloc()
+    {
+        delete[] regs;
+        delete[] input;
+        delete[] output;
+    }
+    
 	virtual void processInsn();
 	virtual void init(Codegen *, Configuration *);
 
@@ -84,10 +93,11 @@ protected:
 	int alloc(Value *, RegSet &, RegSet &);
 	int findFree(RegSet &, RegSet &);
 
-	Value * regs[256];
-	bool input[256];
-	bool output[256];
-
+	Value ** regs;
+	bool * input;
+	bool * output;
+    int numregs;
+    
 };
 
 class ConditionalBranchSplitter : public OptimisationPass

@@ -17,7 +17,13 @@ void OptimisationPass::init(Codegen * c, Configuration * cf)
 void SillyRegalloc::init(Codegen * c, Configuration * cf)
 {
 	OptimisationPass::init(c, cf);
-	for (int loopc = 0; loopc < 256; loopc++)
+
+    numregs = cf->assembler->numRegs();
+    regs = new Value *[numregs];
+    input = new bool[numregs];
+    output = new bool[numregs];
+    
+	for (int loopc = 0; loopc < numregs; loopc++)
 	{
 		regs[loopc] = 0;
 		input[loopc] = 0;
@@ -145,7 +151,7 @@ void BranchRemover::processInsn()
 
 int SillyRegalloc::findFree(RegSet & r, RegSet & c)
 {
-	for (int loopc = 0; loopc < 256; loopc++)
+	for (int loopc = 0; loopc < numregs; loopc++)
 	{
 		if (!c.isSet(loopc) && r.isSet(loopc) && regs[loopc] == 0 &&
 			!(block->getReservedRegs().isSet(loopc)))
@@ -161,7 +167,7 @@ int SillyRegalloc::findFree(RegSet & r, RegSet & c)
 
 int SillyRegalloc::alloc(Value * v, RegSet & r, RegSet & c)
 {
-	for (int loopc = 0; loopc < 256; loopc++)
+	for (int loopc = 0; loopc < numregs; loopc++)
 	{
 		if (c.isSet(loopc))
 		{
@@ -197,7 +203,7 @@ int SillyRegalloc::alloc(Value * v, RegSet & r, RegSet & c)
 
 void SillyRegalloc::processInsn()
 {
-	for (int loopc = 0; loopc < 256; loopc++)
+	for (int loopc = 0; loopc < numregs; loopc++)
 	{
 		regs[loopc] = 0;
 		input[loopc] = 0;
@@ -226,7 +232,7 @@ void SillyRegalloc::processInsn()
 
 	change(insn);
 
-	for (int loopc = 0; loopc < 256; loopc++)
+	for (int loopc = 0; loopc < numregs; loopc++)
 	{
 		int fp = assembler->framePointer();
 		if (input[loopc])
@@ -248,7 +254,7 @@ void SillyRegalloc::processInsn()
 		}
 	}
 
-	for (int loopc = 0; loopc < 256; loopc++)
+	for (int loopc = 0; loopc < numregs; loopc++)
 	{
 		if (vr.clobbers.isSet(loopc))
 		{

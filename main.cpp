@@ -254,7 +254,7 @@ void readFile(FILE * f, Chars & input)
 	fseek(f, 0, SEEK_SET);
 	int read = fread(text, len, 1, f);
 	fclose(f);
-    if (read != len)
+    if (read < 1)
     {
         printf("readFile got read result of %d!\n", read);
         return;

@@ -561,7 +561,12 @@ Expr * Parser::parseWhile()
 {
 	next();
 	Expr * c = parseExpr();
-
+    if (!c)
+    {
+        addError(Error(&current, "Expected expression after while"));
+        return 0;
+    }
+    
 	Block * b = 0;
 
 	if (current.type != EOL)
@@ -580,12 +585,13 @@ Expr * Parser::parseWhile()
 		b = (Block *)parseBlock();
 	}
 
-	if (c && b)
+	if (b)
 	{
 		return new While(c, b);
 	}
 	else
 	{
+        addError(Error(&current, "Failed to parse while block"));
 		return 0;
 	}
 }
@@ -819,7 +825,7 @@ Expr * Parser::parseStruct()
 		}
 		if (!pt->canField())
 		{
-			addError(Error(&current, "Parent type must be a struct"));
+			addError(Error(&current, "Parent type must be a struct or union"));
 			return 0;
 		}
 		st = new StructType(sname, type == UNION, (StructType *)pt);

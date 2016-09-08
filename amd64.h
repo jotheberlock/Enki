@@ -17,6 +17,11 @@ public:
 	bool assemble(BasicBlock *, BasicBlock *, Image *);
 	std::string transReg(uint32);
 
+    int numRegs()
+    {
+        return 16;
+    }
+    
 	ValidRegs validRegs(Insn &);
 	int framePointer()
 	{

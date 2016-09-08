@@ -13,6 +13,11 @@ public:
 	}
 
 	int regnum(std::string);
+    int numRegs()
+    {
+        return 16;
+    }
+    
 	int size(BasicBlock *);
 	bool assemble(BasicBlock *, BasicBlock *, Image *);
 	std::string transReg(uint32);
