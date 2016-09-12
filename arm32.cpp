@@ -577,6 +577,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case DIV:
 		case DIVS:
 		{
+            assert(i.oc == 3);
 			mc = (i.ins == DIV) ? 0xe730f010 : 0x3710f010;
 			mc = mc | i.ops[0].getReg() << 16 | i.ops[1].getReg() |
 				i.ops[2].getReg() << 8;
@@ -590,6 +591,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		case MUL:
 		{
+            assert(i.oc == 3);
 			mc = 0xe0000090 | i.ops[0].getReg() << 16 |
 				i.ops[1].getReg() | i.ops[2].getReg() << 8;
 			break;
