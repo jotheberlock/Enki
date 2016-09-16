@@ -1508,7 +1508,7 @@ void VarRefExpr::print(int i)
 		}
 		default:
 		{
-			fprintf(log_file, "???");
+			fprintf(log_file, "??? <%d>", vre.type);
 			break;
 		}
 		}

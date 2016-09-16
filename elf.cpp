@@ -166,30 +166,6 @@ void ElfImage::finalise()
 	wee16(le, ptr, 9);  // Number of sections
 	wee16(le, ptr, 1);  // Section with strings
 
-		/*
-		// Program header for image header
-	wee32(le, ptr, 0x1);
-	wee32(le, ptr, 0x4);
-	if (sf_bit)
-	{
-		wee64(le, ptr, 0);
-		wee64(le, ptr, base_addr);
-		wee64(le, ptr, base_addr);
-		wee64(le, ptr, 8192);
-		wee64(le, ptr, 0);
-		wee64(le, ptr, 0x4);
-	}
-	else
-	{
-		wee32(le, ptr, 0);
-		wee32(le, ptr, base_addr);
-		wee32(le, ptr, base_addr);
-		wee32(le, ptr, 8192);
-		wee32(le, ptr, 0);
-		wee32(le, ptr, 0x4);
-	}
-		*/
-
 	uint64 prev_base = 0;
 
 	for (int loopc = 0; loopc < IMAGE_LAST; loopc++)

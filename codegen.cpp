@@ -135,6 +135,25 @@ void Codegen::generate()
 	}
 }
 
+std::string Codegen::display(unsigned char * addr)
+{
+	std::string ret;
+	for (unsigned int loopc = 0; loopc < locals.size(); loopc++)
+	{
+		char buf[4096];
+		sprintf(buf, "%p %-20s %4lld/%4llx: %s\n",
+			addr + locals[loopc]->stackOffset(),
+			locals[loopc]->name.c_str(),
+			locals[loopc]->stackOffset(),
+			locals[loopc]->stackOffset(),
+			locals[loopc]->type->display
+			(addr + locals[loopc]->stackOffset()).c_str());
+		ret += buf;
+	}
+
+	return ret;
+}
+
 Constants::~Constants()
 {
 	for (unsigned int loopc = 0; loopc < constants.size(); loopc++)
@@ -195,23 +214,4 @@ void Codegen::allocateStackSlots()
 	}
 
 	allocated_slots = true;
-}
-
-std::string Codegen::display(unsigned char * addr)
-{
-	std::string ret;
-	for (unsigned int loopc = 0; loopc < locals.size(); loopc++)
-	{
-		char buf[4096];
-		sprintf(buf, "%p %-20s %4lld/%4llx: %s\n",
-			addr + locals[loopc]->stackOffset(),
-			locals[loopc]->name.c_str(),
-			locals[loopc]->stackOffset(),
-			locals[loopc]->stackOffset(),
-			locals[loopc]->type->display
-			(addr + locals[loopc]->stackOffset()).c_str());
-		ret += buf;
-	}
-
-	return ret;
 }
