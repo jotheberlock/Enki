@@ -646,7 +646,7 @@ bool FunctionType::validArgList(std::vector<Value *> & args, std::string & reaso
 Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 	std::vector<Value *> & args)
 {
-	return convention->generateCall(c, fp, args);
+    return convention->generateCall(c, fp, args);   
 }
 
 static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
@@ -658,7 +658,30 @@ static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
 Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 	std::vector<Value *> & args)
 {
-	return 0;
+    Value * len = c->getTemporary(register_type, "generic_entry_len");
+    c->block()->add(Insn(LOAD, len, fp));
+    c->block()->add(Insn(ADD, fp, fp,
+                         Operand::usigc(register_type->size() / 8)));
+    Value * typecode = c->getTemporary(register_type, "generic_typecode");
+    c->block()->add(Insn(LOAD, typecode, fp));
+    c->block()->add(Insn(CMP, typecode, Operand::usigc(0)));
+    BasicBlock * nomatch = c->newBlock("nomatch");
+    BasicBlock * checkmatch = c->newBlock("checkmatch");
+    c->block()->add(Insn(BEQ, nomatch, checkmatch));
+    c->setBlock(checkmatch);
+        // function type checking goes here
+        // fp now points to the actual function pointer
+    Value * ptr = c->getTemporary(register_type, "genfunptr");
+    c->block()->add(Insn(LOAD, ptr, fp));
+    BasicBlock * genfuncall = c->newBlock("genfuncall");
+    c->setBlock(genfuncall);
+    Value * ret = FunctionType::generateFuncall(c, f, ptr, args);
+    BasicBlock * endgenfuncall = c->newBlock("endgenfuncall");
+    c->block()->add(Insn(BRA, endgenfuncall));
+    c->setBlock(nomatch);
+    c->block()->add(Insn(BREAKP));
+    c->setBlock(endgenfuncall);
+	return ret;
 }
 
 std::vector<FunctionScope *> & GenericFunctionType::getSpecialisations()
@@ -729,6 +752,7 @@ void Mtables::generateTables()
             processFunction(*it2);
         }
         MtableEntry term;
+        term.table.push_back(0); // Indicates end of entry
         data.push_back(term);
     } 
 }
@@ -740,6 +764,8 @@ void Mtables::createSection(Image * i, Assembler * a)
     i->setSectionSize(IMAGE_MTABLES, offset * (sf_bit ? 8 : 4));
     unsigned char * ptr = i->getPtr(IMAGE_MTABLES);
     unsigned char * orig = ptr;
+
+    printf("Data size is %d\n", data.size());
     for (unsigned int loopc=0; loopc<data.size(); loopc++)
     {
         MtableEntry & me = data[loopc];
@@ -749,6 +775,7 @@ void Mtables::createSection(Image * i, Assembler * a)
         if (sf_bit)
         {
             wee64(le, ptr, len);
+            printf(">>> table size is %d\n", me.table.size());
             for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
             {
                 wee64(le, ptr, me.table[loopc]);

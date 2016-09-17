@@ -491,5 +491,6 @@ unsigned char * MtableRelocation::getPtr()
 
 uint64 MtableRelocation::getValue()
 {
+    printf("Mtable relocation %llx\n", image->functionAddress(to_link));
     return image->functionAddress(to_link);
 }
