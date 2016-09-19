@@ -778,7 +778,7 @@ void Mtables::createSection(Image * i, Assembler * a)
             printf(">>> table size is %d\n", me.table.size());
             for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
             {
-                wee64(le, ptr, me.table[loopc]);
+                wee64(le, ptr, me.table[loopc2]);
             }
 
             if (me.target)

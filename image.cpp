@@ -197,7 +197,7 @@ void Image::relocate()
 	for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
 	{
 		relocs[loopc]->apply();
-		delete relocs[loopc];
+		//delete relocs[loopc];
 	}
 	relocs.clear();
 }
