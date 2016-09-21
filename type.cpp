@@ -671,6 +671,15 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * f
     c->setBlock(checkmatch);
         // function type checking goes here
         // fp now points to the actual function pointer
+
+    Value * target = c->getTemporary(register_type, "targettype");
+    for (int loopc=0; loopc<args.size(); loopc++)
+    {
+        c->block()->add(Insn(LOAD, target, fp));
+        c->block()->add(Insn(ADD, fp, fp, 
+                         Operand::usigc(register_type->size() / 8)));
+    }
+    
     Value * ptr = c->getTemporary(register_type, "genfunptr");
     c->block()->add(Insn(LOAD, ptr, fp));
     BasicBlock * genfuncall = c->newBlock("genfuncall");
