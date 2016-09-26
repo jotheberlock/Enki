@@ -459,15 +459,11 @@ int main(int argc, char ** argv)
 		}
 	}
 
-	/*
 	for (int loopc = 1; loopc < argc; loopc++)
 	{
 		if (strstr(argv[loopc], ".e"))
 		{
 			const char * fname = argv[loopc];
-			*/
-
-				const char * fname = "test.e";
 			FILE * f = config.open(fname);
 
 			if (!f)
@@ -480,10 +476,8 @@ int main(int argc, char ** argv)
 			readFile(f, input);
 			lex.setFile(fname);
 			lex.lex(input);
-			/*
 		}
 	}
-	*/
 
 	lex.endLexing();
 
