@@ -778,7 +778,7 @@ void Mtables::createSection(Image * i, Assembler * a)
 {
     sf_bit = (a->pointerSize() == 64);
     bool le = a->littleEndian();
-    i->setSectionSize(IMAGE_MTABLES, offset * (sf_bit ? 8 : 4));
+    i->setSectionSize(IMAGE_MTABLES, (offset+data.size()) * (sf_bit ? 8 : 4));
     unsigned char * ptr = i->getPtr(IMAGE_MTABLES);
     unsigned char * orig = ptr;
 
