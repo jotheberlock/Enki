@@ -215,6 +215,24 @@ int Backend::process()
 		log_file = keep_log;
 	}
 
+    FILE * debug = fopen("debug.txt", "w");
+	for (std::list<Codegen *>::iterator cit = codegens.begin();
+         cit != codegens.end(); cit++)
+	{
+        FunctionScope * fs = (*cit)->getScope();
+        char buf[4096];
+        sprintf(buf, "function %s %d\n", fs->name().c_str(), config->image->functionAddress(fs));
+        fputs(buf, debug);
+        std::vector<Value *> locals = (*cit)->getLocals();
+        for (unsigned int loopc = 0; loopc<locals.size(); loopc++)
+        {
+            Value * v = locals[loopc];
+            sprintf(buf, "local %s %d %d\n", v->name.c_str(), v->type ? v->type->classId() : 0,  v->stackOffset());
+            fputs(buf, debug);
+        }
+    }
+    fclose(debug);
+    
 	config->image->setSectionSize(IMAGE_DATA, HEAP_SIZE);
 	fillptr = (uint64 *)config->image->getPtr(IMAGE_DATA);
 	for (int loopc = 0; loopc < HEAP_SIZE / 8; loopc++)
