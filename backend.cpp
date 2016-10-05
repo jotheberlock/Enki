@@ -216,6 +216,16 @@ int Backend::process()
 	}
 
     FILE * debug = fopen("debug.txt", "w");
+
+    std::map<std::string, Type *> & typelist = types->get();
+    for (std::map<std::string, Type *>::iterator it = typelist.begin(); it != typelist.end();
+         it++)
+    {
+        char buf[4096];
+        sprintf(buf, "type %s %d\n", (*it).first.c_str(), (*it).second->size());
+        fputs(buf, debug);
+    }
+    
 	for (std::list<Codegen *>::iterator cit = codegens.begin();
          cit != codegens.end(); cit++)
 	{
