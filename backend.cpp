@@ -222,7 +222,7 @@ int Backend::process()
          it++)
     {
         char buf[4096];
-        sprintf(buf, "type %s %d\n", (*it).first.c_str(), (*it).second->size());
+        sprintf(buf, "type %d %s %d\n", (*it).second->classId(), (*it).first.c_str(), (*it).second->size());
         fputs(buf, debug);
     }
     
