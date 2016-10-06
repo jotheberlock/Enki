@@ -24,11 +24,13 @@ class Function:
 
     name = ''
     address = 0
+    size = 0
     locals = []
     
-    def __init__(self, nam, addr):
+    def __init__(self, nam, addr, siz):
         address = addr
         name = nam
+        size = siz
 
 types = {}
 functions = []
@@ -42,7 +44,7 @@ def load():
         if line[0] == 'function':
             if current_function is not None:
                 functions.append(current_function)
-            current_function = Function(line[1], int(line[2]))
+            current_function = Function(line[1], int(line[2]), int(line[3]))
         elif line[0] == 'local':
             current_function.locals.append(Local(line[1], int(line[2]), int(line[3])))
         elif line[0] == 'type':

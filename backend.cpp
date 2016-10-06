@@ -231,7 +231,7 @@ int Backend::process()
 	{
         FunctionScope * fs = (*cit)->getScope();
         char buf[4096];
-        sprintf(buf, "function %s %d\n", fs->name().c_str(), config->image->functionAddress(fs));
+        sprintf(buf, "function %s %d %d\n", fs->name().c_str(), config->image->functionAddress(fs), config->image->functionSize(fs));
         fputs(buf, debug);
         std::vector<Value *> locals = (*cit)->getLocals();
         for (unsigned int loopc = 0; loopc<locals.size(); loopc++)
