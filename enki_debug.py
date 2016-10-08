@@ -1,41 +1,53 @@
 import gdb
+import struct
 
 class Type:
 
-    name = ''
-    size = 0
-
     def __init__(self, nam, siz):
-        name = nam
-        size = siz
+        self.name = nam
+        self.size = siz
 
 class Local:
 
-    name = ''
-    typeid = 0
-    offset = 0
-
     def __init__(self, nam, tid, off):
-        name = nam
-        typeid = tid
-        offset = off
+        self.name = nam
+        self.typeid = tid
+        self.offset = off
         
 class Function:
-
-    name = ''
-    address = 0
-    size = 0
-    locals = []
     
     def __init__(self, nam, addr, siz):
-        address = addr
-        name = nam
-        size = siz
-
+        self.address = addr
+        self.name = nam
+        self.size = siz
+        self.locals = []
+        
+    def stackSize(self):
+        largest = 0
+        for local in self.locals:
+            try:
+                local_type = types[local.typeid]
+                siz = local.offset + local_type.size
+            except KeyError:
+                print('Type '+str(local.typeid)+' unknown!')
+                siz = local.offset + 8
+            if siz > largest:
+                largest = siz
+        return largest
+    
 types = {}
 functions = []
 
+def lookupFunction(addr):
+    global functions
+    for function in functions:
+        if addr >= function.address and addr < (function.address+function.size):
+            return function
+    raise LookupError("Function not found")
+    
 def load():
+    global functions
+    global types
     file = open('debug.txt')
     lines = file.readlines()
     current_function = None
@@ -51,9 +63,12 @@ def load():
             types[int(line[1])] = Type(line[2], int(line[3]))
     if current_function is not None:
         functions.append(current_function)
+
+try:
+    load()
+except:
+    print('Failed to load debug.txt')
     
-load()
-        
 class show_locals(gdb.Command):
 
     def __init__(self):
@@ -61,11 +76,50 @@ class show_locals(gdb.Command):
 
     def get_frame_pointer(self):
         return int(gdb.parse_and_eval("$r15"))
+
+    def get_ip(self):
+        return int(gdb.parse_and_eval("$rip"))
+    
+    def display_local(self, local, bytes):
+        typename = '<unknown>'
+        size = 8
+        try:
+            typeinfo = types[local.typeid]
+            typename = typeinfo.name
+            size = typeinfo.size
+        except:
+            pass
+        
+        if size == 64:
+            sizechar = 'Q'
+        elif size == 32:
+            sizechar = 'L'
+        elif size == 16:
+            sizechar = 'H'
+        elif size == 8:
+            sizechar = 'B'
+        else:
+            sizechar = 'B'
+
+        val = struct.unpack_from(sizechar, bytes, local.offset)
+        val = val[0]
+        print(str(local.offset)+' '+typename+' '+local.name+' '+sizechar+' {:x}'.format(val))
+
+    def display_function(self, ip, fp):
+        try:
+            fun = lookupFunction(ip)
+        except LookupError:
+            print("Can't find function matching {:x} ".format(ip))
+            return
+        print('Function is '+fun.name+' stack size '+str(fun.stackSize())+' frame pointer {:x}'.format(fp))
+        inferior = gdb.selected_inferior()
+        bytes = inferior.read_memory(fp, fun.stackSize())
+        for local in fun.locals:
+            self.display_local(local, bytes)
         
     def invoke(self, arg, from_tty):
+        ip = self.get_ip()
         fp = self.get_frame_pointer()
-        print("Hello, world! Frame pointer is {:x} {:d}".format(fp,fp))
-        inferior = gdb.selected_inferior()
-        bytes = inferior.read_memory(fp, 80)
-        
+        self.display_function(ip, fp)
+
 show_locals()

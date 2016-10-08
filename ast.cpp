@@ -981,7 +981,7 @@ Expr * Parser::parseDef()
 	{
 		ft = new FunctionType(is_macro);
 	}
-
+    
 	bool already_added = false;
 
 	// Need to add proper argument overloading for generics...
@@ -1083,7 +1083,8 @@ Expr * Parser::parseDef()
 				}
 
 				current_scope = current_scope->parent();
-				return ret;
+                types->add(ft, ie->getString());
+                return ret;
 			}
 			else
 			{
@@ -1395,6 +1396,7 @@ Type * Parser::parseType()
 	if (ret_type && is_activation)
 	{
 		ret_type = new ActivationType(ret_type);
+        types->add(ret_type, "@"+ret_type->name());
 	}
 
 	if (is_const)

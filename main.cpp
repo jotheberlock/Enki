@@ -423,12 +423,14 @@ int main(int argc, char ** argv)
 	types = new Types();
 	FunctionType * root_type = new FunctionType(false);
 	root_type->setReturn(register_type);
-
+    types->add(root_type, "@root");
+    
 	root_scope = new FunctionScope(0, "@root", root_type);
 
 	FunctionType * syscall_type = new ExternalFunctionType(config.syscall, true);
 	syscall_type->setReturn(register_type);
 	Value * fptr = new Value("__syscall", syscall_type);  // Value never actually used
+    types->add(syscall_type, "__syscall");
 	root_scope->add(fptr);
 
 	calling_convention = config.cconv;

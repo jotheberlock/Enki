@@ -275,7 +275,8 @@ StructType::StructType(std::string n, bool u, StructType * p)
     assert(!types->lookup(name()+"^"));
         // So for each struct there is a pointer to the struct with
         // the class id of the struct + 1
-    new PointerType(this);
+    PointerType * pt = new PointerType(this);
+    types->add(pt, name()+"^");
 }
 
 bool StructType::construct(Codegen * c, Value * t, Value *)
@@ -605,7 +606,15 @@ Value * FunctionType::allocStackFrame(Codegen * c, Value * faddr,
 	Value * addrof = c->getTemporary(register_type, "addr_of_stackptr");
 	c->block()->add(Insn(GETADDR, addrof, next_frame_ptr, Operand::usigc(depth)));
 
-	Value * new_ptr = c->getTemporary(new ActivationType(rettype), "new_ptr");
+    std::string nam = "@"+rettype->name();
+    Type * at = types->lookup(nam);
+    if (!at)
+    {
+        at = new ActivationType(rettype);
+        types->add(at, nam);
+    }
+    
+	Value * new_ptr = c->getTemporary(at, "new_ptr");
 	c->block()->add(Insn(LOAD, new_ptr, addrof));
 
 	Value * adder = c->getTemporary(register_type, "stackptr_add");
@@ -675,7 +684,7 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * f
     Value * no_candidates = c->getTemporary(register_type, "no_candidates");
     Value * target = c->getTemporary(register_type, "targettype");
 	Value * nextparam = c->getTemporary(register_type, "nextparam");
-    for (int loopc=0; loopc<args.size(); loopc++)
+    for (unsigned int loopc=0; loopc<args.size(); loopc++)
     {
 		c->block()->add(Insn(ADD, nextparam, fp, no_candidates));  // Offset in words to next param
         c->block()->add(Insn(LOAD, no_candidates, fp));
