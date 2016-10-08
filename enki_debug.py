@@ -92,18 +92,26 @@ class show_locals(gdb.Command):
         
         if size == 64:
             sizechar = 'Q'
+            ssizechar = 'Q'
         elif size == 32:
             sizechar = 'L'
+            ssizechar = 'l'
         elif size == 16:
             sizechar = 'H'
+            ssizechar = 'h'
         elif size == 8:
             sizechar = 'B'
+            ssizechar = 'b'
         else:
             sizechar = 'B'
+            ssizechar = 'b'
 
         val = struct.unpack_from(sizechar, bytes, local.offset)
         val = val[0]
-        print(str(local.offset)+' '+typename+' '+local.name+' '+sizechar+' {:x}'.format(val))
+        sval = struct.unpack_from(ssizechar, bytes, local.offset)
+        sval = sval[0]
+        
+        print('{:<10} {:<10} {:<20} {:<20} {:<16x} {:<20}'.format(local.offset,typename, local.name, val, val, sval))
 
     def display_function(self, ip, fp):
         try:
@@ -112,6 +120,7 @@ class show_locals(gdb.Command):
             print("Can't find function matching {:x} ".format(ip))
             return
         print('Function is '+fun.name+' stack size '+str(fun.stackSize())+' frame pointer {:x}'.format(fp))
+        print('Offset     Type       Name                 Decimal              Hex              Signed')
         inferior = gdb.selected_inferior()
         bytes = inferior.read_memory(fp, fun.stackSize())
         for local in fun.locals:
