@@ -76,6 +76,7 @@ public:
 
 	std::string name() { return symbol_name; }
 	std::string fqName();
+    std::string longName();
 
 protected:
 

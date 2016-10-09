@@ -494,8 +494,8 @@ std::string StructType::display(unsigned char * addr)
 
 // frame is dynamic, ip, static link, return, args, locals
 
-Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
-	std::vector<Value *> & args)
+Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * sl,
+                                      Value * fp, std::vector<Value *> & args)
 {
 	Type * ret = c->getScope()->getType()->getReturn();
 	Value * to_add = 0;
@@ -513,23 +513,11 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
 	c->block()->add(Insn(STORE, new_frame,
 		Operand::sigc(assembler->ipOffset()), fp_holder));
 
-	// Needs expanding
-	if (c->getScope() == f->getScope())
-	{
-		// Recursive
-		Value * static_link = c->getStaticLink();
-		assert(static_link);
-
-		c->block()->add(Insn(STORE, new_frame,
-			Operand::sigc(assembler->staticLinkOffset()),
-			static_link));
-	}
-	else
-	{
-		c->block()->add(Insn(STORE, new_frame,
-			Operand::sigc(assembler->staticLinkOffset()),
-			Operand::reg(assembler->framePointer())));
-	}
+    if (sl)
+    {
+        c->block()->add(Insn(STORE, new_frame,
+                             Operand::sigc(assembler->staticLinkOffset()), sl));
+    }
 
 	int current_offset = assembler->returnOffset();
 
@@ -652,8 +640,8 @@ bool FunctionType::validArgList(std::vector<Value *> & args, std::string & reaso
 	return true;
 }
 
-Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
-	std::vector<Value *> & args)
+Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value *,
+                                              Value * fp, std::vector<Value *> & args)
 {
     return convention->generateCall(c, fp, args);   
 }
@@ -664,8 +652,9 @@ static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
         (b->getType()->getSignature());
 }
 
-Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * fp,
-	std::vector<Value *> & args)
+Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
+                                             Value * sl,Value * fp,
+                                             std::vector<Value *> & args)
 {
     Value * len = c->getTemporary(register_type, "generic_entry_len");
     c->block()->add(Insn(LOAD, len, fp));
@@ -701,7 +690,7 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f, Value * f
     c->block()->add(Insn(LOAD, ptr, fp));
     BasicBlock * genfuncall = c->newBlock("genfuncall");
     c->setBlock(genfuncall);
-    Value * ret = FunctionType::generateFuncall(c, f, ptr, args);
+    Value * ret = FunctionType::generateFuncall(c, f, sl, ptr, args);
     BasicBlock * endgenfuncall = c->newBlock("endgenfuncall");
     c->block()->add(Insn(BRA, endgenfuncall));
     c->setBlock(nomatch);
@@ -791,7 +780,6 @@ void Mtables::createSection(Image * i, Assembler * a)
     unsigned char * ptr = i->getPtr(IMAGE_MTABLES);
     unsigned char * orig = ptr;
 
-    printf("Data size is %d\n", data.size());
     for (unsigned int loopc=0; loopc<data.size(); loopc++)
     {
         MtableEntry & me = data[loopc];
@@ -801,7 +789,6 @@ void Mtables::createSection(Image * i, Assembler * a)
         if (sf_bit)
         {
             wee64(le, ptr, len);
-            printf(">>> table size is %d\n", me.table.size());
             for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
             {
                 wee64(le, ptr, me.table[loopc2]);

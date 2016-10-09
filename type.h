@@ -62,7 +62,7 @@ public:
 		return 0;
 	}
 
-	virtual Value * generateFuncall(Codegen *, Funcall *, Value *,
+	virtual Value * generateFuncall(Codegen *, Funcall *, Value *, Value *,
 		std::vector<Value *> & args)
 	{
 		printf("Illegal generateFuncall!\n");
@@ -651,8 +651,8 @@ public:
 	}
 
 	// Value will be an ActivationType, activated once
-	virtual Value * generateFuncall(Codegen *, Funcall *, Value * fp,
-		std::vector<Value *> & args);
+	virtual Value * generateFuncall(Codegen *, Funcall *, Value * sl,
+                                    Value * fp, std::vector<Value *> & args);
 
 	int size()
 	{
@@ -714,8 +714,8 @@ public:
 	}
 
 	// Value will be the literal return
-	virtual Value * generateFuncall(Codegen * c, Funcall * f, Value * fp,
-		std::vector<Value *> & args);
+	virtual Value * generateFuncall(Codegen * c, Funcall * f, Value *,
+                                    Value * fp, std::vector<Value *> & args);
 
 	int size()
 	{
@@ -765,8 +765,8 @@ public:
 	{
 	}
 
-	virtual Value * generateFuncall(Codegen * c, Funcall * f, Value * fp,
-		std::vector<Value *> & args);
+	virtual Value * generateFuncall(Codegen * c, Funcall * f, Value * sl,
+                                    Value * fp, std::vector<Value *> & args);
 
 	int size()
 	{

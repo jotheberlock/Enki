@@ -105,7 +105,6 @@ FunctionScope::FunctionScope(SymbolScope * p, std::string n, FunctionType * ft)
 	assert(byteptr);
 
 	add(new Value("__oldframe", byteptr));
-	add(new Value("__oldip", byteptr));
 	add(new Value("__ip", byteptr));
 	add(new Value("__staticlink", byteptr));
 	add(new Value("__ret", register_type));
@@ -129,6 +128,18 @@ std::string SymbolScope::fqName()
 	{
 		ret = fs->name() + "::" + ret;
 		fs = fs->parentFunction();
+	}
+	return ret;
+}
+
+std::string SymbolScope::longName()
+{
+	std::string ret = symbol_name;
+	SymbolScope * ss = parent();
+	while (ss)
+	{
+		ret = ss->name() + "::" + ret;
+		ss = ss->parent();
 	}
 	return ret;
 }

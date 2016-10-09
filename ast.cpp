@@ -1022,7 +1022,6 @@ Expr * Parser::parseDef()
 	}
 	else
 	{
-		printf("Adding new variable %s\n", name.c_str());
 		v = new Value(name, ft);
 		current_scope->add(v);
 	}
@@ -2291,9 +2290,9 @@ Value * Funcall::codegen(Codegen * c)
 {
 	Value * ptr = scope->lookupLocal(name());
 
+    int depth = 0;
 	if (!ptr)
 	{
-		int depth = 0;
 		ptr = scope->lookup(name(), depth);
 		if (ptr)
 		{
@@ -2351,7 +2350,20 @@ Value * Funcall::codegen(Codegen * c)
 		return 0;
 	}
 
-	Value * ret = ptr->type->generateFuncall(c, this, ptr, evaled_args);
+    Value * sl = c->getTemporary(register_type, "static_link");
+    if (depth == 0)
+    {
+            // Calling our own child, we are static link
+        c->block()->add(Insn(MOVE, sl, Operand::reg(assembler->framePointer())));
+    }
+    else
+    {
+            // Calling sibling, static link is same as ours
+        c->block()->add(Insn(LOAD, sl, Operand::reg(assembler->framePointer()),
+                             Operand::sigc(assembler->staticLinkOffset())));
+    }
+    
+	Value * ret = ptr->type->generateFuncall(c, this, sl, ptr, evaled_args);
 	return ret;
 }
 

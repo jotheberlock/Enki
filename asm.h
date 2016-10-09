@@ -361,22 +361,22 @@ public:
 
 	int dynamicLinkOffset()
 	{
-		return (pointerSize() * 1) / 8;
+		return 0;
 	}
 
 	int ipOffset()
 	{
-		return (pointerSize() * 2) / 8;
+		return (pointerSize() * 1) / 8;
 	}
 
 	int staticLinkOffset()
 	{
-		return (pointerSize() * 3) / 8;
+		return (pointerSize() * 2) / 8;
 	}
 
 	int returnOffset()
 	{
-		return (pointerSize() * 4) / 8;
+		return (pointerSize() * 3) / 8;
 	}
 
 	virtual int functionAlignment() = 0;
