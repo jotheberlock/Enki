@@ -13,24 +13,7 @@ ElfImage::ElfImage()
 {
 	le = true;
 	bases[IMAGE_UNALLOCED_DATA] = 0x800000;
-	sizes[IMAGE_UNALLOCED_DATA] = 4096 * 16;
-}
-
-ElfImage::ElfImage(const char * f, bool s, bool l, int a)
-{
-	base_addr = 0x400000;
-	next_addr = base_addr + 12288;
-	bases[IMAGE_UNALLOCED_DATA] = 0x800000;
-	sizes[IMAGE_UNALLOCED_DATA] = 4096 * 16;
-	fname = "a.out";
-	sf_bit = false;
-	le = true;
-	arch = 0;
-
-	fname = f;
-	sf_bit = s;
-	le = l;
-	arch = a;
+	sizes[IMAGE_UNALLOCED_DATA] = 4096 * 32;
 }
 
 bool ElfImage::configure(std::string param, std::string val)

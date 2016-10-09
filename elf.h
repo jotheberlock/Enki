@@ -9,7 +9,6 @@ class ElfImage : public Image
 public:
 
 	ElfImage();
-	ElfImage(const char *, bool, bool, int);
 	~ElfImage();
 	void finalise();
 	bool configure(std::string, std::string);
