@@ -12,6 +12,11 @@ public:
 		psize = 64;
 	}
 
+    int arch()
+    {
+        return ARCH_AMD64;
+    }
+    
 	int regnum(std::string);
 	int size(BasicBlock *);
 	bool assemble(BasicBlock *, BasicBlock *, Image *);

@@ -217,6 +217,19 @@ int Backend::process()
 
     FILE * debug = fopen("debug.txt", "w");
 
+    if (config-assembler->littleEndian())
+    {
+        fputs("endian little\n", debug);
+    }
+    else
+    {
+        fputs("endian big\n", debug);
+    }
+
+    char buf[4096];
+    sprintf(buf, "arch %d\n", config->assembler->arch());
+    fputs(buf, debug);
+    
     std::map<std::string, Type *> & typelist = types->get();
     for (std::map<std::string, Type *>::iterator it = typelist.begin(); it != typelist.end();
          it++)

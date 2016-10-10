@@ -12,6 +12,11 @@ public:
 		psize = 32;
 	}
 
+    int arch()
+    {
+        return ARCH_ARM32;
+    }
+    
 	int regnum(std::string);
     int numRegs()
     {

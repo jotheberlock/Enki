@@ -9,6 +9,7 @@
 #include "mem.h"
 #include "regset.h"
 #include "component.h"
+#include "image.h"
 
 #define LOAD 1
 #define STORE 2
@@ -379,6 +380,7 @@ public:
 		return (pointerSize() * 3) / 8;
 	}
 
+    virtual int arch() = 0;
 	virtual int functionAlignment() = 0;
 	virtual int regnum(std::string) = 0;
 	virtual int size(BasicBlock *) = 0;  // Size in bytes of machine code
