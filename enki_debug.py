@@ -1,5 +1,6 @@
 import gdb
 import struct
+import traceback
 
 class Type:
 
@@ -37,6 +38,7 @@ class Function:
     
 types = {}
 functions = []
+little_endian = True
 
 def lookupFunction(addr):
     global functions
@@ -48,6 +50,7 @@ def lookupFunction(addr):
 def load():
     global functions
     global types
+    global little_endian
     file = open('debug.txt')
     lines = file.readlines()
     current_function = None
@@ -61,6 +64,8 @@ def load():
             current_function.locals.append(Local(line[1], int(line[2]), int(line[3])))
         elif line[0] == 'type':
             types[int(line[1])] = Type(line[2], int(line[3]))
+        elif line[0] == 'endian' and line[1] == 'big':
+            little_endian = False
     if current_function is not None:
         functions.append(current_function)
 
@@ -75,12 +80,13 @@ class show_locals(gdb.Command):
         super(show_locals, self).__init__("show-locals", gdb.COMMAND_DATA)
 
     def get_frame_pointer(self):
-        return int(gdb.parse_and_eval("$r15"))
+        return int(str(gdb.parse_and_eval("$r15")).split(' ')[0],0)
 
     def get_ip(self):
-        return int(gdb.parse_and_eval("$rip"))
+        return int(str(gdb.parse_and_eval("$rip")).split(' ')[0],0)
     
     def display_local(self, local, bytes):
+        global little_endian
         typename = '<unknown>'
         size = 8
         try:
@@ -89,7 +95,12 @@ class show_locals(gdb.Command):
             size = typeinfo.size
         except:
             pass
-        
+
+        if little_endian == True:
+            endianchar = '<'
+        else:
+            endianchar = '>'
+            
         if size == 64:
             sizechar = 'Q'
             ssizechar = 'Q'
@@ -106,9 +117,11 @@ class show_locals(gdb.Command):
             sizechar = 'B'
             ssizechar = 'b'
 
-        val = struct.unpack_from(sizechar, bytes, local.offset)
+        format_str = endianchar+sizechar
+        
+        val = struct.unpack_from(format_str, bytes, local.offset)
         val = val[0]
-        sval = struct.unpack_from(ssizechar, bytes, local.offset)
+        sval = struct.unpack_from(format_str, bytes, local.offset)
         sval = sval[0]
         
         print('{:<10} {:<10} {:<20} {:<20} {:<16x} {:<20}'.format(local.offset,typename, local.name, val, val, sval))
@@ -127,8 +140,11 @@ class show_locals(gdb.Command):
             self.display_local(local, bytes)
         
     def invoke(self, arg, from_tty):
-        ip = self.get_ip()
-        fp = self.get_frame_pointer()
-        self.display_function(ip, fp)
-
+        try:
+            ip = self.get_ip()
+            fp = self.get_frame_pointer()
+            self.display_function(ip, fp)
+        except:
+            traceback.print_exc()
+            
 show_locals()
