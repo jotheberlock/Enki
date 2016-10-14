@@ -39,6 +39,8 @@ class Function:
 types = {}
 functions = []
 little_endian = True
+instruction_register = '$rip'
+frame_register = '$r15'
 
 def lookupFunction(addr):
     global functions
@@ -51,6 +53,8 @@ def load():
     global functions
     global types
     global little_endian
+    global instruction_register
+    global frame_register
     file = open('debug.txt')
     lines = file.readlines()
     current_function = None
@@ -66,6 +70,15 @@ def load():
             types[int(line[1])] = Type(line[2], int(line[3]))
         elif line[0] == 'endian' and line[1] == 'big':
             little_endian = False
+        elif line[0] == 'arch'
+            if line[1] == '1':
+                pass # x86-64
+            elif line[1] == '2':
+                # ARM32
+                instruction_register = '$pc'
+                frame_register = '$ip'
+            else:
+                print('Unknown architecture '+line[1]+'!')
     if current_function is not None:
         functions.append(current_function)
 
@@ -80,10 +93,12 @@ class show_locals(gdb.Command):
         super(show_locals, self).__init__("show-locals", gdb.COMMAND_DATA)
 
     def get_frame_pointer(self):
-        return int(str(gdb.parse_and_eval("$r15")).split(' ')[0],0)
+        global frame_register
+        return int(str(gdb.parse_and_eval(frame_register)).split(' ')[0],0)
 
     def get_ip(self):
-        return int(str(gdb.parse_and_eval("$rip")).split(' ')[0],0)
+        global instruction_register
+        return int(str(gdb.parse_and_eval(instruction_register)).split(' ')[0],0)
     
     def display_local(self, local, bytes):
         global little_endian
