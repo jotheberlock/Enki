@@ -70,15 +70,15 @@ def load():
             types[int(line[1])] = Type(line[2], int(line[3]))
         elif line[0] == 'endian' and line[1] == 'big':
             little_endian = False
-        elif line[0] == 'arch'
-            if line[1] == '1':
+        elif line[0] == 'arch':
+            if line[1] == '1\n':
                 pass # x86-64
-            elif line[1] == '2':
+            elif line[1] == '2\n':
                 # ARM32
                 instruction_register = '$pc'
                 frame_register = '$ip'
             else:
-                print('Unknown architecture '+line[1]+'!')
+                print('Unknown architecture ['+line[1]+']!')
     if current_function is not None:
         functions.append(current_function)
 
@@ -99,7 +99,18 @@ class show_locals(gdb.Command):
     def get_ip(self):
         global instruction_register
         return int(str(gdb.parse_and_eval(instruction_register)).split(' ')[0],0)
-    
+
+    def get_static_link(self, bytes):
+        global little_endian
+        if little_endian == True:
+            endianchar = '<'
+        else:
+            endianchar = '>'
+        format_str = endianchar+'Q'   # needs fixed for 32 bits
+        val = struct.unpack_from(format_str, bytes, 16)
+        val = val[0]
+        return int(val)
+        
     def display_local(self, local, bytes):
         global little_endian
         typename = '<unknown>'
@@ -153,7 +164,8 @@ class show_locals(gdb.Command):
         bytes = inferior.read_memory(fp, fun.stackSize())
         for local in fun.locals:
             self.display_local(local, bytes)
-        
+        static_link = self.get_static_link(bytes)
+            
     def invoke(self, arg, from_tty):
         try:
             ip = self.get_ip()
