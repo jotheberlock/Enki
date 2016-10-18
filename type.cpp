@@ -783,7 +783,7 @@ void Mtables::createSection(Image * i, Assembler * a)
     for (unsigned int loopc=0; loopc<data.size(); loopc++)
     {
         MtableEntry & me = data[loopc];
-        int len = me.table.size() + 2;
+        size_t len = me.table.size() + 2;
         len *= sf_bit ? 8 : 4;
         
         if (sf_bit)
@@ -803,7 +803,7 @@ void Mtables::createSection(Image * i, Assembler * a)
         }
         else
         {
-            wee32(le, ptr, len);
+            wee32(le, ptr, checked_32(len));
             for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
             {
                 wee32(le, ptr, checked_32(me.table[loopc]));
