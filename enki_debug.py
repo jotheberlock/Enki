@@ -110,7 +110,19 @@ class show_locals(gdb.Command):
         val = struct.unpack_from(format_str, bytes, 16)
         val = val[0]
         return int(val)
-        
+
+    def get_ip_from_frame(self, frameptr):
+        global little_endian
+        if little_endian == True:
+            endianchar = '<'
+        else:
+            endianchar = '>'
+        format_str = endianchar+'Q'   # needs fixed for 32 bits
+        frame_bytes = inferior.read_memory(frameptr+8, 8)        
+        val = struct.unpack_from(format_str, frame_bytes, 8)
+        val = val[0]
+        return int(val)
+    
     def display_local(self, local, bytes):
         global little_endian
         typename = '<unknown>'
@@ -165,7 +177,14 @@ class show_locals(gdb.Command):
         for local in fun.locals:
             self.display_local(local, bytes)
         static_link = self.get_static_link(bytes)
-            
+        parent_ip = self.get_ip_from_frame(static_link)
+        try:
+            parent_fun = lookupFunction(parent_ip)
+        except LookupError:
+            print("Can't find parent function matching {:x} ".format(parent_ip))
+            return
+        print('Static link parent function is '+parent_fun.name)
+        
     def invoke(self, arg, from_tty):
         try:
             ip = self.get_ip()
