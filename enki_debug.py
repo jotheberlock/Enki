@@ -41,6 +41,7 @@ functions = []
 little_endian = True
 instruction_register = '$rip'
 frame_register = '$r15'
+sf_bit = True
 
 def lookupFunction(addr):
     global functions
@@ -55,6 +56,7 @@ def load():
     global little_endian
     global instruction_register
     global frame_register
+    global sf_bit
     file = open('debug.txt')
     lines = file.readlines()
     current_function = None
@@ -77,6 +79,7 @@ def load():
                 # ARM32
                 instruction_register = '$pc'
                 frame_register = '$ip'
+                sf_bit = False
             else:
                 print('Unknown architecture ['+line[1]+']!')
     if current_function is not None:
@@ -102,24 +105,36 @@ class show_locals(gdb.Command):
 
     def get_static_link(self, bytes):
         global little_endian
+        global sf_bit
         if little_endian == True:
             endianchar = '<'
         else:
             endianchar = '>'
-        format_str = endianchar+'Q'   # needs fixed for 32 bits
-        val = struct.unpack_from(format_str, bytes, 16)
+        if sf_bit:
+            format_str = endianchar+'Q'
+            offset = 16
+        else:
+            format_str = endianchar+'L'
+            offset = 8
+        val = struct.unpack_from(format_str, bytes, offset)
         val = val[0]
         return int(val)
 
     def get_ip_from_frame(self, frameptr):
         global little_endian
+        global sf_bit
         if little_endian == True:
             endianchar = '<'
+            offset = 8
+            size = 8
+            format_str = endianchar+'Q'   
         else:
             endianchar = '>'
-        format_str = endianchar+'Q'   # needs fixed for 32 bits
-        frame_bytes = inferior.read_memory(frameptr+8, 8)        
-        val = struct.unpack_from(format_str, frame_bytes, 8)
+            offset = 4
+            size = 4
+            format_str = endianchar+'L'  
+        frame_bytes = inferior.read_memory(frameptr+offset, size)        
+        val = struct.unpack_from(format_str, frame_bytes, size)
         val = val[0]
         return int(val)
     
