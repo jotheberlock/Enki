@@ -834,9 +834,9 @@ class MtableEntry
 {
   public:
 
-    MtableEntry()
+    MtableEntry(FunctionScope * t)
     {
-        target=0;
+        target=t;
     }
     
     std::vector<uint64> table;
@@ -867,7 +867,7 @@ class Mtables
     void generateTables();
         // This turns them into bytes in the image
     void createSection(Image *, Assembler *);
-    
+
   protected:
 
     void processFunction(FunctionScope *);

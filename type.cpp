@@ -707,9 +707,8 @@ std::vector<FunctionScope *> & GenericFunctionType::getSpecialisations()
 
 void Mtables::processFunction(FunctionScope * fs)
 {
-    MtableEntry me;
-    me.target = fs;
-    
+    MtableEntry me(fs);
+     
     std::vector<StructElement> & params = fs->getType()->getParams();
     
     for (unsigned int loopc=0; loopc<params.size(); loopc++)
@@ -766,7 +765,7 @@ void Mtables::generateTables()
             printf("  %s\n", (*it2)->getType()->name().c_str());
             processFunction(*it2);
         }
-        MtableEntry term;
+        MtableEntry term(0);
         term.table.push_back(0); // Indicates end of entry
         data.push_back(term);
     } 
