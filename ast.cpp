@@ -1996,6 +1996,12 @@ Value * Return::codegen(Codegen * c)
 		Type * to_ret_type = to_ret->type;
 		Type * returnvar_type = returnvar->type;
 
+        if (!to_ret_type || !returnvar_type)
+        {
+            fprintf(log_file, "Ret types are null\n");
+            return 0;
+        }
+        
 		if (!returnvar_type->canActivate() && to_ret_type  &&
 			to_ret_type->canActivate())
 		{
