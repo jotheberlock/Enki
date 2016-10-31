@@ -125,16 +125,18 @@ class show_locals(gdb.Command):
         global sf_bit
         if little_endian == True:
             endianchar = '<'
+        else:
+            endianchar = '>'
+        if sf_bit:
             offset = 8
             size = 8
             format_str = endianchar+'Q'   
         else:
-            endianchar = '>'
             offset = 4
             size = 4
-            format_str = endianchar+'L'  
-        frame_bytes = inferior.read_memory(frameptr+offset, size)        
-        val = struct.unpack_from(format_str, frame_bytes, size)
+            format_str = endianchar+'L'
+        frame_bytes = gdb.selected_inferior().read_memory(frameptr+offset, size)
+        val = struct.unpack_from(format_str, frame_bytes, 0)
         val = val[0]
         return int(val)
     
