@@ -16,7 +16,7 @@ extern Codegen * root_gc;
 
 Configuration * configuration = 0;
 std::list<Codegen *> * codegensptr = 0;
-#define HEAP_SIZE 4096
+#define DATA_SIZE 4096
 
 Backend::Backend(Configuration * c, Expr * r)
 {
@@ -256,9 +256,9 @@ int Backend::process()
     }
     fclose(debug);
     
-	config->image->setSectionSize(IMAGE_DATA, HEAP_SIZE);
+	config->image->setSectionSize(IMAGE_DATA, DATA_SIZE);
 	fillptr = (uint64 *)config->image->getPtr(IMAGE_DATA);
-	for (int loopc = 0; loopc < HEAP_SIZE / 8; loopc++)
+	for (int loopc = 0; loopc < DATA_SIZE / 8; loopc++)
 	{
 		*fillptr = 0xdeadbeefdeadbeefLL;
 		fillptr++;
