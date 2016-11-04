@@ -411,6 +411,15 @@ std::string IntegerType::display(unsigned char * addr)
 {
 	std::string ret;
 
+    if (is_signed && size() < 65)
+    {
+        int64 * val = ((int64 *)addr);
+        char buf[4096];
+        sprintf(buf, "%lld", *val);
+        ret = buf;
+        return ret;
+    }
+    
 	// Assume little endian unsigned for now
 	for (int loopc = 0; loopc < size() / 8; loopc++)
 	{
@@ -784,6 +793,8 @@ void Mtables::createSection(Image * i, Assembler * a)
         MtableEntry & me = data[loopc];
         size_t len = me.table.size() + 2;
         len *= sf_bit ? 8 : 4;
+
+        me.offset = (ptr-orig);
         
         if (sf_bit)
         {

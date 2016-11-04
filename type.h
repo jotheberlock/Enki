@@ -837,10 +837,12 @@ class MtableEntry
     MtableEntry(FunctionScope * t)
     {
         target=t;
+        offset=0;
     }
     
     std::vector<uint64> table;
     FunctionScope * target;
+    uint64_t offset;
     
 };
 
