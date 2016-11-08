@@ -839,6 +839,8 @@ class MtableEntry
         target=t;
         offset=0;
     }
+
+    void print();
     
     std::vector<uint64> table;
     FunctionScope * target;

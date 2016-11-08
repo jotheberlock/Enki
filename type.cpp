@@ -760,6 +760,16 @@ void Mtables::processFunction(FunctionScope * fs)
     offset += me.table.size() + 2;
 }
 
+void MtableEntry::print()
+{
+    printf("%s %ld ", target->name().c_str(), offset);
+    for (int loopc=0; loopc<table.size(); loopc++)
+    {
+        printf("[%d]", table[loopc]);
+    }
+    puts("\n");
+}
+
 void Mtables::generateTables()
 {
     for (std::list<FunctionScope *>::iterator it = entries.begin(); it != entries.end(); it++)
