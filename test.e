@@ -1,6 +1,13 @@
-generic foo()
+generic test(val) Uint64
 
-def foo()
-    write("Hi!")
+def test(Byte^ val) Uint64
+    return 3
 
-foo()
+def test(Uint64 val) Uint64
+    return 4
+
+Uint64 ret = 0
+Uint64 val = 1
+ret = test(val)
+return ret
+

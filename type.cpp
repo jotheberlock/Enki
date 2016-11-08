@@ -556,10 +556,13 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * sl,
 		Type * intype = arg->type;
 		Type * expectedtype = params[loopc].type;
 
-		if (intype && !expectedtype->canActivate() && intype->canActivate())
-		{
-			arg = intype->getActivatedValue(c, arg);
-		}
+        if (expectedtype) // not available for generics yet!
+        {
+            if (intype && !expectedtype->canActivate() && intype->canActivate())
+            {
+                arg = intype->getActivatedValue(c, arg);
+            }
+        }
 
 		c->block()->add(Insn(STORE, new_frame, Operand::sigc(current_offset), arg));
 		current_offset += args[loopc]->type->size() / 8;
@@ -775,7 +778,7 @@ void Mtables::generateTables()
     for (std::list<FunctionScope *>::iterator it = entries.begin(); it != entries.end(); it++)
     {
         GenericFunctionType * gft = (GenericFunctionType *)(*it)->getType();
-        printf("Processing generic %s\n", gft->name().c_str());
+        printf("Processing generic <%s>\n", gft->name().c_str());
         offsets[(*it)] = offset;
         std::vector<FunctionScope *> specialisations = gft->getSpecialisations();
         for (std::vector<FunctionScope *>::iterator it2 = specialisations.begin();
