@@ -675,8 +675,8 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     Value * typecode = c->getTemporary(register_type, "generic_typecode");
     c->block()->add(Insn(LOAD, typecode, fp));
     c->block()->add(Insn(CMP, typecode, Operand::usigc(0)));
-    BasicBlock * nomatch = c->newBlock("nomatch");
-    BasicBlock * checkmatch = c->newBlock("checkmatch");
+    BasicBlock * nomatch = c->newBlock("no_match");
+    BasicBlock * checkmatch = c->newBlock("check_match");
     c->block()->add(Insn(BEQ, nomatch, checkmatch));
     c->setBlock(checkmatch);
         // function type checking goes here
@@ -685,20 +685,22 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     Value * no_candidates = c->getTemporary(register_type, "no_candidates");
     Value * target = c->getTemporary(register_type, "targettype");
 	Value * nextparam = c->getTemporary(register_type, "nextparam");
+
+    uint64 wordsize = register_type->size() / 8;
     
     for (unsigned int loopc=0; loopc<args.size(); loopc++)
     {
 		c->block()->add(Insn(ADD, nextparam, fp, no_candidates));  // Offset in words to next param
         c->block()->add(Insn(LOAD, no_candidates, fp));
         c->block()->add(Insn(ADD, fp, fp, 
-                         Operand::usigc(register_type->size() / 8)));
+                         Operand::usigc(wordsize)));
         BasicBlock * eb = c->newBlock("candidate_match_end");
         BasicBlock * candidate_checker = c->newBlock("candidate_checker");
         c->setBlock(candidate_checker);
             // Loop here
         c->block()->add(Insn(LOAD, target, fp));
         c->block()->add(Insn(ADD, fp, fp, 
-                         Operand::usigc(register_type->size() / 8)));
+                         Operand::usigc(wordsize)));
         c->block()->add(Insn(SUB, no_candidates, no_candidates, Operand::usigc(1)));
         c->block()->add(Insn(CMP, no_candidates, Operand::usigc(0)));
         c->block()->add(Insn(BNE, candidate_checker, eb));
