@@ -782,6 +782,20 @@ void MtableEntry::print()
     puts("\n");
 }
 
+//  Per generic function:
+//    Per candidate actual function, sorted in descending order of specifity:
+//      Function pointer
+//      Offset to next candidate
+//      Per argument, prefixed with length code:
+//        Type code for a potential match
+//
+//  Go to first candidate, then:
+//    If the function pointer is 0 we have no more candidates; die
+//    Load function pointer, calculate address of next candidate
+//    Go through each arg. If any of the type codes match, go to the next arg,
+//    otherwise go to the next candidate.
+//    If all the args have matched, call the function pointer
+
 void Mtables::generateTables()
 {
     for (std::list<FunctionScope *>::iterator it = entries.begin(); it != entries.end(); it++)
