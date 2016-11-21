@@ -784,17 +784,17 @@ void MtableEntry::print()
 
 //  Per generic function:
 //    Per candidate actual function, sorted in descending order of specifity:
-//      Function pointer
 //      Offset to next candidate
 //      Per argument, prefixed with length code:
 //        Type code for a potential match
+//      Function pointer
 //
 //  Go to first candidate, then:
 //    If the function pointer is 0 we have no more candidates; die
-//    Load function pointer, calculate address of next candidate
+//    Calculate address of next candidate
 //    Go through each arg. If any of the type codes match, go to the next arg,
 //    otherwise go to the next candidate.
-//    If all the args have matched, call the function pointer
+//    If all the args have matched, load the function pointer at the end, then call it
 
 void Mtables::generateTables()
 {
