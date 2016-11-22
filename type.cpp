@@ -834,9 +834,21 @@ void Mtables::createSection(Image * i, Assembler * a)
         
         if (sf_bit)
         {
+			printf("%lld", len);
             wee64(le, ptr, len);
+			uint64 count = 0;
             for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
             {
+				if (count == 0)
+				{
+					count = me.table[loopc2];
+					printf(" ");
+				}
+				else
+				{
+					count--;
+				}
+				printf("[%lld]", me.table[loopc2]);
                 wee64(le, ptr, me.table[loopc2]);
             }
 
@@ -844,8 +856,13 @@ void Mtables::createSection(Image * i, Assembler * a)
             {
                 MtableRelocation * mr = new MtableRelocation(i, me.target, ptr-orig);
                 mr->add64();
+				printf(" ptr\n");
                 wee64(le, ptr, 0xfeedbeeffeedbeefLL);
             }
+			else
+			{
+				printf("end\n");
+			}
         }
         else
         {
