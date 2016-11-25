@@ -834,7 +834,7 @@ void Mtables::createSection(Image * i, Assembler * a)
         
         if (sf_bit)
         {
-			printf("%lld", len);
+			printf("%llx %lld", me.offset, len);
             wee64(le, ptr, len);
 			uint64 count = 0;
             for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
