@@ -664,10 +664,124 @@ static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
         (b->getType()->getSignature());
 }
 
+//  Per generic function:
+//    Per candidate actual function, sorted in descending order of specifity:
+//      Offset to next candidate
+//      Per argument, prefixed with length code:
+//        Type code for a potential match
+//      Function pointer
+//
+//  Go to first candidate, then:
+//    If the function pointer is 0 we have no more candidates; die
+//    Calculate address of next candidate
+//    Go through each arg. If any of the type codes match, go to the next arg,
+//    otherwise go to the next candidate.
+//    If all the args have matched, load the function pointer at the end, then call it
+
 Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
                                              Value * sl,Value * fp,
                                              std::vector<Value *> & args)
 {
+    uint64 wordsize = register_type->size() / 8;
+    
+    BasicBlock * no_functions_found = c->newBlock("no_functions_found");
+    no_functions_found->add(Insn(BREAKP));
+
+    BasicBlock * arguments_loop_header = c->newBlock("arguments_loop_header");
+    c->setBlock(arguments_loop_header);
+    
+    BasicBlock * start_candidate = c->newBlock("start_candidate");
+    c->setBlock(start_candidate);
+    Value * next_candidate = c->getTemporary(register_type, "next_candidate");
+    start_candidate->add(Insn(LOAD, next_candidate,fp));
+    start_candidate->add(Insn(ADD, next_candidate, next_candidate, fp));
+    start_candidate->add(Insn(CMP, next_candidate, Operand::usigc(0)));
+    start_candidate->add(Insn(BEQ, no_functions_found, arguments_loop_header));
+
+    c->block()->add(Insn(ADD, fp, fp, 
+                         Operand::usigc(wordsize)));
+        
+    Value * arguments_loop_counter = c->getTemporary(register_type, "arguments_loop_counter");
+    arguments_loop_header->add(Insn(MOVE, arguments_loop_counter, Operand::usigc(args.size())));
+
+    Value * possible_matches = c->getTemporary(register_type, "possible_matches");
+    Value * matched = c->getTemporary(register_type, "matched");
+
+    BasicBlock * arguments_loop_body = c->newBlock("arguments_loop_body");
+    c->setBlock(arguments_loop_body);
+    BasicBlock * arguments_loop_tail = c->newBlock("arguments_loop_tail");
+
+    BasicBlock * no_we_did_not = c->newBlock("no_we_did_not");
+    no_we_did_not->add(Insn(MOVE, fp, next_candidate));
+    no_we_did_not->add(Insn(BRA, arguments_loop_header));
+
+    arguments_loop_header->add(Insn(BRA, arguments_loop_body));
+    
+    BasicBlock * possible_matches_header = c->newBlock("possible_matches_header_0");
+    for (unsigned int loopc=0; loopc<args.size(); loopc++)
+    {
+        c->setBlock(possible_matches_header);
+        char buf[4096];
+        sprintf(buf, "%d", loopc);
+        std::string argnum(buf);
+        
+        if (loopc == 0)
+        {
+            arguments_loop_body->add(Insn(BRA, possible_matches_header));
+        }
+        
+        possible_matches_header->add(Insn(LOAD, possible_matches, fp));
+        possible_matches_header->add(Insn(ADD, fp, fp, 
+                                        Operand::usigc(wordsize)));
+
+        BasicBlock * possible_matches_body = c->newBlock("possible_matches_body"+argnum);
+        c->setBlock(possible_matches_body);
+        Value * candidate_type = c->getTemporary(register_type, "candidate_type");
+        possible_matches_body->add(Insn(LOAD, candidate_type,  fp));
+        possible_matches_body->add(Insn(ADD, fp, fp, 
+                                        Operand::usigc(wordsize)));
+        Value * actual_type = c->getTemporary(register_type, "actual_type");
+        possible_matches_body->add(Insn(MOVE, actual_type, Operand::usigc(args[loopc]->type->classId())));
+        
+        possible_matches_body->add(Insn(CMP, candidate_type, actual_type));
+        possible_matches_body->add(Insn(SELEQ, matched, Operand::usigc(1), matched));
+        
+        BasicBlock * did_we_find_a_match = c->newBlock("did_we_find_a_match");
+        possible_matches_body->add(Insn(SUB, possible_matches, possible_matches,
+                                        Operand::usigc(1)));
+        possible_matches_body->add(Insn(CMP, possible_matches, Operand::usigc(0)));
+        possible_matches_body->add(Insn(BEQ, possible_matches_body, did_we_find_a_match));
+
+        c->setBlock(did_we_find_a_match);
+        did_we_find_a_match->add(Insn(CMP, matched, Operand::usigc(0)));
+        possible_matches_header = c->newBlock("possible_matches_header_"+argnum);
+        did_we_find_a_match->add(Insn(BEQ, no_we_did_not, possible_matches_header));
+    }
+
+    c->setBlock(possible_matches_header);  // blank
+    possible_matches_header->add(Insn(BRA, arguments_loop_tail));
+    c->setBlock(arguments_loop_tail);
+    arguments_loop_tail->add(Insn(SUB, arguments_loop_counter, arguments_loop_counter,
+                                  Operand::usigc(1)));
+    arguments_loop_tail->add(Insn(CMP, arguments_loop_counter, Operand::usigc(0)));
+        // We got to the end of all the arguments without noping out,
+        // thus we have a match
+    BasicBlock * found_match = c->newBlock("found_match");
+    arguments_loop_tail->add(Insn(BEQ, found_match, arguments_loop_body));
+    c->setBlock(no_functions_found);  // Jam it in any old where
+    c->setBlock(no_we_did_not);  // Ditto
+    c->setBlock(found_match);
+    Value * ptr = c->getTemporary(register_type, "genfunptr");
+    c->block()->add(Insn(LOAD, ptr, fp));
+    BasicBlock * genfuncall = c->newBlock("genfuncall");
+    c->setBlock(genfuncall);
+    Value * ret = FunctionType::generateFuncall(c, f, sl, ptr, args);
+    BasicBlock * endgenfuncall = c->newBlock("endgenfuncall");
+    c->block()->add(Insn(BRA, endgenfuncall));
+    c->setBlock(endgenfuncall);
+    return ret;
+    
+        /*
     Value * len = c->getTemporary(register_type, "generic_entry_len");
     c->block()->add(Insn(LOAD, len, fp));
     c->block()->add(Insn(ADD, fp, fp,
@@ -713,11 +827,11 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     c->setBlock(genfuncall);
     Value * ret = FunctionType::generateFuncall(c, f, sl, ptr, args);
     BasicBlock * endgenfuncall = c->newBlock("endgenfuncall");
-    c->block()->add(Insn(BRA, endgenfuncall));
     c->setBlock(nomatch);
     c->block()->add(Insn(BREAKP));
     c->setBlock(endgenfuncall);
 	return ret;
+        */
 }
 
 std::vector<FunctionScope *> & GenericFunctionType::getSpecialisations()
@@ -782,20 +896,6 @@ void MtableEntry::print()
     puts("\n");
 }
 
-//  Per generic function:
-//    Per candidate actual function, sorted in descending order of specifity:
-//      Offset to next candidate
-//      Per argument, prefixed with length code:
-//        Type code for a potential match
-//      Function pointer
-//
-//  Go to first candidate, then:
-//    If the function pointer is 0 we have no more candidates; die
-//    Calculate address of next candidate
-//    Go through each arg. If any of the type codes match, go to the next arg,
-//    otherwise go to the next candidate.
-//    If all the args have matched, load the function pointer at the end, then call it
-
 void Mtables::generateTables()
 {
     for (std::list<FunctionScope *>::iterator it = entries.begin(); it != entries.end(); it++)
@@ -810,8 +910,7 @@ void Mtables::generateTables()
             printf("  %s\n", (*it2)->getType()->name().c_str());
             processFunction(*it2);
         }
-        MtableEntry term(0);
-        term.table.push_back(0); // Indicates end of entry
+        MtableEntry term(0);  // Empty table endicates end of entry
         data.push_back(term);
     } 
 }
@@ -827,7 +926,7 @@ void Mtables::createSection(Image * i, Assembler * a)
     for (unsigned int loopc=0; loopc<data.size(); loopc++)
     {
         MtableEntry & me = data[loopc];
-        size_t len = me.table.size() + 2;
+        size_t len = me.table.size() == 0 ? 0 : me.table.size() + 2;
         len *= sf_bit ? 8 : 4;
 
         me.offset = (ptr-orig);
@@ -861,7 +960,7 @@ void Mtables::createSection(Image * i, Assembler * a)
             }
 			else
 			{
-				printf("end\n");
+				printf(" end\n");
 			}
         }
         else
