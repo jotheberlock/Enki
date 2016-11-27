@@ -681,7 +681,7 @@ static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
 Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
                                              Value * sl,Value * fp,
                                              std::vector<Value *> & args)
-{
+{   
     uint64 wordsize = register_type->size() / 8;
     
     BasicBlock * no_functions_found = c->newBlock("no_functions_found");
@@ -689,17 +689,19 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
 
     BasicBlock * arguments_loop_header = c->newBlock("arguments_loop_header");
     c->setBlock(arguments_loop_header);
+ 
+    Value * pointer = c->getTemporary(register_type, "pointer");
+    arguments_loop_header->add(Insn(MOVE, pointer, fp));
     
     BasicBlock * start_candidate = c->newBlock("start_candidate");
     c->setBlock(start_candidate);
+    Value * next_candidate_offset = c->getTemporary(register_type, "next_candidate_offset");
     Value * next_candidate = c->getTemporary(register_type, "next_candidate");
-    start_candidate->add(Insn(LOAD, next_candidate,fp));
-    start_candidate->add(Insn(ADD, next_candidate, next_candidate, fp));
-    start_candidate->add(Insn(CMP, next_candidate, Operand::usigc(0)));
+    start_candidate->add(Insn(LOAD, next_candidate,pointer));
+    start_candidate->add(Insn(ADD, next_candidate, next_candidate_offset, pointer));
+    start_candidate->add(Insn(ADD, pointer, pointer, Operand::usigc(wordsize)));
+    start_candidate->add(Insn(CMP, next_candidate_offset, Operand::usigc(0)));
     start_candidate->add(Insn(BEQ, no_functions_found, arguments_loop_header));
-
-    c->block()->add(Insn(ADD, fp, fp, 
-                         Operand::usigc(wordsize)));
         
     Value * arguments_loop_counter = c->getTemporary(register_type, "arguments_loop_counter");
     arguments_loop_header->add(Insn(MOVE, arguments_loop_counter, Operand::usigc(args.size())));
@@ -712,7 +714,7 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     BasicBlock * arguments_loop_tail = c->newBlock("arguments_loop_tail");
 
     BasicBlock * no_we_did_not = c->newBlock("no_we_did_not");
-    no_we_did_not->add(Insn(MOVE, fp, next_candidate));
+    no_we_did_not->add(Insn(MOVE, pointer, next_candidate));
     no_we_did_not->add(Insn(BRA, arguments_loop_header));
 
     arguments_loop_header->add(Insn(BRA, arguments_loop_body));
@@ -730,15 +732,15 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
             arguments_loop_body->add(Insn(BRA, possible_matches_header));
         }
         
-        possible_matches_header->add(Insn(LOAD, possible_matches, fp));
-        possible_matches_header->add(Insn(ADD, fp, fp, 
+        possible_matches_header->add(Insn(LOAD, possible_matches, pointer));
+        possible_matches_header->add(Insn(ADD, pointer, pointer, 
                                         Operand::usigc(wordsize)));
 
         BasicBlock * possible_matches_body = c->newBlock("possible_matches_body"+argnum);
         c->setBlock(possible_matches_body);
         Value * candidate_type = c->getTemporary(register_type, "candidate_type");
-        possible_matches_body->add(Insn(LOAD, candidate_type,  fp));
-        possible_matches_body->add(Insn(ADD, fp, fp, 
+        possible_matches_body->add(Insn(LOAD, candidate_type,  pointer));
+        possible_matches_body->add(Insn(ADD, pointer, pointer, 
                                         Operand::usigc(wordsize)));
         Value * actual_type = c->getTemporary(register_type, "actual_type");
         possible_matches_body->add(Insn(MOVE, actual_type, Operand::usigc(args[loopc]->type->classId())));
@@ -772,7 +774,7 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     c->setBlock(no_we_did_not);  // Ditto
     c->setBlock(found_match);
     Value * ptr = c->getTemporary(register_type, "genfunptr");
-    c->block()->add(Insn(LOAD, ptr, fp));
+    c->block()->add(Insn(LOAD, ptr, pointer));
     BasicBlock * genfuncall = c->newBlock("genfuncall");
     c->setBlock(genfuncall);
     Value * ret = FunctionType::generateFuncall(c, f, sl, ptr, args);
