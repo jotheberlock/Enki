@@ -697,7 +697,7 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     c->setBlock(start_candidate);
     Value * next_candidate_offset = c->getTemporary(register_type, "next_candidate_offset");
     Value * next_candidate = c->getTemporary(register_type, "next_candidate");
-    start_candidate->add(Insn(LOAD, next_candidate,pointer));
+    start_candidate->add(Insn(LOAD, next_candidate_offset, pointer));
     start_candidate->add(Insn(ADD, next_candidate, next_candidate_offset, pointer));
     start_candidate->add(Insn(ADD, pointer, pointer, Operand::usigc(wordsize)));
     start_candidate->add(Insn(CMP, next_candidate_offset, Operand::usigc(0)));
@@ -731,7 +731,8 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
         {
             arguments_loop_body->add(Insn(BRA, possible_matches_header));
         }
-        
+
+        possible_matches_header->add(Insn(MOVE, matched, Operand::usigc(0)));
         possible_matches_header->add(Insn(LOAD, possible_matches, pointer));
         possible_matches_header->add(Insn(ADD, pointer, pointer, 
                                         Operand::usigc(wordsize)));
@@ -782,58 +783,6 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     c->block()->add(Insn(BRA, endgenfuncall));
     c->setBlock(endgenfuncall);
     return ret;
-    
-        /*
-    Value * len = c->getTemporary(register_type, "generic_entry_len");
-    c->block()->add(Insn(LOAD, len, fp));
-    c->block()->add(Insn(ADD, fp, fp,
-                         Operand::usigc(register_type->size() / 8)));
-    Value * typecode = c->getTemporary(register_type, "generic_typecode");
-    c->block()->add(Insn(LOAD, typecode, fp));
-    c->block()->add(Insn(CMP, typecode, Operand::usigc(0)));
-    BasicBlock * nomatch = c->newBlock("no_match");
-    BasicBlock * checkmatch = c->newBlock("check_match");
-    c->block()->add(Insn(BEQ, nomatch, checkmatch));
-    c->setBlock(checkmatch);
-        // function type checking goes here
-        // fp now points to the actual function pointer
-
-    Value * no_candidates = c->getTemporary(register_type, "no_candidates");
-    Value * target = c->getTemporary(register_type, "targettype");
-	Value * nextparam = c->getTemporary(register_type, "nextparam");
-
-    uint64 wordsize = register_type->size() / 8;
-    
-    for (unsigned int loopc=0; loopc<args.size(); loopc++)
-    {
-		c->block()->add(Insn(ADD, nextparam, fp, no_candidates));  // Offset in words to next param
-        c->block()->add(Insn(LOAD, no_candidates, fp));
-        c->block()->add(Insn(ADD, fp, fp, 
-                         Operand::usigc(wordsize)));
-        BasicBlock * eb = c->newBlock("candidate_match_end");
-        BasicBlock * candidate_checker = c->newBlock("candidate_checker");
-        c->setBlock(candidate_checker);
-            // Loop here
-        c->block()->add(Insn(LOAD, target, fp));
-        c->block()->add(Insn(ADD, fp, fp, 
-                         Operand::usigc(wordsize)));
-        c->block()->add(Insn(SUB, no_candidates, no_candidates, Operand::usigc(1)));
-        c->block()->add(Insn(CMP, no_candidates, Operand::usigc(0)));
-        c->block()->add(Insn(BNE, candidate_checker, eb));
-        c->setBlock(eb);
-    }
-    
-    Value * ptr = c->getTemporary(register_type, "genfunptr");
-    c->block()->add(Insn(LOAD, ptr, fp));
-    BasicBlock * genfuncall = c->newBlock("genfuncall");
-    c->setBlock(genfuncall);
-    Value * ret = FunctionType::generateFuncall(c, f, sl, ptr, args);
-    BasicBlock * endgenfuncall = c->newBlock("endgenfuncall");
-    c->setBlock(nomatch);
-    c->block()->add(Insn(BREAKP));
-    c->setBlock(endgenfuncall);
-	return ret;
-        */
 }
 
 std::vector<FunctionScope *> & GenericFunctionType::getSpecialisations()
