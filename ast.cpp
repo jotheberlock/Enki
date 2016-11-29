@@ -1015,7 +1015,8 @@ Expr * Parser::parseDef()
 		{
 			char buf[4096];
 			sprintf(buf, "_generic_%s_%d", name.c_str(), generic_counter);
-			v = new Value(buf, ft);
+			name = buf;
+			v = new Value(name, ft);
 			current_scope->add(v);
 			generic_counter++;
 		}
