@@ -57,7 +57,7 @@ def load():
     global instruction_register
     global frame_register
     global sf_bit
-    file = open('debug.txt')
+    file = open('debug.txt', 'rb')
     lines = file.readlines()
     current_function = None
     for line in lines:
