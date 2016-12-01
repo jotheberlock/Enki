@@ -906,7 +906,7 @@ void Mtables::createSection(Image * i, Assembler * a)
             {
                 MtableRelocation * mr = new MtableRelocation(i, me.target, ptr-orig);
                 mr->add64();
-				printf(" ptr\n");
+				printf(" ptr, offset %d\n", ptr-orig);
                 wee64(le, ptr, 0xfeedbeeffeedbeefLL);
             }
 			else
