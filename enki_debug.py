@@ -194,14 +194,17 @@ class show_locals(gdb.Command):
         for local in fun.locals:
             self.display_local(local, bytes)
         static_link = self.get_static_link(bytes)
-        parent_ip = self.get_ip_from_frame(static_link)
-        try:
-            parent_fun = lookupFunction(parent_ip)
-        except LookupError:
-            print("Can't find parent function matching {:x} ".format(parent_ip))
-            return
-        print('Static link parent function is '+parent_fun.name)
-        
+        if static_link != 0:
+            parent_ip = self.get_ip_from_frame(static_link)
+            try:
+                parent_fun = lookupFunction(parent_ip)
+            except LookupError:
+                print("Can't find parent function matching {:x} ".format(parent_ip))
+                return
+            print('Static link parent function is '+parent_fun.name)
+        else:
+            print('Top-level function')
+                
     def invoke(self, arg, from_tty):
         try:
             ip = self.get_ip()
