@@ -858,7 +858,7 @@ void Mtables::generateTables()
         for (std::vector<FunctionScope *>::iterator it2 = specialisations.begin();
              it2 != specialisations.end(); it2++)
         {
-            printf("  %s\n", (*it2)->getType()->name().c_str());
+            printf("  <%s>\n", (*it2)->getType()->name().c_str());
             processFunction(*it2);
         }
         MtableEntry term(0);  // Empty table endicates end of entry
@@ -884,7 +884,7 @@ void Mtables::createSection(Image * i, Assembler * a)
         
         if (sf_bit)
         {
-			printf("%llx %lld", me.offset, len);
+			printf("(%llx) length %lld", me.offset, len);
             wee64(le, ptr, len);
 			uint64 count = 0;
             for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
@@ -906,7 +906,7 @@ void Mtables::createSection(Image * i, Assembler * a)
             {
                 MtableRelocation * mr = new MtableRelocation(i, me.target, ptr-orig);
                 mr->add64();
-				printf(" ptr\n");
+				printf(" ptr, offset %d\n", ptr-orig);
                 wee64(le, ptr, 0xfeedbeeffeedbeefLL);
             }
 			else
