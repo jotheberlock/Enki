@@ -687,29 +687,28 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     BasicBlock * no_functions_found = c->newBlock("no_functions_found");
     no_functions_found->add(Insn(BREAKP));
 
-    BasicBlock * arguments_loop_header = c->newBlock("arguments_loop_header");
-    c->setBlock(arguments_loop_header);
- 
-    Value * pointer = c->getTemporary(register_type, "pointer");
-    arguments_loop_header->add(Insn(MOVE, pointer, fp));
-    
     BasicBlock * start_candidate = c->newBlock("start_candidate");
     c->setBlock(start_candidate);
+    
+    BasicBlock * arguments_loop_header = c->newBlock("arguments_loop_header");
+    c->setBlock(arguments_loop_header);
+
+    BasicBlock * arguments_loop_body = c->newBlock("arguments_loop_body");
+    
+    Value * pointer = c->getTemporary(register_type, "pointer");
+    start_candidate->add(Insn(MOVE, pointer, fp));
+    
     Value * next_candidate_offset = c->getTemporary(register_type, "next_candidate_offset");
     Value * next_candidate = c->getTemporary(register_type, "next_candidate");
-    start_candidate->add(Insn(LOAD, next_candidate_offset, pointer));
-    start_candidate->add(Insn(ADD, next_candidate, next_candidate_offset, pointer));
-    start_candidate->add(Insn(ADD, pointer, pointer, Operand::usigc(wordsize)));
-    start_candidate->add(Insn(CMP, next_candidate_offset, Operand::usigc(0)));
-    start_candidate->add(Insn(BEQ, no_functions_found, arguments_loop_header));
+    arguments_loop_header->add(Insn(LOAD, next_candidate_offset, pointer));
+    arguments_loop_header->add(Insn(ADD, next_candidate, next_candidate_offset, pointer));
+    arguments_loop_header->add(Insn(ADD, pointer, pointer, Operand::usigc(wordsize)));
+    arguments_loop_header->add(Insn(CMP, next_candidate_offset, Operand::usigc(0)));
+    arguments_loop_header->add(Insn(BEQ, no_functions_found, arguments_loop_body));
         
-    Value * arguments_loop_counter = c->getTemporary(register_type, "arguments_loop_counter");
-    arguments_loop_header->add(Insn(MOVE, arguments_loop_counter, Operand::usigc(args.size())));
-
     Value * possible_matches = c->getTemporary(register_type, "possible_matches");
     Value * matched = c->getTemporary(register_type, "matched");
 
-    BasicBlock * arguments_loop_body = c->newBlock("arguments_loop_body");
     c->setBlock(arguments_loop_body);
     BasicBlock * arguments_loop_tail = c->newBlock("arguments_loop_tail");
 
@@ -736,7 +735,7 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
         possible_matches_header->add(Insn(LOAD, possible_matches, pointer));
         possible_matches_header->add(Insn(ADD, pointer, pointer, 
                                         Operand::usigc(wordsize)));
-
+        
         BasicBlock * possible_matches_body = c->newBlock("possible_matches_body"+argnum);
         c->setBlock(possible_matches_body);
         Value * candidate_type = c->getTemporary(register_type, "candidate_type");
@@ -753,7 +752,7 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
         possible_matches_body->add(Insn(SUB, possible_matches, possible_matches,
                                         Operand::usigc(1)));
         possible_matches_body->add(Insn(CMP, possible_matches, Operand::usigc(0)));
-        possible_matches_body->add(Insn(BEQ, possible_matches_body, did_we_find_a_match));
+        possible_matches_body->add(Insn(BEQ, did_we_find_a_match, possible_matches_body));
 
         c->setBlock(did_we_find_a_match);
         did_we_find_a_match->add(Insn(CMP, matched, Operand::usigc(0)));
@@ -764,9 +763,6 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     c->setBlock(possible_matches_header);  // blank
     possible_matches_header->add(Insn(BRA, arguments_loop_tail));
     c->setBlock(arguments_loop_tail);
-    arguments_loop_tail->add(Insn(SUB, arguments_loop_counter, arguments_loop_counter,
-                                  Operand::usigc(1)));
-    arguments_loop_tail->add(Insn(CMP, arguments_loop_counter, Operand::usigc(0)));
         // We got to the end of all the arguments without noping out,
         // thus we have a match
     BasicBlock * found_match = c->newBlock("found_match");
