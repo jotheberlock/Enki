@@ -206,7 +206,10 @@ class show_locals(gdb.Command):
         try:
             ip = self.get_ip()
             fp = self.get_frame_pointer()
-            self.display_function(ip, fp)
+            if fp == 0:
+                print('Null frame pointer!')
+            else:
+                self.display_function(ip, fp)
         except:
             traceback.print_exc()
             
