@@ -485,12 +485,10 @@ unsigned char * ExtFunctionRelocation::getPtr()
 
 unsigned char * MtableRelocation::getPtr()
 {
-    printf("Patch offset %x\n", patch_offset);
     return image->getPtr(IMAGE_MTABLES) + patch_offset;
 }
 
 uint64 MtableRelocation::getValue()
 {
-    printf("Mtable relocation %llx\n", image->functionAddress(to_link));
     return image->functionAddress(to_link);
 }

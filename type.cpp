@@ -723,7 +723,7 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     {
         c->setBlock(possible_matches_header);
         char buf[4096];
-        sprintf(buf, "%d", loopc);
+        sprintf(buf, "%d", loopc+1);
         std::string argnum(buf);
         
         if (loopc == 0)
@@ -766,7 +766,7 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
         // We got to the end of all the arguments without noping out,
         // thus we have a match
     BasicBlock * found_match = c->newBlock("found_match");
-    arguments_loop_tail->add(Insn(BEQ, found_match, arguments_loop_body));
+    arguments_loop_tail->add(Insn(BRA, found_match));
     c->setBlock(no_functions_found);  // Jam it in any old where
     c->setBlock(no_we_did_not);  // Ditto
     c->setBlock(found_match);
@@ -848,13 +848,11 @@ void Mtables::generateTables()
     for (std::list<FunctionScope *>::iterator it = entries.begin(); it != entries.end(); it++)
     {
         GenericFunctionType * gft = (GenericFunctionType *)(*it)->getType();
-        printf("Processing generic <%s>\n", gft->name().c_str());
         offsets[(*it)] = offset;
         std::vector<FunctionScope *> specialisations = gft->getSpecialisations();
         for (std::vector<FunctionScope *>::iterator it2 = specialisations.begin();
              it2 != specialisations.end(); it2++)
         {
-            printf("  <%s>\n", (*it2)->getType()->name().c_str());
             processFunction(*it2);
         }
         MtableEntry term(0);  // Empty table endicates end of entry
@@ -880,7 +878,9 @@ void Mtables::createSection(Image * i, Assembler * a)
         
         if (sf_bit)
         {
+#ifdef DEBUG_MTABLES
 			printf("(%llx) length %lld", ptr-orig, len);
+#endif
             wee64(le, ptr, len);
 			uint64 count = 0;
             for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
@@ -888,13 +888,17 @@ void Mtables::createSection(Image * i, Assembler * a)
 				if (count == 0)
 				{
 					count = me.table[loopc2];
+#ifdef DEBUG_MTABLES
 					printf(" ");
+#endif
 				}
 				else
 				{
 					count--;
 				}
+#ifdef DEBUG_MTABLES
 				printf("(%llx)[%lld]", ptr-orig, me.table[loopc2]);
+#endif
                 wee64(le, ptr, me.table[loopc2]);
             }
 
@@ -902,12 +906,16 @@ void Mtables::createSection(Image * i, Assembler * a)
             {
                 MtableRelocation * mr = new MtableRelocation(i, me.target, ptr-orig);
                 mr->add64();
+#ifdef DEBUG_MTABLES
 				printf(" (%llx)ptr\n", ptr-orig);
+#endif
                 wee64(le, ptr, 0xfeedbeeffeedbeefLL);
             }
 			else
 			{
+#ifdef DEBUG_MTABLES
 				printf(" (%llx)end\n", ptr-orig);
+#endif
 			}
         }
         else

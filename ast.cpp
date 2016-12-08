@@ -995,11 +995,11 @@ Expr * Parser::parseDef()
 	{
 		if (prev->isGeneric())
 		{
-			printf("Found generic!\n");
+                //printf("Found generic!\n");
 		}
 		else
 		{
-			printf("Found non-generic %s\n", prev->fqName().c_str());
+                //printf("Found non-generic %s\n", prev->fqName().c_str());
 		}
 	}
 
@@ -1032,7 +1032,6 @@ Expr * Parser::parseDef()
 		ft);
 	if (prev && prev->isGeneric())
 	{
-		printf("Adding specialiser\n");
 		prev->getType()->registerSpecialiser(fs);
 	}
 	else
