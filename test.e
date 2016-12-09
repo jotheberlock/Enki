@@ -1,14 +1,16 @@
+struct Foo
+    Uint64 thing
+
 generic test(val) Uint64
 
-def test(Uint64 val) Uint64
-    return 4
+def test(Foo^ val) Uint64
+    write("Foo ")
+    return 1
 
-def test(Byte^ val) Uint64
-    return 3
-
-Uint64 ret = 0
-Uint64 val = 1
-__break
-ret = test(val)
+Foo foo
+Foo^ fooptr = @foo
+Uint64 ret
+ret = 42
+ret = test(fooptr)
 return ret
 
