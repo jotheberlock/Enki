@@ -57,7 +57,7 @@ def load():
     global instruction_register
     global frame_register
     global sf_bit
-    file = open('debug.txt', 'rb')
+    file = open('debug.txt', 'r')
     lines = file.readlines()
     current_function = None
     for line in lines:
@@ -87,8 +87,9 @@ def load():
 
 try:
     load()
-except:
-    print('Failed to load debug.txt')
+except Exception as e:
+    print('Failed to load debug.txt:')
+    traceback.print_exc()
     
 class show_locals(gdb.Command):
 
