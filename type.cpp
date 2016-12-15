@@ -742,10 +742,14 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
         possible_matches_body->add(Insn(LOAD, candidate_type,  pointer));
         possible_matches_body->add(Insn(ADD, pointer, pointer, 
                                         Operand::usigc(wordsize)));
-        Value * actual_type = c->getTemporary(register_type, "actual_type");
-        possible_matches_body->add(Insn(MOVE, actual_type, Operand::usigc(args[loopc]->type->classId())));
+
+        printf(">> Expected type [%s] [%d]\n", args[loopc]->type->name().c_str(),
+               args[loopc]->type->classId());
         
-        possible_matches_body->add(Insn(CMP, candidate_type, actual_type));
+        Value * expected_type = c->getTemporary(register_type, "expected_type");
+        possible_matches_body->add(Insn(MOVE, expected_type, Operand::usigc(args[loopc]->type->classId())));
+        
+        possible_matches_body->add(Insn(CMP, candidate_type, expected_type));
         possible_matches_body->add(Insn(SELEQ, matched, Operand::usigc(1), matched));
         
         BasicBlock * did_we_find_a_match = c->newBlock("did_we_find_a_match");
@@ -813,13 +817,12 @@ void Mtables::processFunction(FunctionScope * fs)
             StructType * st = dynamic_cast<StructType *>(t->derefType());
             if (st)
             {
-                    // Pointer-to-X is class ID of X + 1
                 std::vector<StructType *> c = st->getChildren();
                 me.table.push_back(1+c.size());
-                me.table.push_back(t->classId()+1);
+                me.table.push_back(t->classId());
                 for (unsigned int loopc2=0; loopc2<c.size(); loopc2++)
                 {
-                    me.table.push_back(c[loopc]->classId()+1);
+                    me.table.push_back(c[loopc]->classId());
                 }
             }
         }
