@@ -742,12 +742,32 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
         possible_matches_body->add(Insn(LOAD, candidate_type,  pointer));
         possible_matches_body->add(Insn(ADD, pointer, pointer, 
                                         Operand::usigc(wordsize)));
-
-        printf(">> Expected type [%s] [%d]\n", args[loopc]->type->name().c_str(),
-               args[loopc]->type->classId());
         
         Value * expected_type = c->getTemporary(register_type, "expected_type");
-        possible_matches_body->add(Insn(MOVE, expected_type, Operand::usigc(args[loopc]->type->classId())));
+            // If it's a ptr-to-struct, we load the class id from the pointer
+        bool deref = false;
+        if (args[loopc]->type->canDeref())
+        {
+            int count = 0;
+            Type * base = args[loopc]->type->baseDeref(count);
+            if (count == 1 && base->canField())
+            {
+                deref = true;
+            }
+                // Not sure how to handle Foo^^ yet
+        }
+
+        if (deref)
+        {
+            Value * classptr = c->getTemporary(register_type, "classptr");
+            possible_matches_body->add(Insn(LOAD, classptr, args[loopc]));
+            possible_matches_body->add(Insn(LOAD, expected_type, classptr));
+            possible_matches_body->add(Insn(ADD, expected_type, expected_type, Operand::usigc(1)));
+        }
+        else
+        {
+            possible_matches_body->add(Insn(MOVE, expected_type, Operand::usigc(args[loopc]->type->classId())));
+        }
         
         possible_matches_body->add(Insn(CMP, candidate_type, expected_type));
         possible_matches_body->add(Insn(SELEQ, matched, Operand::usigc(1), matched));

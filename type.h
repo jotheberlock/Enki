@@ -123,9 +123,9 @@ public:
         // Assumes count is 0-initialised
     Type * baseDeref(int & count)
     {
-        count += 1;
         if (canDeref())
         {
+            count += 1;
             return derefType()->baseDeref(count);
         }
         else
