@@ -850,6 +850,18 @@ Expr * Parser::parseStruct()
 
 	while (current.type != END)
 	{
+        if (current.type == PASS)
+        {
+            next();
+            if (current.type != EOL)
+            {
+                addError(Error(&current, "Expected eol after pass"));
+                return 0;
+            }
+            next();
+            break;
+        }
+        
 		Type * t = parseType();
 		if (!t)
 		{
