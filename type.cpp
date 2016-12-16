@@ -842,7 +842,7 @@ void Mtables::processFunction(FunctionScope * fs)
                 me.table.push_back(t->classId());
                 for (unsigned int loopc2=0; loopc2<c.size(); loopc2++)
                 {
-                    me.table.push_back(c[loopc]->classId());
+                    me.table.push_back(c[loopc]->classId()+1);
                 }
             }
         }
