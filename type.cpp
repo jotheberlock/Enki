@@ -4,6 +4,8 @@
 #include "image.h"
 #include "rtti.h"
 
+// #define DEBUG_MTABLES
+
 Type * register_type = 0;
 Type * signed_register_type = 0;
 Type * byte_type = 0;
@@ -863,12 +865,12 @@ void Mtables::processFunction(FunctionScope * fs)
 
 void MtableEntry::print()
 {
-    printf("%s %ld ", target->name().c_str(), offset);
+    printf("%s %ld ", target ? target->name().c_str() : "<null!>", offset);
     for (int loopc=0; loopc<table.size(); loopc++)
     {
         printf("[%d]", table[loopc]);
     }
-    puts("\n");
+    puts("");
 }
 
 void Mtables::generateTables()
@@ -877,6 +879,9 @@ void Mtables::generateTables()
     {
         GenericFunctionType * gft = (GenericFunctionType *)(*it)->getType();
         offsets[(*it)] = offset;
+#ifdef DEBUG_MTABLES
+        printf("Stored offset %llx for %s\n", offset, gft ? gft->name().c_str() : "<null!>");
+#endif        
         std::vector<FunctionScope *> specialisations = gft->getSpecialisations();
         for (std::vector<FunctionScope *>::iterator it2 = specialisations.begin();
              it2 != specialisations.end(); it2++)
@@ -885,6 +890,7 @@ void Mtables::generateTables()
         }
         MtableEntry term(0);  // Empty table endicates end of entry
         data.push_back(term);
+        offset += 2;
     } 
 }
 
@@ -903,7 +909,9 @@ void Mtables::createSection(Image * i, Assembler * a)
         len *= sf_bit ? 8 : 4;
 
         me.offset = (ptr-orig);
-        
+#ifdef DEBUG_MTABLES
+        me.print();
+#endif
         if (sf_bit)
         {
 #ifdef DEBUG_MTABLES
@@ -944,6 +952,7 @@ void Mtables::createSection(Image * i, Assembler * a)
 #ifdef DEBUG_MTABLES
 				printf(" (%llx)end\n", ptr-orig);
 #endif
+                wee64(le, ptr, 0x0);
 			}
         }
         else
@@ -959,6 +968,10 @@ void Mtables::createSection(Image * i, Assembler * a)
                 mr->add32();
                 wee32(le, ptr, 0xfeedbeef);
             }
+            else
+            {
+                wee32(le, ptr, 0x0);
+            }                
         }   
     }
 }
