@@ -66,7 +66,8 @@ Lexer::Lexer()
 	keywords["fptr"] = FPTR;
 	keywords["elif"] = ELIF;
 	keywords["generic"] = GENERIC;
-
+    keywords["raw"] = RAW;
+    
 	oldcol = -1;
 	oldline = -1;
 	indentations.push(0);

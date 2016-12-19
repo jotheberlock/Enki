@@ -68,6 +68,7 @@ typedef std::vector<uint32> Chars;
 #define ELIF 50
 
 #define GENERIC 51
+#define RAW 52
 
 class Token
 {

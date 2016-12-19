@@ -174,6 +174,11 @@ public:
 		return false;
 	}
 
+    virtual bool hasRtti()
+    {
+        return false;
+    }
+    
 	virtual int size() = 0;
 	virtual int align() = 0;
 
@@ -502,7 +507,7 @@ class StructType : public Type
 {
 public:
 
-	StructType(std::string n, bool u, StructType * p);
+	StructType(std::string n, bool u, StructType * p, bool rtti);
 
 	std::string display(unsigned char *);
 
@@ -535,6 +540,16 @@ public:
 
 	void calc();
 
+    bool hasRtti()
+    {
+        return has_rtti;
+    }
+
+    void setRtti(bool b)
+    {
+        has_rtti = b;
+    }
+    
 	bool canField()
 	{
 		return true;
@@ -569,7 +584,8 @@ protected:
 	std::string nam;
 	int siz;
 	bool is_union;
-
+    bool has_rtti;
+    
 };
 
 typedef std::vector<uint64> FunctionSignature;

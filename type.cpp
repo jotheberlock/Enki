@@ -251,14 +251,14 @@ bool StructType::canCopy(Type * t)
 	return false;
 }
 
-StructType::StructType(std::string n, bool u, StructType * p)
+StructType::StructType(std::string n, bool u, StructType * p, bool rtti)
 {
 	nam = n;
 	siz = 0;
 	is_union = u;
 	parent = p;
-
-	if (!p)
+    has_rtti = p ? p->hasRtti() : rtti;
+	if (!p && rtti)
 	{
 		addMember("class", register_type);
 		if (is_union)
@@ -492,6 +492,11 @@ std::string StructType::display(unsigned char * addr)
 		ret += members[loopc].type->display(addr + (members[loopc].offset / 8));
 	}
 	ret += "}";
+    if (!hasRtti())
+    {
+        ret += " raw";
+    }
+    
 	return ret;
 }
 
@@ -750,7 +755,7 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
         {
             int count = 0;
             Type * base = args[loopc]->type->baseDeref(count);
-            if (count == 1 && base->canField())
+            if (count == 1 && base->hasRtti())
             {
                 deref = true;
             }

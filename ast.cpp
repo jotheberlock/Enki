@@ -790,6 +790,14 @@ Expr * Parser::parseStruct()
 	int type = current.type;
 
 	next();
+
+    bool cooked = true;
+    if (current.type == RAW)
+    {
+        cooked = false;
+        next();
+    }
+    
 	if (current.type != IDENTIFIER)
 	{
 		addError(Error(&current, "Expected identifier for struct"));
@@ -828,14 +836,21 @@ Expr * Parser::parseStruct()
 			addError(Error(&current, "Parent type must be a struct or union"));
 			return 0;
 		}
-		st = new StructType(sname, type == UNION, (StructType *)pt);
+
+        if (pt && !cooked && pt->hasRtti())
+        {
+            addError(Error(&current, "Cannot declare raw struct/union as a subtype of managed struct/union"));
+            return 0;
+        }
+        
+		st = new StructType(sname, type == UNION, (StructType *)pt, cooked);
 		next();
 		next();
 	}
 	else
 	{
-		st = new StructType(sname, type == UNION, 0);
-		st->addMember("rtti", register_type);
+		st = new StructType(sname, type == UNION, 0, cooked);
+            //st->addMember("rtti", register_type);
 		next();
 	}
 
