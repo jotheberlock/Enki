@@ -929,7 +929,7 @@ Expr * Parser::parseVarRef(Expr * e)
 		delete vre;
 		return 0;
 	}
-
+    
 	while (true)
 	{
 		fprintf(log_file, ">>>> parseVarRef %d\n", current.type);
@@ -2189,11 +2189,22 @@ Value * VarRefExpr::codegen(Codegen * c)
 			case VARREF_DEREF:
 			{
 				etype = etype->derefType();
+                if (!etype)
+                {
+                    printf("Failed to deref type!\n");
+                    return 0;
+                }
+                
 				break;
 			}
 			case VARREF_ARRAY:
 			{
 				etype = etype->indexType();
+                if (!etype)
+                {
+                    printf("Failed to index type!\n");
+                    return 0;
+                }
 				break;
 			}
 			case VARREF_MEMBER:
