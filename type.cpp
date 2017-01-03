@@ -161,16 +161,21 @@ void StructType::calcAddress(Codegen * c, Value * a, Expr * i)
         printf("Struct calcAddress called with null field name!\n");
         return;
     }
-    
-	for (unsigned int loopc = 0; loopc < members.size(); loopc++)
-	{
-		if (members[loopc].name == ie->getString())
-		{
-			c->block()->add(Insn(ADD, a, a,
-				Operand::usigc(members[loopc].offset / 8)));
-            return;
-		}
-	}
+
+    StructType * st = this;
+    do
+    {
+        for (unsigned int loopc = 0; loopc < st->members.size(); loopc++)
+        {
+            if (st->members[loopc].name == ie->getString())
+            {
+                c->block()->add(Insn(ADD, a, a,
+                                 Operand::usigc(st->members[loopc].offset / 8)));
+                return;
+            }
+        }
+        st = parent;
+	} while(st);
 
     printf("Unable to find offset for %s!\n", ie->getString().c_str());
 }
@@ -180,6 +185,11 @@ void StructType::calc()
 	siz = 0;
 	if (!is_union && parent)
 	{
+        if (parent->size() == 0)
+        {
+            parent->calc();
+        }
+        
 		siz = parent->size();
 	}
 
