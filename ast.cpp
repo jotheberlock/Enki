@@ -2182,7 +2182,7 @@ Value * VarRefExpr::codegen(Codegen * c)
 		for (unsigned int loopc = 0; loopc < elements.size(); loopc++)
 		{
 			VarRefElement & vre = elements[loopc];
-			value->type->calcAddress(c, r, vre.subs);
+			etype->calcAddress(c, r, vre.subs);
 
 			switch (vre.type)
 			{

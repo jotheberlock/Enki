@@ -166,8 +166,6 @@ void StructType::calcAddress(Codegen * c, Value * a, Expr * i)
 	{
 		if (members[loopc].name == ie->getString())
 		{
-            printf("[%s] Offset %d\n", members[loopc].name.c_str(),
-                   members[loopc].offset);
 			c->block()->add(Insn(ADD, a, a,
 				Operand::usigc(members[loopc].offset / 8)));
             return;
