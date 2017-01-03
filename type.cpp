@@ -215,7 +215,7 @@ Type * StructType::fieldType(std::string n)
 
 	if (parent)
 	{
-		return fieldType(n);
+		return parent->fieldType(n);
 	}
 
 	return 0;

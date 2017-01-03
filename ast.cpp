@@ -2378,6 +2378,12 @@ Value * Funcall::codegen(Codegen * c)
 	for (unsigned int loopc = 0; loopc < args.size(); loopc++)
 	{
 		Value * v = args[loopc]->codegen(c);
+        if (!v)
+        {
+            printf("Null value in funcall!\n");
+            return 0;
+        }
+        
 		if (v->is_number)
 		{
 			Value * v2 = c->getTemporary(register_type, "funintcopy");
