@@ -688,6 +688,7 @@ static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
 //  Per generic function:
 //    Per candidate actual function, sorted in descending order of specifity:
 //      Offset to next candidate
+//      Number of arguments
 //      Per argument, prefixed with length code:
 //        Type code for a potential match
 //      Function pointer
@@ -714,6 +715,7 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     BasicBlock * arguments_loop_header = c->newBlock("arguments_loop_header");
     c->setBlock(arguments_loop_header);
 
+    BasicBlock * args_count_check = c->newBlock("args_count_check");
     BasicBlock * arguments_loop_body = c->newBlock("arguments_loop_body");
     
     Value * pointer = c->getTemporary(register_type, "pointer");
@@ -725,8 +727,15 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     arguments_loop_header->add(Insn(ADD, next_candidate, next_candidate_offset, pointer));
     arguments_loop_header->add(Insn(ADD, pointer, pointer, Operand::usigc(wordsize)));
     arguments_loop_header->add(Insn(CMP, next_candidate_offset, Operand::usigc(0)));
-    arguments_loop_header->add(Insn(BEQ, no_functions_found, arguments_loop_body));
-        
+    arguments_loop_header->add(Insn(BEQ, no_functions_found, args_count_check));
+
+    c->setBlock(args_count_check);
+    Value * no_args = c->getTemporary(register_type, "no_args");
+    args_count_check->add(Insn(LOAD, no_args, pointer));
+    args_count_check->add(Insn(ADD, pointer, pointer, Operand::usigc(wordsize)));
+    args_count_check->add(Insn(CMP, no_args, Operand::usigc(args.size())));
+    args_count_check->add(Insn(BEQ, arguments_loop_body, arguments_loop_header));
+    
     Value * possible_matches = c->getTemporary(register_type, "possible_matches");
     Value * matched = c->getTemporary(register_type, "matched");
 
@@ -837,6 +846,8 @@ void Mtables::processFunction(FunctionScope * fs)
     MtableEntry me(fs);
      
     std::vector<StructElement> & params = fs->getType()->getParams();
+
+    me.table.push_back(params.size());
     
     for (unsigned int loopc=0; loopc<params.size(); loopc++)
     {
