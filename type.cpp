@@ -575,7 +575,7 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * sl,
 
 		Value * arg = args[loopc];
 		Type * intype = arg->type;
-		Type * expectedtype = params[loopc].type;
+		Type * expectedtype = params.size() > loopc ? params[loopc].type : 0;
 
         if (expectedtype) // not available for generics yet!
         {
