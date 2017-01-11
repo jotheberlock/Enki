@@ -729,12 +729,14 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     arguments_loop_header->add(Insn(CMP, next_candidate_offset, Operand::usigc(0)));
     arguments_loop_header->add(Insn(BEQ, no_functions_found, args_count_check));
 
+    BasicBlock * no_we_did_not = c->newBlock("no_we_did_not");
+    
     c->setBlock(args_count_check);
     Value * no_args = c->getTemporary(register_type, "no_args");
     args_count_check->add(Insn(LOAD, no_args, pointer));
     args_count_check->add(Insn(ADD, pointer, pointer, Operand::usigc(wordsize)));
     args_count_check->add(Insn(CMP, no_args, Operand::usigc(args.size())));
-    args_count_check->add(Insn(BEQ, arguments_loop_body, arguments_loop_header));
+    args_count_check->add(Insn(BEQ, arguments_loop_body, no_we_did_not));
     
     Value * possible_matches = c->getTemporary(register_type, "possible_matches");
     Value * matched = c->getTemporary(register_type, "matched");
@@ -742,7 +744,6 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     c->setBlock(arguments_loop_body);
     BasicBlock * arguments_loop_tail = c->newBlock("arguments_loop_tail");
 
-    BasicBlock * no_we_did_not = c->newBlock("no_we_did_not");
     no_we_did_not->add(Insn(MOVE, pointer, next_candidate));
     no_we_did_not->add(Insn(BRA, arguments_loop_header));
 
