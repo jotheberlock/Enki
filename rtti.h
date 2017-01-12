@@ -1,5 +1,5 @@
 #ifndef _RTTI_
-#define _RTTI
+#define _RTTI_
 
 #include <map>
 #include "type.h"
