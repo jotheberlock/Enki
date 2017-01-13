@@ -73,7 +73,7 @@ void MachOImage::finalise()
 	wee32(le, ptr, arch_subtype);   // cpu subtype
 	wee32(le, ptr, 0x2);   // filetype - executable
 	wee32(le, ptr, IMAGE_LAST + 2);   // no. cmds
-	wee32(le, ptr, sf_bit ? ((72 * 5) + 184) : ((56 * 5) + 80));   // size of cmds
+	wee32(le, ptr, sf_bit ? ((72 * (IMAGE_LAST+1)) + 184) : ((56 * (IMAGE_LAST+1)) + 80));   // size of cmds
 	wee32(le, ptr, 0x1);   // flags - no undefs
 	if (sf_bit)
 	{
