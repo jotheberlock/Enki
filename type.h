@@ -263,6 +263,7 @@ public:
 
 	IntegerType(bool u, int s)
 	{
+        assert(s > 7);
 		is_signed = u;
 		bits = s;
 	}
