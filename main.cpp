@@ -425,7 +425,7 @@ int main(int argc, char ** argv)
 	root_type->setReturn(register_type);
     types->add(root_type, "@root");
     
-	root_scope = new FunctionScope(0, "@root", root_type);
+	root_scope = new FunctionScope(0, "__root", root_type);
 
 	FunctionType * syscall_type = new ExternalFunctionType(config.syscall, true);
 	syscall_type->setReturn(register_type);

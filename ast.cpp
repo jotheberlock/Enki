@@ -12,7 +12,7 @@
 
 IntegerExpr::IntegerExpr(Token * t)
 {
-	if (t->value.size() > 18)
+	if (t->value.size() > 19)
 	{
 		printf("Invalidly huge integer! [%s]\n", t->toString().c_str());
 		val = 0;
@@ -2287,27 +2287,27 @@ void VarRefExpr::store(Codegen * c, Value * v)
 		etype->calcAddress(c, r, vre.subs);
 		switch (vre.type)
 		{
-		case VARREF_DEREF:
-		{
-			etype = etype->derefType();
-			break;
-		}
-		case VARREF_ARRAY:
-		{
-			etype = etype->indexType();
-			break;
-		}
-		case VARREF_MEMBER:
-		{
-			etype = etype->fieldType(((IdentifierExpr *)vre.subs)
-				->getString());
-			break;
-		}
-		default:
-		{
-			fprintf(log_file, "???");
-			break;
-		}
+            case VARREF_DEREF:
+            {
+                etype = etype->derefType();
+                break;
+            }
+            case VARREF_ARRAY:
+            {
+                etype = etype->indexType();
+                break;
+            }
+            case VARREF_MEMBER:
+            {
+                etype = etype->fieldType(((IdentifierExpr *)vre.subs)
+                                         ->getString());
+                break;
+            }
+            default:
+            {
+                assert(false);
+                break;
+            }
 		}
 	}
 

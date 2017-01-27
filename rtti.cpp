@@ -6,7 +6,7 @@ void Rtti::finalise()
 	count = 0;
 	std::map<std::string, Type *> tmap = types->get();
 	for (std::map<std::string, Type *>::iterator it = tmap.begin();
-	it != tmap.end(); it++)
+         it != tmap.end(); it++)
 	{
 		Type * t = (*it).second;
 		indexes[t->classId()] = count;
