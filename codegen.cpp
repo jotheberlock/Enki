@@ -206,7 +206,7 @@ void Codegen::allocateStackSlots()
 				stack_size++;
 			}
 			v->setStackOffset(stack_size);
-			printf("%s: Allocating %s at %d, adding %d, align %d", scope->fqName().c_str(), v->name.c_str(), stack_size, tsize, alignment);
+			//printf("%s: Allocating %s at %d, adding %d, align %d\n", scope->fqName().c_str(), v->name.c_str(), stack_size, tsize, alignment);
 			stack_size += tsize;
 		}
 		else
