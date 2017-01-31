@@ -199,13 +199,15 @@ void Codegen::allocateStackSlots()
 		if (v->onStack())
 		{
 			assert(v->type->size() != 0);
-			while (stack_size % (v->type->align() / 8))
+			tsize = v->type->size() / 8;
+			alignment = v->type->align() / 8;
+			while (stack_size % alignment)
 			{
 				stack_size++;
 			}
 			v->setStackOffset(stack_size);
-			// printf("%s: Allocating %s at %d, adding %d\n", scope->fqName().c_str(), v->name.c_str(), stack_size, v->type->size()/8);
-			stack_size += v->type->size() / 8;
+			printf("%s: Allocating %s at %d, adding %d, align %d", scope->fqName().c_str(), v->name.c_str(), stack_size, tsize, alignment);
+			stack_size += tsize;
 		}
 		else
 		{
