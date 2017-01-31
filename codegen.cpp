@@ -199,8 +199,8 @@ void Codegen::allocateStackSlots()
 		if (v->onStack())
 		{
 			assert(v->type->size() != 0);
-			tsize = v->type->size() / 8;
-			alignment = v->type->align() / 8;
+			int tsize = v->type->size() / 8;
+			int alignment = v->type->align() / 8;
 			while (stack_size % alignment)
 			{
 				stack_size++;
