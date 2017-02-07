@@ -354,3 +354,16 @@ void RemWithDivPass::processInsn()
 		append(sub);
 	}
 }
+
+void AdjustRegisterBasePass::processInsn()
+{
+}
+
+void AdjustRegisterBasePass::beginBlock()
+{
+    current_adjustment = 0;
+}
+
+void AdjustRegisterBasePass::endBlock()
+{
+}

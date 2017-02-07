@@ -239,4 +239,30 @@ public:
 
 };
 
+class AdjustRegisterBasePass : public OptimisationPass
+{
+
+  public:
+
+    AdjustRegisterBasePass()
+        : OptimisationPass()
+    {
+        current_adjustment = 0;
+    }
+
+    virtual std::string name()
+    {
+        return "AdjustRegisterBasePass";
+    }
+
+    virtual void processInsn();
+	virtual void beginBlock();
+	virtual void endBlock();
+
+  protected:
+
+    int current_adjustment;
+    
+};
+
 #endif

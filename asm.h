@@ -198,7 +198,8 @@ public:
 
 	bool isIn(int);
 	bool isOut(int);
-
+    bool isBranch();
+    
 	uint64 ins;
 	uint64 addr;
 	uint64 size;
@@ -423,7 +424,11 @@ public:
     }
 
     virtual int numRegs() = 0;
-         
+
+        // Valid range of [register+<constant>]
+    virtual int minRegOffset() = 0;
+    virtual int maxRegOffset() = 0;
+    
 protected:
 
 	unsigned char * base;

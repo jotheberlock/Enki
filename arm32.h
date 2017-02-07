@@ -45,6 +45,16 @@ public:
 
 	virtual bool configure(std::string, std::string);
 
+    virtual int minRegOffset()
+    {
+        return 0;
+    }
+    
+    virtual int maxRegOffset()
+    {
+        return 255;
+    }
+    
 protected:
 
 	bool calcImm(uint64 raw, uint32 & result);

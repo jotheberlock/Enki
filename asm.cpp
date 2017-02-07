@@ -459,6 +459,17 @@ bool Insn::isOut(int i)
 	return (i == 0);
 }
 
+bool Insn::isBranch()
+{
+    if (ins == BEQ || ins == BNE || ins == BRA || ins == BG || ins == BLE
+        || ins == BL || ins == BGE)
+    {
+        return true;
+    }
+
+    return false;
+}
+
 int storeForType(Type * t)
 {
 	if (t->size() == 8)

@@ -118,6 +118,11 @@ Component  * make_remwithdivpass()
 	return new RemWithDivPass();
 }
 
+Component * make_adjustregisterbasepass()
+{
+    return new AdjustRegisterBasePass();
+}
+
 ComponentFactory::ComponentFactory()
 {
 	add(make_memoryimage, "image", "memory");
@@ -138,8 +143,9 @@ ComponentFactory::ComponentFactory()
 	add(make_constmover, "pass", "constmover");
 	add(make_resolveconstaddr, "pass", "resolveconstaddr");
 	add(make_stacksizepass, "pass", "stacksize");
-	add(make_stacksizepass, "pass", "bitsize");
+	add(make_bitsizepass, "pass", "bitsize");
 	add(make_remwithdivpass, "pass", "remwithdiv");
+    add(make_adjustregisterbasepass, "pass", "adjustregisterbase");
 	add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
 	add(make_unixentrypoint, "entrypoint", "unixentrypoint");
 }

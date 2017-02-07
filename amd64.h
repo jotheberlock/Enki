@@ -44,6 +44,16 @@ public:
 
 	virtual bool configure(std::string, std::string);
 
+    virtual int minRegOffset() 
+    {
+        return 0;
+    }
+    
+    virtual int maxRegOffset()
+    {
+        return 0x3fffffff;
+    }
+    
 protected:
 
 	// Is it r1, r1, r2 or r1, r1, const?
