@@ -355,13 +355,24 @@ void RemWithDivPass::processInsn()
 	}
 }
 
+void AdjustRegisterBasePass::init(Codegen * c, Configuration * cf)
+{
+	OptimisationPass::init(c, cf);
+
+    int numregs = cf->assembler->numRegs();
+    current_adjustments = new int[numregs];
+    for (int loopc=0; loopc<numregs; loopc++)
+    {
+        current_adjustments[loopc] = 0;
+    }
+}
+
 void AdjustRegisterBasePass::processInsn()
 {
 }
 
 void AdjustRegisterBasePass::beginBlock()
 {
-    current_adjustment = 0;
 }
 
 void AdjustRegisterBasePass::endBlock()

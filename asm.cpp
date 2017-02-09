@@ -470,6 +470,28 @@ bool Insn::isBranch()
     return false;
 }
 
+bool Insn::isLoad()
+{
+    if (ins == LOAD8 || ins == LOAD16 || ins == LOAD32 || ins == LOAD64 ||
+        ins == LOAD)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool Insn::isStore()
+{
+    if (ins == STORE8 || ins == STORE16 || ins == STORE32 || ins == STORE64 ||
+        ins == STORE)
+    {
+        return true;
+    }
+
+    return false;
+}
+
 int storeForType(Type * t)
 {
 	if (t->size() == 8)

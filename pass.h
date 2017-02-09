@@ -247,13 +247,20 @@ class AdjustRegisterBasePass : public OptimisationPass
     AdjustRegisterBasePass()
         : OptimisationPass()
     {
-        current_adjustment = 0;
+        current_adjustments = 0;
     }
 
+    virtual ~AdjustRegisterBasePass()
+    {
+        delete[] current_adjustments;
+    }
+    
     virtual std::string name()
     {
         return "AdjustRegisterBasePass";
     }
+
+	virtual void init(Codegen *, Configuration *);
 
     virtual void processInsn();
 	virtual void beginBlock();
@@ -261,7 +268,7 @@ class AdjustRegisterBasePass : public OptimisationPass
 
   protected:
 
-    int current_adjustment;
+    int * current_adjustments;
     
 };
 

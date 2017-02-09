@@ -199,6 +199,8 @@ public:
 	bool isIn(int);
 	bool isOut(int);
     bool isBranch();
+    bool isLoad();
+    bool isStore();
     
 	uint64 ins;
 	uint64 addr;
