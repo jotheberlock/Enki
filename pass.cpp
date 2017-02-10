@@ -373,8 +373,35 @@ void AdjustRegisterBasePass::processInsn()
 
 void AdjustRegisterBasePass::beginBlock()
 {
+    for (int loopc=0; loopc<config->assembler->numRegs(); loopc++)
+    {
+        current_adjustments[loopc] = 0;
+    }
 }
 
 void AdjustRegisterBasePass::endBlock()
 {
+    flush();
+}
+
+void AdjustRegisterBasePass::flush()
+{    
+    for (int loopc=0; loopc<config->assembler->numRegs(); loopc++)
+    {
+        if (current_adjustments[loopc] < 0)
+        {
+            Insn add(ADD, Operand::reg(current_adjustments[loopc]),
+                     Operand::reg(current_adjustments[loopc]),
+                     Operand::usigc(-current_adjustments[loopc]));
+            append(add);
+        }
+        else if (current_adjustments[loopc] > 0)
+        {
+            Insn sub(SUB, Operand::reg(current_adjustments[loopc]),
+                     Operand::reg(current_adjustments[loopc]),
+                     Operand::usigc(-current_adjustments[loopc]));
+            append(sub);
+        }
+        current_adjustments[loopc] = 0;
+    }
 }

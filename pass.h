@@ -268,6 +268,8 @@ class AdjustRegisterBasePass : public OptimisationPass
 
   protected:
 
+    void flush();
+    
     int * current_adjustments;
     
 };
