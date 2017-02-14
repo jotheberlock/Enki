@@ -459,10 +459,10 @@ bool Insn::isOut(int i)
 	return (i == 0);
 }
 
-bool Insn::isBranch()
+bool Insn::isControlFlow()
 {
     if (ins == BEQ || ins == BNE || ins == BRA || ins == BG || ins == BLE
-        || ins == BL || ins == BGE)
+        || ins == BL || ins == BGE || ins == CALL)
     {
         return true;
     }

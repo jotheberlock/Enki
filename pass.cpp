@@ -369,6 +369,33 @@ void AdjustRegisterBasePass::init(Codegen * c, Configuration * cf)
 
 void AdjustRegisterBasePass::processInsn()
 {
+    if (insn.isControlFlow())
+    {
+        flush();
+    }
+    else if (insn.isLoad() || insn.isStore())
+    {
+    }
+    else
+    {
+        for (int loopc=0; loopc<insn.oc; loopc++)
+        {
+            if (insn.ops[loopc].isReg() &&
+                current_adjustments[insn.ops[loopc].getReg()])
+            {
+                if (insn.isIn(loopc))
+                {
+                        // Register is used, must reset it to expected value
+                    flushOne(insn.ops[loopc].getReg());
+                }
+                else
+                {
+                        // Register is overwritten, unknown value
+                    current_adjustments[insn.ops[loopc].getReg()] = 0;
+                }
+            }
+        }
+    }
 }
 
 void AdjustRegisterBasePass::beginBlock()
@@ -385,23 +412,28 @@ void AdjustRegisterBasePass::endBlock()
 }
 
 void AdjustRegisterBasePass::flush()
-{    
+{
     for (int loopc=0; loopc<config->assembler->numRegs(); loopc++)
     {
-        if (current_adjustments[loopc] < 0)
-        {
-            Insn add(ADD, Operand::reg(current_adjustments[loopc]),
-                     Operand::reg(current_adjustments[loopc]),
-                     Operand::usigc(-current_adjustments[loopc]));
-            append(add);
-        }
-        else if (current_adjustments[loopc] > 0)
-        {
-            Insn sub(SUB, Operand::reg(current_adjustments[loopc]),
-                     Operand::reg(current_adjustments[loopc]),
-                     Operand::usigc(-current_adjustments[loopc]));
-            append(sub);
-        }
-        current_adjustments[loopc] = 0;
+        flushOne(loopc);
     }
+}
+
+void AdjustRegisterBasePass::flushOne(int reg)
+{    
+    if (current_adjustments[reg] < 0)
+    {
+        Insn add(ADD, Operand::reg(current_adjustments[reg]),
+                 Operand::reg(current_adjustments[reg]),
+                 Operand::usigc(-current_adjustments[reg]));
+        prepend(add);
+    }
+    else if (current_adjustments[reg] > 0)
+    {
+        Insn sub(SUB, Operand::reg(current_adjustments[reg]),
+                 Operand::reg(current_adjustments[reg]),
+                 Operand::usigc(-current_adjustments[reg]));
+        prepend(sub);
+    }
+    current_adjustments[reg] = 0;
 }

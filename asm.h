@@ -198,7 +198,7 @@ public:
 
 	bool isIn(int);
 	bool isOut(int);
-    bool isBranch();
+    bool isControlFlow();
     bool isLoad();
     bool isStore();
     
