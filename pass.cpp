@@ -373,8 +373,18 @@ void AdjustRegisterBasePass::processInsn()
     {
         flush();
     }
-    else if (insn.isLoad() || insn.isStore())
+    else if ((insn.isLoad() || insn.isStore()) && insn.oc == 3)
     {
+        int offs = (insn.isLoad() ? 2 : 1);
+        int reg = (insn.isLoad() ? 1 : 0);
+        int delta = insn.ops[offs].getSigc() +
+            current_adjustments[insn.ops[reg].getReg()];
+        if (delta < config->assembler->minRegOffset())
+        {
+        }
+        else if (delta > config->assembler->maxRegOffset())
+        {
+        }
     }
     else
     {
