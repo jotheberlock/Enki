@@ -377,14 +377,25 @@ void AdjustRegisterBasePass::processInsn()
     {
         int offs = (insn.isLoad() ? 2 : 1);
         int reg = (insn.isLoad() ? 1 : 0);
-        int delta = insn.ops[offs].getSigc() +
+        int delta = insn.ops[offs].getSigc() -
             current_adjustments[insn.ops[reg].getReg()];
         if (delta < config->assembler->minRegOffset())
         {
+            Insn sub(SUB, Operand::reg(reg), Operand::reg(reg),
+                     Operand::usigc(-delta));
+            prepend(sub);
+            current_adjustments[reg] += delta;
         }
         else if (delta > config->assembler->maxRegOffset())
         {
+            Insn add(ADD, Operand::reg(reg), Operand::reg(reg),
+                     Operand::usigc(delta));
+            prepend(add);
+            current_adjustments[reg] += delta;
         }
+
+        insn.ops[offs] = Operand::sigc(insn.ops[offs].getSigc() -
+                                       current_adjustments[reg]);
     }
     else
     {

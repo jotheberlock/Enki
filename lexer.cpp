@@ -7,7 +7,7 @@
 
 void Token::print()
 {
-	fprintf(log_file, "%d %d %d %d %d %s\n", type, bline, bcol, eline, ecol, toString().c_str());
+	fprintf(log_file, "Type %d begin %d %d end %d %d - [%s]\n", type, bline, bcol, eline, ecol, toString().c_str());
 }
 
 Lexer::Lexer()
