@@ -462,7 +462,7 @@ bool Insn::isOut(int i)
 bool Insn::isControlFlow()
 {
     if (ins == BEQ || ins == BNE || ins == BRA || ins == BG || ins == BLE
-        || ins == BL || ins == BGE || ins == CALL)
+        || ins == BL || ins == BGE || ins == CALL || ins == CMP)
     {
         return true;
     }

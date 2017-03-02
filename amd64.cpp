@@ -7,6 +7,29 @@
 #include "symbols.h"
 #include "image.h"
 
+bool Amd64::validRegOffset(Insn & i, int off)
+{
+    if (off < 0)
+    {
+        return false;
+    }
+    
+    if (i.ins == LOAD8 || i.ins == LOADS8 || i.ins == STORE8)
+    {
+        return (off < 32);
+    }
+    else if (i.ins == LOAD16 || i.ins == LOADS16 || i.ins == STORE16)
+    {
+        return (off < 64) && ((off & 0x1) == 0);
+    }
+    else
+    {
+    
+        return (off < 128) && ((off & 0x3) == 0);
+    }
+    return false;
+}
+
 const char * regnames[] =
 {
 	"rax", "rcx", "rdx", "rbx", "rsp", "rbp", "rsi", "rdi",

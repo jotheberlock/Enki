@@ -69,6 +69,8 @@ void OptimisationPass::run()
 			next_block = *nextbit;
 		}
 
+        beginBlock();
+        
 		for (iit = block->getCode().begin();
 		iit != block->getCode().end(); iit++)
 		{
@@ -94,6 +96,8 @@ void OptimisationPass::run()
 			block->getCode().push_back(*ait);
 		}
 		to_append.clear();
+
+        endBlock();
 	}
 }
 
@@ -376,26 +380,33 @@ void AdjustRegisterBasePass::processInsn()
     else if ((insn.isLoad() || insn.isStore()) && insn.oc == 3)
     {
         int offs = (insn.isLoad() ? 2 : 1);
-        int reg = (insn.isLoad() ? 1 : 0);
+        int regpos = (insn.isLoad() ? 1 : 0);
+        int regnum = insn.ops[regpos].getReg();
         int delta = insn.ops[offs].getSigc() -
-            current_adjustments[insn.ops[reg].getReg()];
-        if (delta < config->assembler->minRegOffset())
-        {
-            Insn sub(SUB, Operand::reg(reg), Operand::reg(reg),
-                     Operand::usigc(-delta));
-            prepend(sub);
-            current_adjustments[reg] += delta;
-        }
-        else if (delta > config->assembler->maxRegOffset())
-        {
-            Insn add(ADD, Operand::reg(reg), Operand::reg(reg),
-                     Operand::usigc(delta));
-            prepend(add);
-            current_adjustments[reg] += delta;
-        }
+            current_adjustments[regnum];
 
+        bool needs_changed = config->assembler->validRegOffset(insn,
+                                                               delta);
+        if (needs_changed)
+        {
+            if (delta < 0)
+            {
+                Insn sub(SUB, Operand::reg(regnum), Operand::reg(regnum),
+                         Operand::usigc(-delta));
+                prepend(sub);
+                current_adjustments[regnum] += delta;
+            }
+            else if (delta > 0)
+            {
+                Insn add(ADD, Operand::reg(regnum), Operand::reg(regnum),
+                         Operand::usigc(delta));
+                prepend(add);
+                current_adjustments[regnum] += delta;
+            }
+        }
         insn.ops[offs] = Operand::sigc(insn.ops[offs].getSigc() -
-                                       current_adjustments[reg]);
+                                       current_adjustments[regnum]);
+        change(insn);
     }
     else
     {
@@ -444,16 +455,16 @@ void AdjustRegisterBasePass::flushOne(int reg)
 {    
     if (current_adjustments[reg] < 0)
     {
-        Insn add(ADD, Operand::reg(current_adjustments[reg]),
-                 Operand::reg(current_adjustments[reg]),
+        Insn add(ADD, Operand::reg(reg),
+                 Operand::reg(reg),
                  Operand::usigc(-current_adjustments[reg]));
         prepend(add);
     }
     else if (current_adjustments[reg] > 0)
     {
-        Insn sub(SUB, Operand::reg(current_adjustments[reg]),
-                 Operand::reg(current_adjustments[reg]),
-                 Operand::usigc(-current_adjustments[reg]));
+        Insn sub(SUB, Operand::reg(reg),
+                 Operand::reg(reg),
+                 Operand::usigc(current_adjustments[reg]));
         prepend(sub);
     }
     current_adjustments[reg] = 0;

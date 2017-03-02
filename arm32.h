@@ -45,15 +45,7 @@ public:
 
 	virtual bool configure(std::string, std::string);
 
-    virtual int minRegOffset()
-    {
-        return 0;
-    }
-    
-    virtual int maxRegOffset()
-    {
-        return 255;
-    }
+    virtual bool validRegOffset(Insn &, int);
     
 protected:
 

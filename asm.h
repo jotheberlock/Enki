@@ -427,9 +427,9 @@ public:
 
     virtual int numRegs() = 0;
 
-        // Valid range of [register+<constant>]
-    virtual int minRegOffset() = 0;
-    virtual int maxRegOffset() = 0;
+        // True if load/store with register offset
+        // is valid as-is for this architecture
+    virtual bool validRegOffset(Insn &, int) = 0;
     
 protected:
 
