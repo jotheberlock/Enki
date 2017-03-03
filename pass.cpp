@@ -245,7 +245,7 @@ void SillyRegalloc::processInsn()
 			Insn load(loadForType(regs[loopc]->type),
 				Operand::reg(loopc), Operand::reg(fp),
 				Operand::sigc(off));
-			load.comment = "Load " + regs[loopc]->name;
+			load.comment += "Load " + regs[loopc]->name;
 			prepend(load);
 		}
 		if (output[loopc])
@@ -253,7 +253,7 @@ void SillyRegalloc::processInsn()
 			int64 off = regs[loopc]->stackOffset();
 			Insn store(storeForType(regs[loopc]->type), Operand::reg(fp),
 				Operand::sigc(off), Operand::reg(loopc));
-			store.comment = "Store " + regs[loopc]->name;
+			store.comment += "Store " + regs[loopc]->name;
 			append(store);
 		}
 	}
@@ -386,7 +386,7 @@ void AdjustRegisterBasePass::processInsn()
             current_adjustments[regnum];
 
         bool needs_changed = config->assembler->validRegOffset(insn,
-                                                               delta);
+                                                               delta) == false;
         if (needs_changed)
         {
             if (delta < 0)
@@ -404,6 +404,11 @@ void AdjustRegisterBasePass::processInsn()
                 current_adjustments[regnum] += delta;
             }
         }
+
+        char buf[4096];
+        sprintf(buf, "[+%d]", current_adjustments[regnum]);
+        insn.comment += buf;
+        
         insn.ops[offs] = Operand::sigc(insn.ops[offs].getSigc() -
                                        current_adjustments[regnum]);
         change(insn);
