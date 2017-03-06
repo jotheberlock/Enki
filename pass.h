@@ -275,4 +275,23 @@ class AdjustRegisterBasePass : public OptimisationPass
     
 };
 
+class CmpMoverPass : public OptimisationPass
+{
+  public:
+
+    CmpMoverPass()
+        : OptimisationPass()
+    {
+    }
+
+    virtual std::string name()
+    {
+        return "CmpMoverPass";
+    }
+    
+    virtual void processInsn();
+    
+};
+
+
 #endif

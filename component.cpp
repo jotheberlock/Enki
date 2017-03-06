@@ -123,6 +123,11 @@ Component * make_adjustregisterbasepass()
     return new AdjustRegisterBasePass();
 }
 
+Component * make_cmpmoverpass()
+{
+    return new CmpMoverPass();
+}
+
 ComponentFactory::ComponentFactory()
 {
 	add(make_memoryimage, "image", "memory");
@@ -145,6 +150,7 @@ ComponentFactory::ComponentFactory()
 	add(make_stacksizepass, "pass", "stacksize");
 	add(make_bitsizepass, "pass", "bitsize");
 	add(make_remwithdivpass, "pass", "remwithdiv");
+    add(make_cmpmoverpass, "pass", "cmpmover");
     add(make_adjustregisterbasepass, "pass", "adjustregisterbase");
 	add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
 	add(make_unixentrypoint, "entrypoint", "unixentrypoint");

@@ -474,3 +474,8 @@ void AdjustRegisterBasePass::flushOne(int reg)
     }
     current_adjustments[reg] = 0;
 }
+
+void CmpMoverPass::processInsn()
+{
+}
+
