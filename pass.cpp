@@ -475,7 +475,37 @@ void AdjustRegisterBasePass::flushOne(int reg)
     current_adjustments[reg] = 0;
 }
 
+static bool needsCmp(int i)
+{
+    if (i == SELEQ || i == SELGE || i == SELGT || i == SELGES ||
+        i == SELGTS || i == BEQ || i == BNE || i == BG || i == BLE ||
+        i == BL || i == BGE)
+    {
+        return true;
+    }
+
+    return false;
+}
+
 void CmpMoverPass::processInsn()
 {
+    if (insn.ins == CMP)
+    {
+        bool found = false;
+        for(std::list<Insn>::iterator target = iit;
+            target != block->getCode().end(); target++)
+        {
+            if (needsCmp((*target).ins))
+            {
+                block->getCode().insert(target, insn);
+                removeInsn();
+                found = true;
+                break;
+            }
+        }
+            // If we have a CMP in a basic block with no select/branch
+            // to go with it, something has gone wrong.
+        assert(found);
+    }
 }
 
