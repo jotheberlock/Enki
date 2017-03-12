@@ -97,6 +97,8 @@ protected:
 	bool * input;
 	bool * output;
     int numregs;
+    bool last_was_cmp;
+    RegSet cmp_regs;
     
 };
 

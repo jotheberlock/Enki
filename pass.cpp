@@ -18,6 +18,7 @@ void SillyRegalloc::init(Codegen * c, Configuration * cf)
 {
 	OptimisationPass::init(c, cf);
 
+    last_was_cmp = false;
     numregs = cf->assembler->numRegs();
     regs = new Value *[numregs];
     input = new bool[numregs];
@@ -160,7 +161,14 @@ int SillyRegalloc::findFree(RegSet & r, RegSet & c)
 		if (!c.isSet(loopc) && r.isSet(loopc) && regs[loopc] == 0 &&
 			!(block->getReservedRegs().isSet(loopc)))
 		{
-			return loopc;
+                // Bit of a hack to work with the cmpmover pass;
+                // cmp+(select/conditional branch) is semi-atomic,
+                // we don't want to re-use cmp registers so we can move
+                // the cmp back up.
+            if ((!last_was_cmp) || (!cmp_regs.isSet(loopc)))
+            {
+                return loopc;
+            }
 		}
 	}
 
@@ -231,11 +239,23 @@ void SillyRegalloc::processInsn()
 				output[regnum] = true;
 			}
 			insn.ops[loopc] = Operand::reg(regnum);
+
+            if (insn.ins == CMP)
+            {
+                last_was_cmp = true;
+                cmp_regs.set(regnum);
+            }
 		}
 	}
 
 	change(insn);
 
+    if (insn.ins != CMP)
+    {
+        last_was_cmp = true;
+        cmp_regs.setEmpty();
+    }
+    
 	for (int loopc = 0; loopc < numregs; loopc++)
 	{
 		int fp = assembler->framePointer();

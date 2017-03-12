@@ -747,7 +747,6 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
 
     no_we_did_not->add(Insn(MOVE, pointer, next_candidate));
     no_we_did_not->add(Insn(BRA, arguments_loop_header));
-
     arguments_loop_header->add(Insn(BRA, arguments_loop_body));
     
     BasicBlock * possible_matches_header = c->newBlock("possible_matches_header_0");
