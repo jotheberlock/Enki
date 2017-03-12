@@ -185,9 +185,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			if (i.oc == 3)
 			{
 				val = (int32)i.ops[2].getSigc();
-				// Can probably be higher for 32-bits...
-				assert(val > -256);
-				assert(val < 256);
+                assert(validRegOffset(i, val));
 				uval = *((uint32 *)(&val));
 			}
 
@@ -231,9 +229,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			if (i.oc == 3)
 			{
 				val = (int32)i.ops[1].getSigc();
-				// Can probably be higher for 32-bits...
-				assert(val > -256);
-				assert(val < 256);
+				assert(validRegOffset(i, val));
 				uval = *((uint32 *)(&val));
 				dest = 2;
 			}
