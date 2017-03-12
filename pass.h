@@ -97,8 +97,6 @@ protected:
 	bool * input;
 	bool * output;
     int numregs;
-    bool last_was_cmp;
-    RegSet cmp_regs;
     
 };
 
@@ -159,8 +157,18 @@ public:
 
 	ConstMover()
 		: OptimisationPass()
-	{}
+	{
+        const_temporary = new Value *[3];
+        const_temporary[0] = 0;
+        const_temporary[1] = 0;
+        const_temporary[2] = 0;
+    }
 
+    ~ConstMover()
+    {
+        delete[] const_temporary;
+    }
+    
 	virtual std::string name()
 	{
 		return "ConstMover";
@@ -168,6 +176,18 @@ public:
 
 	virtual void processInsn();
 
+	virtual void init(Codegen * cg, Configuration * cf)
+    {
+        OptimisationPass::init(cg, cf);
+        const_temporary[0] = 0;
+        const_temporary[1] = 0;
+        const_temporary[2] = 0;
+    }
+    
+  protected:
+
+    Value ** const_temporary;
+    
 };
 
 class ResolveConstAddr : public OptimisationPass

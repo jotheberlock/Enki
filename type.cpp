@@ -750,6 +750,12 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     arguments_loop_header->add(Insn(BRA, arguments_loop_body));
     
     BasicBlock * possible_matches_header = c->newBlock("possible_matches_header_0");
+    
+        // Reuse for each arg to reduce naive stack usage
+    Value * candidate_type = c->getTemporary(register_type, "candidate_type");    
+    Value * expected_type = c->getTemporary(register_type, "expected_type");
+    Value * classptr = c->getTemporary(register_type, "classptr");
+            
     for (unsigned int loopc=0; loopc<args.size(); loopc++)
     {
         c->setBlock(possible_matches_header);
@@ -769,12 +775,10 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
         
         BasicBlock * possible_matches_body = c->newBlock("possible_matches_body"+argnum);
         c->setBlock(possible_matches_body);
-        Value * candidate_type = c->getTemporary(register_type, "candidate_type");
         possible_matches_body->add(Insn(LOAD, candidate_type,  pointer));
         possible_matches_body->add(Insn(ADD, pointer, pointer, 
                                         Operand::usigc(wordsize)));
         
-        Value * expected_type = c->getTemporary(register_type, "expected_type");
             // If it's a ptr-to-struct, we load the class id from the pointer
         bool deref = false;
         if (args[loopc]->type->canDeref())
@@ -790,7 +794,6 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
 
         if (deref)
         {
-            Value * classptr = c->getTemporary(register_type, "classptr");
             possible_matches_body->add(Insn(LOAD, classptr, args[loopc]));
             possible_matches_body->add(Insn(LOAD, expected_type, classptr));
             possible_matches_body->add(Insn(ADD, expected_type, expected_type, Operand::usigc(1)));

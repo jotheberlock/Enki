@@ -18,7 +18,6 @@ void SillyRegalloc::init(Codegen * c, Configuration * cf)
 {
 	OptimisationPass::init(c, cf);
 
-    last_was_cmp = false;
     numregs = cf->assembler->numRegs();
     regs = new Value *[numregs];
     input = new bool[numregs];
@@ -54,6 +53,8 @@ void OptimisationPass::removeInsn()
 
 void OptimisationPass::run()
 {
+    assert(cg);
+    
 	std::vector<BasicBlock *> & b = cg->getBlocks();
 	for (bit = b.begin();
 	bit != b.end(); bit++)
@@ -161,14 +162,7 @@ int SillyRegalloc::findFree(RegSet & r, RegSet & c)
 		if (!c.isSet(loopc) && r.isSet(loopc) && regs[loopc] == 0 &&
 			!(block->getReservedRegs().isSet(loopc)))
 		{
-                // Bit of a hack to work with the cmpmover pass;
-                // cmp+(select/conditional branch) is semi-atomic,
-                // we don't want to re-use cmp registers so we can move
-                // the cmp back up.
-            if ((!last_was_cmp) || (!cmp_regs.isSet(loopc)))
-            {
-                return loopc;
-            }
+            return loopc;
 		}
 	}
 
@@ -239,22 +233,10 @@ void SillyRegalloc::processInsn()
 				output[regnum] = true;
 			}
 			insn.ops[loopc] = Operand::reg(regnum);
-
-            if (insn.ins == CMP)
-            {
-                last_was_cmp = true;
-                cmp_regs.set(regnum);
-            }
 		}
 	}
 
 	change(insn);
-
-    if (insn.ins != CMP)
-    {
-        last_was_cmp = true;
-        cmp_regs.setEmpty();
-    }
     
 	for (int loopc = 0; loopc < numregs; loopc++)
 	{
@@ -317,10 +299,14 @@ void ConstMover::processInsn()
 		{
 			if (!assembler->validConst(insn, loopc))
 			{
-				Value * v = cg->getTemporary(register_type, "constmover");
-				Insn mover(MOVE, v, insn.ops[loopc]);
+                if (!const_temporary[loopc])
+                {
+                    const_temporary[loopc] = cg->getTemporary(register_type, "constmover");
+                }
+                
+				Insn mover(MOVE, const_temporary[loopc], insn.ops[loopc]);
 				prepend(mover);
-				insn.ops[loopc] = Operand(v);
+				insn.ops[loopc] = Operand(const_temporary[loopc]);
 				change(insn);
 			}
 		}
