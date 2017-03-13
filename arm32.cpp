@@ -5,23 +5,14 @@
 
 bool Arm32::validRegOffset(Insn & i, int off)
 {
-    if (off < 0)
+    if (i.ins == LOAD16 || i.ins == LOADS16 || i.ins == STORE16)
     {
-        return false;
-    }
-    
-    if (i.ins == LOAD8 || i.ins == LOADS8 || i.ins == STORE8)
-    {
-        return (off < 32);
-    }
-    else if (i.ins == LOAD16 || i.ins == LOADS16 || i.ins == STORE16)
-    {
-        return (off < 64) && ((off & 0x1) == 0);
+        return (off > -256) && (off < 256);
     }
     else
     {
     
-        return (off < 128) && ((off & 0x3) == 0);
+        return (off > -4096) && (off < 4096);
     }
     return false;
 }
@@ -182,36 +173,53 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 			int32 val = 0;
 			uint32 uval = 0;
+            bool negative_offset = false;
+            
 			if (i.oc == 3)
 			{
 				val = (int32)i.ops[2].getSigc();
                 assert(validRegOffset(i, val));
-				uval = *((uint32 *)(&val));
+                if (val < 0)
+                {
+                    negative_offset = true;
+                    uval = -val;
+                }
+                else
+                {
+                    uval = val;
+                }
 			}
 
+            uint32 sign_bit = negative_offset ? 0x0 : 0x00800000;
+            
 			if (i.ins == LOAD || i.ins == LOAD32 || i.ins == LOADS32)
 			{
-				mc = 0xe5900000 | (uval & 0xfff) | i.ops[0].getReg() << 12
+				mc = 0xe5100000 | sign_bit
+                    | (uval & 0xfff) | i.ops[0].getReg() << 12
 					| i.ops[1].getReg() << 16;
 			}
 			else if (i.ins == LOAD8)
 			{
-				mc = 0xe5d00000 | (uval & 0xfff) | i.ops[0].getReg() << 12
+				mc = 0xe5d00000 | sign_bit
+                    | (uval & 0xfff) | i.ops[0].getReg() << 12
 					| i.ops[1].getReg() << 16;
 			}
 			else if (i.ins == LOAD16)
 			{
-				mc = 0xe1d000b0 | (uval & 0xf) | (uval & 0xf0 << 4) |
+				mc = 0xe15000b0 | sign_bit
+                    | (uval & 0xf) | (uval & 0xf0 << 4) |
 					i.ops[0].getReg() << 12 || i.ops[1].getReg() << 16;
 			}
 			else if (i.ins == LOADS8)
 			{
-				mc = 0xe1d000d0 | (uval & 0xf) | (uval & 0xf0 << 4) |
+				mc = 0xe15000d0 | sign_bit
+                    | (uval & 0xf) | (uval & 0xf0 << 4) |
 					i.ops[0].getReg() << 12 || i.ops[1].getReg() << 16;
 			}
 			else if (i.ins == LOADS16)
 			{
-				mc = 0xe1d000f0 | (uval & 0xf) | (uval & 0xf0 << 4) |
+				mc = 0xe15000f0 | sign_bit
+                    | (uval & 0xf) | (uval & 0xf0 << 4) |
 					i.ops[0].getReg() << 12 || i.ops[1].getReg() << 16;
 			}
 			break;
@@ -225,28 +233,41 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			int32 val = 0;
 			uint32 uval = 0;
 
+            bool negative_offset = false;
+            
 			int dest = 1;
 			if (i.oc == 3)
 			{
 				val = (int32)i.ops[1].getSigc();
 				assert(validRegOffset(i, val));
-				uval = *((uint32 *)(&val));
+                if (val < 0)
+                {
+                    negative_offset = true;
+                    uval = -val;
+                }
+                else
+                {
+                    uval = val;
+                }
 				dest = 2;
 			}
 
+            uint32 sign_bit = negative_offset ? 0x0 : 0x00800000;
+            
 			if (i.ins == STORE || i.ins == STORE32)
 			{
-				mc = 0xe5800000 | (uval & 0xfff) | i.ops[dest].getReg() << 12
-					| i.ops[0].getReg() << 16;
+				mc = 0xe5000000 | sign_bit | (uval & 0xfff)
+                    | i.ops[dest].getReg() << 12 | i.ops[0].getReg() << 16;
 			}
 			else if (i.ins == STORE16)
 			{
-				mc = 0xe1c000b0 | (uval & 0xf) | (uval & 0xf0 << 4) |
-					i.ops[dest].getReg() << 12 || i.ops[0].getReg() << 16;
+				mc = 0xe14000b0 | sign_bit | (uval & 0xf)
+                    | (uval & 0xf0 << 4) |
+                    i.ops[dest].getReg() << 12 || i.ops[0].getReg() << 16;
 			}
 			else if (i.ins == STORE8)
 			{
-				mc = 0xe5c00000 | (uval & 0xfff) |
+				mc = 0xe5400000 | sign_bit | (uval & 0xfff) |
 					i.ops[dest].getReg() << 12 | i.ops[0].getReg() << 16;
 			}
 
