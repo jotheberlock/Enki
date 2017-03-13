@@ -4,7 +4,7 @@
 #include "image.h"
 #include "rtti.h"
 
-#define DEBUG_MTABLES
+// #define DEBUG_MTABLES
 
 Type * register_type = 0;
 Type * signed_register_type = 0;
