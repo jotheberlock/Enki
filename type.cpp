@@ -4,7 +4,7 @@
 #include "image.h"
 #include "rtti.h"
 
-// #define DEBUG_MTABLES
+#define DEBUG_MTABLES
 
 Type * register_type = 0;
 Type * signed_register_type = 0;
@@ -986,19 +986,43 @@ void Mtables::createSection(Image * i, Assembler * a)
         }
         else
         {
+#ifdef DEBUG_MTABLES
+			printf("(%llx) length %lld", ptr-orig, len);
+#endif
             wee32(le, ptr, checked_32(len));
+			uint64 count = 0;
             for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
             {
-                wee32(le, ptr, checked_32(me.table[loopc]));
+				if (count == 0)
+				{
+					count = me.table[loopc2];
+#ifdef DEBUG_MTABLES
+					printf(" ");
+#endif
+				}
+				else
+				{
+					count--;
+				}
+#ifdef DEBUG_MTABLES
+				printf("(%llx)[%ld]", ptr-orig, me.table[loopc2]);
+#endif
+                wee32(le, ptr, checked_32(me.table[loopc2]));
             }
             if (me.target)
             {
                 MtableRelocation * mr = new MtableRelocation(i, me.target, ptr-orig);
                 mr->add32();
+#ifdef DEBUG_MTABLES
+				printf(" (%llx)ptr\n", ptr-orig);
+#endif
                 wee32(le, ptr, 0xfeedbeef);
             }
             else
             {
+#ifdef DEBUG_MTABLES
+				printf(" (%llx)end\n", ptr-orig);
+#endif
                 wee32(le, ptr, 0x0);
             }                
         }   
