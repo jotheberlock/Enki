@@ -27,6 +27,8 @@ public:
 		entrypoint = 0;
 	}
 
+    ~Configuration();
+    
 	FILE * open(std::string);
 
 	std::list<std::string> paths;

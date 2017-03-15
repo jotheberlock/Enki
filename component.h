@@ -8,6 +8,10 @@ class Component
 {
 public:
 
+    virtual ~Component()
+    {
+    }
+
 	virtual bool configure(std::string, std::string)
 	{
 		return false;

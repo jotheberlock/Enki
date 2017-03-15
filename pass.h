@@ -71,7 +71,11 @@ public:
 
 	SillyRegalloc()
 		: OptimisationPass()
-	{}
+	{
+        regs = 0;
+        input = 0;
+        output = 0;
+    }
 
     ~SillyRegalloc()
     {

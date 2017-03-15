@@ -7,6 +7,21 @@
 #include <list>
 #include <string.h>
 
+Configuration::~Configuration()
+{
+    for (std::map<std::string, Component *>::iterator it =
+             components.begin(); it != components.end(); it++)
+    {
+        delete (*it).second;
+    }
+
+    for (std::vector<OptimisationPass *>::iterator it2 =
+             passes.begin(); it2 != passes.end(); it2++)
+    {
+        delete (*it2);
+    }
+}
+
 std::string ConfigFile::hostConfig()
 {
 #ifdef CYGWIN_HOST

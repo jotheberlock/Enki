@@ -130,6 +130,10 @@ Image::Image()
 	guard_page = false;
 }
 
+Image::~Image()
+{
+}
+
 bool Image::configure(std::string param, std::string val)
 {
 	if (param == "file")
@@ -197,7 +201,7 @@ void Image::relocate()
 	for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
 	{
 		relocs[loopc]->apply();
-		//delete relocs[loopc];
+		delete relocs[loopc];
 	}
 	relocs.clear();
 }

@@ -18,6 +18,10 @@ void SillyRegalloc::init(Codegen * c, Configuration * cf)
 {
 	OptimisationPass::init(c, cf);
 
+    delete[] regs;
+    delete[] input;
+    delete[] output;
+    
     numregs = cf->assembler->numRegs();
     regs = new Value *[numregs];
     input = new bool[numregs];

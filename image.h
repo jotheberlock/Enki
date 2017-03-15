@@ -37,7 +37,7 @@ class Image : public Component
 public:
 
 	Image();
-	virtual ~Image() {}
+	virtual ~Image();
 
 	virtual bool configure(std::string, std::string);
 	void setSectionSize(int, uint64);
