@@ -954,6 +954,8 @@ protected:
 
 	int getPrecedence();
 
+    std::string getIdentifier(std::string errstring);
+    
 	Token next()
 	{
 		if (count < tokens.size())

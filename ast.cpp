@@ -117,6 +117,23 @@ Parser::Parser(Lexer * l)
 	}
 }
 
+std::string Parser::getIdentifier(std::string errstring)
+{
+    std::string ret = "";
+    IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
+    if (!ie)
+    {
+        addError(Error(&current, errstring));
+    }
+    else
+    {
+        ret = ie->getString();
+        delete ie;
+    }
+    
+    return ret;
+}
+
 Expr * Parser::parseInteger()
 {
 	Expr * ret = new IntegerExpr(&current);
@@ -240,14 +257,14 @@ Expr * Parser::parsePrimary()
 	}
 	else if (current.type == IDENTIFIER)
 	{
-		Expr * ret = parseIdentifier();
-		if (current.type == OPEN_BRACKET)
+		Expr * ident = parseIdentifier();
+ 		if (current.type == OPEN_BRACKET)
 		{
-			return parseFuncall((IdentifierExpr *)ret);
+			return parseFuncall((IdentifierExpr *)ident);
 		}
 		else
 		{
-			return parseVarRef(ret);
+			return parseVarRef(ident);
 		}
 	}
 	else if (current.type == OPEN_BRACKET)
@@ -668,9 +685,9 @@ Expr * Parser::parseVarExpr(Type * t)
 		next();
 		is_c = true;
 	}
-
-	Expr * i = parseIdentifier();
-	if (i)
+    
+    std::string name = getIdentifier("Type not followed by variable name");
+	if (name != "")
 	{
 		Expr * assigned = 0;
 		if (current.toString() == "=")
@@ -680,14 +697,12 @@ Expr * Parser::parseVarExpr(Type * t)
 			assigned = parseExpr();
 		}
 
-		Value * v = new Value(((IdentifierExpr *)i)->getString(),
-			t);
+		Value * v = new Value(name,t);
 		current_scope->add(v);
 		return new VarDefExpr(v, assigned, is_c);
 	}
 	else
 	{
-		addError(Error(&current, "Type not followed by variable name"));
 		return 0;
 	}
 }
@@ -802,10 +817,9 @@ Expr * Parser::parseStruct()
 	{
 		addError(Error(&current, "Expected identifier for struct"));
 		return 0;
-	}
-
-	IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
-	std::string sname = ie->getString();
+    }
+    
+    std::string sname = getIdentifier("Expected type name");
 	Type * t = types->lookup(sname);
 	if (t)
 	{
@@ -823,8 +837,8 @@ Expr * Parser::parseStruct()
 			addError(Error(&current, "Expected identifier for parent"));
 			return 0;
 		}
-		IdentifierExpr * pie = (IdentifierExpr *)parseIdentifier();
-		std::string pname = pie->getString();
+        
+		std::string pname = getIdentifier("Expected parent type name");
 		Type * pt = types->lookup(pname);
 		if (!pt)
 		{
@@ -890,8 +904,8 @@ Expr * Parser::parseStruct()
 			return 0;
 		}
 
-		IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
-		st->addMember(ie->getString(), t);
+        std::string mname = getIdentifier("Expected member type name");
+		st->addMember(mname, t);
 
 		if (current.type != EOL)
 		{
@@ -921,6 +935,7 @@ Expr * Parser::parseVarRef(Expr * e)
 	vre->scope = current_scope;
 
 	std::string name = ((IdentifierExpr *)ie)->getString();
+    delete ie;
 	vre->depth = 0;
 	vre->value = vre->scope->lookup(name, vre->depth);
 	if (!vre->value)
@@ -982,12 +997,11 @@ Expr * Parser::parseDef()
 	{
 		addError(Error(&current, "Expected identifier after def"));
 		return 0;
-	}
+    }
 
-	IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
 	FunctionType * ft;
 
-	std::string name = ie->getString();
+	std::string name = getIdentifier("Expected function name");
 	std::string lib = "";
 	size_t pos = name.find(":");
 	if (pos != std::string::npos)
@@ -1109,7 +1123,7 @@ Expr * Parser::parseDef()
 				}
 
 				current_scope = current_scope->parent();
-                types->add(ft, ie->getString());
+                types->add(ft, name);
                 return ret;
 			}
 			else
@@ -1146,7 +1160,7 @@ Expr * Parser::parseDef()
 							ret->setBody(body);
 						}
 
-						types->add(ft, ie->getString());
+						types->add(ft, name);
 						current_scope = current_scope->parent();
 						return ret;
 					}
@@ -1169,8 +1183,8 @@ Expr * Parser::parseDef()
 				{
 					addError(Error(&current, "Expected identifier"));
 				}
-				IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
-				ft->addParam(ie->getString(), 0);
+                std::string pname = getIdentifier("Expected parameter name");
+				ft->addParam(pname, 0);
 			}
 			else
 			{
@@ -1187,9 +1201,9 @@ Expr * Parser::parseDef()
 					addError(Error(&current, "Expected identifier"));
 				}
 
-				IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
-				ft->addParam(ie->getString(), t);
-				fs->addArg(new Value(ie->getString(), t));
+                std::string pname = getIdentifier("Expected parameter name");
+				ft->addParam(pname, t);
+				fs->addArg(new Value(pname, t));
 			}
 		}
 	}
@@ -1246,12 +1260,11 @@ Expr * Parser::parseFptr()
 		std::string n = "";
 		if (current.type == IDENTIFIER)
 		{
-			IdentifierExpr * ie = (IdentifierExpr *)parseIdentifier();
-			if (!ie)
-			{
-				return 0;
-			}
-			n = ie->getString();
+			n = getIdentifier("Expected param name");
+            if (n == "")
+            {
+                return 0;
+            }
 		}
 
 		if (current.type == COMMA)
@@ -1282,14 +1295,13 @@ Expr * Parser::parseFptr()
 		return 0;
 	}
 
-	Expr * ie = parseIdentifier();
-	if (!ie)
+    std::string tname = getIdentifier("Expected type name");
+	if (tname == "")
 	{
 		push();
 		return 0;
 	}
 
-	std::string tname = ((IdentifierExpr *)ie)->getString();
 	types->add(ft, tname);
 	return 0;
 }
@@ -1303,16 +1315,14 @@ Type * Parser::parseType()
 		next();
 	}
 
-	Expr * ie = parseIdentifier();
-	if (!ie)
-	{
-		push();
-		return 0;
-	}
-
 	// Look up base type
-	std::string i = ((IdentifierExpr *)ie)->getString();
-
+	std::string i = getIdentifier("Expected type name");
+    if (i == "")
+    {
+        push();
+        return 0;
+    }
+    
 	Type * ret_type = types->lookup(i);
 	if (!ret_type)
 	{
@@ -1404,6 +1414,7 @@ Type * Parser::parseType()
 				{
 					ret_type = t;
 				}
+                delete ie;
 			}
 			else
 			{
@@ -1883,9 +1894,10 @@ Value * BinaryExpr::codegen(Codegen * c)
 	{
 		addError(Error(&token, "Unknown binop"));
 		fprintf(log_file, "Argl unknown binop %llx %c for codegen!\n", op,
-			(unsigned char)(op & 0xff));
+                (unsigned char)(op & 0xff));
 	}
 
+    delete rh;
 	return 0;
 }
 
