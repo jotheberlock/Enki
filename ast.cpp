@@ -1605,7 +1605,7 @@ Value * Block::codegen(Codegen * c)
 
 Value * IntegerExpr::codegen(Codegen * c)
 {
-	return new Value(getVal());
+    return c->getInteger(getVal());
 }
 
 bool evil_hack = false;

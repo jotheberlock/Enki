@@ -307,6 +307,13 @@ public:
 		return locals;
 	}
 
+    Value * getInteger(uint64 val)
+    {
+        Value * ret = new Value(val);
+        integers.push_back(ret);
+        return ret;
+    }
+    
 protected:
 
 	std::list<BasicBlock *> break_targets;
@@ -316,7 +323,8 @@ protected:
 	std::vector<BasicBlock *> unplaced_blocks;
 
 	std::vector<Value *> locals;
-
+    std::vector<Value *> integers;
+    
 	Expr * base;
 	int count;
 	int bbcount;

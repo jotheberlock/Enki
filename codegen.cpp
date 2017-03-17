@@ -88,6 +88,11 @@ Codegen::~Codegen()
 	{
 		delete blocks[loopc];
 	}
+
+    for (unsigned int loopc2 = 0; loopc2 < integers.size(); loopc2++)
+    {
+        delete integers[loopc2];
+    }
 }
 
 BasicBlock * Codegen::newBlock(std::string n)
