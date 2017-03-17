@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "image.h"
 #include "symbols.h"
 #include "asm.h"
@@ -335,6 +336,7 @@ void Image::materialiseSection(int s)
 {
 	assert(sections[s] == 0);
 	sections[s] = new unsigned char[sizes[s]];
+    memset(sections[s], 0, sizes[s]);
 	bases[s] = next_addr;
 	next_addr += sizes[s];
 	if (!sizes[s])

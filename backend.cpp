@@ -25,6 +25,15 @@ Backend::Backend(Configuration * c, Expr * r)
 	configuration = c;
 }
 
+Backend::~Backend()
+{
+    for (std::list<Codegen *>::iterator it = codegens.begin();
+         it != codegens.end(); it++)
+    {
+        delete *it;
+    }   
+}
+
 int Backend::process()
 {
 	codegensptr = &codegens;

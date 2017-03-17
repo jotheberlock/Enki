@@ -67,6 +67,8 @@ FunctionScope * SymbolScope::lookup_function(std::string n)
 
 void SymbolScope::getValues(std::vector<Value *> & values)
 {
+    values_gotten = true;
+    
 	for (std::vector<Value *>::iterator it = sorted_contents.begin();
 	it != sorted_contents.end(); it++)
 	{
@@ -104,10 +106,26 @@ FunctionScope::FunctionScope(SymbolScope * p, std::string n, FunctionType * ft)
 	Type * byteptr = types->lookup("Byte^");
 	assert(byteptr);
 
-	add(new Value("__oldframe", byteptr));
-	add(new Value("__ip", byteptr));
-	add(new Value("__staticlink", byteptr));
-	add(new Value("__ret", register_type));
+    oldframe = new Value("__oldframe", byteptr);
+    ip = new Value("__ip", byteptr);
+	staticlink = new Value("__staticlink", byteptr);
+	retvar = new Value("__ret", register_type);
+
+    add(oldframe);
+    add(ip);
+    add(staticlink);
+    add(retvar);
+}
+
+FunctionScope::~FunctionScope()
+{
+    if (!values_gotten)
+    {
+        delete oldframe;
+        delete ip;
+        delete staticlink;
+        delete retvar;
+    }
 }
 
 FunctionScope * FunctionScope::currentFunction()

@@ -370,6 +370,8 @@ void PEImage::finalise()
 	size_t count = 0;
 
 	unsigned char buf[4096];
+    memset(buf, 0, 4096);
+    
 	ptr = buf;
 	unsigned char * namebase = buf + hints_offset;
 	unsigned char * nameptr = namebase;

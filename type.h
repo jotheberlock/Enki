@@ -782,6 +782,8 @@ public:
 	{
 	}
 
+    ~GenericFunctionType();
+    
 	virtual Value * generateFuncall(Codegen * c, Funcall * f, Value * sl,
                                     Value * fp, std::vector<Value *> & args);
 

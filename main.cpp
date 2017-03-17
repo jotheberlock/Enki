@@ -332,7 +332,8 @@ int main(int argc, char ** argv)
 		ConfigFile hcf(hfile, &hostconfig);
 		hcf.process();
 	}
-
+    fclose(hfile);
+    
 	Configuration config;
 
 	ConfigFile * current_config_file = 0;
@@ -391,6 +392,7 @@ int main(int argc, char ** argv)
 		}
 		current_config_file = new ConfigFile(cfile, &config);
 		current_config_file->process();
+        fclose(cfile);
 	}
 
 	for (int loopc = 1; loopc < argc; loopc++)
@@ -536,5 +538,13 @@ int main(int argc, char ** argv)
 	rtti->finalise();
 
 	Backend output(&config, parse.tree());
-	return output.process();
+	int ret = output.process();
+    delete root_scope;
+    delete types;
+    delete mtables;
+    delete component_factory;
+    delete rtti;
+    delete constants;
+    fclose(log_file);
+    return ret;
 }

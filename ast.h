@@ -666,8 +666,6 @@ public:
 
 	~VarRefElement()
 	{
-		// How to handle
-		// delete subs;
 	}
 
 	int type;
@@ -692,7 +690,12 @@ public:
 
 	~VarRefExpr()
 	{
-	}
+        for (std::vector<VarRefElement>::iterator it = elements.begin();
+             it != elements.end(); it++)
+        {
+            delete (*it).subs;
+        }
+    }
 
 	virtual void print(int i);
 

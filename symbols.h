@@ -25,6 +25,7 @@ public:
 			p->addChild(this);
 		}
 		symbol_name = n;
+        values_gotten = false;
 	}
 
 	virtual ~SymbolScope()
@@ -72,6 +73,7 @@ public:
 		return children;
 	}
 
+        // Caller becomes responsible for deleting values
 	void getValues(std::vector<Value *> & values);
 
 	std::string name() { return symbol_name; }
@@ -87,6 +89,8 @@ protected:
 	std::list<SymbolScope *> children;
 	std::string symbol_name;
 
+    bool values_gotten;
+    
 };
 
 class FunctionScope : public SymbolScope
@@ -94,7 +98,8 @@ class FunctionScope : public SymbolScope
 public:
 
 	FunctionScope(SymbolScope * p, std::string n, FunctionType * ft);
-
+    ~FunctionScope();
+    
 	bool isGeneric();
 
 	virtual FunctionScope * currentFunction();
@@ -146,10 +151,14 @@ public:
 protected:
 
 	std::vector<Value *> args_list;
-	FunctionScope * function;
 	FunctionType * type;
 	uint64 addr;
 	uint64 stack_size;
+
+    Value * oldframe;
+    Value * ip;
+    Value * staticlink;
+    Value * retvar;
 
 };
 

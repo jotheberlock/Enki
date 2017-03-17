@@ -93,6 +93,11 @@ Codegen::~Codegen()
     {
         delete integers[loopc2];
     }
+    
+    for (unsigned int loopc3 = 0; loopc3 < locals.size(); loopc3++)
+    {
+        delete locals[loopc3];
+    }
 }
 
 BasicBlock * Codegen::newBlock(std::string n)
@@ -137,6 +142,7 @@ void Codegen::generate()
 	{
 		Return * ret = new Return(0);
 		ret->codegen(this);
+        delete ret;
 	}
 }
 

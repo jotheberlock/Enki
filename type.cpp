@@ -680,6 +680,10 @@ Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value *,
     return convention->generateCall(c, fp, args);   
 }
 
+GenericFunctionType::~GenericFunctionType()
+{
+}
+
 static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
 {
     return (a->getType()->getSignature()) >

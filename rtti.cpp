@@ -18,7 +18,8 @@ void Rtti::finalise()
 	}
 
 	data = new unsigned char[count];
-
+    memset(data, 0, count);
+    
 	unsigned char * ptr = data;
 	for (std::map<std::string, Type *>::iterator it = tmap.begin();
 	it != tmap.end(); it++)

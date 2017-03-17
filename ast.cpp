@@ -1017,6 +1017,7 @@ Expr * Parser::parseDef()
 	else if (is_generic)
 	{
 		ft = new GenericFunctionType();
+        types->add(ft, name);
 	}
 	else
 	{

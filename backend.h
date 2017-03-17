@@ -10,6 +10,8 @@ class Backend
 public:
 
 	Backend(Configuration *, Expr *);
+    ~Backend();
+    
 	int process();
 
 protected:
