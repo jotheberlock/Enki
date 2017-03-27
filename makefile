@@ -79,3 +79,5 @@ rtti.o : rtti.cpp rtti.h
 clean:
 	rm *.o enki enki.exe *~
 
+valgrind : enki
+	valgrind ./enki tests/TEST.001.twoplustwo.e
