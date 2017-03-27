@@ -1,6 +1,11 @@
 #ifndef _ELF_
 #define _ELF_
 
+/*
+	Generates ELF executables; can handle 32 and 64 bit
+	little and big endian.
+*/
+
 #include "image.h"
 #include "stringbox.h"
 

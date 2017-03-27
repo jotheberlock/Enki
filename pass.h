@@ -1,6 +1,23 @@
 #ifndef _PASS_
 #define _PASS_
 
+/*
+	All the various optimisation/code transformation passes.
+	Currently more the latter than the former since optimisation
+	is a low priority for me right now. E.g. does things like
+	convert:
+
+	a = b + c
+	
+	to
+
+	a = b
+	a += c
+
+	to humour x86 with its generally two-operand instruction format,
+	and of course basic register allocation.
+*/
+
 #include "codegen.h"
 #include "regset.h"
 #include "component.h"

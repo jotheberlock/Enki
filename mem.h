@@ -1,6 +1,14 @@
 #ifndef _MEM_
 #define _MEM_
 
+/*
+	An abstraction over Windows and Unix methods for
+	setting memory permissions. Goes back to when the
+	compiler JITted (so memory could be set writeable
+	for generation, then read-only and executable to run it).
+	Not currently important.
+*/
+
 #include "platform.h"
 
 #define MEM_READ 1

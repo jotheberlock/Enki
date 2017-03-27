@@ -1,6 +1,12 @@
 #ifndef _CONFIGFILE_
 #define _CONFIGFILE_
 
+/*
+	Handles parsing .ini files and generating Configurations, which
+	hold the necessary Components and configs to generate e.g.
+	'a Linux ARM32 binary'.
+*/
+
 #include <stdio.h>
 #include <string>
 #include <list>

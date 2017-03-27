@@ -1,6 +1,10 @@
 #ifndef _AMD64_
 #define _AMD64_
 
+/*
+	Converts intermediate code into amd64 (x86-64)) machinecode.
+*/
+
 #include "asm.h"
 
 class Amd64 : public Assembler

@@ -1,6 +1,14 @@
 #ifndef _COMPONENT_
 #define _COMPONENT_
 
+/*
+	A Component is a configurable part of the system - different
+	configs can construct different components with different configurations.
+
+	Things like ELF/PE-COFF/etc image generators, compiler passes, machine code
+	generators etc are components.
+*/
+
 #include <string>
 #include <map>
 

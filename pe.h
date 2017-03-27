@@ -1,6 +1,12 @@
 #ifndef _PE_
 #define _PE_
 
+/* 
+	Outputs Windows PE-COFF executables, both 32- and 64-bit.
+	Little endian only because there has never been to my 
+	knowledge a big endian Windows.
+*/
+
 #include "image.h"
 
 class PEImage : public Image

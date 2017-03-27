@@ -4,6 +4,14 @@
 #include "image.h"
 #include "stringbox.h"
 
+/*
+	Generates Mach-O object files. Currently only fully functional
+	for amd64 because Mach-O wants a LC_UNIXTHREAD section describing
+	how to set the CPU registers for initial thread of the process
+	and this is inherently architecture specific (even though the
+	only register we actually care about is the instruction pointer).
+*/
+
 class MachOImage : public Image
 {
 public:

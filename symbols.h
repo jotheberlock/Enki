@@ -1,6 +1,12 @@
 #ifndef _SYMBOLS_
 #define _SYMBOLS_
 
+/*
+	The symbol table. At top level in root_scope is a FunctionScope,
+	which may contain other FunctionScopes (child functions)
+	and SymbolScopes (e.g. blocks).
+*/
+
 #include <string>
 #include <map>
 #include <list>

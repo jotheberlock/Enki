@@ -1,6 +1,17 @@
 #ifndef _ASM_
 #define _ASM_
 
+/*
+  This file defines the compiler's intermediate code (Insns, each of which may have up to four Operands,
+  destination operands first, sources second) and the Assembler class which, despite the name, is actually
+  used to generate machinecode. See amd64.h and arm32.h for concrete implementations. Also CallingConvention
+  which is a base class for e.g. 'Windows amd64 calling convention'.
+
+  The intermediate code is a fairly standard load/store RISC-y sort of setup - ALU operations are register
+  to register, load/store can be from/to absolute address, address in register, or address in register plus
+  integer offset.
+*/
+
 #include <string>
 #include <vector>
 #include <list>
@@ -62,7 +73,7 @@
 #define BREAKP 49
 #define CALL 50
 
-// (cond) ? a = b : a = c
+// (cond from previous cmp) ? dest = src1 : dest = src2
 #define SELEQ 51
 #define SELGE 53
 #define SELGT 54

@@ -1,6 +1,15 @@
 #ifndef _PLATFORM_
 #define _PLATFORM_
 
+/*
+	Various host platform specific defines,
+	most of which aren't too important without
+	macro/JIT support. Also my stdint.h replacement
+	since this compiles with e.g. gcc 3.4 that has no
+	such thing. Also functions to write little/big/either-endian
+	16/32/64-bit quantities portably.
+*/
+
 typedef unsigned long long uint64;
 typedef signed long long int64;
 typedef unsigned int uint32;
@@ -76,7 +85,7 @@ uint16 ree16(bool, unsigned char *);
 uint32 ree32(bool, unsigned char *);
 uint64 ree64(bool, unsigned char *);
 
-
+// Will complain if the input is > 32 bits
 uint32 checked_32(uint64);
 
 extern FILE * log_file;

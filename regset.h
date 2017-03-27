@@ -1,6 +1,10 @@
 #ifndef _REGSET_
 #define _REGSET_
 
+// A bitset used for holding registers, mostly used
+// by the register allocator and by Assemblers to indicate
+// e.g. which registers are valid for a given operand.
+
 #include <assert.h>
 #include <string>
 

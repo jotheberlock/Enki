@@ -1,6 +1,13 @@
 #ifndef _ERROR_
 #define _ERROR_
 
+/*
+	The tokeniser and parser can generate these; if errors
+	occur they are displayed showing the line(s) and column(s)
+	where the error occurred, a message, and extra detail if
+	available.
+*/
+
 #include <list>
 #include <string>
 

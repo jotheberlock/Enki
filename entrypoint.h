@@ -1,6 +1,12 @@
 #ifndef _ENTRYPOINT_
 #define _ENTRYPOINT_
 
+/*
+	Equivalent to crtn in gcc-land I suppose? Does the necessary setup and teardown
+	before and after entering Enki's outer function, e.g. explicitly calling the exit
+	syscall.
+*/
+
 #include "component.h"
 
 // Platform-specific stuff equivalent to the stuff before and

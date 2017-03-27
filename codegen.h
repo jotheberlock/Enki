@@ -1,6 +1,12 @@
 #ifndef _CODEGEN_
 #define _CODEGEN_
 
+/* Tne name 'Codegen' below is a bit misleading and should probably refactored. A Codegen object holds the basic blocks
+   associated with a single function and keeps track of its local variables. AST classes call it to get basic blocks
+   which they fill at the code generation stage. Values represent variables/constants/integers and have a name (which
+   may be automatically generated in the case of temporaries) and a type. A null type pointer indicates this particular
+   Value is an integer. */
+
 #include "type.h"
 #include "ast.h"
 #include "asm.h"
@@ -141,6 +147,11 @@ protected:
 	uint64 addr;
 
 };
+
+/* Calling conventions - mostly relevant right now on Windows where
+   the only way to get things done is to call functions in e.g. ntdll.dll which
+   have the standard Microsoft calling convention. Raw means 'no calling convention'
+   and is intended for things like the executable's entry point. */
 
 #define CCONV_STANDARD 0
 #define CCONV_C 1

@@ -1,6 +1,14 @@
 #ifndef _RTTI_
 #define _RTTI_
 
+/*
+	Enki images have a .rtti section containing run time
+	type information about non-raw structs (i.e. objects). Each 
+	struct has a pointer to an RTTI record, currently consisting
+	of an integer type code used by generic methods and a text
+	string with the name of the struct's type.
+*/
+
 #include <map>
 #include "type.h"
 

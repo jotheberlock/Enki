@@ -1,6 +1,14 @@
 #ifndef _LEXER_
 #define _LEXER_
 
+/*
+	First point of contact with the code. Takes in a list of Chars
+	(actually Unicode UCS-4 codepoints) read all at once from a source file
+	(because it is 2017 and source code is simply not that much of a memory
+	hog on a desktop computer), outputs a list of Tokens with a type and optional 
+	associated text.
+*/
+
 #include <vector>
 #include <list>
 #include <map>

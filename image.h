@@ -1,6 +1,13 @@
 #ifndef _IMAGE_
 #define _IMAGE_
 
+/*
+	Base class for generating executable images (e.g. ELF and PE-COFF)
+	binaries. Also has the infrastructure for relocations, both relative
+	and absolute, which are applied once the image has been generated and
+	fix up e.g. branch displacements and Windows library imports.
+*/
+
 #include <string>
 #include <vector>
 #include <list>

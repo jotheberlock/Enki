@@ -1,6 +1,11 @@
 #ifndef _STRINGBOX_
 #define _STRINGBOX_
 
+/*
+	A collection of ASCII strings. Used by elf.cpp, pe.cpp
+	etc for creating string tables for those formats.
+*/
+
 #include <stdlib.h>
 
 class StringBox {

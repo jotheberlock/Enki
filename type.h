@@ -1,6 +1,21 @@
 #ifndef _TYPE_
 #define _TYPE_
 
+/*
+	The type registry, which assigns integer type codes to
+	each type. Also, the necessary code to
+	generate the .mtables section; generic functions
+	(multimethods in LISP speak) bind at runtime to
+	a concrete function based on the type codes of
+	all of the call's arguments. A pointer to a struct
+	looks up that struct's actual type code rather than that
+	pointer's lexical type at the call site, so e.g. if you
+	have a Bar that inherits Foo and call a generic function
+	with a Foo^ that is actually pointing to a Bar, it gets
+	resolved as a Bar^ if there's a concrete function that
+	takes one.
+*/
+
 #include <stdio.h>
 #include <string>
 #include <list>

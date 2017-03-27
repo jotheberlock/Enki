@@ -1,6 +1,11 @@
 #ifndef _ARM_
 #define _ARM_
 
+/*
+Converts intermediate code into 32-bit ARM machinecode.
+Assumes ARMv7 or better because it assumes movw/movt is available.
+*/
+
 #include "asm.h"
 
 class Arm32 : public Assembler
