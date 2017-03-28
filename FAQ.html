@@ -1,0 +1,104 @@
+<h3>What's the point?</h3>
+<p>
+  Well, primarily I'm doing this for fun and as a learning experience.
+  However, there are some future aims that I haven't really seen done
+  anywhere else - for instance, it should be possible to come up with
+  an executable that can run on all operating systems with the same code
+  (for a given CPU architecture), given a platform-specific stub loader/
+  standard library provider; this is only possible since I control
+  the calling convention, everything I link to, and the binary formats I output.
+</p>
+<h3>Why not just use LLVM?</h3>
+<p>
+  I'm aware of LLVM and have played around with it, but unfortunately while
+  it is Low Level it is still a Virtual Machine (conceptually), and it abstracts
+  away the very things I'm interested in playing about with - calling
+  conventions, both in the narrow sense of e.g. __stdcall and the wide
+  sense (it assumes a C-style stack whereas I want to play about with
+  continuations and suchlike) and object file formats. LLVM is great if you
+  want to write a C(++)-like language that can link against existing
+  libraries on your platform of choice, but less well adapted for something more
+  esoteric.
+</p>
+<h3>Haven't you heard of C++11?</h3>
+<p>
+  I have indeed heard of C++11, but I've more or less followed the conventions
+  Qt for example followed at the time of the start of the project; like Qt, I'd
+  like this to be widely and easily compilable by pretty much anything; indeed,
+  I've successfully compiled it on an old SPARC box with gcc 3.4.
+  So, no auto x=foo, no shared/unique_ptr, no lambdas, not even stdint.h.
+</p>
+<p>
+  Were I to start out again I might choose C++11 by default, but then again
+  I might not - being able to compile on pretty much anything is a nice
+  feature, and for instance IBM's compiler for AIX still in 2017 doesn't
+  have support for some fairly basic C++11 features like unique_ptr. As it is,
+  any C++ compiler more recent than about Visual Studio 6 or gcc 2.7 should
+  work.
+</p>
+<h3>Why the wacky syntax?</h3>
+<p>
+  Well, I know Python syntax is like Marmite, but I happen to like
+  it personally and have mostly adapted it (though removing the
+  technically-unnecessary : at the end of control flow statements).
+  However, Python doesn't have notions of things like types or pointers
+  so I had to come up with syntax for that from somewhere and something
+  a bit Pascal like seemed as reasonable a choice as any.
+</p>
+<h3>Why is the code generated so verbose?</h3>
+<p>
+  I'm mostly interested in getting things to work right now rather than
+  generating optimal code. In particular, at some point in the future
+  I'd like to write a proper graph colouring register allocator and a proper
+  stack slot allocator (allowing variables to share stack slots when they
+  don't have overlapping liveness ranges) which should improve things
+  quite a bit.
+</p>
+<h3>What is this 'generic function' business?</h3>
+<p>
+  Known as <a href="http://wiki.c2.com/?MultiMethods">multi methods</a> in
+  LISP-land, multimethods are effectively C++ virtual methods on steroids,
+  in that they dispatch on all their argument types, not just the first,
+  implicit one (e.g. 'this', the concrete type of the object). It seemed
+  a neat idea so I added it.
+</p>
+<h3>What is this 'activation type' business?</h3>
+<p>
+  These are variables that look like e.g. Uint64$. It is is basically what is
+  known in Python land as a
+  <a href="http://wiki.c2.com/?GeneratorsInPython">generator</a>, more or less.
+  When you call a function with an activation type as an lvalue,
+  a stack frame is allocated, the function is called, the return value
+  is saved into the stack frame, the function returns, and the activation
+  type points at the stack frame, which is not deallocated. When you use
+  an activation type as an rvalue, it works like a variable of the base
+  type (e.g. Uint64) and when evaluated it reads the return value out
+  of the stack frame (with the exception of assignment to another
+  activation variable, which just copies the pointer to the frame).
+</p>
+<p>
+  Now, the secret sauce here is that you can <i>yield</i> instead of
+  return in a function and it stores the instruction pointer at the point
+  of the yield in that stack frame. With the ! operator on the activation
+  type, the stack frame is re-entered and the function resumes until
+  the next yield, which can change the return value stored in the stack
+  frame and thus the value when the activation variable is used as an rvalue.
+</p>
+<h3>Why no interoperability with C code?</h3>
+<p>
+  Well, my ultimate aim is to be able to write platform-independent
+  programs calling into my own platform-specific standard library. The
+  easiest way to make this work is to control everything from the ground
+  up, and on Unix in particular as soon as you drag libc in it tends
+  to want to take over things like memory management, and pretty much everything
+  else depends on (a particular version of) libc. Thus, I'd rather work
+  at the syscall level and control it all myself, given what I'm aiming for.#
+</p>
+<p>
+  There is basic interoperability with Windows libraries, however,
+  because that is the only level Microsoft guarantees ABI stability;
+  system calls literally get renumbered with every build of the operating
+  system and also at least on some versions of Windows executables will
+  simply crash in the loader if they don't import ntdll.dll before even hitting
+  user code.
+</p>
