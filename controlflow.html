@@ -1,0 +1,61 @@
+<!doctype html public "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <title>A simplified description of the steps the compiler takes to
+    generate a binary.</title>
+  <body>
+  <ul>
+    <li>main() reads any ini files on the command line and parses them,
+      using them to construct a Config defining the target (e.g. x86-64 ELF).
+      If no ini file is specified it defaults to a target that matches
+      the host.</li>
+    <br>
+    <li>main() reads in any .e (Enki) files specified either in the ini files
+      or on the command line, concatenating them into a vector of UCS-4
+      codepoints.</li>
+    <br>
+    <li>main() constructs a Lexer and feeds it the codepoints.</li>
+    <br>
+    <li>main() constructs a Parser and tells it to parse the Lexer's
+      output, resulting in an AST tree (also populating the symbol
+      table and type database).</li>
+    <br>
+    <li>main() construct a Backend, hands it the AST and the Config and
+      tells the Backend to process it.</li>
+    <br>
+    <li>The Backend creates a root Codegen representing the anonymous
+      outer function where code and variables outside of an explicit def'd
+      function go.</li>
+    <br>
+    <li>The Backend tells the root Codegen to generate code, which
+      recursively calls codegen() on the various nodes of the AST; in the
+      case of DefExpr's, these will create new Codegens.
+      The AST codegen() methods generate intermediate code that is held in
+      BasicBlocks owned by Codegens.</li>
+    <br>
+    <li>
+      The Backend gets a list of Passes from the Config and applies
+      each pass in order to each Codegen, transforming the code from the
+      initially generated IR to something directly translatable to a given
+      ISA.</li>
+    <br>
+    <li>
+      The Backend gets an Image from the Config, calculates the necessary
+      size for its sections and allocates them.</li>
+    <br>
+    <li>
+      The Backend gets an Assembler from the Config and uses it to generate
+      machine code into the text section of the Image. It writes the
+      relevant data into the other sections - the Rtti writes out the Rtti
+      section, the Mtables writes out generic function data, the Constants
+      writes out constant data (i.e. string literals, at the moment).</li>
+    <br>
+    <li>
+      The Backend tells the Image to apply its relocations for branch
+      offsets and function addresses.</li>
+    <br>
+    <li>
+      The Backend tells the Image to write out the final binary.</li>
+  </ul>
+  </body>
+</html>

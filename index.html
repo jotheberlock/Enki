@@ -2,9 +2,76 @@
    "http://www.w3.org/TR/html4/strict.dtd">
 <html>
     <title>Enki - a hobby compiler</title>
-    <body>Enki is a language and compiler for a language that I've been working on in my spare time for quite a while now. Its syntax is
-          mostly Python-inspired with a little Pascal; it's statically typed; it supports generators, closures and LISP-style multimethods. 
-          It compiles to native 32-bit ARM or x86-64 machine code runnable on Windows, MacOS, Linux and Android. Supporting (jailbroken) iOS
-          and Windows Mobile as well isn't too difficult in theory.
+    <body>
+      <p>
+	Enki is a language and compiler for a language that I've been working
+	on in my spare time for quite a while now. Its syntax is mostly
+	Python-inspired with a little Pascal; it's statically typed;
+	it supports generators, closures and LISP-style multimethods.
+      </p>
+      <p>
+        It compiles to native 32-bit ARM or x86-64 machine code runnable on
+	Windows, MacOS, Linux and Android. Supporting (jailbroken) iOS
+        and Windows Mobile as well isn't too difficult in theory.
+      </p>
+      <p>
+	<a href="FAQ.html">FAQ</a> here and a description of
+	<a href="controlflow.html">Control flow</a> here.
+      </p>
+      <p>For a brief indication of the language, some of the regression
+	tests give a good indication -
+	<a href="tests/TEST.043.generics_with_inheritance.e">generic functions</a>,
+	<a href="tests/TEST.028.yield.e">activation types/generators</a> and of course good old 
+        <a href="tests/TEST.036.fizzbuzz.e">FizzBuzz</a> for general syntax.</p>
+      <p>
+	Future plans:
+	<ul>
+	  <li>Support AArch64.</li>
+	  <li>Possibly MIPS?</li>
+	  <li>Actually have a memory manager. Add Apple ARC-style
+	    reference counting for objects.</li>
+	  <li>Create cross-platform object format and Windows/Linux/Mac
+	    loaders for it - one compiled object format should be able to
+	    work across all platforms for a given CPU architecture.</li>
+          <li>GPU support? The Raspberry Pi GPU and intel GPUs are
+	    documented at the instruction set level; Enki should be able to
+	    target them.</li>
+	  <li>Relatedly, floating point support.</li>
+	  <li>Actual optimisation, especially a proper graph colouring register allocator.</li>
+	 </ul>			    
+      </p>
+      <p>
+	Some possibly-dogmatic assumptions about the architectures I'm
+	interested in that I've made in the design:
+	<ul>
+	  <li>64 bit CPUs (not 32 bit and not 128 bit) are the way the world's
+	    going to be for the next few decades at least. I support 32-bit
+	    ARM as a target but e.g. in future standard library design
+	    I am going to assume that virtual address space is cheap
+	    and copious.
+	  </li>
+	  <li>
+	    In particular, I assume that hosts have efficient 64-bit
+	    integer types (not that this stops the compiler running on a 32-bit
+	    platform, of course).
+	  </li>
+	  <li>
+	    My ISA targets a machine with a reasonable number of registers,
+	    load/store addressing, 32- or 64- bits, with twos-complement
+	    integer arithmetic and byte addressing. No 8087-style FPU nonsense,
+	    no 8 or 16 bit microcontrollers, no weird 1970s supercomputers.
+	  </li>
+	  <li>
+	    The future is pretty much entirely ARM and x86-64. I might consider
+	    PowerPC and MIPS, they still have some use in the embedded world,
+	    but e.g. I'm not interested in trying to support weird legacy
+	    stuff like Itanium, and other than AArch64 supporting any new
+	    ISAs is not a high priority to me, nor is supporting any new
+	    OSes other than perhaps jailbroken iOS and Windows/ARM (since I'm
+	    working at the kernel syscall level Android and normal Linux are
+	    both supported already - no glibc/Bionic dependency).
+	  </li>
+	</ul>
+      </p>
     </body>
 </html>
