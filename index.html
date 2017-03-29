@@ -38,6 +38,10 @@
 	    target them.</li>
 	  <li>Relatedly, floating point support.</li>
 	  <li>Actual optimisation, especially a proper graph colouring register allocator.</li>
+      <li>Some sort of package/module system - I'd envisage an interface file defining
+          the API for outside consumers and one or more implementation files which
+          embody that API; anything not in the interface file is invisible outside
+          the package.</li> 
 	 </ul>			    
       </p>
       <p>
@@ -71,6 +75,15 @@
 	    working at the kernel syscall level Android and normal Linux are
 	    both supported already - no glibc/Bionic dependency).
 	  </li>
+      <li>
+        My desktop computer has 24 gigabytes of RAM. Any computer on which
+        heavy duty compilation will be performed will have lots of RAM.
+        Therefore we can afford to discard techniques and principles designed to 
+        minimise RAM usage back in the 1970s such as single-pass compilation.
+        It's reasonable to read all the source files for a program (or a module/package/
+        library, at least) at once, lex them as a whole then parse them as a whole
+        (so e.g. no need for forward function declarations).
+      </li>
 	</ul>
       </p>
     </body>
