@@ -403,6 +403,13 @@ Types::~Types()
         // Avoid double delete
     types.erase("Uint");
     types.erase("Int");
+
+    if (types["Uint64"] == types["Uint32"])
+    {
+            // Convert-uint64 hack as above; avoid double delete
+        types.erase("Uint64");
+        types.erase("Int64");
+    }
     
 	for (std::map<std::string, Type *>::iterator it = types.begin();
 	it != types.end(); it++)
