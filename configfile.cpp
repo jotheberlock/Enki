@@ -22,6 +22,19 @@ Configuration::~Configuration()
     }
 }
 
+bool Configuration::lookupConfigConstant(std::string name,
+                                         uint64 & val)
+{
+    std::map<std::string, uint64>::iterator it = config_constants.find(name);
+    if (it == config_constants.end())
+    {
+        return false;
+    }
+
+    val = (*it).second;
+    return true;
+}
+
 std::string ConfigFile::hostConfig()
 {
 #ifdef CYGWIN_HOST
@@ -200,6 +213,18 @@ bool ConfigFile::processLine(std::string line)
 				printf("Couldn't set %s to %s on %s\n", param.c_str(), paramval.c_str(), cname.c_str());
 			}
 		}
+        else if (command == "constant")
+        {
+            std::string name;
+            std::string value;
+            if (!split(val, " ", name, value))
+            {
+                printf("Invalid constant syntax %s\n", val.c_str());
+                return false;
+            }
+            uint64 nval = strtol(value.c_str(), 0, 0);
+            config->config_constants[name] = nval;
+        }
 		else
 		{
 			return false;

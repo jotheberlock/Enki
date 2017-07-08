@@ -13,6 +13,8 @@
 #include <map>
 #include <vector>
 
+#include "platform.h"
+
 class Image;
 class Component;
 class CallingConvention;
@@ -36,7 +38,10 @@ public:
     ~Configuration();
     
 	FILE * open(std::string);
-
+    
+        // Config can define constants e.g. IS_WINDOWS, SYSCALL_WRITE
+    bool lookupConfigConstant(std::string, uint64 &);
+    
 	std::list<std::string> paths;
 	std::map<std::string, Component *> components;
 	std::vector<std::string> preloads;
@@ -47,7 +52,9 @@ public:
 	Entrypoint * entrypoint;
 	std::string name;
 	std::vector<OptimisationPass *> passes;
-
+    std::map<std::string, uint64> config_constants;
+    
+        
 };
 
 class ConfigFile
