@@ -76,6 +76,34 @@ protected:
 
 };
 
+// The idea with these is they are defined in the config
+// files and can have a different value for each config;
+// meanwhile the AST stays the same between all possible configs.
+// Codegen is per config, so e.g. if (WINDOWS) <foo> can get optimised
+// out at that point if WINDOWS is set to 0 for a Linux config.
+class ConfigConstantExpr : public Expr
+{
+  public:
+
+    ConfigConstantExpr(std::string n)
+    {
+        constant_name = n;
+    }
+
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "ConfigConstant %s", constant_name.c_str());
+    }
+    
+	virtual Value * codegen(Codegen *);
+    
+  protected:
+
+    std::string constant_name;
+
+};
+
 class BreakpointExpr : public Expr
 {
 public:

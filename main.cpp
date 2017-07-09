@@ -335,7 +335,8 @@ int main(int argc, char ** argv)
     fclose(hfile);
     
 	Configuration config;
-
+    configuration = &config;
+    
 	ConfigFile * current_config_file = 0;
 
 	bool done_ini = false;

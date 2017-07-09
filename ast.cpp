@@ -71,15 +71,7 @@ IntegerExpr::IntegerExpr(Token * t)
 
 IdentifierExpr::IdentifierExpr(Token * t)
 {
-	char buf[4096];
-	unsigned int loopc;
-	for (loopc = 0; loopc < t->value.size(); loopc++)
-	{
-		buf[loopc] = (char)t->value[loopc];
-	}
-	buf[loopc] = 0;
-
-	val = buf;
+    val = t->toString();
 	static_depth = 0;
 	value = 0;
 }
@@ -152,6 +144,7 @@ Expr * Parser::parseIdentifier()
 {
 	IdentifierExpr * ret = new IdentifierExpr(&current);
 	next();
+
 	int depth = 0;
 	Value * v = current_scope->lookup(ret->getString(), depth);
 	ret->setValue(v, depth);
@@ -257,6 +250,16 @@ Expr * Parser::parsePrimary()
 	}
 	else if (current.type == IDENTIFIER)
 	{
+        std::string token_value = current.toString();
+        uint64 dummy;
+
+        if (configuration->lookupConfigConstant(token_value, dummy))
+        {
+            next();
+            ConfigConstantExpr * ret = new ConfigConstantExpr(token_value);
+            return ret;
+        }
+        
 		Expr * ident = parseIdentifier();
  		if (current.type == OPEN_BRACKET)
 		{
@@ -1607,6 +1610,19 @@ Value * Block::codegen(Codegen * c)
 Value * IntegerExpr::codegen(Codegen * c)
 {
     return c->getInteger(getVal());
+}
+
+Value * ConfigConstantExpr::codegen(Codegen * c)
+{
+    uint64 ret;
+    if (configuration->lookupConfigConstant(constant_name, ret))
+    {
+        return c->getInteger(ret);
+    }
+    
+    printf("Config constant %s not found in this config!\n",
+           constant_name.c_str());
+    return 0;
 }
 
 bool evil_hack = false;
