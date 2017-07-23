@@ -80,6 +80,11 @@ public:
 
 	virtual std::string name() = 0;
 
+    std::string fileName()
+    {
+        return fname;
+    }
+    
 protected:
 
 	unsigned char * sections[IMAGE_LAST];

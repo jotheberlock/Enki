@@ -312,6 +312,8 @@ bool sanity_check()
 
 int main(int argc, char ** argv)
 {
+    bool auto_run = false;
+    
 	if (!sanity_check())
 	{
 		return 1;
@@ -381,6 +383,10 @@ int main(int argc, char ** argv)
 				break;
 			}
 		}
+        else if (!strcmp(argv[loopc], "-r"))
+        {
+            auto_run = true;
+        }
 	}
 
 	if (!done_ini)
@@ -547,5 +553,13 @@ int main(int argc, char ** argv)
     delete rtti;
     delete constants;
     fclose(log_file);
+
+#ifdef POSIX_HOST    
+    if (auto_run)
+    {
+        ret = system(config.image->fileName().c_str());
+    }
+#endif
+    
     return ret;
 }
