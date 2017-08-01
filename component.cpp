@@ -5,6 +5,7 @@
 #include "macho.h"
 #include "amd64.h"
 #include "arm32.h"
+#include "thumb.h"
 #include "pass.h"
 #include "entrypoint.h"
 
@@ -48,6 +49,11 @@ Component * make_arm32()
 	return new Arm32();
 }
 
+Component * make_thumb()
+{
+	return new Arm32();
+}
+
 Component * make_amd64_unix_syscall()
 {
 	return new Amd64UnixSyscallCallingConvention();
@@ -66,6 +72,11 @@ Component * make_amd64_windows()
 Component * make_arm_linux_syscall()
 {
 	return new ArmLinuxSyscallCallingConvention();
+}
+
+Component * make_thumb_linux_syscall()
+{
+	return new ThumbLinuxSyscallCallingConvention();
 }
 
 Component * make_threetotwo()
@@ -126,10 +137,12 @@ ComponentFactory::ComponentFactory()
 	add(make_macho, "image", "macho");
 	add(make_amd64, "asm", "amd64");
 	add(make_arm32, "asm", "arm32");
+	add(make_thumb, "asm", "thumb");
 	add(make_amd64_unix_syscall, "cconv", "amd64_unix_syscall");
 	add(make_amd64_unix, "cconv", "amd64_unix");
 	add(make_amd64_windows, "cconv", "amd64_windows");
 	add(make_arm_linux_syscall, "cconv", "arm_linux_syscall");
+	add(make_thumb_linux_syscall, "cconv", "thumb_linux_syscall");
 	add(make_threetotwo, "pass", "threetotwo");
 	add(make_sillyregalloc, "pass", "sillyregalloc");
 	add(make_conditionalbranchsplitter, "pass", "conditionalbranchsplitter");
