@@ -103,7 +103,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	b->setAddr(address + flen());
 
 	uint64 current_addr = (uint64)current;
-	assert((current_addr & 0x3) == 0);
+	assert((current_addr & 0x1) == 0);
 
 	for (std::list<Insn>::iterator it = code.begin(); it != code.end();
 	it++)
@@ -111,7 +111,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		Insn & i = *it;
 		i.addr = address + flen();
 
-		uint32 mc = 0;
+		uint16 mc = 0;
 
 		unsigned char * oldcurrent = current;
 
@@ -155,12 +155,41 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		case ADD:
 		case SUB:
+        {
+			assert(i.oc == 3);
+			assert(i.ops[0].isReg());
+			assert(i.ops[1].isReg());
+			assert(i.ops[2].isReg() || i.ops[2].isUsigc());
+
+            if (i.ops[2].isUsigc())
+            {
+                assert(i.ops[0].getReg() == i.ops[1].getReg());
+                assert(i.ops[0].getReg() < 8);
+                assert(i.ops[2].getUsigc() < 256);
+                mc = (i.ins == ADD) ? 0x3000 : 0x3800;
+                mc |= i.ops[0].getReg() << 8;
+                mc |= i.ops[2].getUsigc();
+            }
+            else
+            {
+                if (i.ops[0].getReg() < 8 && i.ops[1].getReg() < 8 &&
+                    i.ops[2].getReg() < 8)
+                {
+                    mc = (i.ins == ADD) ? 0x1800 : 0x1a00;
+                    mc |= i.ops[1].getReg() << 3;
+                    mc |= i.ops[2].getReg() << 6;
+                    mc |= i.ops[0].getReg();
+                }
+            }
+            
+			break;
+		}
 		case AND:
 		case OR:
 		case XOR:
 		{
-			break;
-		}
+            break;
+        }
 		case SHL:
 		case SHR:
 		case SAR:
@@ -233,7 +262,6 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		{
 			fprintf(log_file, "Don't know how to turn %lld [%s] into arm!\n", i.ins, i.toString().c_str());
 			assert(false);
-			mc = 0xe1a00000; // NOP
 		}
 
 		unsigned int siz = (unsigned int)(current - oldcurrent);
@@ -244,7 +272,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		}
 
-		wee32(le, current, mc);
+		wee16(le, current, mc);
 		if (current >= limit)
 		{
 			printf("Ran out of space to assemble into, %d\n", (int)(limit - base));
