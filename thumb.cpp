@@ -151,6 +151,49 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		case MOVE:
 		{
+			assert(i.oc == 2);
+
+			assert(i.ops[0].isReg());
+			assert(i.ops[1].isUsigc() || i.ops[1].isSigc() ||
+				i.ops[1].isFunction() || i.ops[1].isReg() ||
+				i.ops[1].isBlock() || i.ops[1].isSection() || i.ops[1].isExtFunction());
+
+			if (i.ops[1].isUsigc() || i.ops[1].isSigc() ||
+				i.ops[1].isFunction() || i.ops[1].isBlock() ||
+				i.ops[1].isSection() || i.ops[1].isExtFunction())
+			{
+                if (i.ops[1].isUsigc() && i.ops[1].getUsigc() < 256)
+                {
+                    mc = 0x2100;
+                    mc |= i.ops[0].getReg() << 8;
+                    mc |= i.ops[1].getUsigc();
+                }
+            }
+            else
+            {
+                if (i.ops[0].getReg() < 8 && i.ops[1].getReg() < 8)
+                {
+                        // Actually an add of 0
+                    mc = 0x1c00;
+                    mc |= i.ops[0].getReg();
+                    mc |= i.ops[1].getReg() << 3;
+                }
+                else
+                {
+                    mc = 0x4600;
+                    mc |= (i.ops[1].getReg() & 0x7) <<  3;
+                    mc |= i.ops[0].getReg() & 0x7;
+                    if (i.ops[1].getReg() > 7)
+                    {
+                        mc |= 0x40;
+                    }
+                    if (i.ops[1].getReg() > 7)
+                    {
+                        mc |= 0x80;
+                    }
+                }    
+            }
+            
 			break;
 		}
 		case ADD:
