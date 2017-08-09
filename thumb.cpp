@@ -119,6 +119,18 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		{
 		case SYSCALL:
 		{
+            
+			assert(i.oc == 1 || i.oc == 0);
+			if (i.oc == 1)
+			{
+				assert(i.ops[0].isUsigc());
+				assert(i.ops[0].getUsigc() <= 0xff);
+				mc = 0xdf00 | i.ops[0].getUsigc();
+			}
+			else
+			{
+				mc = 0xdf00;
+			}
 			break;
 		}
 		case BREAKP:
