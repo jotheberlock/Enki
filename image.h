@@ -147,7 +147,7 @@ public:
 	uint64 mask;
 	// How many bits to shift left into relocation
 	uint64 lshift;
-	bool sf;
+	int bits;
 
 	void apply(bool, unsigned char *, uint64);
 
@@ -168,28 +168,38 @@ public:
 	}
 
 	void addReloc(uint64 o, uint64 r, uint64 m,
-		uint64 l, bool sf)
+		uint64 l, int bits)
 	{
 		Reloc reloc;
 		reloc.offset = o;
 		reloc.rshift = r;
 		reloc.mask = m;
 		reloc.lshift = l;
-		reloc.sf = sf;
+		reloc.bits = bits;
 		relocs.push_back(reloc);
 	}
 
 	// Simple 'just write it here no masking' helpers
+    void add8()
+    {
+        addReloc(0, 0, 0, 0, 8);
+    }
+    
+    void add16()
+    {
+        addReloc(0, 0, 0, 0, 16);
+    }
+    
 	void add32()
 	{
-		addReloc(0, 0, 0, 0, false);
+		addReloc(0, 0, 0, 0, 32);
 	}
 
 	void add64()
 	{
-		addReloc(0, 0, 0, 0, true);
+		addReloc(0, 0, 0, 0, 64);
 	}
-
+    
 	void apply();
 	virtual uint64 getValue() = 0;
 	virtual unsigned char * getPtr() = 0;

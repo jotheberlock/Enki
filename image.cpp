@@ -60,13 +60,21 @@ void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 {
 	if (mask == 0)
 	{
-		if (sf)
+		if (bits == 8)
 		{
-			wee64(le, ptr, val);
+            *ptr = val & 0xff;
 		}
+        else if (bits == 16)
+        {
+            wee16(le, ptr, val & 0xffff);
+        }
+        else if (bits == 32)
+        {
+            wee32(le, ptr, val & 0xffffffff);
+        }
 		else
 		{
-			wee32(le, ptr, val & 0xffffffff);
+			wee64(le, ptr, val);
 		}
 		return;
 	}
@@ -75,19 +83,32 @@ void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 	val = val & mask;
 	val = val << lshift;
 
-	if (sf)
-	{
-		uint64 to_write = ree64(le, ptr + offset);
-		to_write = to_write | val;
-		unsigned char * poffset = ptr + offset;
-		wee64(le, poffset, to_write);
-	}
-	else
+    if (bits==8)
+    {
+        unsigned char to_write = *(ptr+offset);
+        to_write = to_write | (unsigned char)val;
+        *(ptr+offset) = to_write;
+    }
+    else if (bits==16)
+    {
+        uint16 to_write = ree16(le, ptr + offset);
+        to_write = to_write | (uint16)val;
+        unsigned char * poffset = ptr+offset;
+        wee16(le, poffset, to_write);
+    }
+	else if (bits==32)
 	{
 		uint32 to_write = ree32(le, ptr + offset);
 		to_write = to_write | (uint32)val;
 		unsigned char * poffset = ptr + offset;
 		wee32(le, poffset, to_write);
+	}
+	else
+	{
+		uint64 to_write = ree64(le, ptr + offset);
+		to_write = to_write | val;
+		unsigned char * poffset = ptr + offset;
+		wee64(le, poffset, to_write);
 	}
 }
 
