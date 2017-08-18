@@ -35,12 +35,12 @@ public:
 
 	int framePointer()
 	{
-		return 12;
+		return 13;  // Thumb has special support for SP-relative addressing, so let's use that
 	}
 
 	int functionAlignment()
 	{
-		return 8;
+		return 2;
 	}
 
 	bool validConst(Insn & i, int idx);
