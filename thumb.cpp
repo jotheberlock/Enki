@@ -125,7 +125,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			{
 				assert(i.ops[0].isUsigc());
 				assert(i.ops[0].getUsigc() <= 0xff);
-				mc = 0xdf00 | i.ops[0].getUsigc() & 0xff;
+				mc = 0xdf00 | (i.ops[0].getUsigc() & 0xff);
 			}
 			else
 			{
@@ -152,8 +152,16 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			uint64 offset = 0;
 			if (i.oc == 3)
 			{
-				assert(i.ops[2].isUsigc());
-				offset = i.ops[2].getUsigc();
+                assert(i.ops[2].isUsigc() || i.ops[2].isSigc());
+                if (i.ops[2].isUsigc())
+                {
+                    offset = i.ops[2].getUsigc();
+                }
+                else
+                {
+                    assert(i.ops[2].getSigc() >= 0);
+                    offset = i.ops[2].getSigc();
+                }
 			}
 
 			if ((i.ins == LOAD32 || i.ins == LOAD) && i.ops[1].getReg() == 13 && offset < 1024 && ((offset & 0x3) == 0))
@@ -174,8 +182,16 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			uint64 offset = 0;
 			if (i.oc == 3)
 			{
-				assert(i.ops[1].isUsigc());
-				offset = i.ops[1].getUsigc();
+                assert(i.ops[1].isUsigc() || i.ops[1].isSigc());
+                if (i.ops[1].isUsigc())
+                {
+                    offset = i.ops[1].getUsigc();
+                }
+                else
+                {
+                    assert(i.ops[1].getSigc() >= 0);
+                    offset = i.ops[1].getSigc();
+                }
 			}
 
 			if ((i.ins == STORE32 || i.ins == STORE) && 

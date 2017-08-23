@@ -51,7 +51,7 @@ Component * make_arm32()
 
 Component * make_thumb()
 {
-	return new Arm32();
+	return new Thumb();
 }
 
 Component * make_amd64_unix_syscall()

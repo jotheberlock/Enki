@@ -218,14 +218,14 @@ void ElfImage::finalise()
 	{
 		wee64(le, ptr, 0);  // flags
 		wee64(le, ptr, 0);  // addr
-		wee64(le, ptr, 0);  // ofset
+		wee64(le, ptr, 0);  // offset
 		wee64(le, ptr, 0);  // size
 	}
 	else
 	{
 		wee32(le, ptr, 0);  // flags
 		wee32(le, ptr, 0);  // addr
-		wee32(le, ptr, 0);  // ofset
+		wee32(le, ptr, 0);  // offset
 		wee32(le, ptr, 0);  // size
 	}
 	wee32(le, ptr, 0);  // link - UNDEF
