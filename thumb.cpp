@@ -66,6 +66,9 @@ int Thumb::size(BasicBlock * b)
 		}
 		}
 	}
+
+    ret += 12;
+    
 	return ret;
 }
 
@@ -105,13 +108,18 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	uint64 current_addr = (uint64)current;
 	assert((current_addr & 0x1) == 0);
 
+        // Temporary hack - load r0 with address then bx to Thumb
+    wee32(le, current, 0xe305000d);
+    wee32(le, current, 0xe3400040);
+    wee32(le, current, 0xe12fff10);
+    
 	for (std::list<Insn>::iterator it = code.begin(); it != code.end();
 	it++)
 	{
 		Insn & i = *it;
 		i.addr = address + flen();
 
-		uint16 mc = 0;
+		uint16 mc = 0x46c0;  // nop
 
 		unsigned char * oldcurrent = current;
 
@@ -163,8 +171,9 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     offset = i.ops[2].getSigc();
                 }
 			}
-
-			if ((i.ins == LOAD32 || i.ins == LOAD) && i.ops[1].getReg() == 13 && offset < 1024 && ((offset & 0x3) == 0))
+            
+			if ((i.ins == LOAD32 || i.ins == LOADS32 || i.ins == LOAD)
+                && i.ops[1].getReg() == 13 && offset < 1024 && ((offset & 0x3) == 0))
 			{
 				mc = 0x9800 | i.ops[0].getReg() << 8 | (uint16)offset >> 2;
 			}
@@ -199,9 +208,8 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				offset < 1024 && 
 				(offset & 0x3) == 0)
 			{
-				mc = 0x9000 | i.ops[0].getReg() << 8 | (uint16)offset >> 2;
+				mc = 0x9000 | i.ops[(i.oc == 3 ? 2 : 1)].getReg() << 8 | (uint16)offset >> 2;
 			}
-			break;
 
 			break;
 		}
@@ -227,7 +235,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			{
                 if (i.ops[1].isUsigc() && i.ops[1].getUsigc() < 256)
                 {
-                    mc = 0x2100;
+                    mc = 0x2000;
                     mc |= i.ops[0].getReg() << 8;
                     mc |= i.ops[1].getUsigc();
                 }
@@ -250,7 +258,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     {
                         mc |= 0x40;
                     }
-                    if (i.ops[1].getReg() > 7)
+                    if (i.ops[0].getReg() > 7)
                     {
                         mc |= 0x80;
                     }
