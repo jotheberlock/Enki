@@ -84,6 +84,8 @@
 #define GETSTACKSIZE 57
 #define GETBITSIZE 58
 
+#define FIRST_PLATFORM_SPECIFIC 200
+
 class Value;
 class BasicBlock;
 class FunctionScope;

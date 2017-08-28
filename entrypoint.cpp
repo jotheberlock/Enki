@@ -4,6 +4,7 @@
 #include "symbols.h"
 #include "asm.h"
 #include "image.h"
+#include "thumb.h"
 
 void WindowsEntrypoint::generateEpilogue(BasicBlock * block, FunctionScope * scope, Image * image)
 {
@@ -47,5 +48,10 @@ void UnixEntrypoint::generateEpilogue(BasicBlock * block, FunctionScope * scope,
 	block->add(Insn(MOVE, Operand::reg(exitcode_reg), scope->lookupLocal("__ret")));
 	block->add(Insn(MOVE, Operand::reg(syscall_reg), Operand::usigc(syscall_number)));
 	block->add(Insn(SYSCALL));
+}
+
+void ThumbEntrypoint::generatePrologue(BasicBlock * block, FunctionScope *, Image *)
+{
+    block->add(Insn(BRANCH_TO_THUMB));
 }
 

@@ -59,15 +59,18 @@ int Thumb::size(BasicBlock * b)
 
 		switch (i.ins)
 		{
-		default:
-		{
-			ret += 2;
-			i.size = 2;
-		}
+            case ENTER_THUMB_MODE:
+            {
+                ret += 12;
+                break;
+            }
+            default:
+            {
+                ret += 2;
+                i.size = 2;
+            }
 		}
 	}
-
-    ret += 12;
     
 	return ret;
 }
@@ -108,11 +111,6 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	uint64 current_addr = (uint64)current;
 	assert((current_addr & 0x1) == 0);
 
-        // Temporary hack - load r0 with address then bx to Thumb
-    wee32(le, current, 0xe305000d);
-    wee32(le, current, 0xe3400040);
-    wee32(le, current, 0xe12fff10);
-    
 	for (std::list<Insn>::iterator it = code.begin(); it != code.end();
 	it++)
 	{
@@ -125,6 +123,16 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 		switch (i.ins)
 		{
+            case ENTER_THUMB_MODE:
+            {
+            
+                    // Temporary hack - load r0 with pc then bx to Thumb
+                wee32(le, current, 0xe1a0000f);   // mov r0, pc - r0 is now this instruction+8
+                wee32(le, current, 0xe2800005);   // add r0, r0, #5 - make sure to set thumb bit
+                wee32(le, current, 0xe12fff10);   // bx r0
+                break;
+            }
+            
 		case SYSCALL:
 		{
             

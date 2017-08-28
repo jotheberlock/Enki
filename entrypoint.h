@@ -52,4 +52,15 @@ protected:
 
 };
 
+// Add branch-to-thumb at start
+class ThumbEntrypoint : public UnixEntrypoint
+{
+  public:
+
+  public:
+
+    virtual void generatePrologue(BasicBlock *, FunctionScope *, Image *);
+    
+};
+    
 #endif

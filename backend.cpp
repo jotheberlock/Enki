@@ -53,6 +53,8 @@ int Backend::process()
 	else
 	{
 		gc->setCallConvention(CCONV_RAW);
+		config->entrypoint->generatePrologue(gc->block(), root_scope, config->image);
+        
 		gc->block()->add(Insn(MOVE, Operand::reg(config->assembler->framePointer()),
 			Operand::section(IMAGE_UNALLOCED_DATA, 0)));
 
@@ -69,7 +71,6 @@ int Backend::process()
 		root_scope->add(stacksize);
 		gc->block()->add(Insn(GETSTACKSIZE, stacksize));
 		gc->block()->add(Insn(ADD, Operand(v), Operand(v), stacksize));
-		config->entrypoint->generatePrologue(gc->block(), root_scope, config->image);
 	}
 
 	BasicBlock * body = gc->newBlock("body");

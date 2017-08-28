@@ -19,6 +19,11 @@ Component * make_unixentrypoint()
 	return new UnixEntrypoint();
 }
 
+Component * make_thumbentrypoint()
+{
+    return new ThumbEntrypoint();
+}
+
 Component * make_memoryimage()
 {
 	return new MemoryImage();
@@ -155,6 +160,7 @@ ComponentFactory::ComponentFactory()
 	add(make_remwithdivpass, "pass", "remwithdiv");
 	add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
 	add(make_unixentrypoint, "entrypoint", "unixentrypoint");
+    add(make_thumbentrypoint, "entrypoint", "thumbentrypoint");
 }
 
 void ComponentFactory::add(ComponentMaker ptr, std::string c, std::string n)

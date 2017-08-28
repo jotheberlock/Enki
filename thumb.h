@@ -8,6 +8,8 @@ Aimed at the Cortex M0 as a baseline
 
 #include "asm.h"
 
+#define ENTER_THUMB_MODE FIRST_PLATFORM_SPECIFIC
+
 class Thumb : public Assembler
 {
 public:
