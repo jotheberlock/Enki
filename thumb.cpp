@@ -64,6 +64,17 @@ int Thumb::size(BasicBlock * b)
                 ret += 12;
                 break;
             }
+            case MOVE:
+            {
+                if (i.ops[1].isReg())
+                {
+                    ret += 2;
+                }
+                else
+                {
+                    ret += 10;
+                }
+            }
             default:
             {
                 ret += 2;
@@ -247,6 +258,67 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     mc |= i.ops[0].getReg() << 8;
                     mc |= i.ops[1].getUsigc();
                 }
+                else
+                {
+                    assert(i.ops[0].getReg() < 8);
+
+                    if (!(current_addr & 0x3))
+                    {
+                        wee16(le, current, 0x46c0); // 32-bit align with nop
+                    }
+
+                        // ldr r<x>, pc+0 (which is this instruction+4)
+                    wee16(le, current, 0x4800 | (i.ops[0].getReg() << 8));
+                        // branch over constant
+                    wee16(le, current, 0xe001);
+
+                    if (i.ops[1].isFunction())
+                    {
+                        uint32 reloc = 0xdeadbeef;
+                        FunctionRelocation * fr = new FunctionRelocation(image, current_function, flen(), i.ops[1].getFunction(), 0);
+                        fr->add32();
+                        wle32(current, reloc);
+                    }
+                    else if (i.ops[1].isBlock())
+                    {
+                        uint32 reloc = 0xdeadbeef;
+                        AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
+                        abbr->add32();
+                        wle32(current, reloc);
+                    }
+                    else if (i.ops[1].isSection())
+                    {
+                        uint32 reloc = 0xdeadbeef;
+                        int s;
+                        uint64 o = i.ops[1].getSection(s);
+                        SectionRelocation * sr = new SectionRelocation(image, IMAGE_CODE, len(), s, o);
+                        sr->add32();
+                        wle32(current, reloc);
+                    }
+                    else if (i.ops[1].isExtFunction())
+                    {
+                        uint32 reloc = 0xdeadbeef;
+                        ExtFunctionRelocation * efr = new ExtFunctionRelocation(image, current_function, len(), i.ops[1].getExtFunction());
+                        efr->add32();
+                        wle32(current, reloc);
+                    }
+                    else
+                    {
+                        uint32 val;
+                        if (i.ops[1].isUsigc())
+                        {
+                            val = i.ops[1].getUsigc();
+                        }
+                        else if (i.ops[1].isSigc())
+                        {
+                            int32 sval = i.ops[1].getSigc();
+                            val = *((uint32 *)&sval);
+                        }
+                        wle32(current, val);
+                    }
+
+                    break;
+                }    
             }
             else
             {

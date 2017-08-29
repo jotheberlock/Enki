@@ -368,3 +368,16 @@ void RemWithDivPass::processInsn()
 		append(sub);
 	}
 }
+
+void ThumbMoveConstantPass::processInsn()
+{
+    if (insn.ins == MOVE && insn.ops[0].isReg() && insn.ops[0].getReg() > 7)
+    {
+        Value * tconst = cg->getTemporary(register_type, "thumb_constant");
+        int regnum = insn.ops[0].getReg();
+        insn.ops[0] = Operand(tconst);
+        change(insn);
+        Insn mover(MOVE, Operand::reg(regnum), tconst);
+        append(mover);
+    }
+}

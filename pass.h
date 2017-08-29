@@ -282,4 +282,23 @@ public:
 
 };
 
+// turn mov <hi>, something into mov <lo>, something ; mov <hi> <lo>
+class ThumbMoveConstantPass : public OptimisationPass
+{
+  public:
+
+    ThumbMoveConstantPass()
+        : OptimisationPass()
+    {
+    }
+
+    virtual std::string name()
+    {
+        return "ThumbMoveConstantPass";
+    }
+
+    virtual void processInsn();
+    
+};
+
 #endif

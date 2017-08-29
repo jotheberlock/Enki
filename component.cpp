@@ -134,6 +134,11 @@ Component  * make_remwithdivpass()
 	return new RemWithDivPass();
 }
 
+Component * make_thumbmoveconstantpass()
+{
+    return new ThumbMoveConstantPass();
+}
+
 ComponentFactory::ComponentFactory()
 {
 	add(make_memoryimage, "image", "memory");
@@ -158,6 +163,7 @@ ComponentFactory::ComponentFactory()
 	add(make_stacksizepass, "pass", "stacksize");
 	add(make_bitsizepass, "pass", "bitsize");
 	add(make_remwithdivpass, "pass", "remwithdiv");
+	add(make_thumbmoveconstantpass, "pass", "thumbmoveconstant");
 	add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
 	add(make_unixentrypoint, "entrypoint", "unixentrypoint");
     add(make_thumbentrypoint, "entrypoint", "thumbentrypoint");

@@ -476,6 +476,7 @@ uint64 BasicBlockRelocation::getValue()
 uint64 SectionRelocation::getValue()
 {
 	uint64 addr = image->getAddr(dest_section) + dest_offset;
+    
 	return addr;
 }
 

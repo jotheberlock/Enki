@@ -52,6 +52,6 @@ void UnixEntrypoint::generateEpilogue(BasicBlock * block, FunctionScope * scope,
 
 void ThumbEntrypoint::generatePrologue(BasicBlock * block, FunctionScope *, Image *)
 {
-    block->add(Insn(BRANCH_TO_THUMB));
+    block->add(Insn(ENTER_THUMB_MODE));
 }
 
