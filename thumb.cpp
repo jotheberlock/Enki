@@ -196,6 +196,29 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			{
 				mc = 0x9800 | i.ops[0].getReg() << 8 | (uint16)offset >> 2;
 			}
+            else if (i.ins == LOAD8 || i.ins == LOADS8)
+            {
+                assert(offset < 32);
+                if (i.ins == LOADS8)
+                {
+                    assert(i.ops[2].isReg());
+                    
+                }
+                
+            }
+            else if (i.ins == LOAD16 || i.ins == LOADS16)
+            {
+                assert(offset < 63);
+                if (i.ins == LOADS16)
+                {
+                    assert(i.ops[2].isReg());   
+                }
+            }
+            else if (i.ins == LOAD32 || i.ins == LOADS32 || i.ins == LOAD)
+            {
+                assert(offset < 125);
+            }
+            
 			break;
 		}
 		case STORE8:
@@ -229,7 +252,19 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			{
 				mc = 0x9000 | i.ops[(i.oc == 3 ? 2 : 1)].getReg() << 8 | (uint16)offset >> 2;
 			}
-
+            else if (i.ins == STORE8)
+            {
+                assert(offset < 32);
+            }
+            else if (i.ins == STORE16)
+            {
+                assert(offset < 63);
+            }
+            else if (i.ins == STORE32 || i.ins == STORE)
+            {
+                assert(offset < 125);
+            }
+            
 			break;
 		}
 		case LOAD64:
