@@ -5,14 +5,32 @@
 
 bool Thumb::validRegOffset(Insn & i, int off)
 {
-    if (i.ins == LOAD16 || i.ins == LOADS16 || i.ins == STORE16)
+    if (i.ins == LOAD8 || i.ins == LOADS8 || i.ins == STORE8)
     {
-        return (off > -256) && (off < 256);
+        return (off >= 0) && (off < 32);
+    }
+    else if (i.ins == LOAD16 || i.ins == LOADS16 || i.ins == STORE16)
+    {
+        return (off >= 0) && (off < 63);
     }
     else
     {
-    
-        return (off > -4096) && (off < 4096);
+        int pos;
+        if (i.ins == LOAD32 || i.ins == LOAD)
+        {
+            pos = 1;
+        }
+        else
+        {
+            pos = 0;
+        }
+
+        if (i.ops[pos].getReg() == 13)
+        {
+            return (off >= 0) && (off < 1021);
+        }
+        
+        return (off >= 0) && (off < 125);
     }
     return false;
 }
@@ -176,6 +194,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			assert(i.ops[0].isReg());
 			assert(i.ops[1].isReg());
 			assert(i.ops[0].getReg() < 8);
+            
 			uint64 offset = 0;
 			if (i.oc == 3)
 			{
@@ -192,7 +211,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			}
             
 			if ((i.ins == LOAD32 || i.ins == LOADS32 || i.ins == LOAD)
-                && i.ops[1].getReg() == 13 && offset < 1024 && ((offset & 0x3) == 0))
+                && i.ops[1].getReg() == 13 && offset < 1021 && ((offset & 0x3) == 0))
 			{
 				mc = 0x9800 | i.ops[0].getReg() << 8 | (uint16)offset >> 2;
 			}
@@ -201,10 +220,17 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 assert(offset < 32);
                 if (i.ins == LOADS8)
                 {
-                    assert(i.ops[2].isReg());
-                    
+                    assert(i.ops[2].isReg());   
                 }
-                
+                else
+                {
+                    assert(i.ops[1].getReg() < 8);
+                    mc = 0x7800 | i.ops[1].getReg() << 3 | i.ops[0].getReg();
+                    if (i.oc == 3)
+                    {
+                        mc |= offset << 6;
+                    }
+                }
             }
             else if (i.ins == LOAD16 || i.ins == LOADS16)
             {
@@ -213,12 +239,37 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 {
                     assert(i.ops[2].isReg());   
                 }
+                else
+                {
+                    assert(i.ops[1].getReg() < 8);
+                    mc = 0x8800 | i.ops[1].getReg() << 3 | i.ops[0].getReg();
+                    if (i.oc == 3)
+                    {
+                        assert((offset & 0x1) == 0);
+                        offset >>= 1;
+                        mc |= offset << 6;
+                    }
+                }
             }
             else if (i.ins == LOAD32 || i.ins == LOADS32 || i.ins == LOAD)
             {
                 assert(offset < 125);
+                if (i.ins == LOADS32)
+                {
+                    assert(i.ops[2].isReg());   
+                }
+                else
+                {
+                    assert(i.ops[1].getReg() < 8);
+                    mc = 0x6800 | i.ops[1].getReg() << 3 | i.ops[0].getReg();
+                    if (i.oc == 3)
+                    {
+                        assert((offset & 0x3) == 0);
+                        offset >>= 2;
+                        mc |= offset << 6;
+                    }
+                }
             }
-            
 			break;
 		}
 		case STORE8:
@@ -231,6 +282,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			assert(i.ops[i.oc == 3 ? 2 : 1].isReg());
 			assert(i.ops[i.oc == 3 ? 2 : 1].getReg() < 8);
 			uint64 offset = 0;
+            int sreg = (i.oc == 3) ? 2 : 1;
 			if (i.oc == 3)
 			{
                 assert(i.ops[1].isUsigc() || i.ops[1].isSigc());
@@ -247,7 +299,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 			if ((i.ins == STORE32 || i.ins == STORE) && 
 				i.ops[0].getReg() == 13 && 
-				offset < 1024 && 
+				offset < 1021 && 
 				(offset & 0x3) == 0)
 			{
 				mc = 0x9000 | i.ops[(i.oc == 3 ? 2 : 1)].getReg() << 8 | (uint16)offset >> 2;
@@ -255,14 +307,37 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             else if (i.ins == STORE8)
             {
                 assert(offset < 32);
+                
+                assert(i.ops[sreg].getReg() < 8);
+                mc = 0x7000 | i.ops[0].getReg() << 3 | i.ops[sreg].getReg();
+                if (i.oc == 3)
+                {
+                    mc |= offset << 6;
+                }
             }
             else if (i.ins == STORE16)
             {
                 assert(offset < 63);
+                assert(i.ops[sreg].getReg() < 8);
+                mc = 0x8000 | i.ops[0].getReg() << 3 | i.ops[sreg].getReg();
+                if (i.oc == 3)
+                {
+                    assert((offset & 0x1) == 0);
+                    offset >>= 1;
+                    mc |= offset << 5;
+                }
             }
             else if (i.ins == STORE32 || i.ins == STORE)
             {
                 assert(offset < 125);
+                assert(i.ops[sreg].getReg() < 8);
+                mc = 0x6000 | i.ops[0].getReg() << 3 | i.ops[sreg].getReg();
+                if (i.oc == 3)
+                {
+                    assert((offset & 0x3) == 0);
+                    offset >>= 2;
+                    mc |= offset << 5;
+                }
             }
             
 			break;
