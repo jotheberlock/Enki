@@ -225,39 +225,57 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			}
             else if (i.ins == LOAD8 || i.ins == LOADS8)
             {
-                assert(offset < 32);
-                if (i.ins == LOADS8)
-                {
-                    assert(i.ops[2].isReg());   
-                }
-                else
-                {
-                    assert(i.ops[1].getReg() < 8);
-                    mc = 0x7800 | i.ops[1].getReg() << 3 | i.ops[0].getReg();
-                    if (i.oc == 3)
-                    {
-                        mc |= offset << 6;
-                    }
-                }
+				if (regreg)
+				{
+					assert(i.ops[1].getReg() < 8);
+					assert(i.ops[2].getReg() < 8);
+					mc = 0x5c00 | i.ops[0].getReg() | i.ops[1].getReg() << 3 | i.ops[2].getReg() << 6;
+				}
+				else
+				{
+					assert(offset < 32);
+					if (i.ins == LOADS8)
+					{
+						assert(i.ops[2].isReg());
+					}
+					else
+					{
+						assert(i.ops[1].getReg() < 8);
+						mc = 0x7800 | i.ops[1].getReg() << 3 | i.ops[0].getReg();
+						if (i.oc == 3)
+						{
+							mc |= offset << 6;
+						}
+					}
+				}
             }
             else if (i.ins == LOAD16 || i.ins == LOADS16)
             {
-                assert(offset < 63);
-                if (i.ins == LOADS16)
-                {
-                    assert(i.ops[2].isReg());   
-                }
-                else
-                {
-                    assert(i.ops[1].getReg() < 8);
-                    mc = 0x8800 | i.ops[1].getReg() << 3 | i.ops[0].getReg();
-                    if (i.oc == 3)
-                    {
-                        assert((offset & 0x1) == 0);
-                        offset >>= 1;
-                        mc |= offset << 6;
-                    }
-                }
+				if (regreg)
+				{
+					assert(i.ops[1].getReg() < 8);
+					assert(i.ops[2].getReg() < 8);
+					mc = 0x5a00 | i.ops[0].getReg() | i.ops[1].getReg() << 3 | i.ops[2].getReg() << 6;
+				}
+				else
+				{
+					assert(offset < 63);
+					if (i.ins == LOADS16)
+					{
+						assert(i.ops[2].isReg());
+					}
+					else
+					{
+						assert(i.ops[1].getReg() < 8);
+						mc = 0x8800 | i.ops[1].getReg() << 3 | i.ops[0].getReg();
+						if (i.oc == 3)
+						{
+							assert((offset & 0x1) == 0);
+							offset >>= 1;
+							mc |= offset << 6;
+						}
+					}
+				}
             }
             else if (i.ins == LOAD32 || i.ins == LOADS32 || i.ins == LOAD)
             {
@@ -331,26 +349,44 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			}
             else if (i.ins == STORE8)
             {
-                assert(offset < 32);
-                
-                assert(i.ops[sreg].getReg() < 8);
-                mc = 0x7000 | i.ops[0].getReg() << 3 | i.ops[sreg].getReg();
-                if (i.oc == 3)
-                {
-                    mc |= offset << 6;
-                }
+				if (regreg)
+				{
+					assert(i.ops[1].getReg() < 8);
+					assert(i.ops[2].getReg() < 8);
+					mc = 0x5400 | i.ops[2].getReg() | i.ops[0].getReg() << 3 | i.ops[1].getReg() << 6;
+				}
+				else
+				{
+					assert(offset < 32);
+
+					assert(i.ops[sreg].getReg() < 8);
+					mc = 0x7000 | i.ops[0].getReg() << 3 | i.ops[sreg].getReg();
+					if (i.oc == 3)
+					{
+						mc |= offset << 6;
+					}
+				}
             }
             else if (i.ins == STORE16)
             {
-                assert(offset < 63);
-                assert(i.ops[sreg].getReg() < 8);
-                mc = 0x8000 | i.ops[0].getReg() << 3 | i.ops[sreg].getReg();
-                if (i.oc == 3)
-                {
-                    assert((offset & 0x1) == 0);
-                    offset >>= 1;
-                    mc |= offset << 5;
-                }
+				if (regreg)
+				{
+					assert(i.ops[1].getReg() < 8);
+					assert(i.ops[2].getReg() < 8);
+					mc = 0x5200 | i.ops[2].getReg() | i.ops[0].getReg() << 3 | i.ops[1].getReg() << 6;
+				}
+				else
+				{
+					assert(offset < 63);
+					assert(i.ops[sreg].getReg() < 8);
+					mc = 0x8000 | i.ops[0].getReg() << 3 | i.ops[sreg].getReg();
+					if (i.oc == 3)
+					{
+						assert((offset & 0x1) == 0);
+						offset >>= 1;
+						mc |= offset << 5;
+					}
+				}
             }
             else if (i.ins == STORE32 || i.ins == STORE)
             {
