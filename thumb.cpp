@@ -229,7 +229,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				{
 					assert(i.ops[1].getReg() < 8);
 					assert(i.ops[2].getReg() < 8);
-					mc = 0x5c00 | i.ops[0].getReg() | i.ops[1].getReg() << 3 | i.ops[2].getReg() << 6;
+					mc = (i.ins == LOAD8 ? 0x5c00 : 0x5600) | i.ops[0].getReg() | i.ops[1].getReg() << 3 | i.ops[2].getReg() << 6;
 				}
 				else
 				{
@@ -255,7 +255,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				{
 					assert(i.ops[1].getReg() < 8);
 					assert(i.ops[2].getReg() < 8);
-					mc = 0x5a00 | i.ops[0].getReg() | i.ops[1].getReg() << 3 | i.ops[2].getReg() << 6;
+					mc = (i.ins == LOAD16 ? 0x5a00 : 0x5e00) | i.ops[0].getReg() | i.ops[1].getReg() << 3 | i.ops[2].getReg() << 6;
 				}
 				else
 				{
