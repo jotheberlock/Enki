@@ -562,6 +562,28 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case OR:
 		case XOR:
 		{
+            assert(i.oc == 3);
+            assert(i.ops[0].isReg());
+            assert(i.ops[1].isReg());
+            assert(i.ops[2].isReg());
+            assert(i.ops[0].getReg() == i.ops[1].getReg());
+            assert(i.ops[0].getReg() < 8);
+            assert(i.ops[2].getReg() < 8);
+
+            if (i.ins == AND)
+            {
+                mc = 0x4000;
+            }
+            else if (i.ins == OR)
+            {
+                mc = 0x4300;
+            }
+            else
+            {
+                mc = 0x4040;
+            }
+
+            mc |= i.ops[0].getReg() | (i.ops[2].getReg() << 3);
             break;
         }
 		case SHL:
@@ -580,6 +602,12 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		case NOT:
 		{
+            assert(i.oc == 2);
+            assert(i.ops[0].isReg());
+            assert(i.ops[1].isReg());
+            assert(i.ops[0].getReg() < 8);
+            assert(i.ops[1].getReg() < 8);
+            mc = 0x43c0 | i.ops[0].getReg() | (i.ops[1].getReg() << 3);
 			break;
 		}
 		case SELEQ:
