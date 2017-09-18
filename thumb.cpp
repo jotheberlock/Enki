@@ -561,6 +561,10 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case AND:
 		case OR:
 		case XOR:
+		case SHL:
+		case SHR:
+		case SAR:
+		case ROR:
 		{
             assert(i.oc == 3);
             assert(i.ops[0].isReg());
@@ -578,7 +582,23 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             {
                 mc = 0x4300;
             }
-            else
+			else if (i.ins == SHL)
+			{
+				mc = 0x4080;
+			}
+			else if (i.ins == SHR)
+			{
+				mc = 0x40c0;
+			}
+			else if (i.ins == SAR)
+			{
+				mc = 0x4100;
+			}
+			else if (i.ins == ROR)
+			{
+				mc = 0x41c0;
+			}
+            else // XOR
             {
                 mc = 0x4040;
             }
@@ -586,14 +606,11 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             mc |= i.ops[0].getReg() | (i.ops[2].getReg() << 3);
             break;
         }
-		case SHL:
-		case SHR:
-		case SAR:
 		case RCL:
 		case RCR:
 		case ROL:
-		case ROR:
 		{
+			assert(false);
 			break;
 		}
 		case CMP:
