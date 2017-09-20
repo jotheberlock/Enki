@@ -487,11 +487,11 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         uint32 val;
                         if (i.ops[1].isUsigc())
                         {
-                            val = i.ops[1].getUsigc();
+                            val = (uint32)i.ops[1].getUsigc();
                         }
                         else if (i.ops[1].isSigc())
                         {
-                            int32 sval = i.ops[1].getSigc();
+                            int32 sval = (int32)i.ops[1].getSigc();
                             val = *((uint32 *)&sval);
                         }
                         wle32(current, val);
@@ -615,6 +615,19 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		case CMP:
 		{
+			assert(i.oc == 2);
+			assert(i.ops[0].isReg());
+			assert(i.ops[1].isReg() || i.ops[1].isUsigc());
+			assert(i.ops[0].getReg() < 8);
+			if (i.ops[1].isReg())
+			{
+				mc = 0x4280 | (i.ops[0].getReg()) | (i.ops[1].getReg() << 3);
+			}
+			else
+			{
+				assert(i.ops[1].getUsigc() < 256);
+				mc = 0x2800 | (i.ops[0].getReg() << 8) | (uint16)i.ops[1].getUsigc();
+			}
 			break;
 		}
 		case NOT:
