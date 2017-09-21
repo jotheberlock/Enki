@@ -180,6 +180,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		case BREAKP:
 		{
+			mc = 0xbe00;
 			break;
 		}
 		case LOAD8:
@@ -565,6 +566,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case SHR:
 		case SAR:
 		case ROR:
+		case MUL:
 		{
             assert(i.oc == 3);
             assert(i.ops[0].isReg());
@@ -597,6 +599,10 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			else if (i.ins == ROR)
 			{
 				mc = 0x41c0;
+			}
+			else if (i.ins == MUL)
+			{
+				mc = 0x4340;
 			}
             else // XOR
             {
@@ -678,11 +684,6 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case REMS:
 		{
 			assert(false);  // Doesn't exist on ARM
-			break;
-		}
-		case MUL:
-		{
-            assert(i.oc == 3);
 			break;
 		}
 		case MULS:
