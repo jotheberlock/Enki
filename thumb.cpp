@@ -677,7 +677,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case DIV:
 		case DIVS:
 		{
-            assert(i.oc == 3);
+			assert(false);  // Not in 16 bit Thumb
 			break;
 		}
 		case REM:
