@@ -152,19 +152,19 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 		switch (i.ins)
 		{
-            case ENTER_THUMB_MODE:
-            {
-            
-                    // Temporary hack - load r0 with pc then bx to Thumb
-                wee32(le, current, 0xe1a0000f);   // mov r0, pc - r0 is now this instruction+8
-                wee32(le, current, 0xe2800005);   // add r0, r0, #5 - make sure to set thumb bit
-                wee32(le, current, 0xe12fff10);   // bx r0
-                break;
-            }
-            
+		case ENTER_THUMB_MODE:
+		{
+
+			// Temporary hack - load r0 with pc then bx to Thumb
+			wee32(le, current, 0xe1a0000f);   // mov r0, pc - r0 is now this instruction+8
+			wee32(le, current, 0xe2800005);   // add r0, r0, #5 - make sure to set thumb bit
+			wee32(le, current, 0xe12fff10);   // bx r0
+			break;
+		}
+
 		case SYSCALL:
 		{
-            
+
 			assert(i.oc == 1 || i.oc == 0);
 			if (i.oc == 1)
 			{
@@ -195,7 +195,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			assert(i.ops[0].isReg());
 			assert(i.ops[1].isReg());
 			assert(i.ops[0].getReg() < 8);
-            
+
 			bool regreg = false;
 			uint64 offset = 0;
 			if (i.oc == 3)
@@ -218,14 +218,14 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 					}
 				}
 			}
-            
+
 			if ((i.ins == LOAD32 || i.ins == LOADS32 || i.ins == LOAD)
-                && i.ops[1].getReg() == 13 && offset < 1021 && ((offset & 0x3) == 0))
+				&& i.ops[1].getReg() == 13 && offset < 1021 && ((offset & 0x3) == 0))
 			{
 				mc = 0x9800 | i.ops[0].getReg() << 8 | (uint16)offset >> 2;
 			}
-            else if (i.ins == LOAD8 || i.ins == LOADS8)
-            {
+			else if (i.ins == LOAD8 || i.ins == LOADS8)
+			{
 				if (regreg)
 				{
 					assert(i.ops[1].getReg() < 8);
@@ -249,9 +249,9 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 						}
 					}
 				}
-            }
-            else if (i.ins == LOAD16 || i.ins == LOADS16)
-            {
+			}
+			else if (i.ins == LOAD16 || i.ins == LOADS16)
+			{
 				if (regreg)
 				{
 					assert(i.ops[1].getReg() < 8);
@@ -277,9 +277,9 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 						}
 					}
 				}
-            }
-            else if (i.ins == LOAD32 || i.ins == LOADS32 || i.ins == LOAD)
-            {
+			}
+			else if (i.ins == LOAD32 || i.ins == LOADS32 || i.ins == LOAD)
+			{
 				if (regreg)
 				{
 					assert(i.ops[1].getReg() < 8);
@@ -305,7 +305,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 						}
 					}
 				}
-            }
+			}
 			break;
 		}
 		case STORE8:
@@ -318,7 +318,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			assert(i.ops[i.oc == 3 ? 2 : 1].isReg());
 			assert(i.ops[i.oc == 3 ? 2 : 1].getReg() < 8);
 			uint64 offset = 0;
-            int sreg = (i.oc == 3) ? 2 : 1;
+			int sreg = (i.oc == 3) ? 2 : 1;
 			bool regreg = false;
 			if (i.oc == 3)
 			{
@@ -341,15 +341,15 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				}
 			}
 
-			if ((i.ins == STORE32 || i.ins == STORE) && 
-				i.ops[0].getReg() == 13 && 
-				offset < 1021 && 
+			if ((i.ins == STORE32 || i.ins == STORE) &&
+				i.ops[0].getReg() == 13 &&
+				offset < 1021 &&
 				(offset & 0x3) == 0)
 			{
 				mc = 0x9000 | i.ops[(i.oc == 3 ? 2 : 1)].getReg() << 8 | (uint16)offset >> 2;
 			}
-            else if (i.ins == STORE8)
-            {
+			else if (i.ins == STORE8)
+			{
 				if (regreg)
 				{
 					assert(i.ops[1].getReg() < 8);
@@ -367,9 +367,9 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 						mc |= offset << 6;
 					}
 				}
-            }
-            else if (i.ins == STORE16)
-            {
+			}
+			else if (i.ins == STORE16)
+			{
 				if (regreg)
 				{
 					assert(i.ops[1].getReg() < 8);
@@ -388,9 +388,9 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 						mc |= offset << 5;
 					}
 				}
-            }
-            else if (i.ins == STORE32 || i.ins == STORE)
-            {
+			}
+			else if (i.ins == STORE32 || i.ins == STORE)
+			{
 				if (regreg)
 				{
 					assert(i.ops[1].getReg() < 8);
@@ -409,15 +409,15 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 						mc |= offset << 5;
 					}
 				}
-            }
-            
+			}
+
 			break;
 		}
 		case LOAD64:
 		case STORE64:
 		{
 			printf("64-bit load/store attempted on 32-bit ARM!\n");
-            assert(false);
+			assert(false);
 			break;
 		}
 		case MOVE:
@@ -433,130 +433,130 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				i.ops[1].isFunction() || i.ops[1].isBlock() ||
 				i.ops[1].isSection() || i.ops[1].isExtFunction())
 			{
-                if (i.ops[1].isUsigc() && i.ops[1].getUsigc() < 256)
-                {
-                    mc = 0x2000;
-                    mc |= i.ops[0].getReg() << 8;
-                    mc |= i.ops[1].getUsigc();
-                }
-                else
-                {
-                    assert(i.ops[0].getReg() < 8);
+				if (i.ops[1].isUsigc() && i.ops[1].getUsigc() < 256)
+				{
+					mc = 0x2000;
+					mc |= i.ops[0].getReg() << 8;
+					mc |= i.ops[1].getUsigc();
+				}
+				else
+				{
+					assert(i.ops[0].getReg() < 8);
 
-                    if (!(current_addr & 0x3))
-                    {
-                        wee16(le, current, 0x46c0); // 32-bit align with nop
-                    }
+					if (!(current_addr & 0x3))
+					{
+						wee16(le, current, 0x46c0); // 32-bit align with nop
+					}
 
-                        // ldr r<x>, pc+0 (which is this instruction+4)
-                    wee16(le, current, 0x4800 | (i.ops[0].getReg() << 8));
-                        // branch over constant
-                    wee16(le, current, 0xe001);
+					// ldr r<x>, pc+0 (which is this instruction+4)
+					wee16(le, current, 0x4800 | (i.ops[0].getReg() << 8));
+					// branch over constant
+					wee16(le, current, 0xe001);
 
-                    if (i.ops[1].isFunction())
-                    {
-                        uint32 reloc = 0xdeadbeef;
-                        FunctionRelocation * fr = new FunctionRelocation(image, current_function, flen(), i.ops[1].getFunction(), 0);
-                        fr->add32();
-                        wle32(current, reloc);
-                    }
-                    else if (i.ops[1].isBlock())
-                    {
-                        uint32 reloc = 0xdeadbeef;
-                        AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
-                        abbr->add32();
-                        wle32(current, reloc);
-                    }
-                    else if (i.ops[1].isSection())
-                    {
-                        uint32 reloc = 0xdeadbeef;
-                        int s;
-                        uint64 o = i.ops[1].getSection(s);
-                        SectionRelocation * sr = new SectionRelocation(image, IMAGE_CODE, len(), s, o);
-                        sr->add32();
-                        wle32(current, reloc);
-                    }
-                    else if (i.ops[1].isExtFunction())
-                    {
-                        uint32 reloc = 0xdeadbeef;
-                        ExtFunctionRelocation * efr = new ExtFunctionRelocation(image, current_function, len(), i.ops[1].getExtFunction());
-                        efr->add32();
-                        wle32(current, reloc);
-                    }
-                    else
-                    {
-                        uint32 val;
-                        if (i.ops[1].isUsigc())
-                        {
-                            val = (uint32)i.ops[1].getUsigc();
-                        }
-                        else if (i.ops[1].isSigc())
-                        {
-                            int32 sval = (int32)i.ops[1].getSigc();
-                            val = *((uint32 *)&sval);
-                        }
-                        wle32(current, val);
-                    }
+					if (i.ops[1].isFunction())
+					{
+						uint32 reloc = 0xdeadbeef;
+						FunctionRelocation * fr = new FunctionRelocation(image, current_function, flen(), i.ops[1].getFunction(), 0);
+						fr->add32();
+						wle32(current, reloc);
+					}
+					else if (i.ops[1].isBlock())
+					{
+						uint32 reloc = 0xdeadbeef;
+						AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
+						abbr->add32();
+						wle32(current, reloc);
+					}
+					else if (i.ops[1].isSection())
+					{
+						uint32 reloc = 0xdeadbeef;
+						int s;
+						uint64 o = i.ops[1].getSection(s);
+						SectionRelocation * sr = new SectionRelocation(image, IMAGE_CODE, len(), s, o);
+						sr->add32();
+						wle32(current, reloc);
+					}
+					else if (i.ops[1].isExtFunction())
+					{
+						uint32 reloc = 0xdeadbeef;
+						ExtFunctionRelocation * efr = new ExtFunctionRelocation(image, current_function, len(), i.ops[1].getExtFunction());
+						efr->add32();
+						wle32(current, reloc);
+					}
+					else
+					{
+						uint32 val;
+						if (i.ops[1].isUsigc())
+						{
+							val = (uint32)i.ops[1].getUsigc();
+						}
+						else if (i.ops[1].isSigc())
+						{
+							int32 sval = (int32)i.ops[1].getSigc();
+							val = *((uint32 *)&sval);
+						}
+						wle32(current, val);
+					}
 
-                    break;
-                }    
-            }
-            else
-            {
-                if (i.ops[0].getReg() < 8 && i.ops[1].getReg() < 8)
-                {
-                        // Actually an add of 0
-                    mc = 0x1c00;
-                    mc |= i.ops[0].getReg();
-                    mc |= i.ops[1].getReg() << 3;
-                }
-                else
-                {
-                    mc = 0x4600;
-                    mc |= (i.ops[1].getReg() & 0x7) <<  3;
-                    mc |= i.ops[0].getReg() & 0x7;
-                    if (i.ops[1].getReg() > 7)
-                    {
-                        mc |= 0x40;
-                    }
-                    if (i.ops[0].getReg() > 7)
-                    {
-                        mc |= 0x80;
-                    }
-                }    
-            }
-            
+					break;
+				}
+			}
+			else
+			{
+				if (i.ops[0].getReg() < 8 && i.ops[1].getReg() < 8)
+				{
+					// Actually an add of 0
+					mc = 0x1c00;
+					mc |= i.ops[0].getReg();
+					mc |= i.ops[1].getReg() << 3;
+				}
+				else
+				{
+					mc = 0x4600;
+					mc |= (i.ops[1].getReg() & 0x7) << 3;
+					mc |= i.ops[0].getReg() & 0x7;
+					if (i.ops[1].getReg() > 7)
+					{
+						mc |= 0x40;
+					}
+					if (i.ops[0].getReg() > 7)
+					{
+						mc |= 0x80;
+					}
+				}
+			}
+
 			break;
 		}
 		case ADD:
 		case SUB:
-        {
+		{
 			assert(i.oc == 3);
 			assert(i.ops[0].isReg());
 			assert(i.ops[1].isReg());
 			assert(i.ops[2].isReg() || i.ops[2].isUsigc());
 
-            if (i.ops[2].isUsigc())
-            {
-                assert(i.ops[0].getReg() == i.ops[1].getReg());
-                assert(i.ops[0].getReg() < 8);
-                assert(i.ops[2].getUsigc() < 256);
-                mc = (i.ins == ADD) ? 0x3000 : 0x3800;
-                mc |= i.ops[0].getReg() << 8;
-                mc |= i.ops[2].getUsigc();
-            }
-            else
-            {
-                if (i.ops[0].getReg() < 8 && i.ops[1].getReg() < 8 &&
-                    i.ops[2].getReg() < 8)
-                {
-                    mc = (i.ins == ADD) ? 0x1800 : 0x1a00;
-                    mc |= i.ops[1].getReg() << 3;
-                    mc |= i.ops[2].getReg() << 6;
-                    mc |= i.ops[0].getReg();
-                }
-            }
-            
+			if (i.ops[2].isUsigc())
+			{
+				assert(i.ops[0].getReg() == i.ops[1].getReg());
+				assert(i.ops[0].getReg() < 8);
+				assert(i.ops[2].getUsigc() < 256);
+				mc = (i.ins == ADD) ? 0x3000 : 0x3800;
+				mc |= i.ops[0].getReg() << 8;
+				mc |= i.ops[2].getUsigc();
+			}
+			else
+			{
+				if (i.ops[0].getReg() < 8 && i.ops[1].getReg() < 8 &&
+					i.ops[2].getReg() < 8)
+				{
+					mc = (i.ins == ADD) ? 0x1800 : 0x1a00;
+					mc |= i.ops[1].getReg() << 3;
+					mc |= i.ops[2].getReg() << 6;
+					mc |= i.ops[0].getReg();
+				}
+			}
+
 			break;
 		}
 		case AND:
@@ -568,22 +568,22 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case ROR:
 		case MUL:
 		{
-            assert(i.oc == 3);
-            assert(i.ops[0].isReg());
-            assert(i.ops[1].isReg());
-            assert(i.ops[2].isReg());
-            assert(i.ops[0].getReg() == i.ops[1].getReg());
-            assert(i.ops[0].getReg() < 8);
-            assert(i.ops[2].getReg() < 8);
+			assert(i.oc == 3);
+			assert(i.ops[0].isReg());
+			assert(i.ops[1].isReg());
+			assert(i.ops[2].isReg());
+			assert(i.ops[0].getReg() == i.ops[1].getReg());
+			assert(i.ops[0].getReg() < 8);
+			assert(i.ops[2].getReg() < 8);
 
-            if (i.ins == AND)
-            {
-                mc = 0x4000;
-            }
-            else if (i.ins == OR)
-            {
-                mc = 0x4300;
-            }
+			if (i.ins == AND)
+			{
+				mc = 0x4000;
+			}
+			else if (i.ins == OR)
+			{
+				mc = 0x4300;
+			}
 			else if (i.ins == SHL)
 			{
 				mc = 0x4080;
@@ -604,14 +604,14 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			{
 				mc = 0x4340;
 			}
-            else // XOR
-            {
-                mc = 0x4040;
-            }
+			else // XOR
+			{
+				mc = 0x4040;
+			}
 
-            mc |= i.ops[0].getReg() | (i.ops[2].getReg() << 3);
-            break;
-        }
+			mc |= i.ops[0].getReg() | (i.ops[2].getReg() << 3);
+			break;
+		}
 		case RCL:
 		case RCR:
 		case ROL:
@@ -638,12 +638,12 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		case NOT:
 		{
-            assert(i.oc == 2);
-            assert(i.ops[0].isReg());
-            assert(i.ops[1].isReg());
-            assert(i.ops[0].getReg() < 8);
-            assert(i.ops[1].getReg() < 8);
-            mc = 0x43c0 | i.ops[0].getReg() | (i.ops[1].getReg() << 3);
+			assert(i.oc == 2);
+			assert(i.ops[0].isReg());
+			assert(i.ops[1].isReg());
+			assert(i.ops[0].getReg() < 8);
+			assert(i.ops[1].getReg() < 8);
+			mc = 0x43c0 | i.ops[0].getReg() | (i.ops[1].getReg() << 3);
 			break;
 		}
 		case SELEQ:
@@ -661,6 +661,20 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		{
 			assert(i.oc == 1);
 			assert(i.ops[0].isReg() || i.ops[0].isBlock());
+
+			if (i.ops[0].isReg())
+			{
+				assert(i.ops[0].getReg() < 8);
+				mc = 0x4687 | i.ops[0].getReg() << 3;  // mov pc, <reg>
+			}
+			else
+			{
+				mc = 0xe000;
+				// Branch offset is stored >> 1
+				BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
+					current_function, flen(), flen() + 6, i.ops[0].getBlock());
+				bbr->addReloc(0, 1, 0x07ff, 0, 16);
+			}
 			break;
 		}
 		case BNE:
@@ -672,6 +686,37 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		{
 			assert(i.oc == 1);
 			assert(i.ops[0].isBlock());
+
+			if (i.ins == BNE)
+			{
+				mc = 0xd100;
+			}
+			else if (i.ins == BEQ)
+			{
+				mc = 0xd000;
+			}
+			else if (i.ins == BG)
+			{
+				mc = 0xdc00;
+			}
+			else if (i.ins == BLE)
+			{
+				mc = 0xdd00;
+			}
+			else if (i.ins == BL)
+			{ 
+				mc = 0xdb00;
+			}
+			else
+			{
+				// BGE
+				mc = 0xda00;
+			}
+			// Branch offset is stored >> 1
+			// Offset needs checking
+			BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
+				current_function, flen(), flen() + 6, i.ops[0].getBlock());
+			bbr->addReloc(0, 1, 0x00ff, 0, 16);
 			break;
 		}
 		case DIV:
