@@ -93,6 +93,14 @@ int Thumb::size(BasicBlock * b)
                     ret += 10;
                 }
             }
+			case SELGE:
+			case SELGES:
+			case SELEQ:
+			case SELGT:
+			case SELGTS:
+			{
+				ret += 8;
+			}
             default:
             {
                 ret += 2;
