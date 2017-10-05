@@ -655,6 +655,32 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			assert(i.oc == 3);
 			assert(i.ops[0].isReg());
 			assert(i.ops[1].isReg());
+
+			// Ugh fixed signed/unsigned at some point
+			if (i.ins == SELEQ)
+			{
+				wee16(le, current, 0xd101);
+			}
+			else if (i.ins == SELGE)
+			{
+				wee16(le, current, 0xdb01);
+			}
+			else if (i.ins == SELGT)
+			{
+				wee16(le, current, 0xdd01);
+			}
+			else if (i.ins == SELGES)
+			{
+				wee16(le, current, 0xdb01);
+			}
+			else if (i.ins == SELGTS)
+			{
+				wee16(le, current, 0xdd01);
+			}
+			wee16(le, current, 0x1c00 | i.ops[0].getReg() | i.ops[1].getReg() << 3);
+			wee16(le, current, 0xe000);
+			mc = 0x1c00 | i.ops[0].getReg() | i.ops[1].getReg() << 3;
+				
 			break;
 		}
 		case BRA:
