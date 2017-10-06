@@ -330,7 +330,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			bool regreg = false;
 			if (i.oc == 3)
 			{
-				if (i.ops[2].isReg())
+				if (i.ops[1].isReg())
 				{
 					regreg = true;
 				}
@@ -843,21 +843,91 @@ ValidRegs Thumb::validRegs(Insn & i)
 {
 	ValidRegs ret;
 
-	for (int loopc = 0; loopc < 16; loopc++)
+	for (int loopc = 0; loopc < 8; loopc++)
 	{
-		if (loopc != 15 && loopc != 13 && loopc != framePointer())  // pc, sp
-		{
-			ret.ops[0].set(loopc);
-			ret.ops[1].set(loopc);
-			ret.ops[2].set(loopc);
-		}
+        ret.ops[0].set(loopc);
+        ret.ops[1].set(loopc);
+        ret.ops[2].set(loopc);
 	}
 
+    if (i.ins == MOVE)
+    {
+        for (int loopc = 8; loopc < 16; loopc++)
+        {
+            ret.ops[0].set(loopc);
+            ret.ops[1].set(loopc);
+            ret.ops[2].set(loopc);
+        }
+    }
+
+    if (i.ins == STORE || i.ins == STORE8 || i.ins == STORE16 || i.ins == STORE32 ||
+        i.ins == LOAD || i.ins == LOAD8 || i.ins == LOAD16 || i.ins == LOAD32)
+    {
+        ret.ops[0].set(13);
+        ret.ops[1].set(13);
+        ret.ops[2].set(13);
+    }
+    
 	return ret;
 }
 
 bool Thumb::validConst(Insn & i, int idx)
 {
+	if (i.ins == DIV || i.ins == DIVS || i.ins == REM ||
+		i.ins == REMS || i.ins == SELEQ || i.ins == SELGT ||
+		i.ins == SELGE || i.ins == SELGTS || i.ins == SELGES ||
+		i.ins == MUL || i.ins == MULS || i.ins == NOT  || i.ins == MUL ||
+        i.ins == MULS || i.ins == AND || i.ins == OR || i.ins == XOR ||
+        i.ins == SHL || i.ins == SHR || i.ins == SAR)
+	{
+		return false;
+	}
+
+	if (i.ins == ADD || i.ins == SUB)
+    {
+		if (idx != 2)
+		{
+			return false;
+		}
+        else
+        {
+            return (i.ops[2].isUsigc() && i.ops[2].getUsigc() < 256);
+        }
+	}
+
+	if (i.ins == STORE || i.ins == STORE8 || i.ins == STORE16 || i.ins == STORE32 || i.ins == STORE64)
+	{
+		if (idx == 2)
+		{
+			return false;
+		}
+
+        if (i.ins == STORE8)
+        {
+            return (i.ops[1].isUsigc() && i.ops[1].getUsigc() < 32);
+        }
+        else if (i.ins == STORE16)
+        {
+            return (i.ops[1].isUsigc() && i.ops[1].getUsigc() < 63);
+        }
+        else if (i.ins == STORE || i.ins == STORE32)
+        {
+            return (i.ops[1].isUsigc() && i.ops[1].getUsigc() < 125);
+        }
+	}
+
+	if (i.ins == CMP)
+	{
+		if (idx == 0)
+		{
+			return false;
+		}
+        else if (idx == 1)
+        {
+            return (i.ops[1].isUsigc() && i.ops[1].getUsigc() < 256);
+        }
+	}
+
 	return true;
 }
 
@@ -873,11 +943,11 @@ void Thumb::newFunction(Codegen * c)
 
 void Thumb::align(uint64 a)
 {
-	uint32 nop = 0xf3af1000;
+	uint16 nop = 0xb000;
 	while (currentAddr() % a)
 	{
-		*((uint32 *)current) = nop;
-		current += 4;
+		*((uint16 *)current) = nop;
+		current += 2;
 	}
 }
 
@@ -888,6 +958,8 @@ Value * ThumbLinuxSyscallCallingConvention::generateCall(Codegen * c,
 	BasicBlock * current = c->block();
 	RegSet res;
 	// kernel destroys rcx, r11
+
+    /* Ugh how to handle
 	res.set(assembler->regnum("r0"));
 	res.set(assembler->regnum("r1"));
 	res.set(assembler->regnum("r2"));
@@ -898,7 +970,8 @@ Value * ThumbLinuxSyscallCallingConvention::generateCall(Codegen * c,
 	res.set(assembler->regnum("r7"));
 
 	current->setReservedRegs(res);
-
+    */
+    
 	if (args.size() > 7)
 	{
 		fprintf(log_file, "Warning, syscall passed more than 6 args!\n");
