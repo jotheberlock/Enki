@@ -381,3 +381,65 @@ void ThumbMoveConstantPass::processInsn()
         append(mover);
     }
 }
+
+void StackRegisterOffsetPass::processInsn()
+{
+    if ((insn.ins == LOAD || insn.ins == LOAD8 || insn.ins == LOAD16 ||
+         insn.ins == LOAD32 || insn.ins == LOAD64) && insn.oc == 3)
+    {
+        int offset = 0;
+        if (insn.ops[2].isSigc())
+        {
+            offset = insn.ops[2].getSigc();
+        }
+        else if (insn.ops[2].isUsigc())
+        {
+            offset = insn.ops[2].getUsigc();
+        }
+        else
+        {
+            return;
+        }
+
+        if (!assembler->validRegOffset(insn, offset))
+        {
+            Insn get_sp(MOVE, Operand::reg(7), Operand::reg(13));
+            prepend(get_sp);
+            Insn add_offset(ADD, Operand::reg(7), Operand::reg(7), Operand::usigc(offset));
+            prepend(add_offset);
+            insn.ops[1] = Operand::reg(7);
+            insn.oc = 2;
+            change(insn);
+        }
+    }
+    else if ((insn.ins == STORE || insn.ins == STORE8 || insn.ins == STORE16 ||
+              insn.ins == STORE32 || insn.ins == STORE64) && insn.oc == 3)
+    {
+        int offset = 0;
+        if (insn.ops[1].isSigc())
+        {
+            offset = insn.ops[1].getSigc();
+        }
+        else if (insn.ops[1].isUsigc())
+        {
+            offset = insn.ops[1].getUsigc();
+        }
+        else
+        {
+            return;
+        }
+
+        if (!assembler->validRegOffset(insn, offset))
+        {
+            Insn get_sp(MOVE, Operand::reg(7), Operand::reg(13));
+            prepend(get_sp);
+            Insn add_offset(ADD, Operand::reg(7), Operand::reg(7), Operand::usigc(offset));
+            prepend(add_offset);
+            insn.ops[0] = Operand::reg(7);
+            insn.ops[1] = insn.ops[2];
+            insn.oc = 2;
+            change(insn);
+        }    
+    }
+}
+

@@ -301,4 +301,25 @@ class ThumbMoveConstantPass : public OptimisationPass
     
 };
 
+// load r0, sp+256 -> mov foo, sp; add foo, foo, 256; load r0, foo
+class StackRegisterOffsetPass : public OptimisationPass
+{
+  public:
+
+
+    StackRegisterOffsetPass()
+        : OptimisationPass()
+    {
+    }
+
+    virtual std::string name()
+    {
+        return "StackRegisterOffsetPass";
+    }
+
+    virtual void processInsn();
+    
+};
+
+
 #endif
