@@ -144,6 +144,11 @@ Component * make_stackregisteroffsetpass()
     return new StackRegisterOffsetPass();
 }
 
+Component * make_thumbhighregisterpass()
+{
+    return new ThumbHighRegisterPass();
+}
+
 ComponentFactory::ComponentFactory()
 {
 	add(make_memoryimage, "image", "memory");
@@ -170,6 +175,7 @@ ComponentFactory::ComponentFactory()
 	add(make_remwithdivpass, "pass", "remwithdiv");
 	add(make_thumbmoveconstantpass, "pass", "thumbmoveconstant");
     add(make_stackregisteroffsetpass, "pass", "stackregisteroffset");
+    add(make_thumbhighregisterpass, "pass", "thumbhighregister");
 	add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
 	add(make_unixentrypoint, "entrypoint", "unixentrypoint");
     add(make_thumbentrypoint, "entrypoint", "thumbentrypoint");

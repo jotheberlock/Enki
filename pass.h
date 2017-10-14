@@ -321,5 +321,24 @@ class StackRegisterOffsetPass : public OptimisationPass
     
 };
 
+// load r8, r8 -> move r7, r8 ; load r7, r7  ; move r8, r7
+class ThumbHighRegisterPass : public OptimisationPass
+{
+
+  public:
+
+    ThumbHighRegisterPass()
+        : OptimisationPass()
+    {
+    }
+
+    virtual std::string name()
+    {
+        return "ThumbHighRegisterPass";
+    }
+
+    virtual void processInsn();
+    
+};
 
 #endif

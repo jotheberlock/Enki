@@ -80,6 +80,7 @@ int Thumb::size(BasicBlock * b)
             case ENTER_THUMB_MODE:
             {
                 ret += 12;
+                i.size = 12;
                 break;
             }
             case MOVE:
@@ -87,11 +88,14 @@ int Thumb::size(BasicBlock * b)
                 if (i.ops[1].isReg())
                 {
                     ret += 2;
+                    i.size = 2;
                 }
                 else
                 {
-                    ret += 10;
+                    ret += 12;
+                    i.size = 12;
                 }
+                break;
             }
 			case SELGE:
 			case SELGES:
@@ -100,6 +104,8 @@ int Thumb::size(BasicBlock * b)
 			case SELGTS:
 			{
 				ret += 8;
+                i.size = 8;
+                break;
 			}
             default:
             {
@@ -108,7 +114,9 @@ int Thumb::size(BasicBlock * b)
             }
 		}
 	}
-    
+
+    ret += 64;  // Size is wrong somewhere
+      
 	return ret;
 }
 
@@ -147,7 +155,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 	uint64 current_addr = (uint64)current;
 	assert((current_addr & 0x1) == 0);
-
+    
 	for (std::list<Insn>::iterator it = code.begin(); it != code.end();
 	it++)
 	{
@@ -155,7 +163,8 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		i.addr = address + flen();
 
 		uint16 mc = 0x46c0;  // nop
-
+        bool no_mc = false;
+        
 		unsigned char * oldcurrent = current;
 
 		switch (i.ins)
@@ -297,20 +306,13 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				else
 				{
 					assert(offset < 125);
-					if (i.ins == LOADS32)
-					{
-						assert(i.ops[2].isReg());
-					}
-					else
-					{
-						assert(i.ops[1].getReg() < 8);
-						mc = 0x6800 | i.ops[1].getReg() << 3 | i.ops[0].getReg();
-						if (i.oc == 3)
-						{
-							assert((offset & 0x3) == 0);
-							offset >>= 2;
-							mc |= offset << 6;
-						}
+                    assert(i.ops[1].getReg() < 8);
+                    mc = 0x6800 | i.ops[1].getReg() << 3 | i.ops[0].getReg();
+                    if (i.oc == 3)
+                    {
+                        assert((offset & 0x3) == 0);
+                        offset >>= 2;
+                        mc |= offset << 6;
 					}
 				}
 			}
@@ -456,6 +458,8 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 						wee16(le, current, 0x46c0); // 32-bit align with nop
 					}
 
+                    no_mc = true;
+                    
 					// ldr r<x>, pc+0 (which is this instruction+4)
 					wee16(le, current, 0x4800 | (i.ops[0].getReg() << 8));
 					// branch over constant
@@ -784,10 +788,14 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		}
 
-		wee16(le, current, mc);
+        if (!no_mc)
+        {
+            wee16(le, current, mc);
+        }
+        
 		if (current >= limit)
 		{
-			printf("Ran out of space to assemble into, %d\n", (int)(limit - base));
+			printf("Ran out of space to assemble into, %d %s\n", (int)(limit - base), i.toString().c_str());
 			fprintf(log_file, "Ran out of space to assemble into, %d\n", (int)(limit - base));
 			return false;
 		}
@@ -843,7 +851,8 @@ ValidRegs Thumb::validRegs(Insn & i)
 {
 	ValidRegs ret;
 
-	for (int loopc = 0; loopc < 8; loopc++)
+        // r7 is reserved
+	for (int loopc = 0; loopc < 7; loopc++)
 	{
         ret.ops[0].set(loopc);
         ret.ops[1].set(loopc);
@@ -955,11 +964,9 @@ Value * ThumbLinuxSyscallCallingConvention::generateCall(Codegen * c,
 	Value * fptr,
 	std::vector<Value *> & args)
 {
-	BasicBlock * current = c->block();
+	BasicBlock * call = c->newBlock("syscall");
+    c->setBlock(call);
 	RegSet res;
-	// kernel destroys rcx, r11
-
-    /* Ugh how to handle
 	res.set(assembler->regnum("r0"));
 	res.set(assembler->regnum("r1"));
 	res.set(assembler->regnum("r2"));
@@ -969,8 +976,7 @@ Value * ThumbLinuxSyscallCallingConvention::generateCall(Codegen * c,
 
 	res.set(assembler->regnum("r7"));
 
-	current->setReservedRegs(res);
-    */
+	call->setReservedRegs(res);
     
 	if (args.size() > 7)
 	{
@@ -1013,15 +1019,15 @@ Value * ThumbLinuxSyscallCallingConvention::generateCall(Codegen * c,
 		{
 			dest = assembler->regnum("r5");
 		}
-		current->add(Insn(MOVE, Operand::reg(dest), args[loopc]));
+		call->add(Insn(MOVE, Operand::reg(dest), args[loopc]));
 	}
 
-	current->add(Insn(SYSCALL));
+	call->add(Insn(SYSCALL));
 	Value * ret = c->getTemporary(register_type, "ret");
-	current->add(Insn(MOVE, ret, Operand::reg("r0")));
+	call->add(Insn(MOVE, ret, Operand::reg("r0")));
 
 	BasicBlock * postsyscall = c->newBlock("postsyscall");
-	current->add(Insn(BRA, Operand(postsyscall)));
+	call->add(Insn(BRA, Operand(postsyscall)));
 	c->setBlock(postsyscall);
 
 	return ret;

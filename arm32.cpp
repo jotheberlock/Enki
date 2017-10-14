@@ -794,7 +794,6 @@ Value * ArmLinuxSyscallCallingConvention::generateCall(Codegen * c,
 {
 	BasicBlock * current = c->block();
 	RegSet res;
-	// kernel destroys rcx, r11
 	res.set(assembler->regnum("r0"));
 	res.set(assembler->regnum("r1"));
 	res.set(assembler->regnum("r2"));

@@ -401,7 +401,7 @@ void StackRegisterOffsetPass::processInsn()
             return;
         }
 
-        if (!assembler->validRegOffset(insn, offset))
+        if (!assembler->validRegOffset(insn, offset) || insn.ins == LOAD8 || insn.ins == LOAD16)
         {
             Insn get_sp(MOVE, Operand::reg(7), Operand::reg(13));
             prepend(get_sp);
@@ -429,7 +429,7 @@ void StackRegisterOffsetPass::processInsn()
             return;
         }
 
-        if (!assembler->validRegOffset(insn, offset))
+        if (!assembler->validRegOffset(insn, offset) || insn.ins == STORE8 || insn.ins == STORE16)
         {
             Insn get_sp(MOVE, Operand::reg(7), Operand::reg(13));
             prepend(get_sp);
@@ -442,4 +442,36 @@ void StackRegisterOffsetPass::processInsn()
         }    
     }
 }
+
+void ThumbHighRegisterPass::processInsn()
+{
+    if ((insn.ins == LOAD || insn.ins == LOAD8 || insn.ins == LOAD16 ||
+         insn.ins == LOAD32 || insn.ins == LOAD64) && insn.oc == 2)
+    {
+        if (insn.ops[1].isReg() && insn.ops[1].getReg() > 7)
+        {
+            Insn move7(MOVE, Operand::reg(7), insn.ops[1]);
+            prepend(move7);
+            Insn load7(insn.ins, Operand::reg(7), Operand::reg(7));
+            prepend(load7);
+            insn.ins = MOVE;
+            insn.ops[1] = Operand::reg(7);
+            change(insn);
+        }
+    }
+    else if ((insn.ins == STORE || insn.ins == STORE8 || insn.ins == STORE16 ||
+              insn.ins == STORE32 || insn.ins == STORE64) && insn.oc == 2)
+    {
+        if (insn.ops[1].isReg() && insn.ops[1].getReg() > 7)
+        {
+            Insn move7(MOVE, Operand::reg(7), insn.ops[1]);
+            prepend(move7);
+            insn.ops[1] = Operand::reg(7);
+            change(insn);
+        }
+    }
+    
+}
+
+
 

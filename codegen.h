@@ -223,6 +223,13 @@ public:
 			Value * ret = new Value(buf, t);
 			count++;
 			locals.push_back(ret);
+            
+			int alignment = t->align() / 8;
+			while (stack_size % alignment)
+			{
+				stack_size++;
+			}
+            
 			ret->setStackOffset(stack_size);
 			stack_size += ret->type->size() / 8;
 			return ret;
