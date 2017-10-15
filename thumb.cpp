@@ -120,33 +120,6 @@ int Thumb::size(BasicBlock * b)
 	return ret;
 }
 
-bool Thumb::calcImm(uint64 raw, uint32 & result)
-{
-	// ARM encodes constants as an 8-bit value, rotated right by
-	// 0-30 bits
-
-	uint32 shift = 0;
-	uint32 trial = raw & 0xff;
-	for (shift = 0; shift < 31; shift++)
-	{
-		if (trial == raw)
-		{
-			result = (raw & 0xff) | (shift << 8);
-			return true;
-		}
-
-		bool lsb_set = trial & 0x1;
-		trial = trial >> 1;
-		if (lsb_set)
-		{
-			trial = trial | 0x80;
-		}
-	}
-
-	printf("Error, cannot encode %llx as an ARM constant!\n", raw);
-	return false;
-}
-
 bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 {
 	std::list<Insn> & code = b->getCode();

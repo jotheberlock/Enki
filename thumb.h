@@ -54,10 +54,6 @@ public:
 
     virtual bool validRegOffset(Insn &, int);
     
-protected:
-
-	bool calcImm(uint64 raw, uint32 & result);
-
 };
 
 class ThumbLinuxSyscallCallingConvention : public CallingConvention
