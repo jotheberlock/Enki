@@ -50,6 +50,26 @@ void UnixEntrypoint::generateEpilogue(BasicBlock * block, FunctionScope * scope,
 	block->add(Insn(SYSCALL));
 }
 
+bool ThumbEntrypoint::configure(std::string param, std::string val)
+{
+	if (param == "jump_to_thumb")
+	{
+		if (val == "true")
+		{
+			jump_to_thumb = true;
+			return true;
+		}
+		else if (val == "false")
+		{
+			jump_to_thumb = false;
+			return true;
+		}
+		return false;
+	}
+
+	return UnixEntrypoint::configure(param, val);
+}
+
 void ThumbEntrypoint::generatePrologue(BasicBlock * block, FunctionScope *, Image *)
 {
     block->add(Insn(ENTER_THUMB_MODE));

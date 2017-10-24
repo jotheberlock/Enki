@@ -59,8 +59,15 @@ class ThumbEntrypoint : public UnixEntrypoint
 
   public:
 
+	ThumbEntrypoint() { jump_to_thumb = false; }
+	virtual bool configure(std::string, std::string);
     virtual void generatePrologue(BasicBlock *, FunctionScope *, Image *);
     
+
+protected:
+
+	bool jump_to_thumb;
+
 };
     
 #endif
