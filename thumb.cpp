@@ -16,7 +16,7 @@ bool Thumb::validRegOffset(Insn & i, int off)
     else
     {
         int pos;
-        if (i.ins == LOAD32 || i.ins == LOAD)
+        if (i.ins == LOAD32 || i.ins == LOAD || i.ins == LOADS32)
         {
             pos = 1;
         }
@@ -843,7 +843,8 @@ ValidRegs Thumb::validRegs(Insn & i)
     }
 
     if (i.ins == STORE || i.ins == STORE8 || i.ins == STORE16 || i.ins == STORE32 ||
-        i.ins == LOAD || i.ins == LOAD8 || i.ins == LOAD16 || i.ins == LOAD32)
+        i.ins == LOAD || i.ins == LOAD8 || i.ins == LOAD16 || i.ins == LOAD32
+        || i.ins == LOADS32)
     {
         ret.ops[0].set(13);
         ret.ops[1].set(13);

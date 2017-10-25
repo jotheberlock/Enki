@@ -385,7 +385,8 @@ void ThumbMoveConstantPass::processInsn()
 void StackRegisterOffsetPass::processInsn()
 {
     if ((insn.ins == LOAD || insn.ins == LOAD8 || insn.ins == LOAD16 ||
-         insn.ins == LOAD32 || insn.ins == LOAD64) && insn.oc == 3)
+         insn.ins == LOAD32 || insn.ins == LOADS32 || insn.ins == LOAD64)
+        && insn.oc == 3)
     {
         int offset = 0;
         if (insn.ops[2].isSigc())
@@ -446,7 +447,8 @@ void StackRegisterOffsetPass::processInsn()
 void ThumbHighRegisterPass::processInsn()
 {
     if ((insn.ins == LOAD || insn.ins == LOAD8 || insn.ins == LOAD16 ||
-         insn.ins == LOAD32 || insn.ins == LOAD64) && insn.oc == 2)
+         insn.ins == LOAD32 || insn.ins == LOAD64 || insn.ins == LOADS32)
+        && insn.oc == 2)
     {
         if (insn.ops[1].isReg() && insn.ops[1].getReg() > 7)
         {

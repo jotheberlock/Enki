@@ -80,6 +80,11 @@ def load():
                 instruction_register = '$pc'
                 frame_register = '$ip'
                 sf_bit = False
+            elif line[1] == '3\n':
+                # Thumb
+                instruction_register = '$pc'
+                frame_register = '$sp'
+                sf_bit  = False
             else:
                 print('Unknown architecture ['+line[1]+']!')
     if current_function is not None:
