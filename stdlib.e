@@ -31,7 +31,7 @@ def num_to_str(Uint64 in, Byte^ out)
         else
             out_end^ = digit2+87
         out_end = out_end - 1
-        in = in / 256
+        in = in >> 8
         count = count - 1
 
 def to_upper(Byte^ str)
