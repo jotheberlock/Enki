@@ -426,7 +426,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				{
 					assert(i.ops[0].getReg() < 8);
 
-					if (!(current_addr & 0x3))
+					if ((current_addr & 0x1) == 0)
 					{
 						wee16(le, current, 0x46c0); // 32-bit align with nop
 					}
@@ -480,6 +480,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 							int32 sval = (int32)i.ops[1].getSigc();
 							val = *((uint32 *)&sval);
 						}
+                        printf(">>> %lx %lx %d\n", val, current, ((unsigned long)current) % 4);
 						wle32(current, val);
 					}
 
