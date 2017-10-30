@@ -480,7 +480,6 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 							int32 sval = (int32)i.ops[1].getSigc();
 							val = *((uint32 *)&sval);
 						}
-                        printf(">>> %lx %lx %d\n", val, current, ((unsigned long)current) % 4);
 						wle32(current, val);
 					}
 
