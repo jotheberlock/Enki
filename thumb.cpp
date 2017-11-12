@@ -123,7 +123,7 @@ int Thumb::size(BasicBlock * b)
 bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 {
 	std::list<Insn> & code = b->getCode();
-
+    
 	b->setAddr(address + flen());
 
 	uint64 current_addr = (uint64)current;
@@ -426,11 +426,12 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				{
 					assert(i.ops[0].getReg() < 8);
 
-					if ((current_addr & 0x1) == 0)
+					if ((unsigned long)current & 0x3)  // Address is not 32 bit aligned
 					{
 						wee16(le, current, 0x46c0); // 32-bit align with nop
 					}
 
+                    assert(((unsigned long)current & 0x3) == 0);
                     no_mc = true;
                     
 					// ldr r<x>, pc+0 (which is this instruction+4)
@@ -438,6 +439,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 					// branch over constant
 					wee16(le, current, 0xe001);
 
+                    assert(((unsigned long)current & 0x3) == 0);
 					if (i.ops[1].isFunction())
 					{
 						uint32 reloc = 0xdeadbeef;

@@ -235,6 +235,7 @@ void Image::addFunction(FunctionScope * ptr, uint64 size)
 	fsizes.push_back(size);
 
 	current_offset += size;
+
 	while (current_offset % align)
 	{
 		current_offset++;

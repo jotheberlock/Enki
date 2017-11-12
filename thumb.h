@@ -42,7 +42,7 @@ public:
 
 	int functionAlignment()
 	{
-		return 2;
+		return 4;
 	}
 
 	bool validConst(Insn & i, int idx);
