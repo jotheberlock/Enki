@@ -685,7 +685,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				mc = 0xe000;
 				// Branch offset is stored >> 1
 				BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
-					current_function, flen(), flen() + 6, i.ops[0].getBlock());
+					current_function, flen(), flen() + 2, i.ops[0].getBlock());
 				bbr->addReloc(0, 1, 0x07ff, 0, 16);
 			}
 			break;
@@ -728,7 +728,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			// Branch offset is stored >> 1
 			// Offset needs checking
 			BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
-				current_function, flen(), flen() + 6, i.ops[0].getBlock());
+				current_function, flen(), flen() + 2, i.ops[0].getBlock());
 			bbr->addReloc(0, 1, 0x00ff, 0, 16);
 			break;
 		}
