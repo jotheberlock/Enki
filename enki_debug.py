@@ -107,6 +107,8 @@ class show_locals(gdb.Command):
 
     def get_ip(self):
         global instruction_register
+        regstr = str(gdb.parse_and_eval(instruction_register))
+        print(">>> "+regstr)
         return int(str(gdb.parse_and_eval(instruction_register)).split(' ')[0],0)
 
     def get_static_link(self, bytes):
@@ -221,5 +223,45 @@ class show_locals(gdb.Command):
                 self.display_function(ip, fp)
         except:
             traceback.print_exc()
+
+breakpoints = {}
+
+class set_break(gdb.Command):
+
+    def __init__(self):
+        super(set_break, self).__init__("set-tbreak", gdb.COMMAND_DATA)
+    
+    def invoke(self, arg, from_tty):
+        inferior = gdb.selected_inferior()
+        addr = int(arg, 0)
+        if addr in breakpoints:
+            print('Clearing breakpoint')
+            inferior.write_memory(addr, breakpoints[addr])
+            breakpoints.pop(addr)
+        else:
+            print('Setting breakpoint')
+            original = inferior.read_memory(addr, 2)
+            bp = [ 0xbe00 ]
+            to_write = struct.pack("<1H", *bp)
+            inferior.write_memory(addr, to_write)
+            breakpoints[addr] = original
             
+class clear_break(gdb.Command):
+
+    def __init__(self):
+        super(clear_break, self).__init__("clear-tbreak", gdb.COMMAND_DATA)
+
+    def invoke(self, arg, from_tty):
+        global instruction_register
+        regstr = str(gdb.parse_and_eval(instruction_register))
+        print(">>> "+regstr)
+        addr = int(str(gdb.parse_and_eval(instruction_register)).split(' ')[0],0)
+        if addr not in breakpoints:
+            print('No breakpoint set here!')
+            return
+        inferior.write_memory(addr, breakpoints[addr])
+        breakpoints.pop(addr)
+        
 show_locals()
+set_break()
+clear_break()
