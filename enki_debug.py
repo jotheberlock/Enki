@@ -246,22 +246,19 @@ class set_break(gdb.Command):
             inferior.write_memory(addr, to_write)
             breakpoints[addr] = original
             
-class clear_break(gdb.Command):
+class skip_break(gdb.Command):
 
     def __init__(self):
-        super(clear_break, self).__init__("clear-tbreak", gdb.COMMAND_DATA)
+        super(skip_break, self).__init__("skip-tbreak", gdb.COMMAND_DATA)
 
     def invoke(self, arg, from_tty):
         global instruction_register
         regstr = str(gdb.parse_and_eval(instruction_register))
         print(">>> "+regstr)
         addr = int(str(gdb.parse_and_eval(instruction_register)).split(' ')[0],0)
-        if addr not in breakpoints:
-            print('No breakpoint set here!')
-            return
-        inferior.write_memory(addr, breakpoints[addr])
-        breakpoints.pop(addr)
+        addr = addr + 2
+        gdb.execute("set $pc += 2")
         
 show_locals()
 set_break()
-clear_break()
+skip_break()
