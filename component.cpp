@@ -149,6 +149,11 @@ Component * make_thumbhighregisterpass()
     return new ThumbHighRegisterPass();
 }
 
+Component * make_cmpmoverpass()
+{
+    return new CmpMover();
+}
+
 ComponentFactory::ComponentFactory()
 {
 	add(make_memoryimage, "image", "memory");
@@ -176,6 +181,7 @@ ComponentFactory::ComponentFactory()
 	add(make_thumbmoveconstantpass, "pass", "thumbmoveconstant");
     add(make_stackregisteroffsetpass, "pass", "stackregisteroffset");
     add(make_thumbhighregisterpass, "pass", "thumbhighregister");
+    add(make_cmpmoverpass, "pass", "cmpmover");
 	add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
 	add(make_unixentrypoint, "entrypoint", "unixentrypoint");
     add(make_thumbentrypoint, "entrypoint", "thumbentrypoint");

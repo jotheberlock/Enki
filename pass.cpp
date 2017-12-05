@@ -55,6 +55,12 @@ void OptimisationPass::removeInsn()
 	iit = block->getCode().erase(iit);
 }
 
+void OptimisationPass::moveInsn(std::list<Insn>::iterator & it)
+{
+    block->getCode().insert(it, *iit);
+    iit = block->getCode().erase(iit);
+}
+
 void OptimisationPass::run()
 {
     assert(cg);
@@ -471,9 +477,28 @@ void ThumbHighRegisterPass::processInsn()
             insn.ops[1] = Operand::reg(7);
             change(insn);
         }
-    }
-    
+    }    
 }
 
+void CmpMover::processInsn()
+{
+    if (insn.ins == CMP)
+    {
+        std::list<Insn>::iterator it = iit;
+        while (it != block->getCode().end())
+        {
+            Insn ca = *it;
+            int o = ca.ins;
+            if (o == BG || o == BLE || o == BL || o == BGE ||
+                o == SELEQ || o == SELGE || o == SELGT || o == SELGES ||
+                o == SELGTS)
+            {
+                moveInsn(it);
+                break;
+            }
+            it++;
+        }
+    }
+}
 
 

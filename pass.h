@@ -45,7 +45,8 @@ public:
 	void append(Insn);
 	void change(Insn);
 	void removeInsn();
-
+    void moveInsn(std::list<Insn>::iterator & it);
+    
 	virtual void init(Codegen *, Configuration *);
 
 protected:
@@ -341,4 +342,23 @@ class ThumbHighRegisterPass : public OptimisationPass
     
 };
 
+// make sure cmp immediately precedes conditional branch/select
+class CmpMover : public OptimisationPass
+{
+  public:
+
+    CmpMover()
+        : OptimisationPass()
+    {
+    }
+
+    virtual std::string name()
+    {
+        return "CmpMover";
+    }
+
+    virtual void processInsn();
+
+};
+    
 #endif
