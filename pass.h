@@ -112,7 +112,8 @@ public:
 
 protected:
 
-	int alloc(Value *, RegSet &, RegSet &);
+    void handleInstruction(std::list<Insn>::iterator &);
+    int alloc(Value *, RegSet &, RegSet &);
 	int findFree(RegSet &, RegSet &);
 
 	Value ** regs;

@@ -219,34 +219,50 @@ int SillyRegalloc::alloc(Value * v, RegSet & r, RegSet & c)
 
 void SillyRegalloc::processInsn()
 {
+    handleInstruction(iit);
+    if (insn.ins == CMP)
+    {
+        assert(iit != block->getCode().end());
+        std::list<Insn>::iterator next = iit;
+        next++;
+        insn = *next;
+        handleInstruction(next);
+        iit = next;
+    }
+}
+
+
+void SillyRegalloc::handleInstruction(std::list<Insn>::iterator & it)
+{
+    Insn & ins = *it;
 	for (int loopc = 0; loopc < numregs; loopc++)
 	{
 		regs[loopc] = 0;
 		input[loopc] = 0;
 		output[loopc] = 0;
 	}
+    
+	ValidRegs vr = assembler->validRegs(ins);
 
-	ValidRegs vr = assembler->validRegs(insn);
-
-	for (int loopc = 0; loopc < insn.oc; loopc++)
+	for (int loopc = 0; loopc < ins.oc; loopc++)
 	{
-		if (insn.ops[loopc].isValue())
+		if (ins.ops[loopc].isValue())
 		{
-			int regnum = alloc(insn.ops[loopc].getValue(), vr.ops[loopc],
+			int regnum = alloc(ins.ops[loopc].getValue(), vr.ops[loopc],
 				vr.clobbers);
-			if (insn.isIn(loopc))
+			if (ins.isIn(loopc))
 			{
 				input[regnum] = true;
 			}
-			if (insn.isOut(loopc))
+			if (ins.isOut(loopc))
 			{
 				output[regnum] = true;
 			}
-			insn.ops[loopc] = Operand::reg(regnum);
+			ins.ops[loopc] = Operand::reg(regnum);
 		}
 	}
 
-	change(insn);
+    *it = ins;
     
 	for (int loopc = 0; loopc < numregs; loopc++)
 	{
