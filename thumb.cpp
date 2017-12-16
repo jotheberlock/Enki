@@ -426,12 +426,12 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				{
 					assert(i.ops[0].getReg() < 8);
 
-					if ((unsigned long)current & 0x3)  // Address is not 32 bit aligned
+					if ((uint64)current & 0x3)  // Address is not 32 bit aligned
 					{
 						wee16(le, current, 0x46c0); // 32-bit align with nop
 					}
 
-                    assert(((unsigned long)current & 0x3) == 0);
+                    assert(((uint64)current & 0x3) == 0);
                     no_mc = true;
                     
 					// ldr r<x>, pc+0 (which is this instruction+4)
@@ -439,7 +439,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 					// branch over constant
 					wee16(le, current, 0xe001);
 
-                    assert(((unsigned long)current & 0x3) == 0);
+                    assert(((uint64)current & 0x3) == 0);
 					if (i.ops[1].isFunction())
 					{
 						uint32 reloc = 0xdeadbeef;
@@ -641,7 +641,8 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		{
 			assert(i.oc == 3);
 			assert(i.ops[0].isReg());
-			assert(i.ops[1].isReg());
+            assert(i.ops[1].isReg());
+            assert(i.ops[2].isReg());   
 
 			// Ugh fixed signed/unsigned at some point
 			if (i.ins == SELEQ)
@@ -666,7 +667,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			}
 			wee16(le, current, 0x1c00 | i.ops[0].getReg() | i.ops[1].getReg() << 3);
 			wee16(le, current, 0xe000);
-			mc = 0x1c00 | i.ops[0].getReg() | i.ops[1].getReg() << 3;
+			mc = 0x1c00 | i.ops[0].getReg() | i.ops[2].getReg() << 3;
 				
 			break;
 		}
@@ -685,7 +686,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				mc = 0xe000;
 				// Branch offset is stored >> 1
 				BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
-					current_function, flen(), flen() + 2, i.ops[0].getBlock());
+					current_function, flen(), flen()+4, i.ops[0].getBlock());
 				bbr->addReloc(0, 1, 0x07ff, 0, 16);
 			}
 			break;
@@ -728,7 +729,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			// Branch offset is stored >> 1
 			// Offset needs checking
 			BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
-				current_function, flen(), flen() + 2, i.ops[0].getBlock());
+				current_function, flen(), flen() + 4, i.ops[0].getBlock());
 			bbr->addReloc(0, 1, 0x00ff, 0, 16);
 			break;
 		}
