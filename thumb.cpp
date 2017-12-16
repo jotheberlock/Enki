@@ -368,7 +368,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 					{
 						assert((offset & 0x1) == 0);
 						offset >>= 1;
-						mc |= offset << 5;
+						mc |= offset << 6;
 					}
 				}
 			}
@@ -389,7 +389,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 					{
 						assert((offset & 0x3) == 0);
 						offset >>= 2;
-						mc |= offset << 5;
+						mc |= offset << 6;
 					}
 				}
 			}
@@ -901,6 +901,27 @@ bool Thumb::validConst(Insn & i, int idx)
             return (i.ops[1].isUsigc() && i.ops[1].getUsigc() < 125);
         }
 	}
+
+    if (i.ins == LOAD || i.ins == LOAD8 || i.ins == LOAD16 || i.ins == LOAD32 || i.ins == LOAD64)
+    {
+        if (idx == 2)
+        {
+            return false;
+        }
+
+        if (i.ins == LOAD8)
+        {
+            return (i.ops[2].isUsigc() && i.ops[2].getUsigc() < 32);
+        }
+        else if (i.ins == LOAD16)
+        {
+            return (i.ops[2].isUsigc() && i.ops[2].getUsigc() < 63);
+        }
+        else if (i.ins == LOAD || i.ins == LOAD32)
+        {
+            return (i.ops[2].isUsigc() && i.ops[2].getUsigc() < 125);
+        }
+    }
 
 	if (i.ins == CMP)
 	{
