@@ -881,47 +881,72 @@ bool Thumb::validConst(Insn & i, int idx)
         }
 	}
 
-	if (i.ins == STORE || i.ins == STORE8 || i.ins == STORE16 || i.ins == STORE32 || i.ins == STORE64)
+
+	if (i.ins == LOAD || i.ins == LOAD8 || i.ins == LOAD16 || i.ins == LOAD32 || i.ins == LOAD64)
 	{
-		if (idx == 2)
+		if (idx != 2)
 		{
 			return false;
 		}
 
-        if (i.ins == STORE8)
+        if (!(i.ops[2].isSigc() || i.ops[2].isUsigc()))
         {
-            return (i.ops[1].isUsigc() && i.ops[1].getUsigc() < 32);
+            return false;
         }
-        else if (i.ins == STORE16)
-        {
-            return (i.ops[1].isUsigc() && i.ops[1].getUsigc() < 63);
-        }
-        else if (i.ins == STORE || i.ins == STORE32)
-        {
-            return (i.ops[1].isUsigc() && i.ops[1].getUsigc() < 125);
-        }
-	}
-
-    if (i.ins == LOAD || i.ins == LOAD8 || i.ins == LOAD16 || i.ins == LOAD32 || i.ins == LOAD64)
-    {
-        if (idx == 2)
+        
+        if (i.ops[2].isSigc() && i.ops[2].getSigc() < 0)
         {
             return false;
         }
 
+        int val = i.ops[2].isSigc() ? i.ops[2].getSigc() : i.ops[2].getUsigc();
+        
         if (i.ins == LOAD8)
         {
-            return (i.ops[2].isUsigc() && i.ops[2].getUsigc() < 32);
+            return (val < 32);
         }
         else if (i.ins == LOAD16)
         {
-            return (i.ops[2].isUsigc() && i.ops[2].getUsigc() < 63);
+            return (val < 63);
         }
         else if (i.ins == LOAD || i.ins == LOAD32)
         {
-            return (i.ops[2].isUsigc() && i.ops[2].getUsigc() < 125);
+            return (val < 125);
         }
-    }
+	}
+
+	if (i.ins == STORE || i.ins == STORE8 || i.ins == STORE16 || i.ins == STORE32 || i.ins == STORE64)
+	{
+		if (idx != 1)
+		{
+			return false;
+		}
+
+        if (!(i.ops[1].isSigc() || i.ops[1].isUsigc()))
+        {
+            return false;
+        }
+        
+        if (i.ops[1].isSigc() && i.ops[1].getSigc() < 0)
+        {
+            return false;
+        }
+
+        int val = i.ops[1].isSigc() ? i.ops[1].getSigc() : i.ops[1].getUsigc();
+        
+        if (i.ins == STORE8)
+        {
+            return (val < 32);
+        }
+        else if (i.ins == STORE16)
+        {
+            return (val < 63);
+        }
+        else if (i.ins == STORE || i.ins == STORE32)
+        {
+            return (val < 125);
+        }
+	}
 
 	if (i.ins == CMP)
 	{
