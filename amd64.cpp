@@ -1244,7 +1244,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			*current++ = 0x0f;
 			*current++ = op1;
 			unsigned char rr = 0xc0 | (i.ops[1].getReg() & 0x7) |
-				((i.ops[0].getReg() & 0x7) << 4);
+				((i.ops[0].getReg() & 0x7) << 3);
 			*current++ = rr;
 
 			rex = 0x48;
@@ -1260,7 +1260,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			*current++ = 0x0f;
 			*current++ = op2;
 			rr = 0xc0 | (i.ops[2].getReg() & 0x7) |
-				((i.ops[0].getReg() & 0x7) << 4);
+				((i.ops[0].getReg() & 0x7) << 3);
 			*current++ = rr;
 			break;
 		}

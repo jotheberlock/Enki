@@ -219,6 +219,11 @@ int SillyRegalloc::alloc(Value * v, RegSet & r, RegSet & c)
 
 void SillyRegalloc::processInsn()
 {
+	for (int loopc = 0; loopc < numregs; loopc++)
+	{
+		regs[loopc] = 0;
+    }
+    
     handleInstruction(iit);
     if (insn.ins == CMP)
     {
@@ -237,7 +242,6 @@ void SillyRegalloc::handleInstruction(std::list<Insn>::iterator & it)
     Insn & ins = *it;
 	for (int loopc = 0; loopc < numregs; loopc++)
 	{
-		regs[loopc] = 0;
 		input[loopc] = 0;
 		output[loopc] = 0;
 	}
