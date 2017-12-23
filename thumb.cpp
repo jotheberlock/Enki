@@ -739,7 +739,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             {
                 int16 val = i.ops[0].getSigc();
                 val -= 2;
-                val >> 1;
+                val >>= 1;
                 uint16 * us = (uint16 *)&val;
                 mc |= (*us) & 0xff;
             }
