@@ -1768,7 +1768,7 @@ Value * BinaryExpr::codegen(Codegen * c)
 	{
 		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(lh->type ? lh->type : register_type, "rshift");
-		c->block()->add(Insn((lh->type ? lh->type->isSigned() : true) ? SAR : SHR, v, lh, rh));
+		c->block()->add(Insn(SHR, v, lh, rh));
 		return v;
 	}
 	else if (op == '&')
