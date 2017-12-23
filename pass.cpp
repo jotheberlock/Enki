@@ -521,4 +521,84 @@ void CmpMover::processInsn()
     }
 }
 
+void ConditionalBranchExtender::processInsn()
+{
+    if (insn.ins == BEQ || insn.ins == BNE || insn.ins == BG || insn.ins == BLE ||
+        insn.ins == BL || insn.ins == BGE)
+    {
+        if (insn.ops[0].isBlock())
+        {
+            int count_to_source = 0;
+            int count_to_target = 0;
+            bool found_insn = false;
+            bool found_block = false;
+            
+            std::vector<BasicBlock *>::iterator it;
+            for (it = cg->getBlocks().begin(); it != cg->getBlocks().end(); it++)
+            {
+                BasicBlock * bb = *it;
+                if (bb == insn.ops[0].getBlock())
+                {
+                    found_block = true;
+                }
+                std::list<Insn>::iterator it2;
+                for (it2 = bb->getCode().begin(); it2 != bb->getCode().end(); it2++)
+                {
+                    if (it == bit && it2 == iit)
+                    {
+                        found_insn = true;
+                        if (found_block)
+                        {
+                            break;
+                        }
+                    }
 
+                    if (!found_insn)
+                    {
+                        count_to_source++;
+                    }
+                    if (!found_block)
+                    {
+                        count_to_target++;
+                    }
+                }
+                if (found_insn && found_block)
+                {
+                    break;
+                }
+            }
+
+            int diff = (count_to_target > count_to_source) ? count_to_target - count_to_source : count_to_source - count_to_target;
+            if (diff > 250)  // Just to be on the same side; it's -252 to +258
+            {
+                // Special form of branch with encoded displacement
+                int opposite;
+                switch (insn.ins)
+                {
+                case BEQ:
+                    opposite = BNE;
+                    break;
+                case BNE:
+                    opposite = BEQ;
+                    break;
+                case BG:
+                    opposite = BLE;
+                    break;
+                case BLE:
+                    opposite = BG;
+                    break;
+                case BL:
+                    opposite = BGE;
+                    break;
+                default: // BGE
+                    opposite = BL;
+                }
+
+                Insn branchover(opposite, Operand::sigc(2));
+                prepend(branchover);
+                insn.ins = BRA;
+                change(insn);
+            }
+        }
+    }
+}

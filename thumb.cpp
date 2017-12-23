@@ -699,7 +699,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case BGE:
 		{
 			assert(i.oc == 1);
-			assert(i.ops[0].isBlock());
+			assert(i.ops[0].isBlock() || i.ops[0].isSigc());
 
 			if (i.ins == BNE)
 			{
@@ -728,9 +728,21 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			}
 			// Branch offset is stored >> 1
 			// Offset needs checking
-			BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
-				current_function, flen(), flen() + 4, i.ops[0].getBlock());
-			bbr->addReloc(0, 1, 0x00ff, 0, 16);
+
+            if (i.ops[0].isBlock())
+            {
+                BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
+                    current_function, flen(), flen() + 4, i.ops[0].getBlock());
+                bbr->addReloc(0, 1, 0x00ff, 0, 16);
+            }
+            else
+            {
+                int16 val = i.ops[0].getSigc();
+                val -= 2;
+                val >> 1;
+                uint16 * us = (uint16 *)&val;
+                mc |= (*us) & 0xff;
+            }
 			break;
 		}
 		case DIV:

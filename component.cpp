@@ -154,6 +154,11 @@ Component * make_cmpmoverpass()
     return new CmpMover();
 }
 
+Component * make_conditionalbranchextender()
+{
+    return new ConditionalBranchExtender();
+}
+
 ComponentFactory::ComponentFactory()
 {
 	add(make_memoryimage, "image", "memory");
@@ -182,6 +187,7 @@ ComponentFactory::ComponentFactory()
     add(make_stackregisteroffsetpass, "pass", "stackregisteroffset");
     add(make_thumbhighregisterpass, "pass", "thumbhighregister");
     add(make_cmpmoverpass, "pass", "cmpmover");
+    add(make_conditionalbranchextender, "pass", "conditionalbranchextender");
 	add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
 	add(make_unixentrypoint, "entrypoint", "unixentrypoint");
     add(make_thumbentrypoint, "entrypoint", "thumbentrypoint");

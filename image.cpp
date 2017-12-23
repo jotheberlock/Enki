@@ -62,14 +62,17 @@ void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 	{
 		if (bits == 8)
 		{
+            assert(((val | 0xff) == 0x0000000000ff) || ((val | 0xff) == 0xffffffffffffffff));
             *ptr = val & 0xff;
 		}
         else if (bits == 16)
         {
+            assert(((val | 0xffff) == 0x00000000ffff) || ((val | 0xffff) == 0xffffffffffffffff));
             wee16(le, ptr, val & 0xffff);
         }
         else if (bits == 32)
         {
+            assert(((val | 0xffffffff) == 0x0000ffffffff) || ((val | 0xffffffff) == 0xffffffffffffffff));
             wee32(le, ptr, val & 0xffffffff);
         }
 		else
@@ -78,6 +81,17 @@ void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 		}
 		return;
 	}
+
+    if (!(val & 0x8000000000000000))
+    {
+        // If it's not negative, and it's too big for the mask, something has gone wrong.
+        assert((val >> rshift) <= mask);
+    }
+    else
+    {
+        // If it is negative and there's anything other than sign bits outside the mask, ditto
+        assert(((val >> rshift) | mask | (mask << (64 - rshift))) == 0xffffffffffffffff);
+    }
 
 	val = val >> rshift;
 	val = val & mask;

@@ -691,7 +691,7 @@ GenericFunctionType::~GenericFunctionType()
 {
 }
 
-static bool cmp_func(FunctionScope* &a, FunctionScope* &b)
+static bool cmp_func(FunctionScope* a, FunctionScope* b)
 {
     return (a->getType()->getSignature()) >
         (b->getType()->getSignature());
@@ -906,7 +906,7 @@ void Mtables::processFunction(FunctionScope * fs)
 void MtableEntry::print()
 {
     printf("%s %ld ", target ? target->name().c_str() : "<null!>", offset);
-    for (int loopc=0; loopc<table.size(); loopc++)
+    for (unsigned int loopc=0; loopc<table.size(); loopc++)
     {
         printf("[%d]", table[loopc]);
     }

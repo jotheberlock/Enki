@@ -362,4 +362,22 @@ class CmpMover : public OptimisationPass
 
 };
     
+// fix up conditional branches that might exceed the maximum encodable displacement
+class ConditionalBranchExtender : public OptimisationPass
+{
+public:
+
+    ConditionalBranchExtender()
+        : OptimisationPass()
+    {
+    }
+
+    virtual std::string name()
+    {
+        return "ConditionalBranchExtender";
+    }
+
+    virtual void processInsn();
+
+};
 #endif
