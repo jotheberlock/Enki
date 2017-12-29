@@ -1670,6 +1670,7 @@ Value * BinaryExpr::codegen(Codegen * c)
 	uint64 eval_op = (((uint64)':' << 32) | '=');
 	uint64 lshift_op = (((uint64)'<' << 32) | '<');
 	uint64 rshift_op = (((uint64)'>' << 32) | '>');
+    uint64 a_rshift_op = (((uint64)'>' << 32) | '-');
 
 	if (token.toString() == "and")
 	{
@@ -1771,6 +1772,13 @@ Value * BinaryExpr::codegen(Codegen * c)
 		c->block()->add(Insn(SHR, v, lh, rh));
 		return v;
 	}
+    else if (op == a_rshift_op)
+    {
+        Value * lh = lhs->codegen(c);
+        Value * v = c->getTemporary(lh->type ? lh->type : register_type, "a_rshift");
+        c->block()->add(Insn(SAR, v, lh, rh));
+        return v;
+    }
 	else if (op == '&')
 	{
 		Value * lh = lhs->codegen(c);

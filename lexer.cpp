@@ -26,6 +26,7 @@ Lexer::Lexer()
 
 	addOp(OpRec(BINOP, true, 5), '<', '<');
 	addOp(OpRec(BINOP, true, 5), '>', '>');
+    addOp(OpRec(BINOP, true, 5), '>', '-');   // Arithmetic shift right
 	addOp(OpRec(BINOP, true, 4), '<');
 	addOp(OpRec(BINOP, true, 4), '>');
 	addOp(OpRec(BINOP, true, 4), '<', '=');
