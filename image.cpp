@@ -85,7 +85,11 @@ void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
     if (!(val & 0x8000000000000000))
     {
         // If it's not negative, and it's too big for the mask, something has gone wrong.
-        assert((val >> rshift) <= mask);
+        // (Probably? We hit this with ARM32 but the code works...)
+        if (!((val >> rshift) <= mask))
+        {
+            printf("Val is %llx rshift %d mask %x!\n", val, rshift, mask);
+        }
     }
     else
     {

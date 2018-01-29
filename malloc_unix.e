@@ -1,10 +1,9 @@
-# On Linux at least brk() with an invalid value returns current break
-# It's 2017 so 0 is valid pretty much everywhere
-Uint base = __syscall(SYSCALL_BRK, 0)
-
 def malloc(Uint len) Uint64
-    Uint ret = base
-    base = base + len
-    base = __syscall(SYSCALL_BRK, base)
+    Uint ret
+    Uint32 protect = PROT_READWRITE   
+    Uint32 flags = MAP_ANONYMOUS_PRIVATE
+    ret = __syscall(SYSCALL_MMAP, 0, len, protect, flags, 0, 0)
     return ret
     
+def free(Uint64^ addr)
+    __syscall(SYSCALL_MUNMAP,addr,4096)
