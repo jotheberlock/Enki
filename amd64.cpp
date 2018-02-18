@@ -1739,7 +1739,7 @@ Value * Amd64UnixSyscallCallingConvention::generateCall(Codegen * c,
 		}
 		else if (loopc == 4)
 		{
-			dest = assembler->regnum("rcx");
+			dest = assembler->regnum("r10");
 		}
 		else if (loopc == 5)
 		{
