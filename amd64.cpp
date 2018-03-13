@@ -1456,8 +1456,10 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 	while (stack_size & 0xf)
 	{
    	    stack_size++;
-        }
+    }
 	
+    stack_size += 8;
+
 	for (unsigned int loopc = 0; loopc < args.size(); loopc++)
 	{
 		int dest = 9999;
