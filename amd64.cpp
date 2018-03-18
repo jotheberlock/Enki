@@ -1435,6 +1435,7 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 	Value * fptr,
 	std::vector<Value *> & args)
 {
+    printf("Generating call to %s:\n", fptr->name.c_str());
 	BasicBlock * current = c->block();
 	RegSet res;
 	// args rcx rdx r8 r9, rax r10 r11 volatile
@@ -1447,10 +1448,13 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 	res.set(assembler->regnum("r11"));
 	current->setReservedRegs(res);
 
-	uint64 stack_size = 0x28;
+    uint64 stack_size = 0x20;
 	if (args.size() > 4)
 	{
-		stack_size += (args.size() - 4) * 8;
+        for (int loopc = 4; loopc < args.size(); loopc++)
+        {
+            stack_size += args[loopc]->type->align() / 8;
+        }
 	}
 
 	while (stack_size & 0xf)
@@ -1460,6 +1464,10 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 	
     stack_size += 8;
 
+    current->add(Insn(SUB, Operand::reg("rsp"), Operand::reg("rsp"),
+        Operand::usigc(stack_size)));
+
+    int offs = 0x20;
 	for (unsigned int loopc = 0; loopc < args.size(); loopc++)
 	{
 		int dest = 9999;
@@ -1481,15 +1489,15 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 		}
 		else
 		{
+            printf(">> %x %s\n", offs, args[loopc]->name.c_str());
 			current->add(Insn(STORE, Operand::reg("rsp"),
-				Operand::sigc((32 + (loopc - 4) * 8) - stack_size), Operand(args[loopc])));
+				Operand::sigc(offs), Operand(args[loopc])));
+            offs += args[loopc]->type->align() / 8;
 			continue;
 		}
 		current->add(Insn(MOVE, Operand::reg(dest), args[loopc]));
 	}
 
-	current->add(Insn(SUB, Operand::reg("rsp"), Operand::reg("rsp"),
-		Operand::usigc(stack_size)));
 	current->add(Insn(CALL, fptr));
 
 	Value * ret = c->getTemporary(register_type, "ret");
