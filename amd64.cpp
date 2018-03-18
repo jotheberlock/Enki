@@ -1452,7 +1452,11 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 	{
         for (int loopc = 4; loopc < args.size(); loopc++)
         {
-            stack_size += args[loopc]->type->align() / 8;
+            while (stack_size % (args[loopc]->type->align() / 8))
+            {
+                stack_size++;
+            }
+            stack_size += args[loopc]->type->size() / 8;
         }
 	}
 
@@ -1488,9 +1492,13 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 		}
 		else
 		{
+            while (offs % (args[loopc]->type->align() / 8))
+            {
+                offs++;
+            }
 			current->add(Insn(STORE, Operand::reg("rsp"),
 				Operand::sigc(offs), Operand(args[loopc])));
-            offs += args[loopc]->type->align() / 8;
+            offs += args[loopc]->type->size() / 8;
 			continue;
 		}
 		current->add(Insn(MOVE, Operand::reg(dest), args[loopc]));
