@@ -1435,7 +1435,6 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 	Value * fptr,
 	std::vector<Value *> & args)
 {
-    printf("Generating call to %s:\n", fptr->name.c_str());
 	BasicBlock * current = c->block();
 	RegSet res;
 	// args rcx rdx r8 r9, rax r10 r11 volatile
@@ -1489,7 +1488,6 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 		}
 		else
 		{
-            printf(">> %x %s\n", offs, args[loopc]->name.c_str());
 			current->add(Insn(STORE, Operand::reg("rsp"),
 				Operand::sigc(offs), Operand(args[loopc])));
             offs += args[loopc]->type->align() / 8;
