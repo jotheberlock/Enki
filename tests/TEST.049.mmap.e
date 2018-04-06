@@ -4,7 +4,7 @@ Uint64 size
 size = get_file_size(handle)
 Byte^ ptr = 0
 
-ptr = map_file(handle,0,size,0)
+ptr = map_file(handle,0,size,READ_PERMISSION)
 
 if ptr == 0
     write("Null pointer!\n")

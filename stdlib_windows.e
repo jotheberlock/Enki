@@ -59,7 +59,20 @@ def get_file_size(Uint64 fd) Uint64
 def map_file(Uint64 fd, Uint64 offset, Uint64 size, Uint64 permissions) Byte^
     Uint32 fmap = 0
     Uint32 zero = 0
-    Uint32 protect = PAGE_READ
+    Uint32 protect 
+    Uint32 map_access
+    if permissions == READ_PERMISSION
+        protect = PAGE_READ
+        map_access = MMAP_READ
+    elif permissions == RW_PERMISSION
+        protect = PAGE_RW
+        map_access = MMAP_RW
+    elif permissions == EXECUTE_PERMISSION
+        protect = PAGE_CODE
+        map_access = MMAP_CODE
+    else
+       write("Unknown permissions\n")
+       return 0
     Uint32 sfd = fd
     fmap = CreateFileMappingA(sfd, zero, protect, zero, zero, 0)
     if fmap == 0
@@ -67,8 +80,23 @@ def map_file(Uint64 fd, Uint64 offset, Uint64 size, Uint64 permissions) Byte^
         return 0
     Uint32 err = GetLastError()
     Byte^ ptr = 0
-    Uint32 map_access = MMAP_READ
     Uint64 ffmap = fmap
     Uint32 loffs = offset
     ptr = MapViewOfFileEx(fmap, map_access, zero, loffs, size, 0)
     return ptr
+
+def remap(Byte^ ptr, Uint64 size, Uint64 permissions) Uint64
+    Uint32 new
+    Uint32 old
+    Uint64 ret
+    if permissions == READ_PERMISSION
+        new = PAGE_READ
+    elif permissions == RW_PERMISSION
+        new = PAGE_RW
+    elif permissions == EXECUTE_PERMISSION
+        new = PAGE_CODE
+    else
+       write("Unknown permissions\n")
+       return 0
+    ret = VirtualProtect(ptr, 4096, new, @old)
+    return ret
