@@ -26,8 +26,11 @@ def close_file(Uint64 fd)
     __syscall(SYSCALL_CLOSE, fd)
 
 def get_file_size(Uint64 fd) Uint64
+    Uint64 current
     Uint64 size
+    current = __syscall(SYSCALL_LSEEK, fd, 0, 1)
     size = __syscall(SYSCALL_LSEEK, fd, 0, 2)
+    __syscall(SYSCALL_LSEEK, fd, 0, 0)
     return size
 
 def map_file(Uint64 fd, Uint64 offset, Uint64 size, Uint64 permissions) Byte^
