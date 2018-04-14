@@ -19,7 +19,7 @@ def read(Byte^ ptr, Uint len) Uint
 
 def open_file(Byte^ filename) Uint64
     Uint64 handle
-    handle = __syscall(SYSCALL_OPEN, filename, 0, 0)
+    handle = __syscall(SYSCALL_OPEN, filename, 2, 0)
     return handle
 
 def close_file(Uint64 fd)

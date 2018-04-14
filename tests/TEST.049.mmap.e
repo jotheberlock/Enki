@@ -6,7 +6,9 @@ Byte^ ptr = 0
 
 ptr = map_file(handle,0,size,READ_PERMISSION)
 
-if ptr == 0
+Byte^ test = ptr
+test = test + 1
+if test == 0
     write("Null pointer!\n")
     return 0
 

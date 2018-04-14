@@ -187,6 +187,11 @@ bool Amd64::validConst(Insn & i, int idx)
 		}
 	}
 
+	if (i.ops[idx].isUsigc() && i.ops[idx].getUsigc() > 0xffffffff)
+	{
+	    return false;
+	}
+
 	return true;
 }
 
