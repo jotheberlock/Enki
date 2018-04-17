@@ -68,6 +68,7 @@ Lexer::Lexer()
 	keywords["elif"] = ELIF;
 	keywords["generic"] = GENERIC;
     keywords["raw"] = RAW;
+    keywords["import"] = IMPORT;
     
 	oldcol = -1;
 	oldline = -1;

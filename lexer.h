@@ -78,6 +78,8 @@ typedef std::vector<uint32> Chars;
 #define GENERIC 51
 #define RAW 52
 
+#define IMPORT 53
+
 class Token
 {
 public:

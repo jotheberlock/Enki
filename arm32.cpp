@@ -10,8 +10,7 @@ bool Arm32::validRegOffset(Insn & i, int off)
         return (off > -256) && (off < 256);
     }
     else
-    {
-    
+    {    
         return (off > -4096) && (off < 4096);
     }
     return false;

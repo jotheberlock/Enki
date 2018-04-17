@@ -76,6 +76,11 @@ IdentifierExpr::IdentifierExpr(Token * t)
 	value = 0;
 }
 
+ImportExpr::ImportExpr(Token * t)
+{
+    val = t->toString();
+}
+
 StringLiteralExpr::StringLiteralExpr(Token * t)
 {
 	char buf[4096];
@@ -467,6 +472,30 @@ Expr * Parser::parseBodyLine()
 	{
 		return parseDef();
 	}
+    else if (current.type == IMPORT)
+    {
+        next();
+        if (current.type != IDENTIFIER)
+        {
+            addError(Error(&current, "Expected identifier for import"));
+            return 0;
+        }
+
+        Token t = current;
+
+        next();
+        if (current.type != EOL)
+        {
+            addError(Error(&current, "Expected EOL after continue"));
+            expectedEol();
+        }
+        else
+        {
+            next();
+        }
+
+        return new ImportExpr(&t);
+    }
 
 	Expr * ret = parseExpr();
 	if (current.type != EOL)

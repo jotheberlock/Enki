@@ -151,6 +151,34 @@ protected:
 
 };
 
+class ImportExpr : public Expr
+{
+public:
+
+    ImportExpr(Token *);
+
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "Import %s", val.c_str());
+    }
+
+    std::string getString()
+    {
+        return val;
+    }
+
+    virtual Value * codegen(Codegen *)
+    {
+        return 0;
+    }
+
+protected:
+
+    std::string val;
+
+};
+
 class StringLiteralExpr : public Expr
 {
 public:
