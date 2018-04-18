@@ -95,13 +95,14 @@ StringLiteralExpr::StringLiteralExpr(Token * t)
 	idx = constants->addConstant(buf, loopc + 1, 1);
 }
 
-Parser::Parser(Lexer * l)
+Parser::Parser(Lexer * l, bool i)
 {
 	current_scope = root_scope;
 	lexer = l;
 	tokens = lexer->tokens();
 	count = 0;
 	generic_counter = 0;
+    is_interface = i;
 	next();
 	if (current.type != BEGIN)
 	{

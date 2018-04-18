@@ -352,7 +352,8 @@ int main(int argc, char ** argv)
 		set_cfuncs((MemoryImage *)image);
 	}
 
-	Lexer lex;
+    Lexer lex;
+    Lexer ilex;
 
 	if (!no_stdlib)
 	{
@@ -372,6 +373,32 @@ int main(int argc, char ** argv)
 			lex.lex(input);
 		}
 	}
+
+    bool found_interface = false;
+    for (int loopc = 1; loopc < argc; loopc++)
+    {
+        if (strstr(argv[loopc], ".i"))
+        {
+            if (found_interface)
+            {
+                printf("More than one interface file specified!\n");
+                return 1;
+            }
+            const char * fname = argv[loopc];
+            FILE * f = config.open(fname);
+
+            if (!f)
+            {
+                printf("Input file %s not found\n", fname);
+                return 1;
+            }
+
+            Chars input;
+            readFile(f, input);
+            ilex.setFile(fname);
+            ilex.lex(input);
+        }
+    }
 
 	for (int loopc = 1; loopc < argc; loopc++)
 	{
@@ -394,6 +421,7 @@ int main(int argc, char ** argv)
 	}
 
 	lex.endLexing();
+    ilex.endLexing();
 
 	if (errors.size() != 0)
 	{
@@ -413,7 +441,8 @@ int main(int argc, char ** argv)
 		tokens[loopc].print();
 	}
 
-	Parser parse(&lex);
+    Parser iparse(&ilex, true);
+	Parser parse(&lex, false);
 
 	if (errors.size() != 0)
 	{
