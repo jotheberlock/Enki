@@ -1184,7 +1184,11 @@ Expr * Parser::parseDef()
 							return ret;
 						}
 
-						if (current.type != BEGIN)
+                        if (is_interface && current.type == BEGIN)
+                        {
+                            addError(Error(&current, "Did not expect def body in interface"));
+                        } 
+                        else if (!is_interface && current.type != BEGIN)
 						{
 							addError(Error(&current, "Expected def body"));
 						}

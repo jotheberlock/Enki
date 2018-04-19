@@ -1,4 +1,4 @@
 def a_test_func(Uint64 param) Uint64
-    return 0
 
-return 4
+struct a_test_struct
+   Uint64 param
