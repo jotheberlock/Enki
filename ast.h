@@ -973,7 +973,7 @@ class Parser
 {
 public:
 
-	Parser(Lexer *, bool);
+	Parser(Lexer *);
 	~Parser()
 	{
 		delete root;
@@ -1046,7 +1046,6 @@ protected:
 	Expr * root;
 	SymbolScope * current_scope;
     int generic_counter;
-    bool is_interface;
 
 };
 

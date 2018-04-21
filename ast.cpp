@@ -95,14 +95,13 @@ StringLiteralExpr::StringLiteralExpr(Token * t)
 	idx = constants->addConstant(buf, loopc + 1, 1);
 }
 
-Parser::Parser(Lexer * l, bool i)
+Parser::Parser(Lexer * l)
 {
 	current_scope = root_scope;
 	lexer = l;
 	tokens = lexer->tokens();
 	count = 0;
 	generic_counter = 0;
-    is_interface = i;
 	next();
 	if (current.type != BEGIN)
 	{
@@ -1060,7 +1059,10 @@ Expr * Parser::parseDef()
 	bool already_added = false;
 
 	// Need to add proper argument overloading for generics...
-	FunctionScope * prev = current_scope->lookup_function(name);
+    FunctionScope * prev = 0;
+    
+    prev = current_scope->lookup_function(name);
+
 	// So, for a generic function, only the generic function exists in the scope, and it is
 	// the address of the function table. Ignore specialisers other than tacking them onto the generic.
 
@@ -1105,14 +1107,16 @@ Expr * Parser::parseDef()
 	FunctionScope * fs = new FunctionScope(current_scope,
 		name,
 		ft);
-	if (prev && prev->isGeneric())
-	{
-		prev->getType()->registerSpecialiser(fs);
-	}
-	else
-	{
-		current_scope->addFunction(fs);
-	}
+
+    if (prev && prev->isGeneric())
+    {
+        prev->getType()->registerSpecialiser(fs);
+    }
+    else
+    {
+        current_scope->addFunction(fs);
+    }
+
 	DefExpr * ret = new DefExpr(ft, fs, is_macro, is_extern, is_generic,
 		v, name, lib);
 
@@ -1184,11 +1188,7 @@ Expr * Parser::parseDef()
 							return ret;
 						}
 
-                        if (is_interface && current.type == BEGIN)
-                        {
-                            addError(Error(&current, "Did not expect def body in interface"));
-                        } 
-                        else if (!is_interface && current.type != BEGIN)
+                        if (current.type != BEGIN)
 						{
 							addError(Error(&current, "Expected def body"));
 						}
@@ -1197,8 +1197,8 @@ Expr * Parser::parseDef()
 							Expr * body = parseBlock();
 							ret->setBody(body);
 						}
-
-						types->add(ft, name);
+                        
+                        types->add(ft, name);
 						current_scope = current_scope->parent();
 						return ret;
 					}

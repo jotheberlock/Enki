@@ -374,6 +374,26 @@ int main(int argc, char ** argv)
 		}
 	}
 
+	for (int loopc = 1; loopc < argc; loopc++)
+	{
+		if (strstr(argv[loopc], ".e"))
+		{
+			const char * fname = argv[loopc];
+			FILE * f = config.open(fname);
+
+			if (!f)
+			{
+				printf("Input file %s not found\n", fname);
+				return 1;
+			}
+
+			Chars input;
+			readFile(f, input);
+			lex.setFile(fname);
+			lex.lex(input);
+		}
+	}
+
     bool found_interface = false;
     for (int loopc = 1; loopc < argc; loopc++)
     {
@@ -395,33 +415,12 @@ int main(int argc, char ** argv)
 
             Chars input;
             readFile(f, input);
-            ilex.setFile(fname);
-            ilex.lex(input);
+            lex.setFile(fname);
+            lex.lex(input);
         }
     }
 
-	for (int loopc = 1; loopc < argc; loopc++)
-	{
-		if (strstr(argv[loopc], ".e"))
-		{
-			const char * fname = argv[loopc];
-			FILE * f = config.open(fname);
-
-			if (!f)
-			{
-				printf("Input file %s not found\n", fname);
-				return 1;
-			}
-
-			Chars input;
-			readFile(f, input);
-			lex.setFile(fname);
-			lex.lex(input);
-		}
-	}
-
 	lex.endLexing();
-    ilex.endLexing();
 
 	if (errors.size() != 0)
 	{
@@ -441,8 +440,7 @@ int main(int argc, char ** argv)
 		tokens[loopc].print();
 	}
 
-    Parser iparse(&ilex, true);
-	Parser parse(&lex, false);
+	Parser parse(&lex);
 
 	if (errors.size() != 0)
 	{
@@ -478,6 +476,7 @@ int main(int argc, char ** argv)
 
 	Backend output(&config, parse.tree());
 	int ret = output.process();
+
     delete root_scope;
     delete types;
     delete mtables;
