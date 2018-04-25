@@ -486,7 +486,7 @@ Expr * Parser::parseBodyLine()
         next();
         if (current.type != EOL)
         {
-            addError(Error(&current, "Expected EOL after continue"));
+            addError(Error(&current, "Expected EOL after import"));
             expectedEol();
         }
         else
@@ -495,6 +495,28 @@ Expr * Parser::parseBodyLine()
         }
 
         return new ImportExpr(&t);
+    }
+    else if (current.type == MODULE)
+    {
+        next();
+        if (current.type != IDENTIFIER)
+        {
+            addError(Error(&current, "Expected identifier for module"));
+            return 0;
+        }
+
+        Token t = current;
+
+        next();
+        if (current.type != EOL)
+        {
+            addError(Error(&current, "Expected EOL after module"));
+            expectedEol();
+        }
+        else
+        {
+            next();
+        }
     }
 
 	Expr * ret = parseExpr();

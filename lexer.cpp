@@ -69,6 +69,7 @@ Lexer::Lexer()
 	keywords["generic"] = GENERIC;
     keywords["raw"] = RAW;
     keywords["import"] = IMPORT;
+    keywords["module"] = MODULE;
     
 	oldcol = -1;
 	oldline = -1;

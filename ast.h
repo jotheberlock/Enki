@@ -1008,6 +1008,7 @@ protected:
 	Expr * parseVarRef(Expr *);
 	Expr * parseAddressOf();
 	Expr * parseFptr();
+    Expr * parseModule();
 
 	Type * parseType();
 

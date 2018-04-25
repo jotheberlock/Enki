@@ -79,6 +79,7 @@ typedef std::vector<uint32> Chars;
 #define RAW 52
 
 #define IMPORT 53
+#define MODULE 54
 
 class Token
 {
