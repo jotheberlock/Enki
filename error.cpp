@@ -58,7 +58,7 @@ void Error::print()
 		printf("\n");
 		fclose(f);
 	}
-	printf("Line %d column %d - ", br, bc);
+	printf("File %s line %d column %d - ", file.c_str(), br, bc);
 	printf("%s%s%s\n", message.c_str(), (detail != "") ? ": " : "",
 		detail.c_str());
 }

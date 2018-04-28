@@ -1009,6 +1009,7 @@ protected:
 	Expr * parseAddressOf();
 	Expr * parseFptr();
     Expr * parseModule();
+    Expr * parseInterfaceDef();
 
 	Type * parseType();
 

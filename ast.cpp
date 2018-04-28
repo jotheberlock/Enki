@@ -498,25 +498,7 @@ Expr * Parser::parseBodyLine()
     }
     else if (current.type == MODULE)
     {
-        next();
-        if (current.type != IDENTIFIER)
-        {
-            addError(Error(&current, "Expected identifier for module"));
-            return 0;
-        }
-
-        Token t = current;
-
-        next();
-        if (current.type != EOL)
-        {
-            addError(Error(&current, "Expected EOL after module"));
-            expectedEol();
-        }
-        else
-        {
-            next();
-        }
+        return parseModule();
     }
 
 	Expr * ret = parseExpr();
@@ -1502,6 +1484,155 @@ Type * Parser::parseType()
 	}
 
 	return ret_type;
+}
+
+Expr * Parser::parseModule()
+{
+    printf("In parseModule\n");
+    next();
+    if (current.type != IDENTIFIER)
+    {
+        addError(Error(&current, "Expected identifier for module"));
+        return 0;
+    }
+
+    Token t = current;
+
+    next();
+    if (current.type != EOL)
+    {
+        addError(Error(&current, "Expected EOL after module"));
+        expectedEol();
+    }
+    else
+    {
+        next();
+    }
+
+    if (current.type != BEGIN)
+    {
+        addError(Error(&current, "Expected interface body"));
+        return 0;
+    }
+    next();
+
+    while (current.type != EOF)
+    {
+        if (current.type == END)
+        {
+            printf("End of interfaces\n");
+            next();
+            return 0;
+        }
+        else if (current.type == DEF)
+        {
+            next();
+            parseInterfaceDef();
+        }
+        else
+        {
+            addError(Error(&current, "Unexpected interface contents"));
+            return 0;
+        }
+    }
+
+    printf("Dropping out\n");
+    return 0;
+}
+
+Expr * Parser::parseInterfaceDef()
+{
+    printf("Entering interface def\n");
+
+    if (current.type != IDENTIFIER)
+    {
+        addError(Error(&current, "Expected identifier after def"));
+        return 0;
+    }
+
+    std::string name = getIdentifier("Expected function name");
+
+
+    // Need to add proper argument overloading for generics...
+    FunctionScope * prev = 0;
+    prev = current_scope->lookup_function(name);
+    if (prev)
+    {
+        printf("Prev found for %s\n", name.c_str());
+    }
+    else
+    {
+        printf("Prev not found for %s!\n", name.c_str());
+    }
+ 
+    if (current.type != OPEN_BRACKET)
+    {
+        addError(Error(&current, "Expected open bracket"));
+        return 0;
+    }
+
+    next();
+
+    while (true)
+    {
+        if (current.type == CLOSE_BRACKET)
+        {
+            next();
+
+            if (current.type == EOL)
+            {
+                next();
+                return 0;
+            }
+            else
+            {
+                Type * t = parseType();
+                if (t)
+                {
+                    if (current.type != EOL)
+                    {
+                        fprintf(log_file, ">>>>> %d\n", current.type);
+
+                        addError(Error(&current,
+                            "Expected EOL after return type"));
+                        expectedEol();
+                    }
+                    else
+                    {
+                        next();
+                        return 0;
+                    }
+                }
+                else
+                {
+                    addError(Error(&current, "Expected type"));
+                }
+            }
+        }
+        else if (current.type == COMMA)
+        {
+            next();
+        }
+        else
+        {
+            Type * t = parseType();
+            if (!t)
+            {
+                addError(Error(&current, "Expected type"));
+                return 0;
+            }
+
+            if (current.type != IDENTIFIER)
+            {
+                addError(Error(&current, "Expected identifier"));
+            }
+
+            std::string pname = getIdentifier("Expected parameter name");
+            printf(">>> %s\n", pname.c_str());
+        }
+    }
+
+    return 0;
 }
 
 void Parser::expectedEol()
