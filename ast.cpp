@@ -1488,7 +1488,6 @@ Type * Parser::parseType()
 
 Expr * Parser::parseModule()
 {
-    printf("In parseModule\n");
     next();
     if (current.type != IDENTIFIER)
     {
@@ -1520,7 +1519,6 @@ Expr * Parser::parseModule()
     {
         if (current.type == END)
         {
-            printf("End of interfaces\n");
             next();
             return 0;
         }
@@ -1536,14 +1534,38 @@ Expr * Parser::parseModule()
         }
     }
 
-    printf("Dropping out\n");
     return 0;
+}
+
+void Parser::checkInterfaceTypes(Token & current, FunctionType * prev, std::vector<Type *> & ftypes, Type * ret)
+{
+    if (prev->argCount() != ftypes.size())
+    {
+        char buf[4096];
+        sprintf(buf, "Interface has %d arguments, implementation %d", ftypes.size(), prev->getParams().size());
+        addError(Error(&current, buf));
+        return;
+    }
+
+    if (prev->getReturn() != ret)
+    {
+        addError(Error(&current, "Interface and implementation return types differ"));
+        return;
+    }
+
+    for (int loopc = 0; loopc < ftypes.size(); loopc++)
+    {
+        if (ftypes[loopc] != prev->getParams()[loopc].type)
+        {
+            char buf[4096];
+            sprintf(buf, "Argument %d: interface has type %s, implementation %s", loopc, ftypes[loopc]->name().c_str(), prev->getParams()[loopc].type->name().c_str());
+            addError(Error(&current, buf));
+        }
+    }
 }
 
 Expr * Parser::parseInterfaceDef()
 {
-    printf("Entering interface def\n");
-
     if (current.type != IDENTIFIER)
     {
         addError(Error(&current, "Expected identifier after def"));
@@ -1552,19 +1574,17 @@ Expr * Parser::parseInterfaceDef()
 
     std::string name = getIdentifier("Expected function name");
 
-
-    // Need to add proper argument overloading for generics...
     FunctionScope * prev = 0;
     prev = current_scope->lookup_function(name);
-    if (prev)
+
+    if (!prev)
     {
-        printf("Prev found for %s\n", name.c_str());
-    }
-    else
-    {
-        printf("Prev not found for %s!\n", name.c_str());
+        addError(Error(&current, "Interface defines unimplemented function %s!\n", name.c_str()));
+        return 0;
     }
  
+    FunctionType * prevtype = prev->getType();
+
     if (current.type != OPEN_BRACKET)
     {
         addError(Error(&current, "Expected open bracket"));
@@ -1572,6 +1592,9 @@ Expr * Parser::parseInterfaceDef()
     }
 
     next();
+
+    std::vector<Type *> ftypes;
+    Type * ret = 0;
 
     while (true)
     {
@@ -1582,17 +1605,17 @@ Expr * Parser::parseInterfaceDef()
             if (current.type == EOL)
             {
                 next();
+                checkInterfaceTypes(current, prevtype, ftypes, ret);
                 return 0;
             }
             else
             {
                 Type * t = parseType();
+                ret = t;
                 if (t)
                 {
                     if (current.type != EOL)
                     {
-                        fprintf(log_file, ">>>>> %d\n", current.type);
-
                         addError(Error(&current,
                             "Expected EOL after return type"));
                         expectedEol();
@@ -1600,6 +1623,7 @@ Expr * Parser::parseInterfaceDef()
                     else
                     {
                         next();
+                        checkInterfaceTypes(current, prevtype, ftypes, ret);
                         return 0;
                     }
                 }
@@ -1622,16 +1646,18 @@ Expr * Parser::parseInterfaceDef()
                 return 0;
             }
 
+            ftypes.push_back(t);
+            
             if (current.type != IDENTIFIER)
             {
                 addError(Error(&current, "Expected identifier"));
             }
 
             std::string pname = getIdentifier("Expected parameter name");
-            printf(">>> %s\n", pname.c_str());
         }
     }
 
+    checkInterfaceTypes(current, prevtype, ftypes, ret);
     return 0;
 }
 
