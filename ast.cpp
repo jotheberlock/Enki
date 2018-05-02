@@ -1537,19 +1537,22 @@ Expr * Parser::parseModule()
     return 0;
 }
 
-void Parser::checkInterfaceTypes(Token & current, FunctionType * prev, std::vector<Type *> & ftypes, Type * ret)
+void Parser::checkInterfaceTypes(Token & current, std::string & name, FunctionType * prev, std::vector<Type *> & ftypes, Type * ret)
 {
     if (prev->argCount() != ftypes.size())
     {
         char buf[4096];
-        sprintf(buf, "Interface has %d arguments, implementation %d", ftypes.size(), prev->getParams().size());
+        sprintf(buf, "Interface for function %s has %d arguments, implementation %d", name.c_str(), ftypes.size(), prev->getParams().size());
         addError(Error(&current, buf));
         return;
     }
 
     if (prev->getReturn() != ret)
     {
-        addError(Error(&current, "Interface and implementation return types differ"));
+        char buf[4096];
+        sprintf(buf, "Interface for function %s has %s return type, implementation %s", name.c_str(), ret ? ret->name().c_str() : "<null>",
+            prev->getReturn() ? prev->getReturn()->name().c_str() : "<null>");
+        addError(Error(&current, buf));
         return;
     }
 
@@ -1558,7 +1561,8 @@ void Parser::checkInterfaceTypes(Token & current, FunctionType * prev, std::vect
         if (ftypes[loopc] != prev->getParams()[loopc].type)
         {
             char buf[4096];
-            sprintf(buf, "Argument %d: interface has type %s, implementation %s", loopc, ftypes[loopc]->name().c_str(), prev->getParams()[loopc].type->name().c_str());
+            sprintf(buf, "Function %s, argument %d: interface has type %s, implementation %s", name.c_str(), loopc, 
+                ftypes[loopc]->name().c_str(), prev->getParams()[loopc].type->name().c_str());
             addError(Error(&current, buf));
         }
     }
@@ -1605,7 +1609,7 @@ Expr * Parser::parseInterfaceDef()
             if (current.type == EOL)
             {
                 next();
-                checkInterfaceTypes(current, prevtype, ftypes, ret);
+                checkInterfaceTypes(current, name, prevtype, ftypes, ret);
                 return 0;
             }
             else
@@ -1623,7 +1627,7 @@ Expr * Parser::parseInterfaceDef()
                     else
                     {
                         next();
-                        checkInterfaceTypes(current, prevtype, ftypes, ret);
+                        checkInterfaceTypes(current, name, prevtype, ftypes, ret);
                         return 0;
                     }
                 }
@@ -1657,7 +1661,7 @@ Expr * Parser::parseInterfaceDef()
         }
     }
 
-    checkInterfaceTypes(current, prevtype, ftypes, ret);
+    checkInterfaceTypes(current, name, prevtype, ftypes, ret);
     return 0;
 }
 
