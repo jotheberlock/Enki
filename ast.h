@@ -1011,7 +1011,7 @@ protected:
     Expr * parseModule();
     Expr * parseInterfaceDef();
 
-    void checkInterfaceTypes(Token &, std::string &, FunctionType *, std::vector<Type *> &, Type *);
+    void checkInterfaceTypes(Token &, std::string &, FunctionScope *, std::vector<Type *> &, Type *);
 	Type * parseType();
 
 	int getPrecedence();

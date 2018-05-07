@@ -21,6 +21,7 @@
 #include "configfile.h"
 #include "backend.h"
 #include "rtti.h"
+#include "exports.h"
 
 Assembler * assembler = 0;
 CallingConvention * calling_convention = 0;
@@ -31,6 +32,7 @@ ComponentFactory * component_factory = 0;
 Types * types = 0;
 Rtti * rtti = 0;
 Mtables * mtables = 0;
+Exports * exports = 0;
 
 typedef uint64(*TestFunc)(uint64);
 
@@ -224,6 +226,7 @@ int main(int argc, char ** argv)
 
 	component_factory = new ComponentFactory();
 	rtti = new Rtti();
+    exports = new Exports();
 
 	FILE * hfile = findFile(ConfigFile::hostConfig().c_str());
 	if (!hfile)

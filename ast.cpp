@@ -7,6 +7,7 @@
 #include "symbols.h"
 #include "configfile.h"
 #include "image.h"
+#include "exports.h"
 
 #define LOGICAL_TRUE 1
 
@@ -1537,34 +1538,43 @@ Expr * Parser::parseModule()
     return 0;
 }
 
-void Parser::checkInterfaceTypes(Token & current, std::string & name, FunctionType * prev, std::vector<Type *> & ftypes, Type * ret)
+void Parser::checkInterfaceTypes(Token & current, std::string & name, FunctionScope * prev, std::vector<Type *> & ftypes, Type * ret)
 {
-    if (prev->argCount() != ftypes.size())
+    FunctionType * prevt = prev->getType();
+    if (prevt->argCount() != ftypes.size())
     {
         char buf[4096];
-        sprintf(buf, "Interface for function %s has %d arguments, implementation %d", name.c_str(), ftypes.size(), prev->getParams().size());
+        sprintf(buf, "Interface for function %s has %d arguments, implementation %d", name.c_str(), ftypes.size(), prevt->getParams().size());
         addError(Error(&current, buf));
         return;
     }
 
-    if (prev->getReturn() != ret)
+    if (prevt->getReturn() != ret)
     {
         char buf[4096];
         sprintf(buf, "Interface for function %s has %s return type, implementation %s", name.c_str(), ret ? ret->name().c_str() : "<null>",
-            prev->getReturn() ? prev->getReturn()->name().c_str() : "<null>");
+            prevt->getReturn() ? prevt->getReturn()->name().c_str() : "<null>");
         addError(Error(&current, buf));
         return;
     }
 
+    bool ok = true;
+
     for (int loopc = 0; loopc < ftypes.size(); loopc++)
     {
-        if (ftypes[loopc] != prev->getParams()[loopc].type)
+        if (ftypes[loopc] != prevt->getParams()[loopc].type)
         {
             char buf[4096];
             sprintf(buf, "Function %s, argument %d: interface has type %s, implementation %s", name.c_str(), loopc, 
-                ftypes[loopc]->name().c_str(), prev->getParams()[loopc].type->name().c_str());
+                ftypes[loopc]->name().c_str(), prevt->getParams()[loopc].type->name().c_str());
             addError(Error(&current, buf));
+            ok = false;
         }
+    }
+
+    if (ok)
+    {
+        exports->addExport(name.c_str(), prev);
     }
 }
 
@@ -1609,7 +1619,7 @@ Expr * Parser::parseInterfaceDef()
             if (current.type == EOL)
             {
                 next();
-                checkInterfaceTypes(current, name, prevtype, ftypes, ret);
+                checkInterfaceTypes(current, name, prev, ftypes, ret);
                 return 0;
             }
             else
@@ -1627,7 +1637,7 @@ Expr * Parser::parseInterfaceDef()
                     else
                     {
                         next();
-                        checkInterfaceTypes(current, name, prevtype, ftypes, ret);
+                        checkInterfaceTypes(current, name, prev, ftypes, ret);
                         return 0;
                     }
                 }
@@ -1661,7 +1671,7 @@ Expr * Parser::parseInterfaceDef()
         }
     }
 
-    checkInterfaceTypes(current, name, prevtype, ftypes, ret);
+    checkInterfaceTypes(current, name, prev, ftypes, ret);
     return 0;
 }
 
