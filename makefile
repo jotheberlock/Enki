@@ -1,5 +1,5 @@
-enki: main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o arm32.o rtti.o thumb.o
-	g++ -o enki $(LDFLAGS) main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o arm32.o rtti.o thumb.o -lpthread
+enki: main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o arm32.o rtti.o thumb.o exports.o
+	g++ -o enki $(LDFLAGS) main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o arm32.o rtti.o thumb.o exports.o -lpthread
 
 main.o : main.cpp lexer.h ast.h type.h codegen.h
 	g++ $(CFLAGS) -g -c -Wall main.cpp
@@ -78,6 +78,9 @@ rtti.o : rtti.cpp rtti.h
 
 thumb.o : thumb.cpp thumb.h
 	g++ $(CFLAGS) -g -c -Wall thumb.cpp
+
+exports.o : exports.cpp exports.h
+	g++ $(CFLAGS) -g -c -Wall exports.cpp
 
 clean:
 	rm *.o enki enki.exe *~
