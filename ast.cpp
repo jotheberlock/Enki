@@ -1560,7 +1560,7 @@ void Parser::checkInterfaceTypes(Token & current, std::string & name, FunctionSc
 
     bool ok = true;
 
-    for (int loopc = 0; loopc < ftypes.size(); loopc++)
+    for (unsigned int loopc = 0; loopc < ftypes.size(); loopc++)
     {
         if (ftypes[loopc] != prevt->getParams()[loopc].type)
         {
@@ -1597,8 +1597,6 @@ Expr * Parser::parseInterfaceDef()
         return 0;
     }
  
-    FunctionType * prevtype = prev->getType();
-
     if (current.type != OPEN_BRACKET)
     {
         addError(Error(&current, "Expected open bracket"));

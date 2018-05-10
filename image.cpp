@@ -48,12 +48,13 @@ SectionRelocation::SectionRelocation(Image * i,
 	dest_offset = dof;
 }
 
-MtableRelocation::MtableRelocation(Image * i, FunctionScope * f,
-                                   uint64 o)
+FunctionTableRelocation::FunctionTableRelocation(Image * i, FunctionScope * f,
+                                   uint64 o, int s)
     : BaseRelocation(i)
 {
     patch_offset = o;
     to_link = f;
+    section = s;
 }
 
 void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
@@ -376,7 +377,7 @@ void Image::materialiseSection(int s)
 {
 	assert(sections[s] == 0);
 	sections[s] = new unsigned char[sizes[s]];
-    memset(sections[s], 0, sizes[s]);
+	memset(sections[s], 0, sizes[s]);
 	bases[s] = next_addr;
 	next_addr += sizes[s];
 	if (!sizes[s])
@@ -530,12 +531,13 @@ unsigned char * ExtFunctionRelocation::getPtr()
 	return image->getPtr(IMAGE_CODE) + patch_offset;
 }
 
-unsigned char * MtableRelocation::getPtr()
+unsigned char * FunctionTableRelocation::getPtr()
 {
-    return image->getPtr(IMAGE_MTABLES) + patch_offset;
+    return image->getPtr(section) + patch_offset;
 }
 
-uint64 MtableRelocation::getValue()
+uint64 FunctionTableRelocation::getValue()
 {
     return image->functionAddress(to_link);
 }
+

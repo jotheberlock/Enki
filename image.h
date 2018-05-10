@@ -20,7 +20,8 @@
 #define IMAGE_UNALLOCED_DATA 3
 #define IMAGE_RTTI 4
 #define IMAGE_MTABLES 5    // generic method tables
-#define IMAGE_LAST 6
+#define IMAGE_EXPORTS 6
+#define IMAGE_LAST 7
 
 #define INVALID_ADDRESS 0xdeadbeefdeadbeefLL
 
@@ -230,11 +231,11 @@ protected:
 
 };
 
-class MtableRelocation : public BaseRelocation
+class FunctionTableRelocation : public BaseRelocation
 {
   public:
 
-    MtableRelocation(Image *, FunctionScope *, uint64);
+    FunctionTableRelocation(Image *, FunctionScope *, uint64, int);
     uint64 getValue();
     unsigned char * getPtr();
     
@@ -242,6 +243,7 @@ class MtableRelocation : public BaseRelocation
 
     uint64 patch_offset;
     FunctionScope * to_link;
+    int section;
     
 };
 
