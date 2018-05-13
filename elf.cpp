@@ -66,6 +66,11 @@ void ElfImage::finalise()
     {
         materialiseSection(IMAGE_MTABLES);
     }
+
+    if (bases[IMAGE_EXPORTS] == 0)
+    {
+        materialiseSection(IMAGE_EXPORTS);
+    }
     
 	stringtable.clear();
 	stringtable.add(""); // Null byte at start
@@ -76,7 +81,8 @@ void ElfImage::finalise()
 	stringtable.add(".symtab");
 	stringtable.add(".rtti");
 	stringtable.add(".mtables");
-
+	stringtable.add(".exports");
+	
 	for (unsigned int loopc = 0; loopc < fptrs.size(); loopc++)
 	{
 		stringtable.add(fptrs[loopc]->name().c_str());
@@ -146,7 +152,7 @@ void ElfImage::finalise()
 	wee16(le, ptr, sf_bit ? 56 : 32); // pheader size
 	wee16(le, ptr, no_pheaders);
 	wee16(le, ptr, sf_bit ? 64 : 40); // section header size
-	wee16(le, ptr, 9);  // Number of sections
+	wee16(le, ptr, 10);  // Number of sections
 	wee16(le, ptr, 1);  // Section with strings
 
 	uint64 prev_base = 0;
@@ -173,7 +179,7 @@ void ElfImage::finalise()
 		{
 			flags = 0x5;
 		}
-		else if (the_one == IMAGE_DATA || the_one == IMAGE_MTABLES)
+		else if (the_one == IMAGE_DATA || the_one == IMAGE_MTABLES || the_one == IMAGE_EXPORTS)
 		{
 			flags = 0x6;
 		}
@@ -346,7 +352,13 @@ void ElfImage::finalise()
 			flags = 0x3;
 			type = 1;
 		}
-
+		else if (loopc == IMAGE_EXPORTS)
+		{
+            name = stringOffset(".exports");
+            flags = 0x3;
+            type = 1;
+        }
+        
 		wee32(le, ptr, name);  // name        
 		wee32(le, ptr, type);  // type
 		if (sf_bit)

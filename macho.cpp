@@ -103,7 +103,7 @@ void MachOImage::finalise()
 	}
 
 	wee32(le, ptr, 0);      // maxprot
-	wee32(le, ptr, 0);   // initprot
+	wee32(le, ptr, 0);      // initprot
 	wee32(le, ptr, 0);      // nsects
 	wee32(le, ptr, 0x4);    // flags - no reloc
 
@@ -141,6 +141,11 @@ void MachOImage::finalise()
 		else if (loopc == IMAGE_MTABLES)
 		{
 			strcpy(buf, "__MTABLES");
+			prot = 0x3;
+		}
+		else if (loopc == IMAGE_EXPORTS)
+		{
+			strcpy(buf, "__EXPORTS");
 			prot = 0x3;
 		}
 		else

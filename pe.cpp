@@ -58,6 +58,10 @@ void PEImage::endOfImports()
 	{
 		materialiseSection(IMAGE_MTABLES);
 	}
+	if (bases[IMAGE_EXPORTS] == 0)
+	{
+		materialiseSection(IMAGE_EXPORTS);
+	}
 	imports_base = next_addr;
 	next_addr += 4096;
 	symbols_base = next_addr;
@@ -302,6 +306,11 @@ void PEImage::finalise()
 		else if (the_one == IMAGE_MTABLES)
 		{
 			strcpy(sname, ".mtables");
+			flags = 0x40 | 0x40000000 | 0x80000000;
+		}
+		else if (the_one == IMAGE_EXPORTS)
+		{
+			strcpy(sname, ".exports");
 			flags = 0x40 | 0x40000000 | 0x80000000;
 		}
 		else
