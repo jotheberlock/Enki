@@ -5,6 +5,7 @@
 #include "error.h"
 #include "entrypoint.h"
 #include "rtti.h"
+#include "exports.h"
 
 #include <string.h>
 
@@ -109,6 +110,9 @@ int Backend::process()
 
 	config->image->setSectionSize(IMAGE_RTTI, rtti->size());
 	memcpy(config->image->getPtr(IMAGE_RTTI), rtti->getData(), rtti->size());
+
+    config->image->setSectionSize(IMAGE_EXPORTS, exports->size());
+    memcpy(config->image->getPtr(IMAGE_EXPORTS), exports->getData(), exports->size());
 
 	std::vector<OptimisationPass *> passes = config->passes;
 

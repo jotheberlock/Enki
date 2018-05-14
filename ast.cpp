@@ -1535,6 +1535,7 @@ Expr * Parser::parseModule()
         }
     }
 
+    exports->setName(t.toString());
     return 0;
 }
 

@@ -476,6 +476,7 @@ int main(int argc, char ** argv)
 	root_scope->add(new Value("__stackptr", byteptr));
 
 	rtti->finalise();
+    exports->finalise();
 
 	Backend output(&config, parse.tree());
 	int ret = output.process();
