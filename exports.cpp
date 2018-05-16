@@ -1,5 +1,8 @@
+#include <string.h>
 #include "exports.h"
 #include "platform.h"
+#include "image.h"
+#include "configfile.h"
 
 void Exports::addExport(std::string n, FunctionScope * f)
 {
@@ -46,6 +49,10 @@ void Exports::finalise()
     wle64(ptr, recs.size());
     for (int loopc = 0; loopc < recs.size(); loopc++)
     {
+        new FunctionTableRelocation(configuration->image,
+                                    recs[loopc].fun,
+                                    ptr-data,
+                                    IMAGE_EXPORTS);
         wle64(ptr, 0xdeadbeefdeadbeefLL);
         len = round64(recs[loopc].name.size() + 1);
         wle64(ptr, len);
