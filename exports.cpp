@@ -31,7 +31,7 @@ void Exports::finalise()
 
     data_size += 8;   // Number of entries
 
-    for (int loopc = 0; loopc < recs.size(); loopc++)
+    for (unsigned int loopc = 0; loopc < recs.size(); loopc++)
     {
         data_size += 8;  // Relocation
         data_size += 8;  // String size
@@ -49,7 +49,7 @@ void Exports::finalise()
     ptr += len;
 
     wle64(ptr, recs.size());
-    for (int loopc = 0; loopc < recs.size(); loopc++)
+    for (unsigned int loopc = 0; loopc < recs.size(); loopc++)
     {
         FunctionTableRelocation * ftr = new FunctionTableRelocation(configuration->image,
                                                                     recs[loopc].fun,
