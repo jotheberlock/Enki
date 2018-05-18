@@ -44,7 +44,7 @@ int Backend::process()
 	root_gc = gc;
 
 	bool jit = false;
-
+    
 	if (jit)
 	{
 		gc->setCallConvention(CCONV_C);
@@ -72,6 +72,11 @@ int Backend::process()
 		root_scope->add(stacksize);
 		gc->block()->add(Insn(GETSTACKSIZE, stacksize));
 		gc->block()->add(Insn(ADD, Operand(v), Operand(v), stacksize));
+        
+        Value * exports_ptr = root_scope->lookupLocal("__exports");
+        assert(exports_ptr);
+		gc->block()->add(Insn(MOVE, exports_ptr,
+			Operand::section(IMAGE_EXPORTS, 0)));        
 	}
 
 	BasicBlock * body = gc->newBlock("body");

@@ -3,6 +3,7 @@
 #include "platform.h"
 #include "image.h"
 #include "configfile.h"
+#include "asm.h"
 
 void Exports::addExport(std::string n, FunctionScope * f)
 {
@@ -43,16 +44,19 @@ void Exports::finalise()
 
     uint64_t len = round64(module_name.size() + 1);
     wle64(ptr, len);
+    
     strcpy((char *)ptr, module_name.c_str());
     ptr += len;
 
     wle64(ptr, recs.size());
     for (int loopc = 0; loopc < recs.size(); loopc++)
     {
-        new FunctionTableRelocation(configuration->image,
-                                    recs[loopc].fun,
-                                    ptr-data,
-                                    IMAGE_EXPORTS);
+        FunctionTableRelocation * ftr = new FunctionTableRelocation(configuration->image,
+                                                                    recs[loopc].fun,
+                                                                    ptr-data,
+                                                                    IMAGE_EXPORTS);
+        ftr->add64();
+                
         wle64(ptr, 0xdeadbeefdeadbeefLL);
         len = round64(recs[loopc].name.size() + 1);
         wle64(ptr, len);

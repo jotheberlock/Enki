@@ -1,4 +1,4 @@
-def len(Byte^ ptr)
+def len(Byte^ ptr) Uint
     Uint64 count = 0
     Byte^ counter = ptr
     while counter^ != 0

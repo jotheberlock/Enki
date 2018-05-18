@@ -533,11 +533,6 @@ unsigned char * ExtFunctionRelocation::getPtr()
 
 unsigned char * FunctionTableRelocation::getPtr()
 {
-    if (section == IMAGE_EXPORTS)
-    {
-        printf("Patching offset %lld\n", patch_offset);
-    }
-    
     return image->getPtr(section) + patch_offset;
 }
 

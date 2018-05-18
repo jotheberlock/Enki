@@ -980,7 +980,7 @@ void Mtables::createSection(Image * i, Assembler * a)
 
             if (me.target)
             {
-	        FunctionTableRelocation * mr = new FunctionTableRelocation(i, me.target, ptr-orig,
+                FunctionTableRelocation * mr = new FunctionTableRelocation(i, me.target, ptr-orig,
 		  							   IMAGE_MTABLES);
                 mr->add64();
 #ifdef DEBUG_MTABLES

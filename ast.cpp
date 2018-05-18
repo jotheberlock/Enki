@@ -1496,8 +1496,8 @@ Expr * Parser::parseModule()
         return 0;
     }
 
-    Token t = current;
-
+    exports->setName(current.toString());
+    
     next();
     if (current.type != EOL)
     {
@@ -1535,7 +1535,6 @@ Expr * Parser::parseModule()
         }
     }
 
-    exports->setName(t.toString());
     return 0;
 }
 

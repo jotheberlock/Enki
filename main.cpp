@@ -443,6 +443,13 @@ int main(int argc, char ** argv)
 		tokens[loopc].print();
 	}
 
+	Type * byteptr = types->lookup("Byte^");
+	assert(byteptr);
+
+	root_scope->add(new Value("__activation", byteptr));
+	root_scope->add(new Value("__stackptr", byteptr));
+    root_scope->add(new Value("__exports", register_type));
+    
 	Parser parse(&lex);
 
 	if (errors.size() != 0)
@@ -468,13 +475,7 @@ int main(int argc, char ** argv)
 	}
 
 	fprintf(log_file, "\n\n\nCodegen:\n\n\n");
-
-	Type * byteptr = types->lookup("Byte^");
-	assert(byteptr);
-
-	root_scope->add(new Value("__activation", byteptr));
-	root_scope->add(new Value("__stackptr", byteptr));
-
+    
 	rtti->finalise();
     exports->finalise();
 
