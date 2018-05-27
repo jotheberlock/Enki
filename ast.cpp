@@ -77,9 +77,9 @@ IdentifierExpr::IdentifierExpr(Token * t)
 	value = 0;
 }
 
-ImportExpr::ImportExpr(Token * t)
+ImportExpr::ImportExpr(std::string t)
 {
-    val = t->toString();
+    val = t;
 }
 
 StringLiteralExpr::StringLiteralExpr(Token * t)
@@ -495,7 +495,7 @@ Expr * Parser::parseBodyLine()
             next();
         }
 
-        return new ImportExpr(&t);
+        return parseImport(t);
     }
     else if (current.type == MODULE)
     {
@@ -514,6 +514,25 @@ Expr * Parser::parseBodyLine()
 	}
 
 	return ret;
+}
+
+Expr * Parser::parseImport(Token t)
+{
+    std::string name = t.toString();
+    std::string fname = name + ".i";
+    FILE * ifile = 0;
+    if (!(ifile = fopen(fname.c_str(), "r")))
+    {
+        fname = "../" + fname;
+        ifile = fopen(fname.c_str(), "r");
+    }
+
+    if (!ifile)
+    {
+        addError(Error(&t, "Can't find module definition for " + name));
+        return 0;
+    }
+    return new ImportExpr(name);
 }
 
 Expr * Parser::parseSquare()

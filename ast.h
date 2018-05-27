@@ -155,7 +155,7 @@ class ImportExpr : public Expr
 {
 public:
 
-    ImportExpr(Token *);
+    ImportExpr(std::string);
 
     virtual void print(int i)
     {
@@ -1010,6 +1010,7 @@ protected:
 	Expr * parseFptr();
     Expr * parseModule();
     Expr * parseInterfaceDef();
+    Expr * parseImport(Token);
 
     void checkInterfaceTypes(Token &, std::string &, FunctionScope *, std::vector<Type *> &, Type *);
 	Type * parseType();
