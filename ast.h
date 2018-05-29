@@ -973,8 +973,8 @@ class Parser
 {
 public:
 
-	Parser(Lexer *);
-	~Parser()
+	Parser(Lexer * l, bool pi=false);
+	~Parser() 
 	{
 		delete root;
 	}
@@ -1050,6 +1050,7 @@ protected:
 	Expr * root;
 	SymbolScope * current_scope;
     int generic_counter;
+    bool parsing_imports;
 
 };
 
