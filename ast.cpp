@@ -8,6 +8,7 @@
 #include "configfile.h"
 #include "image.h"
 #include "exports.h"
+#include "lexer.h"
 
 #define LOGICAL_TRUE 1
 
@@ -517,15 +518,17 @@ Expr * Parser::parseBodyLine()
 	return ret;
 }
 
+extern void readFile(FILE * f, Chars & input);
+
 Expr * Parser::parseImport(Token t)
 {
     std::string name = t.toString();
     std::string fname = name + ".i";
-    FILE * ifile = 0;
-    if (!(ifile = fopen(fname.c_str(), "r")))
+    FILE * ifile = fopen(fname.c_str(), "rb");
+    if (!ifile)
     {
         fname = "../" + fname;
-        ifile = fopen(fname.c_str(), "r");
+        ifile = fopen(fname.c_str(), "rb");
     }
 
     if (!ifile)
@@ -533,6 +536,25 @@ Expr * Parser::parseImport(Token t)
         addError(Error(&t, "Can't find module definition for " + name));
         return 0;
     }
+
+    Lexer lex;
+    Chars input;
+    readFile(ifile, input);
+    lex.setFile(fname);
+    lex.lex(input);
+    lex.endLexing();
+
+    if (errors.size() != 0)
+    {
+        printf("Parse errors reading interface %s:\n\n", name.c_str());
+        for (std::list<Error>::iterator it = errors.begin();
+        it != errors.end(); it++)
+        {
+            (*it).print();
+            printf("\n");
+        }
+    }
+
     return new ImportExpr(name);
 }
 
