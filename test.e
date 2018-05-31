@@ -1,5 +1,7 @@
 import test
-import hi
+
+a_test_func(42)
+
 
 
 

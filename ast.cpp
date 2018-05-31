@@ -546,7 +546,20 @@ Expr * Parser::parseImport(Token t)
 
     if (errors.size() != 0)
     {
-        printf("Parse errors reading interface %s:\n\n", name.c_str());
+        printf("Lexer errors reading interface %s:\n\n", name.c_str());
+        for (std::list<Error>::iterator it = errors.begin();
+        it != errors.end(); it++)
+        {
+            (*it).print();
+            printf("\n");
+        }
+    }
+
+    Parser subparser(&lex, true);
+
+    if (errors.size() != 0)
+    {
+        printf("Parser errors reading interface %s:\n\n", name.c_str());
         for (std::list<Error>::iterator it = errors.begin();
         it != errors.end(); it++)
         {
@@ -1229,7 +1242,7 @@ Expr * Parser::parseDef()
 					{
 						next();
 
-						if (is_extern || is_generic)
+						if (is_extern || is_generic || parsing_imports)
 						{
 							current_scope = current_scope->parent();
 							return ret;
@@ -1567,8 +1580,14 @@ Expr * Parser::parseModule()
         }
         else if (current.type == DEF)
         {
-            next();
-            parseInterfaceDef();
+            if (parsing_imports)
+            {
+                parseDef();
+            }
+            else
+            {
+                parseInterfaceDef();
+            }
         }
         else
         {
@@ -1622,6 +1641,8 @@ void Parser::checkInterfaceTypes(Token & current, std::string & name, FunctionSc
 
 Expr * Parser::parseInterfaceDef()
 {
+    next();
+
     if (current.type != IDENTIFIER)
     {
         addError(Error(&current, "Expected identifier after def"));
@@ -1635,7 +1656,7 @@ Expr * Parser::parseInterfaceDef()
 
     if (!prev)
     {
-        addError(Error(&current, "Interface defines unimplemented function %s!\n", name.c_str()));
+        addError(Error(&current, "Interface defines unimplemented function!\n", name.c_str()));
         return 0;
     }
  
