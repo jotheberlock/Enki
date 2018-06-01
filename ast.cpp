@@ -1085,6 +1085,11 @@ Expr * Parser::parseDef()
 
 	next();
 
+    if (parsing_imports && (is_macro || is_extern || is_generic))
+    {
+        addError(Error(&current, "Can't have non-plain functions in interface"));
+    }
+
 	if (current.type != IDENTIFIER)
 	{
 		addError(Error(&current, "Expected identifier after def"));
@@ -1641,6 +1646,11 @@ void Parser::checkInterfaceTypes(Token & current, std::string & name, FunctionSc
 
 Expr * Parser::parseInterfaceDef()
 {
+    if (current.type != DEF)
+    {
+        addError(Error(&current, "Can't have non-plain functions in interface"));
+    }
+
     next();
 
     if (current.type != IDENTIFIER)
