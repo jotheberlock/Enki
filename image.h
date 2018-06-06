@@ -168,6 +168,11 @@ public:
 	{
 	}
 
+    virtual bool isAbsolute()
+    {
+        return false;
+    }
+
 	void addReloc(uint64 o, uint64 r, uint64 m,
 		uint64 l, int bits)
 	{
@@ -221,6 +226,11 @@ public:
 		FunctionScope *, uint64, FunctionScope *, uint64);
 	uint64 getValue();
 	unsigned char * getPtr();
+
+    virtual bool isAbsolute()
+    {
+        return true;
+    }
 
 protected:
 
@@ -276,6 +286,11 @@ public:
 	uint64 getValue();
 	unsigned char * getPtr();
 
+    virtual bool isAbsolute()
+    {
+        return true;
+    }
+
 protected:
 
 	FunctionScope * to_patch;
@@ -293,6 +308,11 @@ public:
 	SectionRelocation(Image *, int, uint64, int, uint64);
 	uint64 getValue();
 	unsigned char * getPtr();
+
+    virtual bool isAbsolute()
+    {
+        return true;
+    }
 
 protected:
 
