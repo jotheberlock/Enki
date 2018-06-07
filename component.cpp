@@ -3,6 +3,7 @@
 #include "elf.h"
 #include "pe.h"
 #include "macho.h"
+#include "inanna.h"
 #include "amd64.h"
 #include "arm32.h"
 #include "thumb.h"
@@ -42,6 +43,11 @@ Component * make_pe()
 Component * make_macho()
 {
 	return new MachOImage();
+}
+
+Component * make_inanna()
+{
+    return new InannaImage();
 }
 
 Component * make_amd64()
@@ -165,6 +171,7 @@ ComponentFactory::ComponentFactory()
 	add(make_elf, "image", "elf");
 	add(make_pe, "image", "pe");
 	add(make_macho, "image", "macho");
+    add(make_inanna, "image", "inanna");
 	add(make_amd64, "asm", "amd64");
 	add(make_arm32, "asm", "arm32");
 	add(make_thumb, "asm", "thumb");
