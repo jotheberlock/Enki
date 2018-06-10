@@ -31,6 +31,8 @@ public:
 
 protected:
 
+    int arch;
+
 };
 
 #endif
