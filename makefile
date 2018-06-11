@@ -1,5 +1,5 @@
 enki: main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o arm32.o rtti.o thumb.o exports.o inanna.o
-	g++ -o enki $(LDFLAGS) main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o arm32.o rtti.o thumb.o exports.o -lpthread
+	g++ -o enki $(LDFLAGS) main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o arm32.o rtti.o thumb.o exports.o inanna.o -lpthread
 
 main.o : main.cpp lexer.h ast.h type.h codegen.h
 	g++ $(CFLAGS) -g -c -Wall main.cpp
