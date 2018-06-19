@@ -33,6 +33,7 @@ public:
 		syscall = 0;
 		assembler = 0;
 		entrypoint = 0;
+        relocatable = false;
 	}
 
     ~Configuration();
@@ -53,7 +54,7 @@ public:
 	std::string name;
 	std::vector<OptimisationPass *> passes;
     std::map<std::string, uint64> config_constants;
-    
+    bool relocatable;
         
 };
 

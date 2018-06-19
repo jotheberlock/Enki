@@ -9,6 +9,17 @@
 #include <sys/stat.h>
 #endif
 
+class InannaSection
+{
+public:
+
+    uint32 arch;
+    uint32 type;
+    uint32 offset;
+    uint32 size;
+    
+};
+
 InannaImage::InannaImage()
 {
     arch = 0;

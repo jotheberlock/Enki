@@ -273,6 +273,11 @@ int main(int argc, char ** argv)
 		{
 			no_stdlib = true;
 		}
+        else if (!strcmp(argv[loopc], "-r"))
+        {
+                // Outputting a relocatable binary
+            config.relocatable = true;
+        }
 		else if (!strcmp(argv[loopc], "-o"))
 		{
 			loopc++;
@@ -400,7 +405,8 @@ int main(int argc, char ** argv)
     bool found_interface = false;
     for (int loopc = 1; loopc < argc; loopc++)
     {
-        if (strstr(argv[loopc], ".i"))
+        char * ptr = strstr(argv[loopc], ".i");
+        if (ptr && *(ptr+2) == 0)
         {
             if (found_interface)
             {
@@ -449,6 +455,11 @@ int main(int argc, char ** argv)
 	root_scope->add(new Value("__activation", byteptr));
 	root_scope->add(new Value("__stackptr", byteptr));
     root_scope->add(new Value("__exports", register_type));
+    if (config.relocatable)
+    {
+            // Value is initialised by the loader
+        root_scope->add(new Value("__imports", register_type));
+    }
     
 	Parser parse(&lex);
 
