@@ -2811,7 +2811,7 @@ Value * DefExpr::codegen(Codegen * c)
 	Codegen * ch = new Codegen(body, scope);
 	if (is_macro)
 	{
-		ch->setCallConvention(CCONV_MACRO);
+        ch->setCallConvention(CCONV_MACRO);
 		BasicBlock * prologue = ch->block();
 		calling_convention->generatePrologue(prologue, root_scope);
 		macros.push_back(c);

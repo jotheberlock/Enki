@@ -10,6 +10,11 @@
 #include "pass.h"
 #include "entrypoint.h"
 
+Component * make_inannaentrypoint()
+{
+    return new InannaEntrypoint();
+}
+
 Component * make_windowsentrypoint()
 {
 	return new WindowsEntrypoint();
@@ -88,6 +93,11 @@ Component * make_arm_linux_syscall()
 Component * make_thumb_linux_syscall()
 {
 	return new ThumbLinuxSyscallCallingConvention();
+}
+
+Component * make_illegal_call()
+{
+    return new IllegalCall();
 }
 
 Component * make_threetotwo()
@@ -180,6 +190,7 @@ ComponentFactory::ComponentFactory()
 	add(make_amd64_windows, "cconv", "amd64_windows");
 	add(make_arm_linux_syscall, "cconv", "arm_linux_syscall");
 	add(make_thumb_linux_syscall, "cconv", "thumb_linux_syscall");
+	add(make_illegal_call, "cconv", "illegal_call");
 	add(make_threetotwo, "pass", "threetotwo");
 	add(make_sillyregalloc, "pass", "sillyregalloc");
 	add(make_conditionalbranchsplitter, "pass", "conditionalbranchsplitter");
@@ -195,6 +206,7 @@ ComponentFactory::ComponentFactory()
     add(make_thumbhighregisterpass, "pass", "thumbhighregister");
     add(make_cmpmoverpass, "pass", "cmpmover");
     add(make_conditionalbranchextender, "pass", "conditionalbranchextender");
+    add(make_inannaentrypoint, "entrypoint", "inannaentrypoint");
 	add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
 	add(make_unixentrypoint, "entrypoint", "unixentrypoint");
     add(make_thumbentrypoint, "entrypoint", "thumbentrypoint");

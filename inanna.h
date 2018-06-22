@@ -7,6 +7,31 @@ Generates Inanna (Enki native) binaries
 
 #include "image.h"
 #include "stringbox.h"
+#include "codegen.h"
+
+// Inanna files are supposed to be platform independent, so no external
+// calls.
+
+class IllegalCall : public CallingConvention
+{
+  public:
+
+    virtual void generatePrologue(BasicBlock *, FunctionScope *)
+    {
+        printf("Illegal attempt to generate prologue!\n");
+    }
+    
+    virtual void generateEpilogue(BasicBlock *, FunctionScope *)
+    {
+        printf("Illegal attempt to generate epilogue!\n");
+    }
+    
+    virtual Value * generateCall(Codegen *, Value *, std::vector<Value *> &)
+    {
+        printf("Illegal attempt to generate call!\n");
+        return 0;
+    }
+};
 
 class InannaImage : public Image
 {

@@ -26,6 +26,13 @@ public:
 
 };
 
+class InannaEntrypoint : public Entrypoint
+{
+  public:
+
+    virtual std::string name() { return "inannaentrypoint"; }
+};
+
 class WindowsEntrypoint : public Entrypoint
 {
 public:
