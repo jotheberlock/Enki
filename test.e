@@ -1,6 +1,7 @@
-import test
+import sys
 
-a_test_func(42)
+sys:write("Hello world")
+
 
 
 

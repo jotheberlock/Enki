@@ -9,6 +9,7 @@
 #include "image.h"
 #include "exports.h"
 #include "lexer.h"
+#include "imports.h"
 
 #define LOGICAL_TRUE 1
 
@@ -97,7 +98,7 @@ StringLiteralExpr::StringLiteralExpr(Token * t)
 	idx = constants->addConstant(buf, loopc + 1, 1);
 }
 
-Parser::Parser(Lexer * l, bool pi)
+Parser::Parser(Lexer * l, bool pi, std::string mo)
 {
 	current_scope = root_scope;
 	lexer = l;
@@ -105,6 +106,7 @@ Parser::Parser(Lexer * l, bool pi)
 	count = 0;
 	generic_counter = 0;
     parsing_imports = pi;
+    module = mo;
 	next();
 	if (current.type != BEGIN)
 	{
@@ -555,7 +557,7 @@ Expr * Parser::parseImport(Token t)
         }
     }
 
-    Parser subparser(&lex, true);
+    Parser subparser(&lex, true, name);
 
     if (errors.size() != 0)
     {
@@ -1217,7 +1219,15 @@ Expr * Parser::parseDef()
 
 				if (current.type != BEGIN)
 				{
-					addError(Error(&current, "Expected def body"));
+                    if (parsing_imports)
+                    {
+                        imports->add(module, name, ft);
+                        return ret;
+                    }
+                    else
+                    {
+                        addError(Error(&current, "Expected def body"));
+                    }
 				}
 				else
 				{
@@ -1250,6 +1260,11 @@ Expr * Parser::parseDef()
 						if (is_extern || is_generic || parsing_imports)
 						{
 							current_scope = current_scope->parent();
+                            if (parsing_imports)
+                            {
+                                imports->add(module, name, ft);
+                            }
+                            
 							return ret;
 						}
 
@@ -2667,6 +2682,22 @@ Value * BreakpointExpr::codegen(Codegen * c)
 
 Value * Funcall::codegen(Codegen * c)
 {
+    unsigned int pos = name().find(':');
+    if (pos != std::string::npos)
+    {
+        std::string m = name().substr(0, pos);
+        std::string f = name().substr(pos+1, std::string::npos);
+        
+        ImportRec * ir = imports->lookup(m, f);
+        if (ir && (!ir->value))
+        {
+            printf("Found new import!\n");
+            Value * v = new Value(name(), ir->type);
+            root_scope->add(v);
+            ir->value = v;
+        }
+    }
+    
 	Value * ptr = scope->lookupLocal(name());
 
     int depth = 0;
@@ -2683,7 +2714,7 @@ Value * Funcall::codegen(Codegen * c)
 			ptr = localptr;
 		}
 	}
-
+    
 	if (!ptr)
 	{
 		addError(Error(&token, "Could not find function at codegen time", name()));

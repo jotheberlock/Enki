@@ -66,9 +66,11 @@ public:
 	ConfigFile(FILE *, Configuration *);
 	void process();
 	bool processLine(std::string line);
-	static std::string hostConfig();
-	static std::string nativeTargetConfig();
 
+    static std::string hostConfig();
+	static std::string nativeTargetConfig();
+    static std::string relocatableTargetConfig();
+    
 	bool split(std::string, std::string, std::string &, std::string &);
 	void addPath(std::string);
 

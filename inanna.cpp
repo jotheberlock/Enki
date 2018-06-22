@@ -23,6 +23,10 @@ public:
 InannaImage::InannaImage()
 {
     arch = 0;
+    for (int loopc=0; loopc<IMAGE_LAST; loopc++)
+    {
+        bases[loopc] = 0;
+    }   
 }
 
 InannaImage::~InannaImage()

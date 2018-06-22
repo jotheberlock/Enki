@@ -73,6 +73,15 @@ std::string ConfigFile::nativeTargetConfig()
 	return "unknown host";
 }
 
+std::string ConfigFile::relocatableTargetConfig()
+{
+#ifdef __arm__
+    return "inanna_arm32_target.ini";
+#else
+    return "inanna_amd64_target.ini";
+#endif
+}
+
 ConfigFile::ConfigFile(FILE * f, Configuration * c)
 {
 	file = f;

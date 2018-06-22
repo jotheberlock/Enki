@@ -973,7 +973,7 @@ class Parser
 {
 public:
 
-	Parser(Lexer * l, bool pi=false);
+	Parser(Lexer * l, bool pi=false, std::string mo="");
 	~Parser() 
 	{
 		delete root;
@@ -1051,7 +1051,8 @@ protected:
 	SymbolScope * current_scope;
     int generic_counter;
     bool parsing_imports;
-
+    std::string module;
+    
 };
 
 extern std::list<Codegen *> macros;

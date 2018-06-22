@@ -22,6 +22,7 @@
 #include "backend.h"
 #include "rtti.h"
 #include "exports.h"
+#include "imports.h"
 
 Assembler * assembler = 0;
 CallingConvention * calling_convention = 0;
@@ -33,6 +34,7 @@ Types * types = 0;
 Rtti * rtti = 0;
 Mtables * mtables = 0;
 Exports * exports = 0;
+Imports * imports = 0;
 
 typedef uint64(*TestFunc)(uint64);
 
@@ -227,7 +229,8 @@ int main(int argc, char ** argv)
 	component_factory = new ComponentFactory();
 	rtti = new Rtti();
     exports = new Exports();
-
+    imports = new Imports();
+    
 	FILE * hfile = findFile(ConfigFile::hostConfig().c_str());
 	if (!hfile)
 	{
@@ -302,7 +305,17 @@ int main(int argc, char ** argv)
 
 	if (!done_ini)
 	{
-		FILE * cfile = findFile(ConfigFile::nativeTargetConfig());
+		FILE * cfile;
+
+        if (config.relocatable)
+        {
+            cfile = findFile(ConfigFile::relocatableTargetConfig());
+        }
+        else
+        {
+            cfile = findFile(ConfigFile::nativeTargetConfig());
+        }
+        
 		if (!cfile)
 		{
 			printf("Can't find native target config [%s]\n", ConfigFile::nativeTargetConfig().c_str());
