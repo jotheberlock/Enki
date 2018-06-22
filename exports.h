@@ -1,17 +1,8 @@
 #ifndef _EXPORTS_
 #define _EXPORTS_
 
-#include <vector>
+#include <map>
 #include "symbols.h"
-
-class ExportRec
-{
-public:
-
-    std::string name;
-    FunctionScope * fun;
-
-};
 
 class Exports
 {
@@ -46,7 +37,7 @@ protected:
     std::string module_name;
     unsigned char * data;
     uint64_t data_size;
-    std::vector<ExportRec> recs;
+    std::map<std::string, FunctionScope *> recs;
 
 };
 

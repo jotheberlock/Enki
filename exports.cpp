@@ -7,10 +7,7 @@
 
 void Exports::addExport(std::string n, FunctionScope * f)
 {
-    ExportRec rec;
-    rec.name = n;
-    rec.fun = f;
-    recs.push_back(rec);
+    recs[n] = f;
 }
 
 uint64_t round64(uint64_t i)
@@ -31,11 +28,12 @@ void Exports::finalise()
 
     data_size += 8;   // Number of entries
 
-    for (unsigned int loopc = 0; loopc < recs.size(); loopc++)
+    std::map<std::string, FunctionScope *>::iterator it;
+    for (it = recs.begin(); it != recs.end(); it++)
     {
         data_size += 8;  // Relocation
         data_size += 8;  // String size
-        data_size += round64(recs[loopc].name.size()+1);
+        data_size += round64(it->first.size()+1);
     }
 
     delete[] data;
@@ -49,18 +47,18 @@ void Exports::finalise()
     ptr += len;
 
     wle64(ptr, recs.size());
-    for (unsigned int loopc = 0; loopc < recs.size(); loopc++)
+    for (it = recs.begin(); it != recs.end(); it++)
     {
         FunctionTableRelocation * ftr = new FunctionTableRelocation(configuration->image,
-                                                                    recs[loopc].fun,
+                                                                    it->second,
                                                                     ptr-data,
                                                                     IMAGE_EXPORTS);
         ftr->add64();
                 
         wle64(ptr, 0xdeadbeefdeadbeefLL);
-        len = round64(recs[loopc].name.size() + 1);
+        len = round64(it->first.size() + 1);
         wle64(ptr, len);
-        strcpy((char *)ptr, recs[loopc].name.c_str());
+        strcpy((char *)ptr, it->first.c_str());
         ptr += len;
     }
 }
