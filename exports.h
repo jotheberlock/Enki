@@ -13,6 +13,11 @@ public:
         data = 0;
         data_size = 0;
     }
+
+    ~Exports()
+    {
+        delete[] data;
+    }
     
     void setName(std::string s)
     {

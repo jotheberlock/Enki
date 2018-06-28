@@ -1167,8 +1167,11 @@ Expr * Parser::parseDef()
 	}
 	else
 	{
-		v = new Value(name, ft);
-		current_scope->add(v);
+        if (!parsing_imports)
+        {
+            v = new Value(name, ft);
+            current_scope->add(v);
+        }
 	}
 
 	FunctionScope * fs = new FunctionScope(current_scope,
@@ -2680,6 +2683,8 @@ Value * BreakpointExpr::codegen(Codegen * c)
 	return 0;
 }
 
+extern Codegen * root_gc;
+
 Value * Funcall::codegen(Codegen * c)
 {
     if (name().find(':') != std::string::npos)
@@ -2691,14 +2696,21 @@ Value * Funcall::codegen(Codegen * c)
         ImportRec * ir = imports->lookup(m, f);
         if (ir && (!ir->value))
         {
-            printf("Found new import!\n");
             Value * v = new Value(name(), ir->type);
-            root_scope->add(v);
+            printf("Found new import! %s %p %p\n", name().c_str(), v,
+                   root_gc->getScope());
+            v->setOnStack(true);
+            root_gc->getScope()->add(v);
+            root_gc->getLocals().push_back(v);
             ir->value = v;
+        }
+        else if (!ir)
+        {
+            printf("Failure to look up import [%s]\n", name().c_str());
         }
         else
         {
-            printf("Failure to look up import [%s]\n", name().c_str());
+                // We found it once already, lookup should work normally
         }
     }
     
@@ -2708,7 +2720,9 @@ Value * Funcall::codegen(Codegen * c)
 	if (!ptr)
 	{
 		ptr = scope->lookup(name(), depth);
-		if (ptr)
+        printf("Found %s with depth %d\n", name().c_str(), depth);
+        
+		if (ptr && (depth > 0))
 		{
 			Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
 			c->block()->add(Insn(GETADDR, addrof, ptr, Operand::usigc(depth)));

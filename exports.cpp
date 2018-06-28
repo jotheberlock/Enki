@@ -10,7 +10,7 @@ void Exports::addExport(std::string n, FunctionScope * f)
     recs[n] = f;
 }
 
-uint64_t round64(uint64_t i)
+static uint64_t round64(uint64_t i)
 {
     while (i & 0x7)
     {

@@ -1,11 +1,6 @@
 #include "imports.h"
 #include <map>
-
-Imports::Imports()
-{
-    data = 0;
-    data_size = 0;
-}
+#include <string.h>
 
 void Imports::add(std::string module, std::string fun, Type * ty)
 {
@@ -35,10 +30,24 @@ ImportRec * Imports::lookup(std::string module, std::string name)
 
 // imports structure:
 // no. of modules
-//   module name
+//   offset to imports
 //   no. of imports
+//   module name
+//   padding to 64 bits
+//       offset to next import
 //       offset in stack
 //       import name
+//       padding to 64 bits
+
+static uint64_t round64(uint64_t i)
+{
+    while (i & 0x7)
+    {
+        i++;
+    }
+
+    return i;
+}
 
 void Imports::finalise()
 {
@@ -66,15 +75,43 @@ void Imports::finalise()
         }
     }
 
-    int count = 8;
+    data_size = 8;
     
     for (it = modules.begin(); it != modules.end(); it++)
     {
-        count += it->first.size() + 8;
+        int mcount = round64(it->first.size()) + 24;
+        
+        data_size += mcount;
         ImportFunctionMap & ifm = it->second;
         for (it2 = ifm.begin(); it2 != ifm.end(); it2++)
         {
-            count += it2->first.size() + 8;
+            int icount = round64(it2->first.size()) + 24;
+            data_size += icount;
+        }
+    }
+
+    data = new unsigned char[data_size];
+    unsigned char * ptr = data;
+
+    for (it = modules.begin(); it != modules.end(); it++)
+    {
+        ImportFunctionMap & ifm = it->second;
+        wle64(ptr, round64(it->first.size()) + 24);
+        wle64(ptr, ifm.size());
+        wle64(ptr, it->first.size());
+        strcpy((char *)ptr, it->first.c_str());
+        ptr += round64(it->first.size());
+        
+        for (it2 = ifm.begin(); it2 != ifm.end(); it2++)
+        {
+            wle64(ptr, round64(it2->first.size()) + 24);
+            printf(">> %s %lld\n",
+                   it2->first.c_str(),
+                   it2->second.value->stackOffset());
+            wle64(ptr, it2->second.value->stackOffset());
+            wle64(ptr, it2->first.size());
+            strcpy((char *)ptr, it2->first.c_str());
+            ptr += round64(it2->first.size());
         }
     }
 }

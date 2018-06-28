@@ -27,7 +27,17 @@ class Imports
 {
   public:
 
-    Imports();
+    Imports()
+    {
+        data = 0;
+        data_size = 0;
+    }
+    
+    ~Imports()
+    {
+        delete[] data;
+    }
+    
     void add(std::string, std::string, Type *);
     ImportRec * lookup(std::string, std::string);
 
