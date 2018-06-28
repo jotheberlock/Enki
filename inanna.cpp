@@ -46,7 +46,7 @@ void InannaImage::finalise()
     memset((char *)header, 0, 4096);
     strcpy((char *)header, "/usr/bin/env enki\n");
     strcpy((char *)header + 512, "enki");
-
+    
     fwrite(header, 4096, 1, f);
 
     fclose(f);

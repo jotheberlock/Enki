@@ -2682,9 +2682,9 @@ Value * BreakpointExpr::codegen(Codegen * c)
 
 Value * Funcall::codegen(Codegen * c)
 {
-    unsigned int pos = name().find(':');
-    if (pos != std::string::npos)
+    if (name().find(':') != std::string::npos)
     {
+        int pos = name().find(':');
         std::string m = name().substr(0, pos);
         std::string f = name().substr(pos+1, std::string::npos);
         
@@ -2695,6 +2695,10 @@ Value * Funcall::codegen(Codegen * c)
             Value * v = new Value(name(), ir->type);
             root_scope->add(v);
             ir->value = v;
+        }
+        else
+        {
+            printf("Failure to look up import [%s]\n", name().c_str());
         }
     }
     

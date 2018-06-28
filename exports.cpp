@@ -23,6 +23,7 @@ uint64_t round64(uint64_t i)
 void Exports::finalise()
 {
     data_size = 0;
+    data_size += 8;   // Pointer to next export table
     data_size += 8;   // Module name length
     data_size += round64(module_name.size()+1);
 
@@ -39,7 +40,8 @@ void Exports::finalise()
     delete[] data;
     data = new unsigned char[data_size];
     unsigned char * ptr = data;
-
+    wle64(ptr, 0x0);
+    
     uint64_t len = round64(module_name.size() + 1);
     wle64(ptr, len);
     

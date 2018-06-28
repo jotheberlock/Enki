@@ -6,6 +6,7 @@
 #include "entrypoint.h"
 #include "rtti.h"
 #include "exports.h"
+#include "imports.h"
 
 #include <string.h>
 
@@ -198,6 +199,8 @@ int Backend::process()
 
     mtables->generateTables();
     mtables->createSection(config->image, config->assembler);
+
+    imports->finalise();
     
 	for (std::list<Codegen *>::iterator cit = codegens.begin();
 	cit != codegens.end(); cit++)
