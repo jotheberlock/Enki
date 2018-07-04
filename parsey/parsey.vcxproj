@@ -157,6 +157,7 @@
     <ClInclude Include="..\error.h" />
     <ClInclude Include="..\exports.h" />
     <ClInclude Include="..\image.h" />
+    <ClInclude Include="..\imports.h" />
     <ClInclude Include="..\inanna.h" />
     <ClInclude Include="..\lexer.h" />
     <ClInclude Include="..\macho.h" />
@@ -188,6 +189,7 @@
     <ClCompile Include="..\error.cpp" />
     <ClCompile Include="..\exports.cpp" />
     <ClCompile Include="..\image.cpp" />
+    <ClCompile Include="..\imports.cpp" />
     <ClCompile Include="..\inanna.cpp" />
     <ClCompile Include="..\lexer.cpp" />
     <ClCompile Include="..\macho.cpp" />
