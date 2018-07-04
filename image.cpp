@@ -163,7 +163,7 @@ Image::Image()
 	align = 8;
 	root_function = 0;
 	total_imports = 0;
-	base_addr = 0x400000;
+    base_addr = 0x400000;
 	next_addr = base_addr + (4096 * 3);
 	fname = "a.out";
 	sf_bit = false;
@@ -305,11 +305,11 @@ uint64 Image::functionSize(FunctionScope * ptr)
 
 void Image::addImport(std::string lib, std::string name)
 {
-	for (unsigned int loopc = 0; loopc < imports.size(); loopc++)
+	for (unsigned int loopc = 0; loopc < ext_imports.size(); loopc++)
 	{
-		if (imports[loopc].name == lib)
+		if (ext_imports[loopc].name == lib)
 		{
-			LibImport & l = imports[loopc];
+			LibImport & l = ext_imports[loopc];
 			for (unsigned int loopc2 = 0; loopc2 < l.imports.size(); loopc2++)
 			{
 				if (l.imports[loopc2] == name)
@@ -326,7 +326,7 @@ void Image::addImport(std::string lib, std::string name)
 	LibImport l;
 	l.name = lib;
 	l.imports.push_back(name);
-	imports.push_back(l);
+	ext_imports.push_back(l);
 	total_imports++;
 }
 
@@ -395,6 +395,41 @@ void Image::materialiseSection(int s)
 	}
 }
 
+
+std::string Image::sectionName(int s)
+{
+    if (s == IMAGE_CODE)
+    {
+        return "Code";
+    }
+    else if (s == IMAGE_DATA)
+    {
+        return "Data";
+    }
+    else if (s == IMAGE_CONST_DATA)
+    {
+        return "ConstData";
+    }
+    else if (s == IMAGE_UNALLOCED_DATA)
+    {
+        return "UnallocedData";
+    }
+    else if (s == IMAGE_RTTI)
+    {
+        return "Rtti";
+    }
+    else if (s == IMAGE_MTABLES)
+    {
+        return "Mtables";
+    }
+    else if (s == IMAGE_EXPORTS)
+    {
+        return "Exports";
+    }
+
+    return "<Unknown!>";
+}
+
 MemoryImage::MemoryImage()
 {
 	import_pointers = 0;
@@ -433,9 +468,9 @@ void MemoryImage::setImport(std::string name, uint64 addr)
 
 void MemoryImage::endOfImports()
 {
-	for (unsigned int loopc = 0; loopc < imports.size(); loopc++)
+	for (unsigned int loopc = 0; loopc < ext_imports.size(); loopc++)
 	{
-		LibImport & l = imports[loopc];
+		LibImport & l = ext_imports[loopc];
 		for (unsigned int loopc2 = 0; loopc2 < l.imports.size(); loopc2++)
 		{
 			import_names.push_back(l.imports[loopc2]);

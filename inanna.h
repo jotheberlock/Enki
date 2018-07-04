@@ -54,6 +54,8 @@ public:
 
     std::string name() { return "inanna"; }
 
+    virtual void materialiseSection(int);
+
 protected:
 
     int arch;

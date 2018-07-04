@@ -1285,8 +1285,8 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 		if (current >= limit)
 		{
-			printf("Ran out of space to assemble into, %d\n", (int)(limit - base));
-			fprintf(log_file, "Ran out of space to assemble into, %d\n", (int)(limit - base));
+			printf("Ran out of space to assemble into, %d (%p %p)\n", (int)(limit - base), limit, base);
+			fprintf(log_file, "Ran out of space to assemble into, %d (%p %p)\n", (int)(limit - base), limit, base);
 			return false;
 		}
 	}

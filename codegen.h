@@ -128,8 +128,7 @@ public:
 	}
 
 	uint64 getAddress()
-	{
-		assert(addr);
+    {
 		return addr;
 	}
 

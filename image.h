@@ -87,6 +87,8 @@ public:
         return fname;
     }
     
+    std::string sectionName(int);
+
 protected:
 
 	unsigned char * sections[IMAGE_LAST];
@@ -97,7 +99,7 @@ protected:
 	std::vector<uint64> fsizes;
 	std::vector<FunctionScope *> fptrs;
 
-	std::vector<LibImport> imports;
+	std::vector<LibImport> ext_imports;
 	uint64 total_imports;
 
 	uint64 current_offset;

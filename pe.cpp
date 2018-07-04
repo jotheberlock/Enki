@@ -70,15 +70,15 @@ void PEImage::endOfImports()
 
 uint64 PEImage::importAddress(std::string s)
 {
-	uint64 table_size = (imports.size() * 20) + 20;   // import directory table
-	uint64 ilt_size = imports.size() + total_imports;
+	uint64 table_size = (ext_imports.size() * 20) + 20;   // import directory table
+	uint64 ilt_size = ext_imports.size() + total_imports;
 	ilt_size *= (sf_bit ? 8 : 4);
 	uint64 iat_offset = table_size + ilt_size;
 	uint64 base_offset = imports_base + iat_offset;
 	uint64 stride = sf_bit ? 8 : 4;
-	for (unsigned int loopc = 0; loopc < imports.size(); loopc++)
+	for (unsigned int loopc = 0; loopc < ext_imports.size(); loopc++)
 	{
-		LibImport & l = imports[loopc];
+		LibImport & l = ext_imports[loopc];
 		for (unsigned int loopc2 = 0; loopc2 < l.imports.size(); loopc2++)
 		{
 			if (l.imports[loopc2] == s)
@@ -371,8 +371,8 @@ void PEImage::finalise()
 		}
 	}
 
-	uint64 table_size = (imports.size() * 20) + 20;   // import directory table
-	uint64 ilt_size = imports.size() + total_imports;
+	uint64 table_size = (ext_imports.size() * 20) + 20;   // import directory table
+	uint64 ilt_size = ext_imports.size() + total_imports;
 	ilt_size *= (sf_bit ? 8 : 4);
 	uint64 hints_offset = table_size + ilt_size + ilt_size;
 
@@ -385,20 +385,20 @@ void PEImage::finalise()
 	unsigned char * namebase = buf + hints_offset;
 	unsigned char * nameptr = namebase;
 
-	for (unsigned int loopc = 0; loopc < imports.size(); loopc++)
+	for (unsigned int loopc = 0; loopc < ext_imports.size(); loopc++)
 	{
 		uint64 table_offset = (imports_base - base_addr) + table_size + count;
 		wle32(ptr, checked_32(table_offset));  // Lookup table
 		wle32(ptr, 0);   // Timestamp
 		wle32(ptr, 0);   // Forwarder
 
-		std::string dllname = imports[loopc].name + ".DLL";
+		std::string dllname = ext_imports[loopc].name + ".DLL";
 		strcpy((char *)nameptr, dllname.c_str());
 		uint64 offy = (imports_base - base_addr) + hints_offset + (nameptr - namebase);
 		wle32(ptr, checked_32(offy));   // DLL name
 		nameptr += strlen(dllname.c_str()) + 1;
 		wle32(ptr, checked_32((imports_base - base_addr) + table_size + ilt_size + count));   // Address of IAT
-		count += ((imports[loopc].imports.size() + 1) * (sf_bit ? 8 : 4));
+		count += ((ext_imports[loopc].imports.size() + 1) * (sf_bit ? 8 : 4));
 	}
 	// null entry
 	wle32(ptr, 0);
@@ -410,9 +410,9 @@ void PEImage::finalise()
 	for (int loopc = 0; loopc < 2; loopc++)
 	{
 		// First is ILT, second is IAT
-		for (unsigned int loopc2 = 0; loopc2 < imports.size(); loopc2++)
+		for (unsigned int loopc2 = 0; loopc2 < ext_imports.size(); loopc2++)
 		{
-			LibImport & l = imports[loopc2];
+			LibImport & l = ext_imports[loopc2];
 			for (unsigned int loopc3 = 0; loopc3 < l.imports.size(); loopc3++)
 			{
 				uint64 addr = (nameptr - namebase) + (imports_base - base_addr) + hints_offset;
