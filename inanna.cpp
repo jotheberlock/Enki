@@ -27,6 +27,7 @@ InannaImage::InannaImage()
     arch = 0;
     base_addr = 0;
     next_addr = 0;
+    fname = "a.enk";
 }
 
 InannaImage::~InannaImage()
@@ -90,7 +91,6 @@ void InannaImage::finalise()
     std::vector<InannaSection> sections;
     for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
     {
-        printf(">>> %s %lx %d\n", sectionName(loopc).c_str(), bases[loopc], sizes[loopc]);
         if (sizes[loopc])
         {
             InannaSection s;
@@ -111,11 +111,13 @@ void InannaImage::finalise()
     wle32(ptr, sections.size());
     for (int loopc = 0; loopc < sections.size(); loopc++)
     {
-        wle32(ptr, sections[loopc].arch);
-        wle32(ptr, sections[loopc].type);
-        wle32(ptr, sections[loopc].offset);
-        wle32(ptr, sections[loopc].size);
-        wle64(ptr, sections[loopc].vmem);
+        InannaSection & is = sections[loopc];
+        printf(">>>> %x %x %x %x %lx\n", is.arch, is.type, is.offset, is.size, is.vmem);
+        wle32(ptr, is.arch);
+        wle32(ptr, is.type);
+        wle32(ptr, is.offset);
+        wle32(ptr, is.size);
+        wle64(ptr, is.vmem);
     }
 
     fwrite(header, 4096, 1, f);
