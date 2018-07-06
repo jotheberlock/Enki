@@ -3,4 +3,4 @@
 rm -f $OUTPUT
 compile TEST.041.recursion.e
 STDOUT=`$OUTPUT`
-expectResult 0 "$STDOUT" "              05              04              03              02              01"
+expectResult 0 "$STDOUT" "00000000000000050000000000000004000000000000000300000000000000020000000000000001"

@@ -371,7 +371,7 @@ Types::Types()
 {
 	types["Bool"] = new BoolType();
 	types["Void"] = new VoidType();
-	byte_type = new IntegerType(true, 8);
+	byte_type = new IntegerType(false, 8);
 	types["Byte"] = byte_type;
 	register_type = new IntegerType(false, assembler->pointerSize());
 	signed_register_type = new IntegerType(true, assembler->pointerSize());

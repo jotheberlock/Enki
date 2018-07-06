@@ -285,7 +285,7 @@ public:
 
 	bool isSigned()
 	{
-		return !is_signed;
+		return is_signed;
 	}
 
 	std::string display(unsigned char *);

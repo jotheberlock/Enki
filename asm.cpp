@@ -537,7 +537,7 @@ int loadForType(Type * t)
 	}
 	else if (t->size() == 32)
 	{
-		return t->isSigned() ? LOADS32 : LOAD32;
+        return t->isSigned() ? LOADS32 : LOAD32;
 	}
 	else if (t->size() == 64)
 	{
