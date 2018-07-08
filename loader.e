@@ -10,7 +10,7 @@ def load_import(Byte^ file) Uint64
     write_num(size)
     write("\n")
     Byte^ header = map_file(handle, 0, size, READ_PERMISSION)
-    Byte^ rec = header + 516
+    Uint32^ rec = header + 516
     Uint32 recs = rec^
     Uint64 tmp = recs
     write_num(tmp)
@@ -45,6 +45,13 @@ def load_import(Byte^ file) Uint64
         write_num(vmem)
         write("\n")
         count = count + 1
+        Byte^ secptr = header
+        secptr = secptr + offset
+        Uint64 size64 = size
+        if type == 0
+            remap(secptr, size64, EXECUTE_PERMISSION)
+        elif type == 1
+            remap(secptr, size64, RW_PERMISSION)
 
 write("Loading a.enk\n")
 Byte^ ptr = "a.enk"
