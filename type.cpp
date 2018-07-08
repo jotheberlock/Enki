@@ -593,7 +593,7 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * sl,
             }
         }
 
-		c->block()->add(Insn(STORE, new_frame, Operand::sigc(current_offset), arg));
+		c->block()->add(Insn(storeForType(arg->type), new_frame, Operand::sigc(current_offset), arg));
 		current_offset += args[loopc]->type->size() / 8;
 	}
 
@@ -668,13 +668,22 @@ bool FunctionType::validArgList(std::vector<Value *> & args, std::string & reaso
 	{
 		if (args[loopc]->type->size() != params[loopc].type->size())
 		{
-			char buf[4096];
-			sprintf(buf, "%s - expected %d bit argument, got %d",
-				params[loopc].name.c_str(),
-				params[loopc].type->size(),
-				args[loopc]->type->size());
-			reason = buf;
-			return false;
+            if (args[loopc]->type->inRegister() && params[loopc].type->inRegister() &&
+                args[loopc]->type->size() < params[loopc].type->size() &&
+                args[loopc]->type->isSigned() == params[loopc].type->isSigned())
+            {
+                    // needs better handling for bigendian
+            }
+            else
+            {
+                char buf[4096];
+                sprintf(buf, "%s - expected %d bit argument, got %d",
+                        params[loopc].name.c_str(),
+                        params[loopc].type->size(),
+                        args[loopc]->type->size());
+                reason = buf;
+                return false;
+            }
 		}
 	}
 

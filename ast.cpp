@@ -2720,7 +2720,6 @@ Value * Funcall::codegen(Codegen * c)
 	if (!ptr)
 	{
 		ptr = scope->lookup(name(), depth);
-        printf("Found %s with depth %d\n", name().c_str(), depth);
         
 		if (ptr && (depth > 0))
 		{
