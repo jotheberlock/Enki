@@ -10,7 +10,7 @@ def load_import(Byte^ file) Uint64
     write_num(size)
     write("\n")
     Byte^ header = map_file(handle, 0, size, READ_PERMISSION)
-    Uint32^ rec = header + 516
+    Uint32^ rec = header + 524
     Uint32 recs = rec^
     Uint64 tmp = recs
     write_num(tmp)
