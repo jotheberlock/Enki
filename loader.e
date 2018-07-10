@@ -1,3 +1,6 @@
+
+fptr (Uint64) Uint64 entrypointtype
+
 def load_import(Byte^ file) Uint64
     write("About to open\n")
     Uint64 handle = open_file(file)
@@ -10,6 +13,10 @@ def load_import(Byte^ file) Uint64
     write_num(size)
     write("\n")
     Byte^ header = map_file(handle, 0, size, READ_PERMISSION)
+    write("Mapped at ")
+    write_num(header)
+    write("\n")
+    Uint64^ entryaddrp = header + 516
     Uint32^ rec = header + 524
     Uint32 recs = rec^
     Uint64 tmp = recs
@@ -17,6 +24,7 @@ def load_import(Byte^ file) Uint64
     write(" records\n\n")
     Uint32 count = 0
     rec = rec + 4
+    entrypointtype entrypoint
     while count < recs
         Uint32 arch = rec^
         rec = rec + 4
@@ -49,8 +57,17 @@ def load_import(Byte^ file) Uint64
         secptr = secptr + offset
         if type == 0
             remap(secptr, size, EXECUTE_PERMISSION)
+            Uint64 entryaddroff = entryaddrp^
+            write("Entry addr ")
+            write_num(entryaddroff)
+            write("\n")
+            entrypoint = secptr
+            entrypoint = entrypoint + entryaddroff
         elif type == 1
             remap(secptr, size, RW_PERMISSION)
+    write("Jumping to ")
+    write_num(entrypoint)
+    entrypoint()
 
 write("Loading a.enk\n")
 Byte^ ptr = "a.enk"

@@ -54,31 +54,38 @@ int Backend::process()
 	}
 	else
 	{
-		gc->setCallConvention(CCONV_RAW);
-		config->entrypoint->generatePrologue(gc->block(), root_scope, config->image);
+        if (config->relocatable)
+        {
+            gc->setCallConvention(CCONV_STANDARD);
+        }
+        else
+        {
+            gc->setCallConvention(CCONV_RAW);
+            config->entrypoint->generatePrologue(gc->block(), root_scope, config->image);
         
-		gc->block()->add(Insn(MOVE, Operand::reg(config->assembler->framePointer()),
-			Operand::section(IMAGE_UNALLOCED_DATA, 0)));
+            gc->block()->add(Insn(MOVE, Operand::reg(config->assembler->framePointer()),
+                                  Operand::section(IMAGE_UNALLOCED_DATA, 0)));
 
-		Value * v = root_scope->lookupLocal("__activation");
-		assert(v);
-		gc->block()->add(Insn(MOVE, Operand(v), Operand::reg(config->assembler->framePointer())));
+            Value * v = root_scope->lookupLocal("__activation");
+            assert(v);
+            gc->block()->add(Insn(MOVE, Operand(v), Operand::reg(config->assembler->framePointer())));
 
-		v = root_scope->lookupLocal("__stackptr");
-		assert(v);
-		gc->block()->add(Insn(MOVE, Operand(v), Operand::reg(config->assembler->framePointer())));
+            v = root_scope->lookupLocal("__stackptr");
+            assert(v);
+            gc->block()->add(Insn(MOVE, Operand(v), Operand::reg(config->assembler->framePointer())));
 
-		Value * stacksize = new Value("__stacksize", register_type);
-		stacksize->setOnStack(true);
-		root_scope->add(stacksize);
-		gc->block()->add(Insn(GETSTACKSIZE, stacksize));
-		gc->block()->add(Insn(ADD, Operand(v), Operand(v), stacksize));
-        
-        Value * exports_ptr = root_scope->lookupLocal("__exports");
-        assert(exports_ptr);
-		gc->block()->add(Insn(MOVE, exports_ptr,
-			Operand::section(IMAGE_EXPORTS, 0)));        
-	}
+            Value * stacksize = new Value("__stacksize", register_type);
+            stacksize->setOnStack(true);
+            root_scope->add(stacksize);
+            gc->block()->add(Insn(GETSTACKSIZE, stacksize));
+            gc->block()->add(Insn(ADD, Operand(v), Operand(v), stacksize));
+            
+            Value * exports_ptr = root_scope->lookupLocal("__exports");
+            assert(exports_ptr);
+            gc->block()->add(Insn(MOVE, exports_ptr,
+                                  Operand::section(IMAGE_EXPORTS, 0)));        
+        }
+    }
 
 	BasicBlock * body = gc->newBlock("body");
 	gc->setBlock(body);

@@ -108,7 +108,7 @@ void InannaImage::finalise()
         }
     }
 
-    wle64(ptr, functionAddress(root_function));
+    wle64(ptr, functionAddress(root_function)-bases[IMAGE_CODE]);
     wle32(ptr, sections.size());
     for (int loopc = 0; loopc < sections.size(); loopc++)
     {
