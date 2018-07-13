@@ -29,6 +29,7 @@ CallingConvention * calling_convention = 0;
 FILE * log_file = 0;
 Constants * constants = 0;
 FunctionScope * root_scope = 0;
+FunctionScope * loader_scope = 0;
 ComponentFactory * component_factory = 0;
 Types * types = 0;
 Rtti * rtti = 0;
@@ -358,7 +359,16 @@ int main(int argc, char ** argv)
 	root_type->setReturn(register_type);
     types->add(root_type, "@root");
     
-	root_scope = new FunctionScope(0, "__root", root_type);
+
+    if (config.relocatable)
+    {
+        loader_scope = new FunctionScope(0, "__loader", root_type);
+        root_scope = new FunctionScope(loader_scope, "__root", root_type);
+    }
+    else
+    {
+        root_scope = new FunctionScope(0, "__root", root_type);
+    }
 
 	FunctionType * syscall_type = new ExternalFunctionType(config.syscall, true);
 	syscall_type->setReturn(register_type);
@@ -465,13 +475,29 @@ int main(int argc, char ** argv)
 	Type * byteptr = types->lookup("Byte^");
 	assert(byteptr);
 
-	root_scope->add(new Value("__activation", byteptr));
-	root_scope->add(new Value("__stackptr", byteptr));
-    root_scope->add(new Value("__exports", register_type));
     if (config.relocatable)
     {
+        Value * a = new Value("__activation", byteptr);
+        Value * s = new Value("__stackptr", byteptr);
+        Value * e = new Value("__exports", byteptr);
+        a->setOnStack(true);
+        s->setOnStack(true);
+        e->setOnStack(true);
+        // Fix for 32 bit
+        a->setStackOffset(40);
+        s->setStackOffset(48);
+        e->setStackOffset(56);
+        loader_scope->add(a);
+        loader_scope->add(s);
+        loader_scope->add(e);
             // Value is initialised by the loader
         root_scope->add(new Value("__imports", register_type));
+    }
+    else
+    {
+        root_scope->add(new Value("__activation", byteptr));
+        root_scope->add(new Value("__stackptr", byteptr));
+        root_scope->add(new Value("__exports", register_type));
     }
     
 	Parser parse(&lex);

@@ -57,6 +57,7 @@ int Backend::process()
         if (config->relocatable)
         {
             gc->setCallConvention(CCONV_STANDARD);
+            // Create a fake parent, which is actually the loader's frame
         }
         else
         {

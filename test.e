@@ -1,6 +1,10 @@
 import sys
 
-__syscall(0x3c, 42)
+def thing(Uint64 val)
+    return 0
+
+thing(1)
+
 
 
 
