@@ -148,6 +148,10 @@ bool ConfigFile::processLine(std::string line)
 				printf("Can't open include file %s!\n", val.c_str());
 			}
 		}
+        else if (command == "relocatable")
+        {
+            config->relocatable = (val == "true");
+        }
 		else if (command == "name")
 		{
 			config->name = val;
