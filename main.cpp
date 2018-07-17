@@ -483,10 +483,9 @@ int main(int argc, char ** argv)
         a->setOnStack(true);
         s->setOnStack(true);
         e->setOnStack(true);
-        // Fix for 32 bit
-        a->setStackOffset(40);
-        s->setStackOffset(48);
-        e->setStackOffset(56);
+        a->setStackOffset(register_type->size() == 64 ? 40 : 20);
+        s->setStackOffset(register_type->size() == 64 ? 48 : 24);
+        e->setStackOffset(register_type->size() == 64 ? 56 : 28);
         loader_scope->add(a);
         loader_scope->add(s);
         loader_scope->add(e);
