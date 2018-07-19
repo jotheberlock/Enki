@@ -404,7 +404,9 @@ public:
 	virtual std::string transReg(uint32) = 0;
 	virtual ValidRegs validRegs(Insn &) = 0;
 	virtual bool validConst(Insn &, int) = 0;
-	virtual int framePointer() = 0;
+    virtual int framePointer() = 0;
+    virtual int osStackPointer() = 0;
+
 	int pointerSize()  // in bits
 	{
 		assert(psize != 0);

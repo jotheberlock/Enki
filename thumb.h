@@ -40,6 +40,11 @@ public:
 		return 13;  // Thumb has special support for SP-relative addressing, so let's use that
 	}
 
+    int osStackPointer()
+    {
+        return 13;  // Which will conflict with this...
+    }
+
 	int functionAlignment()
 	{
 		return 4;

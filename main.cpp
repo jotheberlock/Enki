@@ -497,6 +497,7 @@ int main(int argc, char ** argv)
         root_scope->add(new Value("__activation", byteptr));
         root_scope->add(new Value("__stackptr", byteptr));
         root_scope->add(new Value("__exports", register_type));
+        root_scope->add(new Value("__osstackptr", register_type));
     }
     
 	Parser parse(&lex);

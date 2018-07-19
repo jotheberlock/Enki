@@ -38,6 +38,11 @@ public:
 		return 12;
 	}
 
+    int osStackPointer()
+    {
+        return 13;
+    }
+
 	int functionAlignment()
 	{
 		return 8;
