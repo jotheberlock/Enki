@@ -600,6 +600,10 @@ bool Assembler::configure(std::string param, std::string val)
 			convert_64_to_32 = false;
 		}
 	}
+    else if (param == "temporary_stack_register")
+    {
+        temporary_stack_register = strtol(val.c_str(), 0, 10);
+    }
 	else
 	{
 		return Component::configure(param, val);

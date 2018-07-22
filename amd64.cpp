@@ -907,6 +907,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case NOT:
 		{
 			assert(i.oc == 2);
+            assert(i.ops[0].isReg());
 			assert(i.ops[0].eq(i.ops[1]));
 
 			if (reg(i.ops[0].getReg()) < 8)

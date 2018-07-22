@@ -358,6 +358,7 @@ public:
 		base = 0;
 		func_base = 0;
 		convert_64_to_32 = false;
+        temporary_stack_register = -1;
 	}
 
 	virtual ~Assembler()
@@ -446,6 +447,11 @@ public:
         // is valid as-is for this architecture
     virtual bool validRegOffset(Insn &, int) = 0;
     
+    int temporaryStackRegister()
+    {
+        return temporary_stack_register;
+    }
+
 protected:
 
 	unsigned char * base;
@@ -457,6 +463,7 @@ protected:
 	bool le;
 	FunctionScope * current_function;
 	bool convert_64_to_32;
+    int temporary_stack_register;
 
 };
 
