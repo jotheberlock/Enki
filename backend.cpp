@@ -89,7 +89,7 @@ int Backend::process()
             // Will need some 'magic' for Thumb. Maybe prologue puts in hi register which is 'osstackptr' here
             Value * os_stack_ptr = root_scope->lookupLocal("__osstackptr");
             assert(os_stack_ptr);
-            gc->block()->add(Insn(MOVE, exports_ptr,
+            gc->block()->add(Insn(MOVE, os_stack_ptr,
                 Operand::reg(config->assembler->osStackPointer())));
         }
     }

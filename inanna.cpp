@@ -76,7 +76,7 @@ void InannaImage::finalise()
 
     unsigned char * header = new unsigned char[4096];
     memset((char *)header, 0, 4096);
-    strcpy((char *)header, "#!/usr/bin/env enki\n");
+    strcpy((char *)header, "#!/usr/bin/env enkiloader\n");
     strcpy((char *)header + 512, "enki");
     unsigned char * ptr = header + 516;
 

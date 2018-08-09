@@ -67,8 +67,34 @@ def load_import(Byte^ file) Uint64
             remap(secptr, size, RW_PERMISSION)
     write("Jumping to ")
     write_num(entrypoint)
-    entrypoint()
-
-write("Loading a.enk\n")
+    Uint64 ret = 0
+    ret = entrypoint()
+    write("\nReturned ")
+    write_num(ret)
+    write("\n")
+    
+write("OS stack ptr ")
+write_num(__osstackptr)
+write("\n")
+Uint64^ argcp = __osstackptr
+Uint64 argc = argcp^
+write("Argc ")
+write_num(argc)
+write("\n")
+Byte^^ argp = __osstackptr+8
+Byte^ argv0 = argp^
+write("Argv0 ")
+write(argv0)
+write("\n")
 Byte^ ptr = "a.enk"
+if argc > 1
+    argp = argp + 8
+    ptr = argp^
+    write("Argv1 ")
+    write(ptr)
+    write("\n")
+write("Loading ")
+write(ptr)
+write("\n")
+
 load_import(ptr)
