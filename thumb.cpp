@@ -144,7 +144,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		{
 		case ENTER_THUMB_MODE:
 		{
-
+            assert(i.oc == 0);
 			// Temporary hack - load r0 with pc then bx to Thumb
 			wee32(le, current, 0xe1a0000f);   // mov r0, pc - r0 is now this instruction+8
 			wee32(le, current, 0xe2800005);   // add r0, r0, #5 - make sure to set thumb bit
@@ -170,6 +170,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		case BREAKP:
 		{
+            assert(i.oc == 0);
 			mc = 0xbe00;
 			break;
 		}
@@ -737,7 +738,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             }
             else
             {
-                int16 val = i.ops[0].getSigc();
+                int16 val = (int16)i.ops[0].getSigc();
                 val -= 2;
                 val >>= 1;
                 uint16 * us = (uint16 *)&val;
@@ -911,7 +912,7 @@ bool Thumb::validConst(Insn & i, int idx)
             return false;
         }
 
-        int val = i.ops[2].isSigc() ? i.ops[2].getSigc() : i.ops[2].getUsigc();
+        uint64 val = i.ops[2].isSigc() ? i.ops[2].getSigc() : i.ops[2].getUsigc();
         
         if (i.ins == LOAD8)
         {
@@ -944,7 +945,7 @@ bool Thumb::validConst(Insn & i, int idx)
             return false;
         }
 
-        int val = i.ops[1].isSigc() ? i.ops[1].getSigc() : i.ops[1].getUsigc();
+        uint64 val = i.ops[1].isSigc() ? i.ops[1].getSigc() : i.ops[1].getUsigc();
         
         if (i.ins == STORE8)
         {

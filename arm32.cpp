@@ -157,6 +157,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		case BREAKP:
 		{
+            assert(i.oc == 0);
 			mc = 0xe1200070;
 			break;
 		}
@@ -618,6 +619,9 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case DIVS:
 		{
             assert(i.oc == 3);
+            assert(i.ops[0].isReg());
+            assert(i.ops[1].isReg());
+            assert(i.ops[2].isReg());
 			mc = (i.ins == DIV) ? 0xe730f010 : 0x3710f010;
 			mc = mc | i.ops[0].getReg() << 16 | i.ops[1].getReg() |
 				i.ops[2].getReg() << 8;

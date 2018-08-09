@@ -932,6 +932,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case ROR:
 		{
 			assert(i.oc == 3);
+            assert(i.ops[0].isReg());
 
 			unsigned char rr = reg(i.ops[0].getReg()) & 0x7;
 
