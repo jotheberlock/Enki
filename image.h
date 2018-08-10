@@ -54,6 +54,8 @@ public:
 
 	uint64 getAddr(int);
 	unsigned char * getPtr(int);
+    bool getSectionOffset(unsigned char *, int &, uint64 &);
+
 	// Fix up perms
 	virtual void finalise() = 0;
 	void relocate();

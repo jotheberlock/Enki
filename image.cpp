@@ -373,6 +373,26 @@ unsigned char * Image::getPtr(int t)
 	return sections[t];
 }
 
+bool Image::getSectionOffset(unsigned char * ptr, int & section, uint64 & offset)
+{
+    for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
+    {
+        if (sections[loopc] && ptr > sections[loopc])
+        {
+            uint64 off = sections[loopc] - ptr;
+            if (off < sizes[loopc])
+            {
+                section = loopc;
+                offset = off;
+                return true;
+            }
+        }
+    }
+
+    printf("Pointer %p not found in any section!\n", ptr);
+    return false;
+}
+
 void Image::materialiseSection(int s)
 {
 	assert(sections[s] == 0);
