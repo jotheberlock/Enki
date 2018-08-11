@@ -123,6 +123,28 @@ void InannaImage::finalise()
 
     fwrite(header, 4096, 1, f);
 
+    for (int loopc=0; loopc<relocs.size(); loopc++)
+    {
+        BaseRelocation * br = relocs[loopc];
+        if (br->isAbsolute())
+        {
+            uint64 v = br->getValue();
+            unsigned char * p = br->getPtr();
+            int secto,secfrom;
+            uint64 offto, offfrom;
+            if (!getSectionOffset(v, secto, offto))
+            {
+                continue;
+            }
+            if (!getSectionOffset(p, secfrom, offfrom))
+            {
+                continue;
+            }
+            printf("Section %d offset %lld points to section %d offset %lld\n",
+                   secfrom, offfrom, secto, offto);
+        }
+    }
+    
     fwrite(imports->getData(), imports->size(), 1, f);
 
     for (int loopc = 0; loopc < sections.size(); loopc++)

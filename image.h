@@ -55,7 +55,8 @@ public:
 	uint64 getAddr(int);
 	unsigned char * getPtr(int);
     bool getSectionOffset(unsigned char *, int &, uint64 &);
-
+    bool getSectionOffset(uint64, int &, uint64 &);
+    
 	// Fix up perms
 	virtual void finalise() = 0;
 	void relocate();
@@ -78,7 +79,7 @@ public:
 	{
 		relocs.push_back(b);
 	}
-
+    
 	virtual void endOfImports()
 	{}
 
@@ -172,6 +173,8 @@ public:
 	{
 	}
 
+    virtual std::string type() = 0;
+    
     virtual bool isAbsolute()
     {
         return false;
@@ -236,6 +239,11 @@ public:
         return true;
     }
 
+    virtual std::string type() 
+    {
+        return "function";
+    }
+    
 protected:
 
 	FunctionScope * to_patch;
@@ -252,6 +260,11 @@ class FunctionTableRelocation : public BaseRelocation
     FunctionTableRelocation(Image *, FunctionScope *, uint64, int);
     uint64 getValue();
     unsigned char * getPtr();
+
+    virtual std::string type() 
+    {
+        return "functiontable";
+    }
     
   protected:
 
@@ -271,6 +284,11 @@ public:
 	uint64 getValue();
 	unsigned char * getPtr();
 
+    virtual std::string type() 
+    {
+        return "basicblock";
+    }
+    
 protected:
 
 	FunctionScope * to_patch;
@@ -295,6 +313,11 @@ public:
         return true;
     }
 
+    virtual std::string type() 
+    {
+        return "absolutebasicblock";
+    }
+    
 protected:
 
 	FunctionScope * to_patch;
@@ -318,6 +341,11 @@ public:
         return true;
     }
 
+    virtual std::string type() 
+    {
+        return "section";
+    }
+    
 protected:
 
 	int patch_section;
@@ -335,6 +363,11 @@ public:
 	uint64 getValue();
 	unsigned char * getPtr();
 
+    virtual std::string type() 
+    {
+        return "extfunction";
+    }
+    
 protected:
 
 	FunctionScope * to_patch;

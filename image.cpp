@@ -173,6 +173,10 @@ Image::Image()
 
 Image::~Image()
 {
+	for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
+	{
+		delete relocs[loopc];
+	}
 }
 
 bool Image::configure(std::string param, std::string val)
@@ -242,9 +246,7 @@ void Image::relocate()
 	for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
 	{
 		relocs[loopc]->apply();
-		delete relocs[loopc];
 	}
-	relocs.clear();
 }
 
 void Image::addFunction(FunctionScope * ptr, uint64 size)
@@ -379,7 +381,7 @@ bool Image::getSectionOffset(unsigned char * ptr, int & section, uint64 & offset
     {
         if (sections[loopc] && ptr > sections[loopc])
         {
-            uint64 off = sections[loopc] - ptr;
+            uint64 off = ptr - sections[loopc];
             if (off < sizes[loopc])
             {
                 section = loopc;
@@ -390,6 +392,28 @@ bool Image::getSectionOffset(unsigned char * ptr, int & section, uint64 & offset
     }
 
     printf("Pointer %p not found in any section!\n", ptr);
+    return false;
+}
+
+
+bool Image::getSectionOffset(uint64 addr, int & section,
+                             uint64 & offset)
+{
+    for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
+    {
+        if (addr > bases[loopc])
+        {
+            uint64 off = addr - bases[loopc];
+            if (off < sizes[loopc])
+            {
+                section = loopc;
+                offset = off;
+                return true;
+            }
+        }
+    }
+
+    printf("Address %lld %llx not found in any section!\n", addr, addr);
     return false;
 }
 
