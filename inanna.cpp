@@ -123,7 +123,7 @@ void InannaImage::finalise()
 
     fwrite(header, 4096, 1, f);
 
-    for (int loopc=0; loopc<relocs.size(); loopc++)
+    for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
     {
         BaseRelocation * br = relocs[loopc];
         if (br->isAbsolute())
@@ -140,8 +140,18 @@ void InannaImage::finalise()
             {
                 continue;
             }
-            printf("Section %d offset %lld points to section %d offset %lld\n",
+            printf("Section %d offset %llx points to section %d offset %llx\n",
                    secfrom, offfrom, secto, offto);
+            std::list<Reloc> & relocs = br->relocs;
+            for (std::list<Reloc>::iterator it = relocs.begin();
+                 it != relocs.end(); it++)
+            {
+                printf("  Off %llx rshift %d mask %llx lshift %d bits %d\n",
+                       (*it).offset, (*it).rshift, (*it).mask, (*it).lshift,
+                       (*it).bits);
+            }
+            uint64 * up = (uint64 *)p;
+            printf("Expected %llx is %llx\n", v, *up);
         }
     }
     
