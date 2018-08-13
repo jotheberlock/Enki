@@ -10,6 +10,11 @@
 #include <sys/stat.h>
 #endif
 
+#define INANNA_RELOC_64     1    // 64-bit value written in place
+#define INANNA_RELOC_32     2
+#define INANNA_RELOC_16     3
+#define INANNA_RELOC_MASKED 4
+
 class InannaSection
 {
 public:
