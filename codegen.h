@@ -111,7 +111,6 @@ public:
 	Constants()
 	{
 		constantp = 0;
-		addr = 0;
 	}
 
 	~Constants();
@@ -120,16 +119,6 @@ public:
 	uint64 lookupOffset(uint64 idx)
 	{
 		return constants[idx].offset;
-	}
-
-	void setAddress(uint64 a)
-	{
-		addr = a;
-	}
-
-	uint64 getAddress()
-    {
-		return addr;
 	}
 
 	uint64 getSize()
@@ -143,7 +132,6 @@ protected:
 
 	std::vector<Constant> constants;
 	uint64 constantp;
-	uint64 addr;
 
 };
 

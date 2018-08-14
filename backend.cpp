@@ -125,7 +125,6 @@ int Backend::process()
 	}
 
 	config->image->setSectionSize(IMAGE_CONST_DATA, constants->getSize());
-	constants->setAddress(config->image->getAddr(IMAGE_CONST_DATA));
 	constants->fillPool(config->image->getPtr(IMAGE_CONST_DATA));
 
 	config->image->setSectionSize(IMAGE_RTTI, rtti->size());
