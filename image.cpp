@@ -379,7 +379,7 @@ bool Image::getSectionOffset(unsigned char * ptr, int & section, uint64 & offset
 {
     for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
     {
-        if (sections[loopc] && ptr > sections[loopc])
+        if (sections[loopc] && ptr >= sections[loopc])
         {
             uint64 off = ptr - sections[loopc];
             if (off < sizes[loopc])
@@ -401,7 +401,7 @@ bool Image::getSectionOffset(uint64 addr, int & section,
 {
     for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
     {
-        if (addr > bases[loopc])
+        if (addr >= bases[loopc])
         {
             uint64 off = addr - bases[loopc];
             if (off < sizes[loopc])
@@ -575,7 +575,6 @@ uint64 BasicBlockRelocation::getValue()
 uint64 SectionRelocation::getValue()
 {
 	uint64 addr = image->getAddr(dest_section) + dest_offset;
-    
 	return addr;
 }
 

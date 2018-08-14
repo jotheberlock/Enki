@@ -349,8 +349,8 @@ void ResolveConstAddr::processInsn()
 	{
 		insn.ins = MOVE;
 		uint64 offs = insn.ops[1].getUsigc();
-		uint64 addr = constants->lookupOffset(offs) + constants->getAddress();
-		insn.ops[1] = Operand::usigc(addr);
+		uint64 addr = constants->lookupOffset(offs);
+		insn.ops[1] = Operand::section(IMAGE_CONST_DATA, addr);
 		change(insn);
 	}
 }

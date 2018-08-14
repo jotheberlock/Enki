@@ -777,6 +777,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 					int s;
 					uint64 o = i.ops[1].getSection(s);
+                    
 					SectionRelocation * sr = new SectionRelocation(image, IMAGE_CODE, len(), s, o);
 					sr->add64();
 					//relocs.push_back(Relocation(REL_A64, len()+8, len(),
@@ -1457,7 +1458,7 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
     uint64 stack_size = 0x20;
 	if (args.size() > 4)
 	{
-        for (int loopc = 4; loopc < args.size(); loopc++)
+        for (unsigned int loopc = 4; loopc < args.size(); loopc++)
         {
             while (stack_size % (args[loopc]->type->align() / 8))
             {
