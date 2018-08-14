@@ -10,7 +10,7 @@ void Exports::addExport(std::string n, FunctionScope * f)
     recs[n] = f;
 }
 
-static uint64_t round64(uint64_t i)
+static uint64 round64(uint64 i)
 {
     while (i & 0x7)
     {
@@ -42,7 +42,7 @@ void Exports::finalise()
     unsigned char * ptr = data;
     wle64(ptr, 0x0);
     
-    uint64_t len = round64(module_name.size() + 1);
+    uint64 len = round64(module_name.size() + 1);
     wle64(ptr, len);
     
     strcpy((char *)ptr, module_name.c_str());

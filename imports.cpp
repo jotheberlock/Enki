@@ -39,7 +39,7 @@ ImportRec * Imports::lookup(std::string module, std::string name)
 //       import name
 //       padding to 64 bits
 
-static uint64_t round64(uint64_t i)
+static uint64 round64(uint64 i)
 {
     while (i & 0x7)
     {

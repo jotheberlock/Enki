@@ -32,7 +32,7 @@ public:
         return data;
     }
 
-    uint64_t size()
+    uint64 size()
     {
         return data_size;
     }
@@ -41,7 +41,7 @@ protected:
     
     std::string module_name;
     unsigned char * data;
-    uint64_t data_size;
+    uint64 data_size;
     std::map<std::string, FunctionScope *> recs;
 
 };
