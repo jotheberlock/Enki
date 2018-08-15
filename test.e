@@ -1,12 +1,5 @@
-import sys
-
-def test_func() Uint64
-    return 21+21
-
-Byte^ test = "Hi\n"
-
 Uint64 ret = 0
-ret = test_func()
+__syscall(1, 1, "Hello world\n", 12)
 return ret
 
 

@@ -12,7 +12,7 @@ def load_import(Byte^ file) Uint64
     write("Size: ")
     write_num(size)
     write("\n")
-    Byte^ header = map_file(handle, 0, size, READ_PERMISSION)
+    Byte^ header = map_file(handle, 0, size, RW_PERMISSION)
     write("Mapped at ")
     write_num(header)
     write("\n")
@@ -25,6 +25,9 @@ def load_import(Byte^ file) Uint64
     Uint32 count = 0
     rec = rec + 4
     entrypointtype entrypoint
+    Uint64[10] offsets
+    Byte^ textptr
+    Uint64 textsize
     while count < recs
         Uint32 arch = rec^
         rec = rec + 4
@@ -55,16 +58,47 @@ def load_import(Byte^ file) Uint64
         count = count + 1
         Byte^ secptr = header
         secptr = secptr + offset
+        offsets[type] = secptr
         if type == 0
-            remap(secptr, size, EXECUTE_PERMISSION)
-            Uint64 entryaddroff = entryaddrp^
-            write("Entry addr ")
-            write_num(entryaddroff)
+            textptr = secptr
+            textsize = size
+            write("Text ptr ")
+            write_num(textptr)
             write("\n")
-            entrypoint = secptr
-            entrypoint = entrypoint + entryaddroff
         elif type == 1
             remap(secptr, size, RW_PERMISSION)
+    Uint64^ relocs = rec
+    Uint64 rtype = rec^
+    while rtype != 5
+        if rtype == 1
+            rec = rec + 8
+            Uint64 fromsec = rec^
+            rec = rec + 8
+            Uint64 fromoff = rec^
+            rec = rec + 8
+            Uint64 tosec = rec^
+            rec = rec + 8
+            Uint64 tooff = rec^
+            rec = rec + 8
+            Uint64^ fromptr = offsets[fromsec]
+            fromptr = fromptr + fromoff
+            Uint64 toaddr = offsets[tosec]
+            toaddr = toaddr + tooff
+            write("Setting ")
+            write_num(fromptr)
+            write(" to ")
+            write_num(toaddr)
+            write("\n")
+            fromptr^ = toaddr
+        rtype = rec^
+        
+    remap(textptr, textsize, EXECUTE_PERMISSION)
+    Uint64 entryaddroff = entryaddrp^
+    write("Entry addr ")
+    write_num(entryaddroff)
+    write("\n")
+    entrypoint = textptr
+    entrypoint = entrypoint + entryaddroff
     write("Jumping to ")
     write_num(entrypoint)
     Uint64 ret = 0

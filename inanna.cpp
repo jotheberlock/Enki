@@ -14,6 +14,7 @@
 #define INANNA_RELOC_32     2
 #define INANNA_RELOC_16     3
 #define INANNA_RELOC_MASKED 4
+#define INANNA_RELOC_END    5
 
 class InannaSection
 {
@@ -115,7 +116,7 @@ void InannaImage::finalise()
 
     wle64(ptr, functionAddress(root_function)-bases[IMAGE_CODE]);
     wle32(ptr, sections.size());
-    for (int loopc = 0; loopc < sections.size(); loopc++)
+    for (unsigned int loopc = 0; loopc < sections.size(); loopc++)
     {
         InannaSection & is = sections[loopc];
         printf(">>>> %x %x %x %x %lx\n", is.arch, is.type, is.offset, is.size, is.vmem);
@@ -125,8 +126,6 @@ void InannaImage::finalise()
         wle32(ptr, is.size);
         wle64(ptr, is.vmem);
     }
-
-    fwrite(header, 4096, 1, f);
 
     for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
     {
@@ -154,11 +153,22 @@ void InannaImage::finalise()
                 printf("  Off %llx rshift %d mask %llx lshift %d bits %d\n",
                        (*it).offset, (*it).rshift, (*it).mask, (*it).lshift,
                        (*it).bits);
+                if ((*it).bits == 64 && (*it).mask == 0)
+                {
+                    wle64(ptr, INANNA_RELOC_64);
+                    wle64(ptr, secfrom);
+                    wle64(ptr, offfrom);
+                    wle64(ptr, secto);
+                    wle64(ptr, offto);
+                }
             }
             uint64 * up = (uint64 *)p;
             printf("Expected %llx is %llx\n", v, *up);
         }
     }
+    wle64(ptr, INANNA_RELOC_END);
+    
+    fwrite(header, 4096, 1, f);
     
     fwrite(imports->getData(), imports->size(), 1, f);
 
