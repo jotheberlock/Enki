@@ -88,8 +88,21 @@ def load_import(Byte^ file) Uint64
             write_num(fromptr)
             write(" to ")
             write_num(toaddr)
+            write(" offset ")
+            write_num(tooff)
+            write("\n")
+            write("Current value ")
+            Uint64 val = 0
+            val = fromptr^
+            write_num(val)
+            write(" from ")
+            write_num(fromptr)
             write("\n")
             fromptr^ = toaddr
+            val = fromptr^
+            write("Is now ")
+            write_num(val)
+            write("\n")
         rtype = rec^
         
     remap(textptr, textsize, EXECUTE_PERMISSION)

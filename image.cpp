@@ -158,6 +158,7 @@ Image::Image()
 		sections[loopc] = 0;
 		bases[loopc] = 0;
 		sizes[loopc] = 0;
+        materialised[loopc] = false;
 	}
 	current_offset = 0;
 	align = 8;
@@ -357,7 +358,7 @@ uint64 Image::sectionSize(int t)
 
 uint64 Image::getAddr(int t)
 {
-	if (!bases[t])
+	if (!materialised[t])
 	{
 		materialiseSection(t);
 	}
@@ -367,11 +368,11 @@ uint64 Image::getAddr(int t)
 
 unsigned char * Image::getPtr(int t)
 {
-	if (!bases[t])
+	if (!materialised[t])
 	{
 		materialiseSection(t);
 	}
-
+    
 	return sections[t];
 }
 
@@ -420,6 +421,7 @@ bool Image::getSectionOffset(uint64 addr, int & section,
 void Image::materialiseSection(int s)
 {
 	assert(sections[s] == 0);
+    
 	sections[s] = new unsigned char[sizes[s]];
 	memset(sections[s], 0, sizes[s]);
 	bases[s] = next_addr;
@@ -437,6 +439,8 @@ void Image::materialiseSection(int s)
 	{
 		next_addr += 4096;
 	}
+
+    materialised[s] = true;
 }
 
 

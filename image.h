@@ -97,7 +97,8 @@ protected:
 	unsigned char * sections[IMAGE_LAST];
 	uint64 bases[IMAGE_LAST];
 	uint64 sizes[IMAGE_LAST];
-
+    bool materialised[IMAGE_LAST];
+    
 	std::vector<uint64> foffsets;
 	std::vector<uint64> fsizes;
 	std::vector<FunctionScope *> fptrs;

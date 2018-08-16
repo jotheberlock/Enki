@@ -603,6 +603,9 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * sl,
 
 void ActivationType::activate(Codegen * c, Value * frame)
 {
+    BasicBlock * call_block = c->newBlock("call");
+    c->setBlock(call_block);
+    
 	BasicBlock * return_block = c->newBlock("return");
 	Value * ip_holder = c->getTemporary(register_type, "ip_holder");
 	c->block()->add(Insn(MOVE, ip_holder, return_block));

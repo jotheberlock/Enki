@@ -176,6 +176,29 @@ int SillyRegalloc::findFree(RegSet & r, RegSet & c)
 		}
 	}
 
+        /*
+    // Look for candidate to spill
+	for (int loopc = 0; loopc < numregs; loopc++)
+	{
+        printf("%d %s %s %s %s %s\n", loopc, input[loopc] ? "y" : "n",
+               output[loopc] ? "y" : "n", r.isSet(loopc) ? "y" : "n",
+               c.isSet(loopc) ? "y" : "n", block->getReservedRegs().isSet(loopc) ? "y" : "n");
+        
+        if (!input[loopc] && !output[loopc] && r.isSet(loopc) && !c.isSet(loopc) &&
+            !(block->getReservedRegs().isSet(loopc)))
+        {
+            int fp = assembler->framePointer();
+			int64 off = regs[loopc]->stackOffset();
+			Insn store(storeForType(regs[loopc]->type), Operand::reg(fp),
+				Operand::sigc(off), Operand::reg(loopc));
+            printf(">> Spilling %d\n", loopc);
+			store.comment += "Store " + regs[loopc]->name;
+            prepend(store);
+            return loopc;
+        }
+    }
+        */
+    
 	// Should probably learn how to spill here
 	assert(false);
 	return 0;
