@@ -79,13 +79,13 @@ void Imports::finalise()
     
     for (it = modules.begin(); it != modules.end(); it++)
     {
-        int mcount = round64(it->first.size()) + 24;
+        uint64 mcount = round64(it->first.size()) + 24;
         
         data_size += mcount;
         ImportFunctionMap & ifm = it->second;
         for (it2 = ifm.begin(); it2 != ifm.end(); it2++)
         {
-            int icount = round64(it2->first.size()) + 24;
+            uint64 icount = round64(it2->first.size()) + 24;
             data_size += icount;
         }
     }
