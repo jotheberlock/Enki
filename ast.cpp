@@ -1628,7 +1628,7 @@ void Parser::checkInterfaceTypes(Token & current, std::string & name, FunctionSc
     if (prevt->argCount() != ftypes.size())
     {
         char buf[4096];
-        sprintf(buf, "Interface for function %s has %d arguments, implementation %d", name.c_str(), ftypes.size(), prevt->getParams().size());
+        sprintf(buf, "Interface for function %s has %ld arguments, implementation %ld", name.c_str(), ftypes.size(), prevt->getParams().size());
         addError(Error(&current, buf));
         return;
     }

@@ -174,7 +174,7 @@ void InannaImage::finalise()
     
     fwrite(imports->getData(), imports->size(), 1, f);
 
-    for (int loopc = 0; loopc < sections.size(); loopc++)
+    for (unsigned int loopc = 0; loopc < sections.size(); loopc++)
     {
         fseek(f, sections[loopc].offset, SEEK_SET);
         unsigned char * ptr = getPtr(sections[loopc].type);
