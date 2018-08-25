@@ -114,6 +114,7 @@ def load_import(Byte^ file) Uint64
     entrypoint = entrypoint + entryaddroff
     write("Jumping to ")
     write_num(entrypoint)
+    write("\n")
     Uint64 ret = 0
     ret = entrypoint()
     write("\nReturned ")
