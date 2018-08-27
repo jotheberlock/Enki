@@ -1,6 +1,9 @@
 
 fptr (Uint64) Uint64 entrypointtype
 
+# Entrypoint is top-level function, sibling of load_import
+entrypointtype entrypoint
+
 def load_import(Byte^ file) Uint64
     write("About to open\n")
     Uint64 handle = open_file(file)
@@ -24,7 +27,6 @@ def load_import(Byte^ file) Uint64
     write(" records\n\n")
     Uint32 count = 0
     rec = rec + 4
-    entrypointtype entrypoint
     Uint64[10] offsets
     Byte^ textptr
     Uint64 textsize
@@ -120,6 +122,7 @@ def load_import(Byte^ file) Uint64
     write("\nReturned ")
     write_num(ret)
     write("\n")
+    return ret
     
 write("OS stack ptr ")
 write_num(__osstackptr)
@@ -145,4 +148,4 @@ write("Loading ")
 write(ptr)
 write("\n")
 
-load_import(ptr)
+return load_import(ptr)
