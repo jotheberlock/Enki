@@ -63,3 +63,14 @@ def remap(Byte^ ptr, Uint64 size, Uint64 permissions) Uint64
        write("Unknown permissions\n")
        return 0
     __syscall(SYSCALL_MPROTECT, ptr, size, protect)
+
+def get_argc() Uint64
+    Uint64^ argcp = __osstackptr
+    Uint64 argc = argcp^
+    return argc
+
+def get_argv(Uint64 index) Byte^
+    Byte^^ argp = __osstackptr+8
+    Uint64 idx = index * 8
+    argp = argp + idx
+    return argp^

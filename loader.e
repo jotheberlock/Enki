@@ -127,22 +127,17 @@ def load_import(Byte^ file) Uint64
 write("OS stack ptr ")
 write_num(__osstackptr)
 write("\n")
-Uint64^ argcp = __osstackptr
-Uint64 argc = argcp^
+Uint64 argc = get_argc()
 write("Argc ")
 write_num(argc)
 write("\n")
-Byte^^ argp = __osstackptr+8
-Byte^ argv0 = argp^
 write("Argv0 ")
-write(argv0)
+write(get_argv(0))
 write("\n")
 Byte^ ptr = "a.enk"
 if argc > 1
-    argp = argp + 8
-    ptr = argp^
     write("Argv1 ")
-    write(ptr)
+    write(get_argv(1))
     write("\n")
 write("Loading ")
 write(ptr)
