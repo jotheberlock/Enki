@@ -8,6 +8,7 @@ extern KERNEL32:MapViewOfFileEx(Uint32 filemap, Uint32 access, Uint32 off_high, 
 extern KERNEL32:GetLastError() Uint32
 extern KERNEL32:VirtualProtect(Byte^ address, Uint64 size, Uint32 new, Uint32^ old) Uint32
 extern KERNEL32:CloseHandle(Uint64 file) Uint32
+extern KERNEL32:GetCommandLineA() Byte^
 
 
 def write(Byte^ ptr) Uint64
