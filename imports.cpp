@@ -93,14 +93,15 @@ void Imports::finalise()
     data = new unsigned char[data_size];
     unsigned char * ptr = data;
 
+    wle64(ptr, modules.size());
     for (it = modules.begin(); it != modules.end(); it++)
     {
         ImportFunctionMap & ifm = it->second;
-        wle64(ptr, round64(it->first.size()) + 24);
+        wle64(ptr, round64(it->first.size()+1) + 24);
         wle64(ptr, ifm.size());
-        wle64(ptr, it->first.size());
+        wle64(ptr, it->first.size()+1);
         strcpy((char *)ptr, it->first.c_str());
-        ptr += round64(it->first.size());
+        ptr += round64(it->first.size()+1);
         
         for (it2 = ifm.begin(); it2 != ifm.end(); it2++)
         {

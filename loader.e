@@ -29,6 +29,7 @@ def load_import(Byte^ file) Uint64
     rec = rec + 4
     Uint64[10] offsets
     Byte^ textptr
+    Byte^ importsptr
     Uint64 textsize
     while count < recs
         Uint32 arch = rec^
@@ -106,7 +107,32 @@ def load_import(Byte^ file) Uint64
             write_num(val)
             write("\n")
         rtype = rec^
-        
+    Uint64^ imports = header + 4096
+    Uint64 modules = imports^
+    imports = imports + 8
+    write("Module count ")
+    write_num(modules)
+    write("\n")
+    Uint64 mcount = 0
+    while mcount < modules
+        Uint64 entries_offset = imports^
+        Uint64^ entries = modules + entries_offset
+        imports = imports + 8
+        Uint64 mentries = imports^
+        imports = imports + 8
+        Uint64 strsize = imports^
+        imports = imports + 8
+        Byte^ mname = imports
+        write("Mentries ")
+        write_num(mentries)
+        write("\n")
+        write("Strsize ")
+        write_num(strsize)
+        write("\n")
+        write("Module ")
+        write(mname)
+        write("\n")
+        mcount = mcount + 1
     remap(textptr, textsize, EXECUTE_PERMISSION)
     Uint64 entryaddroff = entryaddrp^
     write("Entry addr ")
