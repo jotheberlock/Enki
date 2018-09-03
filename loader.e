@@ -4,6 +4,34 @@ fptr (Uint64) Uint64 entrypointtype
 # Entrypoint is top-level function, sibling of load_import
 entrypointtype entrypoint
 
+def find_export(Byte^ name) Uint64
+    Byte^ exports_ptr = __exports
+    exports_ptr = exports_ptr + 8
+    Uint64^ lenptr = exports_ptr
+    Uint64 len = lenptr^
+    exports_ptr = exports_ptr + 8
+    exports_ptr = exports_ptr + len
+    lenptr = exports_ptr
+    Uint64 recs = lenptr^
+    exports_ptr = exports_ptr + 8
+    write_num(recs)
+    write(" entries in exports\n")
+    Uint64 count = 0
+    while count < recs
+        lenptr = exports_ptr
+        Uint64 reloc = lenptr^
+        exports_ptr = exports_ptr + 8
+        lenptr = exports_ptr
+        Uint64 slen = lenptr^
+        exports_ptr = exports_ptr + 8
+        write(exports_ptr)
+        write(" : ")
+        write_num(reloc)
+        write("\n")
+        exports_ptr = exports_ptr + slen
+        count = count + 1
+    return 0
+
 def load_import(Byte^ file) Uint64
     write("About to open\n")
     Uint64 handle = open_file(file)
@@ -133,6 +161,7 @@ def load_import(Byte^ file) Uint64
         write(mname)
         write("\n")
         mcount = mcount + 1
+        find_export(mname)
     remap(textptr, textsize, EXECUTE_PERMISSION)
     Uint64 entryaddroff = entryaddrp^
     write("Entry addr ")
