@@ -39,3 +39,22 @@ def to_upper(Byte^ str)
                 str^ = ch
         str = str + 1
         ch = str^
+
+def strcmp(Byte^ str1, Byte^ str2) Uint
+    Uint true = 1
+    while true == 1
+          Uint char1 = str1^
+          Uint char2 = str2^
+          write_num(char1)
+          write(" ")
+          write_num(char2)
+          write("\n")
+          if char1 != char2
+             return 0
+          if char1 == 0
+             write("True!\n")
+             return 1
+          str1 = str1 + 1
+          str2 = str2 + 1
+    return 0
+
