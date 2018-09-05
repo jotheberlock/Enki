@@ -101,3 +101,40 @@ def remap(Byte^ ptr, Uint64 size, Uint64 permissions) Uint64
        return 0
     ret = VirtualProtect(ptr, 4096, new, @old)
     return ret
+
+
+def get_argc() Uint64
+    Byte^ command_line = GetCommandLineA()
+    Uint count = 1
+    Byte^ ptr = command_line
+    while ptr^ != 0
+        write_num(ptr^)
+        if ptr^ == 32
+            count = count + 1
+        ptr = ptr + 1
+    return count
+
+def get_argv(Uint64 index) Byte^
+    Byte^ ret = malloc(4096)
+    ret^ = 0
+    Byte^ command_line = GetCommandLineA()
+    Byte^ ptr = command_line
+    Uint count = 0
+    while count < index
+        if ptr^ == 32
+             count = count + 1
+        if ptr^ == 0
+             return ret
+        ptr = ptr + 1
+    Byte^ dest = ret
+    while ptr^ != 32
+        dest^ = ptr^
+        dest = dest + 1
+        ptr = ptr + 1
+        if ptr^ == 0
+            dest^ = 0
+            return ret
+    dest^ = 0
+    return ret
+
+

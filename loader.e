@@ -194,6 +194,7 @@ if argc > 1
     write("Argv1 ")
     write(get_argv(1))
     write("\n")
+    ptr = get_argv(1)
 write("Loading ")
 write(ptr)
 write("\n")
