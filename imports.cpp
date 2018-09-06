@@ -97,7 +97,7 @@ void Imports::finalise()
     for (it = modules.begin(); it != modules.end(); it++)
     {
         ImportFunctionMap & ifm = it->second;
-        wle64(ptr, round64(it->first.size()+1) + 24);
+        wle64(ptr, round64(it->first.size()+1));
         wle64(ptr, ifm.size());
         wle64(ptr, it->first.size()+1);
         strcpy((char *)ptr, it->first.c_str());
@@ -105,7 +105,7 @@ void Imports::finalise()
         
         for (it2 = ifm.begin(); it2 != ifm.end(); it2++)
         {
-            wle64(ptr, round64(it2->first.size()) + 24);
+            wle64(ptr, round64(it2->first.size()));
             printf(">> %s %lld\n",
                    it2->first.c_str(),
                    it2->second.value->stackOffset());

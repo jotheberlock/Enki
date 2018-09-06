@@ -24,10 +24,9 @@ def find_export(Byte^ name) Uint64
         lenptr = exports_ptr
         Uint64 slen = lenptr^
         exports_ptr = exports_ptr + 8
-        write(exports_ptr)
-        write(" : ")
-        write_num(reloc)
-        write("\n")
+        Uint64 ret = strcmp(exports_ptr, name)
+        if ret == 1
+            return reloc
         exports_ptr = exports_ptr + slen
         count = count + 1
     return 0
@@ -161,7 +160,26 @@ def load_import(Byte^ file) Uint64
         write(mname)
         write("\n")
         mcount = mcount + 1
-        find_export(mname)
+        imports = imports + entries_offset
+        Uint64 fcount = 0
+        while fcount < mentries
+            Uint64^ fp = imports
+            Uint64 fstrsize = imports^
+            imports = imports + 8
+            Uint64 addr = imports^
+            imports = imports + 8
+            Uint64 fstrlen = imports^
+            imports = imports + 8
+            Uint64 export_addr = find_export(imports)
+            write("Function ")
+            write(imports)
+            write(" stack offset ")
+            write_num(addr)
+            write(" resolves to ")
+            write_num(export_addr)
+            write("\n")
+            imports = imports + fstrsize
+            fcount = fcount + 1
     remap(textptr, textsize, EXECUTE_PERMISSION)
     Uint64 entryaddroff = entryaddrp^
     write("Entry addr ")
