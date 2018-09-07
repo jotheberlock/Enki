@@ -108,7 +108,6 @@ def get_argc() Uint64
     Uint count = 1
     Byte^ ptr = command_line
     while ptr^ != 0
-        write_num(ptr^)
         if ptr^ == 32
             count = count + 1
         ptr = ptr + 1
