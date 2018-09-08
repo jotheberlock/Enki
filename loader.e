@@ -141,6 +141,16 @@ def load_import(Byte^ file) Uint64
     write_num(modules)
     write("\n")
     Uint64 mcount = 0
+    Uint64 entryaddroff = entryaddrp^
+    write("Entry addr ")
+    write_num(entryaddroff)
+    write("\n")
+    entrypoint = textptr
+    entrypoint = entrypoint + entryaddroff
+    remap(textptr, textsize, EXECUTE_PERMISSION)
+    Uint64$ ret = 0
+    ret = entrypoint()
+    remap(textptr, textsize, RW_PERMISSION)
     while mcount < modules
         Uint64 entries_offset = imports^
         Uint64^ entries = modules + entries_offset
@@ -181,18 +191,11 @@ def load_import(Byte^ file) Uint64
             imports = imports + fstrsize
             fcount = fcount + 1
     remap(textptr, textsize, EXECUTE_PERMISSION)
-    Uint64 entryaddroff = entryaddrp^
-    write("Entry addr ")
-    write_num(entryaddroff)
-    write("\n")
-    entrypoint = textptr
-    entrypoint = entrypoint + entryaddroff
     write("Jumping to ")
     write_num(entrypoint)
     write("\n")
-    Uint64 ret = 0
-    ret = entrypoint()
-    write("\nReturned ")
+    !ret
+    write("Returned second ")
     write_num(ret)
     write("\n")
     return ret
