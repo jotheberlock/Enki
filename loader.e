@@ -150,7 +150,7 @@ def load_import(Byte^ file) Uint64
     remap(textptr, textsize, EXECUTE_PERMISSION)
     Uint64$ ret = 0
     ret = entrypoint()
-    Byte^ frameptr = cast(ret, Byte^)
+    Uint64^ frameptr = cast(ret, Uint64^)
     write("Frame ptr ")
     write_num(frameptr)
     write("\n")
@@ -191,6 +191,8 @@ def load_import(Byte^ file) Uint64
             write(" resolves to ")
             write_num(export_addr)
             write("\n")
+            Uint64^ to_write = frameptr + addr
+            to_write^ = export_addr
             imports = imports + fstrsize
             fcount = fcount + 1
     write("Jumping to ")
