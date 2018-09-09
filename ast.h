@@ -118,6 +118,33 @@ public:
 
 };
 
+class CastExpr : public Expr
+{
+  public:
+
+    CastExpr(Expr * t, Type * c)
+    {
+        to_cast = t;
+        cast_type = c;
+    }
+    
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "cast(%s, %s)",
+                "<fixme>", cast_type->name().c_str());
+    }
+
+    virtual Value * codegen(Codegen * c);
+
+
+  protected:
+
+    Expr * to_cast;
+    Type * cast_type;
+
+};
+                
 class IdentifierExpr : public Expr
 {
 public:
@@ -1011,7 +1038,8 @@ protected:
     Expr * parseModule();
     Expr * parseInterfaceDef();
     Expr * parseImport(Token);
-
+    Expr * parseCast();
+    
     void checkInterfaceTypes(Token &, std::string &, FunctionScope *, std::vector<Type *> &, Type *);
 	Type * parseType();
 

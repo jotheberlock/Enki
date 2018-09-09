@@ -150,7 +150,10 @@ def load_import(Byte^ file) Uint64
     remap(textptr, textsize, EXECUTE_PERMISSION)
     Uint64$ ret = 0
     ret = entrypoint()
-    remap(textptr, textsize, RW_PERMISSION)
+    Byte^ frameptr = cast(ret, Byte^)
+    write("Frame ptr ")
+    write_num(frameptr)
+    write("\n")
     while mcount < modules
         Uint64 entries_offset = imports^
         Uint64^ entries = modules + entries_offset
@@ -190,7 +193,6 @@ def load_import(Byte^ file) Uint64
             write("\n")
             imports = imports + fstrsize
             fcount = fcount + 1
-    remap(textptr, textsize, EXECUTE_PERMISSION)
     write("Jumping to ")
     write_num(entrypoint)
     write("\n")

@@ -191,6 +191,41 @@ Expr * Parser::parseExpr()
 	return parseBinopRHS(0, lhs);
 }
 
+Expr * Parser::parseCast()
+{
+    next();
+    if (current.type != OPEN_BRACKET)
+    {
+        addError(Error(&current, "Expected ( after cast"));
+        return 0;
+    }
+    next();
+    Expr * to_cast = parseExpr();
+    if (!to_cast)
+    {
+        return 0;
+    }
+    if (current.type != COMMA)
+    {
+        addError(Error(&current, "Expected , in cast"));
+        return 0;
+    }
+    next();
+    Type * cast_type = parseType();
+    if (!cast_type)
+    {
+        addError(Error(&current, "Expected type in cast"));
+        return 0;
+    }
+    if (current.type != CLOSE_BRACKET)
+    {
+        addError(Error(&current, "Expected ) at end of cast"));
+        return 0;
+    }
+    next();
+    return new CastExpr(to_cast, cast_type);
+}
+
 int Parser::getPrecedence()
 {
 	bool dummy;
@@ -292,6 +327,10 @@ Expr * Parser::parsePrimary()
 	{
 		return parseAddressOf();
 	}
+    else if (current.type == CAST)
+    {
+        return parseCast();
+    }
 	else
 	{
 		char buf[4096];
@@ -2873,4 +2912,12 @@ Value * Continue::codegen(Codegen * c)
 
 	c->block()->add(Insn(BRA, Operand(c->currentContinue())));
 	return 0;
+}
+
+Value * CastExpr::codegen(Codegen * c)
+{
+    Value * v = c->getTemporary(cast_type, "cast");
+    Value * r = to_cast->codegen(c);
+    c->block()->add(Insn(MOVE, v, r));
+    return v;
 }

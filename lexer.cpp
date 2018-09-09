@@ -70,6 +70,7 @@ Lexer::Lexer()
     keywords["raw"] = RAW;
     keywords["import"] = IMPORT;
     keywords["module"] = MODULE;
+    keywords["cast"] = CAST;
     
 	oldcol = -1;
 	oldline = -1;
