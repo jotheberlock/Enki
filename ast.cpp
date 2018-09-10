@@ -2726,6 +2726,8 @@ extern Codegen * root_gc;
 
 Value * Funcall::codegen(Codegen * c)
 {
+    bool is_import_call = false;
+    
     if (name().find(':') != std::string::npos)
     {
         int pos = name().find(':');
@@ -2742,6 +2744,7 @@ Value * Funcall::codegen(Codegen * c)
             root_gc->getScope()->add(v);
             root_gc->getLocals().push_back(v);
             ir->value = v;
+            is_import_call = true;
         }
         else if (!ir)
         {
@@ -2750,6 +2753,7 @@ Value * Funcall::codegen(Codegen * c)
         else
         {
                 // We found it once already, lookup should work normally
+            is_import_call = true;
         }
     }
     
@@ -2823,13 +2827,15 @@ Value * Funcall::codegen(Codegen * c)
 	}
 
     Value * sl = c->getTemporary(register_type, "static_link");
-    if (depth == 0)
+    if (depth == 0 && (!is_import_call))
     {
             // Calling our own child, we are static link
         c->block()->add(Insn(MOVE, sl, Operand::reg(assembler->framePointer())));
     }
     else
     {
+            // FIXME: doesn't work for import calls. Should be able to
+            // call parents
             // Calling sibling, static link is same as ours
         c->block()->add(Insn(LOAD, sl, Operand::reg(assembler->framePointer()),
                              Operand::sigc(assembler->staticLinkOffset())));

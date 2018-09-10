@@ -1,6 +1,6 @@
 import sys
-sys:write('Hello world\n')
-return 0
+sys:write("Hello world!\n")
+return sys:write("Twice!\n")
 
 
 
