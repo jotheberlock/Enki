@@ -2839,6 +2839,16 @@ Value * Funcall::codegen(Codegen * c)
             // Calling sibling, static link is same as ours
         c->block()->add(Insn(LOAD, sl, Operand::reg(assembler->framePointer()),
                              Operand::sigc(assembler->staticLinkOffset())));
+        int count = depth - 1;
+        if (is_import_call)
+        {
+            count++;
+        }
+        for (int loopc=0; loopc<count; loopc++)
+        {
+            c->block()->add(Insn(LOAD, sl, sl,
+                                 Operand::sigc(assembler->staticLinkOffset())));
+        }
     }
     
 	Value * ret = ptr->type->generateFuncall(c, this, sl, ptr, evaled_args);

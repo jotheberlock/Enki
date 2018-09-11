@@ -82,14 +82,14 @@ void InannaImage::finalise()
         return;
     }
 
-    unsigned char * header = new unsigned char[4096];
-    memset((char *)header, 0, 4096);
+    unsigned char * header = new unsigned char[8192];
+    memset((char *)header, 0, 8192);
     strcpy((char *)header, "#!/usr/bin/env enkiloader\n");
     strcpy((char *)header + 512, "enki");
     unsigned char * ptr = header + 516;
 
     
-    uint32 next_offset = 4096;
+    uint32 next_offset = 8192;
     next_offset += imports->size();
     while (next_offset % 4096)
     {
@@ -170,7 +170,7 @@ void InannaImage::finalise()
     }
     wle64(ptr, INANNA_RELOC_END);
     
-    fwrite(header, 4096, 1, f);
+    fwrite(header, 8192, 1, f);
     
     fwrite(imports->getData(), imports->size(), 1, f);
 

@@ -126,7 +126,8 @@ def load_import(Byte^ file) Uint64
             val = fromptr^
             write_num(val)
             write(" from ")
-            write_num(fromptr)
+            Uint64 fromptrint
+            write_num(fromptrint)
             write("\n")
             fromptr^ = toaddr
             val = fromptr^
@@ -134,7 +135,7 @@ def load_import(Byte^ file) Uint64
             write_num(val)
             write("\n")
         rtype = rec^
-    Uint64^ imports = header + 4096
+    Uint64^ imports = header + 8192
     Uint64 modules = imports^
     imports = imports + 8
     write("Module count ")
