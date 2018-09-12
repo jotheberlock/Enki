@@ -34,18 +34,12 @@ def find_export(Byte^ name) Uint64
 def load_import(Byte^ file) Uint64
     write("About to open\n")
     Uint64 handle = open_file(file)
-    write("Handle: ")
-    write_num(handle)
-    write("\n")
+    display_num("Handle: ", handle)
     Uint64 size = 42
     size = get_file_size(handle)
-    write("Size: ")
-    write_num(size)
-    write("\n")
+    display_num("Size: ",size)
     Byte^ header = map_file(handle, 0, size, RW_PERMISSION)
-    write("Mapped at ")
-    write_num(header)
-    write("\n")
+    display_num("Mapped at ", header)
     Uint64^ entryaddrp = header + 516
     Uint32^ rec = header + 524
     Uint32 recs = rec^
@@ -92,9 +86,7 @@ def load_import(Byte^ file) Uint64
         if type == 0
             textptr = secptr
             textsize = size
-            write("Text ptr ")
-            write_num(textptr)
-            write("\n")
+            display_num("Text ptr ", textptr)
         elif type == 1
             remap(secptr, size, RW_PERMISSION)
     Uint64^ relocs = rec
@@ -131,30 +123,22 @@ def load_import(Byte^ file) Uint64
             write("\n")
             fromptr^ = toaddr
             val = fromptr^
-            write("Is now ")
-            write_num(val)
-            write("\n")
+            display_num("Is now ",val)
         rtype = rec^
     Uint64^ imports = header + 8192
     Uint64 modules = imports^
     imports = imports + 8
-    write("Module count ")
-    write_num(modules)
-    write("\n")
+    display_num("Module count ", modules)
     Uint64 mcount = 0
     Uint64 entryaddroff = entryaddrp^
-    write("Entry addr ")
-    write_num(entryaddroff)
-    write("\n")
+    display_num("Entry addr ", entryaddroff)
     entrypoint = textptr
     entrypoint = entrypoint + entryaddroff
     remap(textptr, textsize, EXECUTE_PERMISSION)
     Uint64$ ret = 0
     ret = entrypoint()
     Uint64^ frameptr = cast(ret, Uint64^)
-    write("Frame ptr ")
-    write_num(frameptr)
-    write("\n")
+    display_num("Frame ptr ", frameptr)
     while mcount < modules
         Uint64 entries_offset = imports^
         Uint64^ entries = modules + entries_offset
@@ -196,22 +180,14 @@ def load_import(Byte^ file) Uint64
             to_write^ = export_addr
             imports = imports + fstrsize
             fcount = fcount + 1
-    write("Jumping to ")
-    write_num(entrypoint)
-    write("\n")
+    display_num("Jumping to ", entrypoint)
     !ret
-    write("Returned second ")
-    write_num(ret)
-    write("\n")
+    display_num("Returned second ", ret)
     return ret
     
-write("OS stack ptr ")
-write_num(__osstackptr)
-write("\n")
+display_num("OS stack ptr ", __osstackptr)
 Uint64 argc = get_argc()
-write("Argc ")
-write_num(argc)
-write("\n")
+display_num("Argc ", argc)
 write("Argv0 ")
 write(get_argv(0))
 write("\n")

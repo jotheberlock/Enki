@@ -53,3 +53,10 @@ def strcmp(Byte^ str1, Byte^ str2) Uint
           str2 = str2 + 1
     return 0
 
+def display_num(Byte^ text, Uint val) Uint
+    write(text)
+    write_num(val)
+    write("\n")
+    return 0
+
+
