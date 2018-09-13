@@ -104,7 +104,8 @@ def remap(Byte^ ptr, Uint64 size, Uint64 permissions) Uint64
        return 0
     ret = VirtualProtect(ptr, 4096, new, @old)
     if ret == 0
-        write("Remap failed!\n")
+        Uint32 err = GetLastError()
+        display_num("Remap failed! - ", err)
         exit(1)
     return ret
 
