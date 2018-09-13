@@ -9,7 +9,7 @@ extern KERNEL32:GetLastError() Uint32
 extern KERNEL32:VirtualProtect(Byte^ address, Uint64 size, Uint32 new, Uint32^ old) Uint32
 extern KERNEL32:CloseHandle(Uint64 file) Uint32
 extern KERNEL32:GetCommandLineA() Byte^
-
+extern KERNEL32:ExitProcess(Uint64 ret)
 
 def write(Byte^ ptr) Uint64
     Uint32 count 
@@ -136,4 +136,6 @@ def get_argv(Uint64 index) Byte^
     dest^ = 0
     return ret
 
+def exit(Uint64 ret)
+    ExitProcess(ret)    
 

@@ -29,11 +29,19 @@ def find_export(Byte^ name) Uint64
             return reloc
         exports_ptr = exports_ptr + slen
         count = count + 1
-    return 0
+    write("Failed to find import ")
+    write(name)
+    write(" !\n")
+    exit(1)
 
 def load_import(Byte^ file) Uint64
-    write("About to open\n")
+    write("About to open ")
+    write(file)
+    write("\n")
     Uint64 handle = open_file(file)
+    if handle > 0x10000000
+        write("Unable to open!\n")
+        exit(2)
     display_num("Handle: ", handle)
     Uint64 size = 42
     size = get_file_size(handle)

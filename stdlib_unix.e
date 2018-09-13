@@ -74,3 +74,6 @@ def get_argv(Uint64 index) Byte^
     Uint64 idx = index * 8
     argp = argp + idx
     return argp^
+
+def exit(Uint64 ret)
+    __syscall(SYSCALL_EXIT, ret)
