@@ -11,6 +11,9 @@ extern KERNEL32:CloseHandle(Uint64 file) Uint32
 extern KERNEL32:GetCommandLineA() Byte^
 extern KERNEL32:ExitProcess(Uint64 ret)
 
+def exit(Uint64 ret)
+    ExitProcess(ret)    
+
 def write(Byte^ ptr) Uint64
     Uint32 count 
     count = len(ptr)
@@ -100,6 +103,9 @@ def remap(Byte^ ptr, Uint64 size, Uint64 permissions) Uint64
        write("Unknown permissions\n")
        return 0
     ret = VirtualProtect(ptr, 4096, new, @old)
+    if ret == 0
+        write("Remap failed!\n")
+        exit(1)
     return ret
 
 
@@ -135,7 +141,4 @@ def get_argv(Uint64 index) Byte^
             return ret
     dest^ = 0
     return ret
-
-def exit(Uint64 ret)
-    ExitProcess(ret)    
 
