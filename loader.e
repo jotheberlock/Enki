@@ -48,6 +48,8 @@ def load_import(Byte^ file) Uint64
     display_num("Size: ",size)
     Byte^ header = map_file(handle, 0, size, RW_PERMISSION)
     display_num("Mapped at ", header)
+    if header == 0
+        exit(3)
     Uint64^ entryaddrp = header + 516
     Uint32^ rec = header + 524
     Uint32 recs = rec^

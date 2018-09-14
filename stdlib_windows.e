@@ -63,16 +63,13 @@ def get_file_size(Uint64 fd) Uint64
 def map_file(Uint64 fd, Uint64 offset, Uint64 size, Uint64 permissions) Byte^
     Uint32 fmap = 0
     Uint32 zero = 0
-    Uint32 protect 
-    Uint32 map_access
+    Uint32 map_access = 0
+    Uint32 protect = 0x40
     if permissions == READ_PERMISSION
-        protect = PAGE_READ
         map_access = MMAP_READ
     elif permissions == RW_PERMISSION
-        protect = PAGE_RW
-        map_access = MMAP_RW
+        map_access = 0x3f
     elif permissions == EXECUTE_PERMISSION
-        protect = PAGE_CODE
         map_access = MMAP_CODE
     else
        write("Unknown permissions\n")
@@ -90,6 +87,7 @@ def map_file(Uint64 fd, Uint64 offset, Uint64 size, Uint64 permissions) Byte^
     return ptr
 
 def remap(Byte^ ptr, Uint64 size, Uint64 permissions) Uint64
+    return 1
     Uint32 new
     Uint32 old
     Uint64 ret
@@ -102,7 +100,7 @@ def remap(Byte^ ptr, Uint64 size, Uint64 permissions) Uint64
     else
        write("Unknown permissions\n")
        return 0
-    ret = VirtualProtect(ptr, 4096, new, @old)
+    ret = VirtualProtect(ptr, size, new, @old)
     if ret == 0
         Uint32 err = GetLastError()
         display_num("Remap failed! - ", err)
