@@ -132,8 +132,9 @@ def get_argv(Uint64 index) Byte^
         ptr = ptr + 1
     Byte^ dest = ret
     while ptr^ != 32
-        dest^ = ptr^
-        dest = dest + 1
+        if ptr^ != 34
+            dest^ = ptr^
+            dest = dest + 1
         ptr = ptr + 1
         if ptr^ == 0
             dest^ = 0
