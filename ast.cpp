@@ -430,7 +430,7 @@ Expr * Parser::parseBodyLine()
 			}
 		}
 	}
-	else if (current.type == IF)
+	else if (current.type == IF || current.type == CONSTIF)
 	{
 		return parseIf();
 	}
@@ -630,13 +630,15 @@ Expr * Parser::parseSquare()
 
 Expr * Parser::parseIf()
 {
+    bool constif = (current.type == CONSTIF);
+
 	next();
 	Expr * c = parseExpr();
 
 	Block * b = 0;
 	Block * e = 0;
 
-	If * ifexpr = new If();
+	If * ifexpr = new If(constif);
 
 	if (current.type != EOL)
 	{
@@ -2499,6 +2501,26 @@ Value * While::codegen(Codegen * c)
 
 Value * If::codegen(Codegen * c)
 {
+    if (constif)
+    {
+        if (elseblock || clauses.size() != 1)
+        {
+            printf("No elses etc for const if yet!\n");
+            return 0;
+        }
+
+        // FIXME - only handles equivalent of ifdef right now
+        std::list<IfClause *>::iterator it = clauses.begin();
+        IfClause * ic = *it;
+        IdentifierExpr * ie = (IdentifierExpr *)ic->condition;
+        std::string var = ie->getString();
+        if (configuration->config_constants[var] != 0)
+        {
+            return ic->body->codegen(c);
+        }
+        return 0;
+    }
+
 	BasicBlock * elb = 0;
 	if (elseblock)
 	{

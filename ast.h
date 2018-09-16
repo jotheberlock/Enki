@@ -418,9 +418,10 @@ class If : public Expr
 {
 public:
 
-	If()
+	If(bool c)
 	{
 		elseblock = 0;
+        constif = c;
 	}
 
 	~If()
@@ -469,6 +470,7 @@ protected:
 
 	std::list<IfClause *> clauses;
 	Block * elseblock;
+    bool constif;
 
 };
 

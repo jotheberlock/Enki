@@ -221,7 +221,8 @@ bool sanity_check()
 int main(int argc, char ** argv)
 {
     bool auto_run = false;
-    
+    bool debug = false;
+
 	if (!sanity_check())
 	{
 		return 1;
@@ -298,11 +299,15 @@ int main(int argc, char ** argv)
 				break;
 			}
 		}
-        else if (!strcmp(argv[loopc], "-r"))
+        else if (!strcmp(argv[loopc], "-a"))
         {
             auto_run = true;
         }
-	}
+        else if (!strcmp(argv[loopc], "-d"))
+        {
+            debug = true;
+        }
+    }
 
 	if (!done_ini)
 	{
@@ -359,6 +364,14 @@ int main(int argc, char ** argv)
 	root_type->setReturn(register_type);
     types->add(root_type, "@root");
     
+    if (debug)
+    {
+        config.config_constants["DEBUG"] = 1;
+    }
+    else
+    {
+        config.config_constants["DEBUG"] = 0;
+    }
 
     if (config.relocatable)
     {

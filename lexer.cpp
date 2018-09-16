@@ -71,6 +71,7 @@ Lexer::Lexer()
     keywords["import"] = IMPORT;
     keywords["module"] = MODULE;
     keywords["cast"] = CAST;
+    keywords["constif"] = CONSTIF;
     
 	oldcol = -1;
 	oldline = -1;

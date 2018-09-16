@@ -81,6 +81,7 @@ typedef std::vector<uint32> Chars;
 #define IMPORT 53
 #define MODULE 54
 #define CAST 55
+#define CONSTIF 56
 
 class Token
 {
