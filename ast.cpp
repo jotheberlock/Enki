@@ -2518,6 +2518,13 @@ Value * If::codegen(Codegen * c)
         {
             return ic->body->codegen(c);
         }
+        else
+        {
+            if (elseblock)
+            {
+                return elseblock->codegen(c);
+            }
+        }
         return 0;
     }
 
