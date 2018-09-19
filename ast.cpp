@@ -2499,31 +2499,73 @@ Value * While::codegen(Codegen * c)
 	return 0;
 }
 
+bool BinaryExpr::constEval(uint64 & ret)
+{
+    uint64 lh;
+    uint64 rh;
+    if (!lhs->constEval(lh))
+    {
+        return false;
+    }
+    if (!rhs->constEval(rh))
+    {
+        return false;
+    }
+    
+	uint64 equality_op = (((uint64)'=' << 32) | '=');
+	uint64 inequality_op = (((uint64)'=' << 32) | '!');
+
+    if (op == equality_op)
+    {
+        ret = (lh == rh);
+        return true;
+    }
+    else if (op == inequality_op)
+    {
+        ret = (lh != rh);
+        return true;
+    }
+
+    return false;
+}
+
+bool ConfigConstantExpr::constEval(uint64 & ret)
+{
+    ret = configuration->config_constants[constant_name];
+    return true;
+}
+
 Value * If::codegen(Codegen * c)
 {
     if (constif)
     {
-        if (elseblock || clauses.size() != 1)
-        {
-            printf("No elses etc for const if yet!\n");
-            return 0;
-        }
+        std::list<IfClause *>::iterator it;
 
-        // FIXME - only handles equivalent of ifdef right now
-        std::list<IfClause *>::iterator it = clauses.begin();
-        IfClause * ic = *it;
-        IdentifierExpr * ie = (IdentifierExpr *)ic->condition;
-        std::string var = ie->getString();
-        if (configuration->config_constants[var] != 0)
+        for (it = clauses.begin(); it != clauses.end(); it++)
         {
-            return ic->body->codegen(c);
-        }
-        else
-        {
-            if (elseblock)
+            bool evaled;
+            uint64 ret;
+            IfClause * ic = *it;
+            evaled = ic->condition->constEval(ret);
+            if (!evaled)
             {
-                return elseblock->codegen(c);
+                printf("Failed to evaluate constant if!\n");
+                FILE * f = log_file;
+                log_file = stdout;
+                ic->condition->print(0);
+                log_file = f;
+                return 0;
             }
+
+            if (ret != 0)
+            {
+                return ic->body->codegen(c);
+            }
+        }
+        
+        if (elseblock)
+        {
+            return elseblock->codegen(c);
         }
         return 0;
     }

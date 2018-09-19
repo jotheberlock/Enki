@@ -39,6 +39,11 @@ public:
 	{
 	}
 
+    virtual bool constEval(uint64 &)
+    {
+        return false;
+    }
+    
 protected:
 
 	void indent(int i)
@@ -70,6 +75,12 @@ public:
 
 	virtual Value * codegen(Codegen *);
 
+    bool constEval(uint64 & ret)
+    {
+        ret = val;
+        return true;
+    }
+    
 protected:
 
 	uint64 val;
@@ -97,6 +108,8 @@ class ConfigConstantExpr : public Expr
     }
     
 	virtual Value * codegen(Codegen *);
+
+    virtual bool constEval(uint64 &);
     
   protected:
 
@@ -169,7 +182,7 @@ public:
 		value = v;
 		static_depth = s;
 	}
-
+    
 protected:
 
 	std::string val;
@@ -597,6 +610,8 @@ public:
 
 	virtual Value * codegen(Codegen *);
 
+    virtual bool constEval(uint64 &);
+    
 protected:
 
 	uint64 op;
