@@ -2525,7 +2525,37 @@ bool BinaryExpr::constEval(uint64 & ret)
         ret = (lh != rh);
         return true;
     }
-
+    else if (token.toString() == "and")
+    {
+        ret = (lh && rh);
+        return true;
+    }
+    else if (token.toString() == "or")
+    {
+        ret = (lh || rh);
+        return true;
+    }
+    else if (token.toString() == "xor")
+    {
+        ret = (lh && (!rh)) || (rh && (!lh));
+        return true;
+    }
+    else if (op == '|')
+    {
+        ret = lh | rh;
+        return true;
+    }
+    else if (op == '&')
+    {
+        ret = lh & rh;
+        return true;
+    }
+    else if (op == '^')
+    {
+        ret = lh ^ rh;
+        return true;
+    }
+    
     return false;
 }
 
