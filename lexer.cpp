@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "lexer.h"
 #include "error.h"
@@ -480,207 +481,309 @@ void Lexer::readNumber()
 	}
 }
 
-void Lexer::lex(Chars & input)
+bool Lexer::getLine(int & indent)
 {
+    line_list.clear();
+    indent = 0;
+    bool seen_non_whitespace = false;
+    bool in_string = false;
+    
+    while (linepos < chars_list.size())
+    {
+        uint32 val = chars_list[linepos];
+        linepos++;
+
+        if (!seen_non_whitespace)
+        {
+            if (val == ' ')
+            {
+                indent++;
+            }
+            else if (val == '\t')
+            {
+                indent += 4;
+            }
+        }
+
+        if (val == '"' || val == '\'')
+        {
+            in_string = !in_string;
+        }
+        
+        if (val == '#' || (val == '\\' && in_string == false))
+        {
+            bool cont = (val == '\\');
+            while (val != '\n')
+            {
+                linepos++;
+
+                if (linepos == chars_list.size())
+                {
+                    line_list.push_back('\n');
+                    return true;
+                }
+                val = chars_list[linepos];
+            }
+            if (cont)
+            {
+                while (true)
+                {
+                    if (chars_list[linepos] != ' ' && chars_list[linepos] != '\t' && chars_list[linepos] != '\n')
+                    {
+                        val = chars_list[linepos];
+                        break;
+                    }
+                    linepos++;
+                    if (linepos == chars_list.size())
+                    {
+                        line_list.push_back('\n');
+                        return true;
+                    }
+                }
+                continue;
+            }
+        }
+        
+        if (val == '\n')
+        {
+            if (seen_non_whitespace)
+            {
+                line_list.push_back('\n');
+                return true;
+            }
+            else
+            {
+                line_list.clear();
+                indent = 0;
+            }
+        }
+
+        if (val != ' ' && val != '\t' && val != '\n')
+        {
+            seen_non_whitespace = true;
+        }
+
+        if (seen_non_whitespace)
+        {
+            line_list.push_back(val);
+        }
+    }
+
+    line_list.push_back('\n');
+    return false;
+}
+
+void Lexer::lex(Chars & input)
+{    
 	chars_list = input;
 	pos = 0;
+    linepos = 0;
 
-	while (true)
-	{
-		ReadChar begin = eatWhitespace();
-		uint32 val = begin.val;
-		if (val == 0)
-		{
-			/*
-				  for (unsigned int loopc=0; loopc<indentations.size(); loopc++)
-				  {
-					  simpleToken(begin, END);
-				  }
-			*/
-			return;
-		}
-		while (val == '#')
-		{
-			begin = eatLine();
-			val = begin.val;
-		}
-		if (val == '\r')
-		{
-			// ignore
-			continue;
-		}
+    int indent;
 
-		int oll = oldline;
-		oldline = begin.line;
+    bool more = true;
+    while (more)
+    {
+        more = getLine(indent);
 
-		if (begin.line > oll)
-		{
-			int occ = oldcol;
-			oldcol = begin.col;
+        line++;
+        col = indent;
+        pos = 0;
+        
+        while (true)
+        {
+            ReadChar begin = eatWhitespace();
+            uint32 val = begin.val;
+            if (val == 0)
+            {
+                    /*
+                      for (unsigned int loopc=0; loopc<indentations.size(); loopc++)
+                      {
+                      simpleToken(begin, END);
+                      }
+                    */
+                break;
+            }
 
-			if (begin.col > indentations.top())
-			{
-				// New level of indentation
-				indentations.push(begin.col);
-				simpleToken(begin, BEGIN);
-				push(begin);
-				continue;
-			}
-			else if (begin.col < occ)
-			{
-				while (indentations.size() > 1)
-				{
-					indentations.pop();
+            if (val == '\r')
+            {
+                    // ignore
+                continue;
+            }
+            
+            int oll = oldline;
+            oldline = begin.line;
+            
+            if (begin.line > oll)
+            {
+                int occ = oldcol;
+                oldcol = begin.col;
+            
+                if (begin.col > indentations.top())
+                {
+                        // New level of indentation
+                    indentations.push(begin.col);
+                    simpleToken(begin, BEGIN);
+                    push(begin);
+                    continue;
+                }
+                else if (begin.col < occ)
+                {
+                    while (indentations.size() > 1)
+                    {
+                        indentations.pop();
 
-					if (indentations.top() == begin.col)
-					{
-						simpleToken(begin, END);
-						//push(begin);
-						break;
-					}
-					else if (begin.col > indentations.top())
-					{
-						Token dummy;
-						dummy.file = file;
-						dummy.type = END;
-						dummy.bline = begin.line;
-						dummy.bcol = begin.col;
-						dummy.eline = begin.line;
-						dummy.ecol = begin.col;
+                        if (indentations.top() == begin.col)
+                        {
+                            simpleToken(begin, END);
+                                //push(begin);
+                            break;
+                        }
+                        else if (begin.col > indentations.top())
+                        {
+                            Token dummy;
+                            dummy.file = file;
+                            dummy.type = END;
+                            dummy.bline = begin.line;
+                            dummy.bcol = begin.col;
+                            dummy.eline = begin.line;
+                            dummy.ecol = begin.col;
 
-						char buf[4096];
-						sprintf(buf, "%d %d", indentations.top(), begin.col);
-						addError(Error(&dummy, "Mismatched indent levels",
-							buf));
-						push(begin);
-						break;
-					}
-					else
-					{
-						simpleToken(begin, END);
-					}
-				}
-			}
-		}
+                            char buf[4096];
+                            sprintf(buf, "%d %d", indentations.top(), begin.col);
+                            addError(Error(&dummy, "Mismatched indent levels",
+                                           buf));
+                            push(begin);
+                            break;
+                        }
+                        else
+                        {
+                            simpleToken(begin, END);
+                        }
+                    }
+                }
+            }
 
-		ReadChar second = next();
-		bool twochar = false;
-		OpRec orc;
-		if (begin.val == '-' && second.val == '>')
-		{
-			beginToken(begin, DEREF);
-			pushToken(second);
-			continue;
-		}
-		else if (begin.val == '-' && (second.val >= '0' && second.val <= '9'))
-		{
-			beginToken(begin, INTEGER_LITERAL);
-			current_token.value.push_back(begin.val);
-			push(second);
-			readNumber();
-			continue;
-		}
-		else if (isOp(begin.val, second.val, twochar, orc, ""))
-		{
-			beginToken(begin, orc.type);
-			current_token.value.push_back(begin.val);
-			if (twochar)
-			{
-				current_token.value.push_back(second.val);
-				pushToken(second);
-			}
-			else
-			{
-				push(second);
-				pushToken(begin);
-			}
+            ReadChar second = next();
+            bool twochar = false;
+            OpRec orc;
+            if (begin.val == '-' && second.val == '>')
+            {
+                beginToken(begin, DEREF);
+                pushToken(second);
+                continue;
+            }
+            else if (begin.val == '-' && (second.val >= '0' && second.val <= '9'))
+            {
+                beginToken(begin, INTEGER_LITERAL);
+                current_token.value.push_back(begin.val);
+                push(second);
+                readNumber();
+                continue;
+            }
+            else if (isOp(begin.val, second.val, twochar, orc, ""))
+            {
+                beginToken(begin, orc.type);
+                current_token.value.push_back(begin.val);
+                if (twochar)
+                {
+                    current_token.value.push_back(second.val);
+                    pushToken(second);
+                }
+                else
+                {
+                    push(second);
+                    pushToken(begin);
+                }
 
-			continue;
-		}
-		else
-		{
-			push(second);
-		}
+                continue;
+            }
+            else
+            {
+                push(second);
+            }
 
-		if (val == '\n')
-		{
-			simpleToken(begin, EOL);
-		}
-		else if (val == '\'' || val == '"')
-		{
-			beginToken(begin, STRING_LITERAL);
-			readStringLiteral(begin.val);
-		}
-		else if (val >= '0' && val <= '9')
-		{
-			beginToken(begin, INTEGER_LITERAL);
-			current_token.value.push_back(begin.val);
-			readNumber();
-		}
-		// After 0-9 so numbers get caught first
-		else if (validChar(begin))
-		{
-			beginToken(begin, IDENTIFIER);
+            if (val == '\n')
+            {
+                simpleToken(begin, EOL);
+                continue;
+            }
+            else if (val == '\'' || val == '"')
+            {
+                beginToken(begin, STRING_LITERAL);
+                readStringLiteral(begin.val);
+            }
+            else if (val >= '0' && val <= '9')
+            {
+                beginToken(begin, INTEGER_LITERAL);
+                current_token.value.push_back(begin.val);
+                readNumber();
+            }
+                // After 0-9 so numbers get caught first
+            else if (validChar(begin))
+            {
+                beginToken(begin, IDENTIFIER);
 
-			current_token.value.push_back(begin.val);
-			readIdentifier();
-		}
-		else if (val == '(')
-		{
-			simpleToken(begin, OPEN_BRACKET);
-		}
-		else if (val == ')')
-		{
-			simpleToken(begin, CLOSE_BRACKET);
-		}
-		else if (val == '[')
-		{
-			simpleToken(begin, OPEN_SQUARE);
-		}
-		else if (val == ']')
-		{
-			simpleToken(begin, CLOSE_SQUARE);
-		}
-		else if (val == ',')
-		{
-			simpleToken(begin, COMMA);
-		}
-		else if (val == '.')
-		{
-			simpleToken(begin, DOT);
-		}
-		else if (val == '=')
-		{
-			simpleToken(begin, ASSIGN);
-		}
-		else if (val == '^')
-		{
-			simpleToken(begin, POINTER);
-		}
-		else if (val == '&')
-		{
-			simpleToken(begin, ADDRESSOF);
-		}
-		else if (val == '$')
-		{
-			simpleToken(begin, FUNCVAR);
-		}
-		else
-		{
-			Token dummy;
-			dummy.file = file;
-			dummy.type = CHAR_ERROR;
-			dummy.bline = begin.line;
-			dummy.bcol = begin.col;
-			dummy.eline = begin.line;
-			dummy.ecol = begin.col;
+                current_token.value.push_back(begin.val);
+                readIdentifier();
+            }
+            else if (val == '(')
+            {
+                simpleToken(begin, OPEN_BRACKET);
+            }
+            else if (val == ')')
+            {
+                simpleToken(begin, CLOSE_BRACKET);
+            }
+            else if (val == '[')
+            {
+                simpleToken(begin, OPEN_SQUARE);
+            }
+            else if (val == ']')
+            {
+                simpleToken(begin, CLOSE_SQUARE);
+            }
+            else if (val == ',')
+            {
+                simpleToken(begin, COMMA);
+            }
+            else if (val == '.')
+            {
+                simpleToken(begin, DOT);
+            }
+            else if (val == '=')
+            {
+                simpleToken(begin, ASSIGN);
+            }
+            else if (val == '^')
+            {
+                simpleToken(begin, POINTER);
+            }
+            else if (val == '&')
+            {
+                simpleToken(begin, ADDRESSOF);
+            }
+            else if (val == '$')
+            {
+                simpleToken(begin, FUNCVAR);
+            }
+            else
+            {
+                Token dummy;
+                dummy.file = file;
+                dummy.type = CHAR_ERROR;
+                dummy.bline = begin.line;
+                dummy.bcol = begin.col;
+                dummy.eline = begin.line;
+                dummy.ecol = begin.col;
 
-			char buf[4096];
-			sprintf(buf, "%c (%x)", (char)val, val);
-			addError(Error(&dummy, "Unknown character",
-				buf));
-		}
-	}
+                char buf[4096];
+                sprintf(buf, "%c (%x)", (char)val, val);
+                addError(Error(&dummy, "Unknown character",
+                               buf));
+            }
+        }
+    }
 }
 
 void Lexer::endLexing()

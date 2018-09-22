@@ -201,22 +201,17 @@ public:
 			return ret;
 		}
 
-		if (pos >= chars_list.size())
+		if (pos >= line_list.size())
 		{
 			return ret;
 		}
 		else
 		{
-			ret.val = chars_list[pos];
+			ret.val = line_list[pos];
 			ret.line = line;
 			ret.col = col;
 
-			if (ret.val == '\n')
-			{
-				line++;
-				col = 0;
-			}
-			else if (ret.val == '\r')
+			if (ret.val == '\r')
 			{
 				// Ignore
 			}
@@ -237,6 +232,7 @@ public:
 
 protected:
 
+    bool getLine(int & indent);
 	ReadChar eatWhitespace();
 	ReadChar eatLine();
 	void readStringLiteral(uint32 term);
@@ -288,6 +284,8 @@ protected:
 	ReadChar previous_char;
 
 	Chars chars_list;
+    Chars line_list;
+    
 	std::list<ReadChar> push_list;
 
 	std::vector<Token> token_list;
@@ -296,12 +294,13 @@ protected:
 	int line;
 	int oldcol;
 	int oldline;
-
+    unsigned int linepos;
+    
 	std::map<uint64, OpRec> ops;
 	std::map<std::string, int> keywords;
 	std::stack<int> indentations;
 	std::string file;
-
+    
 };
 
 #endif

@@ -41,7 +41,7 @@ def load_import(Byte^ file) Uint64
         write(file)
         write("\n")
     Uint64 handle = open_file(file)
-    if handle > 0x10000000
+    if handle > 0x10000000  # Bit of a hack, it's -1 (or -2 for some reason on Windows)
         write("Unable to open!\n")
         exit(2)
     constif DEBUG
@@ -68,6 +68,8 @@ def load_import(Byte^ file) Uint64
     Byte^ textptr
     Byte^ importsptr
     Uint64 textsize
+
+    # Process sections
     while count < recs
         Uint32 arch = rec^
         rec = rec + 4
@@ -111,6 +113,8 @@ def load_import(Byte^ file) Uint64
                 display_num("Text ptr ", textptr)
         elif type == 1
             remap(secptr, size, RW_PERMISSION)
+
+    # Now process relocations
     Uint64^ relocs = rec
     Uint64 rtype = rec^
     while rtype != 5
@@ -142,6 +146,8 @@ def load_import(Byte^ file) Uint64
             fromptr^ = toaddr
             val = fromptr^
         rtype = rec^
+
+    # Fix up imports
     Uint64^ imports = header + 8192
     Uint64 modules = imports^
     imports = imports + 8
@@ -159,6 +165,7 @@ def load_import(Byte^ file) Uint64
     Uint64^ frameptr = cast(ret, Uint64^)
     constif DEBUG
         display_num("Frame ptr ", frameptr)
+
     while mcount < modules
         Uint64 entries_offset = imports^
         Uint64^ entries = modules + entries_offset
