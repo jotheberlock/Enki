@@ -555,6 +555,7 @@ bool Lexer::getLine(int & indent)
             {
                 line_list.clear();
                 indent = 0;
+                line++;
             }
         }
 
