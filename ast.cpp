@@ -2207,6 +2207,8 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == eval_op)
 	{
+            // TODO: hmm old dead code before ! ?
+            // CALL is for OS-native calls
 		// Do eval here
 		VarRefExpr * vre = dynamic_cast<VarRefExpr *>(lhs);
 		if (!vre)

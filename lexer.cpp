@@ -43,6 +43,8 @@ Lexer::Lexer()
 	addOp(OpRec(UNARYOP, true, 4), '~');
 
 	// Lowest priority, because it needs to run /last/
+    addOp(OpRec(BINOP, true, 1), '+', '=');
+    addOp(OpRec(BINOP, true, 1), '-', '=');
 	addOp(OpRec(BINOP, true, 1), '=');
 	addOp(OpRec(BINOP, true, 1), ':', '=');
 
