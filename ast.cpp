@@ -2011,6 +2011,13 @@ static bool binary_result(Value * l, Value * r, Type * & t)
 	return false;
 }
 
+static uint64 toOp(const char * str)
+{
+    uint64 ret;
+    ret = str[0] | ((uint64)str[1] << 32);
+    return ret;
+}
+
 Value * BinaryExpr::codegen(Codegen * c)
 {
 	Value * rh = rhs->codegen(c);
@@ -2019,16 +2026,7 @@ Value * BinaryExpr::codegen(Codegen * c)
 		printf("No right hand side in binaryexpr!\n");
 		return 0;
 	}
-
-	uint64 equality_op = (((uint64)'=' << 32) | '=');
-	uint64 inequality_op = (((uint64)'=' << 32) | '!');
-	uint64 lte_op = (((uint64)'=' << 32) | '<');
-	uint64 gte_op = (((uint64)'=' << 32) | '>');
-	uint64 eval_op = (((uint64)':' << 32) | '=');
-	uint64 lshift_op = (((uint64)'<' << 32) | '<');
-	uint64 rshift_op = (((uint64)'>' << 32) | '>');
-    uint64 a_rshift_op = (((uint64)'>' << 32) | '-');
-
+    
 	if (token.toString() == "and")
 	{
 		Value * lh = lhs->codegen(c);
@@ -2115,21 +2113,21 @@ Value * BinaryExpr::codegen(Codegen * c)
 		c->block()->add(Insn(is_signed ? REMS : REM, v, lh, rh));
 		return v;
 	}
-	else if (op == lshift_op)
+	else if (op == toOp("<<"))
 	{
 		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "lshift");
 		c->block()->add(Insn(SHL, v, lh, rh));
 		return v;
 	}
-	else if (op == rshift_op)
+	else if (op == toOp(">>"))
 	{
 		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(lh->type ? lh->type : register_type, "rshift");
 		c->block()->add(Insn(SHR, v, lh, rh));
 		return v;
 	}
-    else if (op == a_rshift_op)
+    else if (op == toOp(">-"))
     {
         Value * lh = lhs->codegen(c);
         Value * v = c->getTemporary(lh->type ? lh->type : register_type, "a_rshift");
@@ -2150,7 +2148,7 @@ Value * BinaryExpr::codegen(Codegen * c)
 		c->block()->add(Insn(OR, v, lh, rh));
 		return v;
 	}
-	else if (op == equality_op)
+	else if (op == toOp("=="))
 	{
 		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "eq");
@@ -2158,7 +2156,7 @@ Value * BinaryExpr::codegen(Codegen * c)
 		c->block()->add(Insn(SELEQ, v, Operand::usigc(1), Operand::usigc(0)));
 		return v;
 	}
-	else if (op == inequality_op)
+	else if (op == toOp("!="))
 	{
 		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "neq");
@@ -2182,7 +2180,7 @@ Value * BinaryExpr::codegen(Codegen * c)
 		c->block()->add(Insn(SELGT, v, Operand::usigc(1), Operand::usigc(0)));
 		return v;
 	}
-	else if (op == lte_op)
+	else if (op == toOp("<="))
 	{
 		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "lte");
@@ -2190,7 +2188,7 @@ Value * BinaryExpr::codegen(Codegen * c)
 		c->block()->add(Insn(SELGT, v, Operand::usigc(0), Operand::usigc(1)));
 		return v;
 	}
-	else if (op == gte_op)
+	else if (op == toOp(">="))
 	{
 		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "gte");
@@ -2205,6 +2203,35 @@ Value * BinaryExpr::codegen(Codegen * c)
 		c->block()->add(Insn(XOR, v, lh, rh));
 		return v;
 	}
+    else if (op == toOp("+="))
+    {
+		Value * lh = lhs->codegen(c);
+		c->block()->add(Insn(ADD, lh, lh, rh));
+		return lh;
+    }
+    else if (op == toOp("-="))
+    {
+		Value * lh = lhs->codegen(c);
+		c->block()->add(Insn(SUB, lh, lh, rh));
+		return lh;
+    }
+    else if (op == toOp("*="))
+    {
+		Value * lh = lhs->codegen(c);
+		Type * t = 0;
+		bool is_signed = binary_result(lh, rh, t);
+		c->block()->add(Insn(is_signed ? MULS : MUL, lh, lh, rh));
+		return lh;
+    }
+    else if (op == toOp("/="))
+    {
+		Value * lh = lhs->codegen(c);
+		Type * t = 0;
+		bool is_signed = binary_result(lh, rh, t);
+		c->block()->add(Insn(is_signed ? DIVS : DIV, lh, lh, rh));
+		return lh;
+    }
+        /*
 	else if (op == eval_op)
 	{
             // TODO: hmm old dead code before ! ?
@@ -2241,6 +2268,7 @@ Value * BinaryExpr::codegen(Codegen * c)
 		c->block()->add(Insn(LOAD, ret, jaddr, Operand::usigc(0))); // __ret
 		return ret;
 	}
+        */
 	else if (op == '=')
 	{
 		fprintf(log_file, ">>>> Checking assign\n");

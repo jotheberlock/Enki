@@ -41,7 +41,7 @@ def read(Byte^ ptr, Uint64 len) Uint64
     handle = GetStdHandle(-10)
     ReadFile(handle, ptr, len32, @num_read32, 0)
     Uint64 num_read = num_read32
-    ptr = ptr + num_read
+    ptr += num_read
     ptr^ = 0
     return num_read
 
@@ -114,8 +114,8 @@ def get_argc() Uint64
     Byte^ ptr = command_line
     while ptr^ != 0
         if ptr^ == 32
-            count = count + 1
-        ptr = ptr + 1
+            count += 1
+        ptr += 1
     return count
 
 def get_argv(Uint64 index) Byte^
@@ -126,7 +126,7 @@ def get_argv(Uint64 index) Byte^
     Uint count = 0
     while count < index
         if ptr^ == 32
-             count = count + 1
+             count += 1
         if ptr^ == 0
              return ret
         ptr = ptr + 1
@@ -134,7 +134,7 @@ def get_argv(Uint64 index) Byte^
     while ptr^ != 32
         if ptr^ != 34
             dest^ = ptr^
-            dest = dest + 1
+            dest += 1
         ptr = ptr + 1
         if ptr^ == 0
             dest^ = 0

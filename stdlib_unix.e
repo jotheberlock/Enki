@@ -13,7 +13,7 @@ def write_num(Uint64 num) Uint64
 
 def read(Byte^ ptr, Uint len) Uint
     Uint count = __syscall(SYSCALL_READ, STDIN, ptr, len)
-    ptr = ptr + count
+    ptr += count
     ptr ^= 0
     return count
 
@@ -52,7 +52,7 @@ def map_file(Uint64 fd, Uint64 offset, Uint64 size, Uint64 permissions) Byte^
     
 def remap(Byte^ ptr, Uint64 size, Uint64 permissions) Uint64
     Uint32 protect
-    
+
     if permissions == READ_PERMISSION
         protect = PROT_READ
     elif permissions == RW_PERMISSION
@@ -62,7 +62,10 @@ def remap(Byte^ ptr, Uint64 size, Uint64 permissions) Uint64
     else
        write("Unknown permissions\n")
        return 0
-    __syscall(SYSCALL_MPROTECT, ptr, size, protect)
+    Uint64 ret = __syscall(SYSCALL_MPROTECT, ptr, size, protect)
+    if ret != 0
+        display_num("Failure to remap!", ret)
+    return 0
 
 def get_argc() Uint64
     Uint64^ argcp = __osstackptr
@@ -72,7 +75,7 @@ def get_argc() Uint64
 def get_argv(Uint64 index) Byte^
     Byte^^ argp = __osstackptr+8
     Uint64 idx = index * 8
-    argp = argp + idx
+    argp += idx
     return argp^
 
 def exit(Uint64 ret)
