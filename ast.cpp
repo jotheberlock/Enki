@@ -2011,11 +2011,10 @@ static bool binary_result(Value * l, Value * r, Type * & t)
 	return false;
 }
 
-static uint64 toOp(const char * str)
+// Should hopefully be optimised to a constant
+static inline uint64 toOp(const char * str)
 {
-    uint64 ret;
-    ret = str[0] | ((uint64)str[1] << 32);
-    return ret;
+    return str[0] | ((uint64)str[1] << 32);
 }
 
 Value * BinaryExpr::codegen(Codegen * c)
@@ -2203,11 +2202,64 @@ Value * BinaryExpr::codegen(Codegen * c)
 		c->block()->add(Insn(XOR, v, lh, rh));
 		return v;
 	}
-    else if (op == toOp("+="))
+    else if (op == toOp("+=") || op == toOp("-=") || op == toOp("*=") ||
+             op == toOp("/="))
     {
-		Value * lh = lhs->codegen(c);
-		c->block()->add(Insn(ADD, lh, lh, rh));
-		return lh;
+		VarRefExpr * vre = dynamic_cast<VarRefExpr *>(lhs);
+		if (!vre)
+		{
+			addError(Error(&token, "Expected varrefexpr"));
+			fprintf(log_file, "Expected varrefexpr!\n");
+			return 0;
+		}
+
+		Type * t = vre->checkType(c);
+		if (!t)
+		{
+			fprintf(log_file, "Type check failed!\n");
+			addError(Error(&token, "Type not assignable"));
+			return 0;
+		}
+		else
+		{
+			fprintf(log_file, "Type check succeeded! %s\n", t->name().c_str());
+		}
+
+		if (vre->value->isConst())
+		{
+			addError(Error(&token, "Cannot assign to const"));
+			fprintf(log_file, "Attempt to assign to const!\n");
+			return 0;
+		}
+
+        Value * from_vre = vre->codegen(c);
+		bool is_signed = binary_result(from_vre, rh, t);
+        int ins;
+        if (op == toOp("+="))
+        {
+            ins = ADD;
+        }
+        else if (op == toOp("-="))
+        {
+            ins = SUB;
+        }
+        else if (op == toOp("*="))
+        {
+            ins = is_signed ? MULS : MUL;
+        }
+        else if (op == toOp("/="))
+        {
+            ins = is_signed ? DIVS : DIV;
+        }
+        else
+        {
+            printf("Unknown op!\n");
+            return 0;
+        }
+
+        c->block()->add(Insn(ins, from_vre, from_vre, rh));
+		vre->store(c, from_vre);
+		return from_vre;
     }
     else if (op == toOp("-="))
     {
