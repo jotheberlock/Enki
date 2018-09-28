@@ -162,7 +162,6 @@ def load_import(Byte^ file) Uint64
     entrypoint += entryaddroff
     remap(textptr, textsize, EXECUTE_PERMISSION)
     Uint64$ ret = 0
-    write_num(textptr)
     ret = entrypoint()
     Uint64^ frameptr = cast(ret, Uint64^)
     constif DEBUG
