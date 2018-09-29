@@ -2203,7 +2203,8 @@ Value * BinaryExpr::codegen(Codegen * c)
 		return v;
 	}
     else if (op == toOp("+=") || op == toOp("-=") || op == toOp("*=") ||
-             op == toOp("/="))
+             op == toOp("/=") || op == toOp("&=") || op == toOp("|=") ||
+             op == toOp("^="))
     {
 		VarRefExpr * vre = dynamic_cast<VarRefExpr *>(lhs);
 		if (!vre)
@@ -2250,6 +2251,18 @@ Value * BinaryExpr::codegen(Codegen * c)
         else if (op == toOp("/="))
         {
             ins = is_signed ? DIVS : DIV;
+        }
+        else if (op == toOp("&="))
+        {
+            ins = AND;
+        }
+        else if (op == toOp("|="))
+        {
+            ins = OR;
+        }
+        else if (op == toOp("^="))
+        {
+            ins = XOR;
         }
         else
         {

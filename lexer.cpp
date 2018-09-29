@@ -47,6 +47,9 @@ Lexer::Lexer()
     addOp(OpRec(BINOP, true, 1), '-', '=');
     addOp(OpRec(BINOP, true, 1), '*', '=');
     addOp(OpRec(BINOP, true, 1), '/', '=');
+    addOp(OpRec(BINOP, true, 1), '|', '=');
+    addOp(OpRec(BINOP, true, 1), '&', '=');
+    addOp(OpRec(BINOP, true, 1), '^', '=');
 	addOp(OpRec(BINOP, true, 1), '=');
 	addOp(OpRec(BINOP, true, 1), ':', '=');
 
