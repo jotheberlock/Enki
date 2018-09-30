@@ -159,7 +159,9 @@ def load_import(Byte^ file) Uint64
     constif DEBUG
         display_num("Entry addr ", entryaddroff)
     entrypoint = textptr
-    entrypoint += entryaddroff
+    Byte^ tmpentry = cast(entrypoint,Uint64)
+    tmpentry += entryaddroff
+    entrypoint = cast(tmpentry,entrypointtype)
     remap(textptr, textsize, EXECUTE_PERMISSION)
     Uint64$ ret = 0
     ret = entrypoint()

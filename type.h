@@ -193,6 +193,14 @@ public:
     {
         return false;
     }
+
+        // What does += 1 mean? 1 for ints,
+        // pointer destination type for pointers.
+        // 0 means 'you can't'.
+    virtual uint64 increment()
+    {
+        return 0;
+    }
     
 	virtual int size() = 0;
 	virtual int align() = 0;
@@ -323,6 +331,11 @@ public:
 		return (bits / 8) * 8;
 	}
 
+    virtual uint64 increment()
+    {
+        return 1;
+    }
+    
 	virtual bool construct(Codegen *, Value * t, Value * v);
 
 protected:
@@ -375,6 +388,11 @@ public:
 		return assembler->pointerSize();
 	}
 
+    uint64 increment()
+    {
+        return pointed_type->size() / 8;
+    }
+    
 	int align()
 	{
 		return assembler->pointerSize();
@@ -432,6 +450,11 @@ public:
 		return pointed_type;
 	}
 
+    uint64 increment()
+    {
+        return pointed_type->increment();
+    }
+    
 	void activate(Codegen *, Value *);
 
 	virtual Value * getActivatedValue(Codegen *, Value *);
@@ -664,7 +687,7 @@ public:
 	{
 		return params;
 	}
-
+    
 	Type * getReturn()
 	{
 		return ret_type;

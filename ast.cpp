@@ -2025,10 +2025,38 @@ Value * BinaryExpr::codegen(Codegen * c)
 		printf("No right hand side in binaryexpr!\n");
 		return 0;
 	}
+
+    Value * lh = (op==toOp("=")) ? 0 : lhs->codegen(c);
+
+    uint64 lhi = 1;
+    uint64 rhi = 1;
+    if (lh && (!lh->is_number))
+    {
+        lhi = lh->type->increment();
+    }
+    if (rh && (!rh->is_number))
+    {
+        rhi = rh->type->increment();
+    }
+    
+    if (!(op==toOp("==") || op==toOp("!=") || op=='='))
+    {
+        if (lhi == 0)
+        {
+            addError(Error(&token, "Left side is not an arithmetic type!"));
+        }
+        if (rhi == 0)
+        {
+            addError(Error(&token, "Right side is not an arithmetic type!"));
+        }
+        if (lhi == 0 || rhi == 0)
+        {
+            return 0;
+        }
+    }
     
 	if (token.toString() == "and")
 	{
-		Value * lh = lhs->codegen(c);
 		Value * cmp1 = c->getTemporary(register_type, "land1");
 		Value * cmp2 = c->getTemporary(register_type, "land2");
 		Value * cmp3 = c->getTemporary(register_type, "land3");
@@ -2043,7 +2071,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (token.toString() == "or")
 	{
-		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "lor");
 		c->block()->add(Insn(OR, v, lh, rh));
 		c->block()->add(Insn(CMP, v, Operand::usigc(0)));
@@ -2053,7 +2080,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (token.toString() == "xor")
 	{
-		Value * lh = lhs->codegen(c);
 		Value * cmp1 = c->getTemporary(register_type, "land1");
 		Value * cmp2 = c->getTemporary(register_type, "land2");
 		Value * cmp3 = c->getTemporary(register_type, "land3");
@@ -2068,7 +2094,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == '+')
 	{
-		Value * lh = lhs->codegen(c);
 		Type * t = 0;
 		binary_result(lh, rh, t);
 		Value * v = c->getTemporary(t, "add");
@@ -2078,7 +2103,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == '-')
 	{
-		Value * lh = lhs->codegen(c);
 		Type * t = 0;
 		binary_result(lh, rh, t);
 		Value * v = c->getTemporary(t, "sub");
@@ -2087,7 +2111,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == '*')
 	{
-		Value * lh = lhs->codegen(c);
 		Type * t = 0;
 		bool is_signed = binary_result(lh, rh, t);
 		Value * v = c->getTemporary(t, "mul");
@@ -2096,7 +2119,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == '/')
 	{
-		Value * lh = lhs->codegen(c);
 		Type * t = 0;
 		bool is_signed = binary_result(lh, rh, t);
 		Value * v = c->getTemporary(t, "div");
@@ -2105,7 +2127,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == '%')
 	{
-		Value * lh = lhs->codegen(c);
 		Type * t = 0;
 		bool is_signed = binary_result(lh, rh, t);
 		Value * v = c->getTemporary(t, "rem");
@@ -2114,42 +2135,36 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == toOp("<<"))
 	{
-		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "lshift");
 		c->block()->add(Insn(SHL, v, lh, rh));
 		return v;
 	}
 	else if (op == toOp(">>"))
 	{
-		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(lh->type ? lh->type : register_type, "rshift");
 		c->block()->add(Insn(SHR, v, lh, rh));
 		return v;
 	}
     else if (op == toOp(">-"))
     {
-        Value * lh = lhs->codegen(c);
         Value * v = c->getTemporary(lh->type ? lh->type : register_type, "a_rshift");
         c->block()->add(Insn(SAR, v, lh, rh));
         return v;
     }
 	else if (op == '&')
 	{
-		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "aand");
 		c->block()->add(Insn(AND, v, lh, rh));
 		return v;
 	}
 	else if (op == '|')
 	{
-		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "aor");
 		c->block()->add(Insn(OR, v, lh, rh));
 		return v;
 	}
 	else if (op == toOp("=="))
 	{
-		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "eq");
 		c->block()->add(Insn(CMP, lh, rh));
 		c->block()->add(Insn(SELEQ, v, Operand::usigc(1), Operand::usigc(0)));
@@ -2157,7 +2172,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == toOp("!="))
 	{
-		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "neq");
 		c->block()->add(Insn(CMP, lh, rh));
 		c->block()->add(Insn(SELEQ, v, Operand::usigc(0), Operand::usigc(1)));
@@ -2165,7 +2179,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == '<')
 	{
-		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "lt");
 		c->block()->add(Insn(CMP, lh, rh));
 		c->block()->add(Insn(SELGE, v, Operand::usigc(0), Operand::usigc(1)));
@@ -2173,7 +2186,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == '>')
 	{
-		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "gt");
 		c->block()->add(Insn(CMP, lh, rh));
 		c->block()->add(Insn(SELGT, v, Operand::usigc(1), Operand::usigc(0)));
@@ -2181,7 +2193,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == toOp("<="))
 	{
-		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "lte");
 		c->block()->add(Insn(CMP, lh, rh));
 		c->block()->add(Insn(SELGT, v, Operand::usigc(0), Operand::usigc(1)));
@@ -2189,7 +2200,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == toOp(">="))
 	{
-		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "gte");
 		c->block()->add(Insn(CMP, lh, rh));
 		c->block()->add(Insn(SELGE, v, Operand::usigc(1), Operand::usigc(0)));
@@ -2197,7 +2207,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 	}
 	else if (op == '^')
 	{
-		Value * lh = lhs->codegen(c);
 		Value * v = c->getTemporary(register_type, "axor");
 		c->block()->add(Insn(XOR, v, lh, rh));
 		return v;
@@ -2233,8 +2242,7 @@ Value * BinaryExpr::codegen(Codegen * c)
 			return 0;
 		}
 
-        Value * from_vre = vre->codegen(c);
-		bool is_signed = binary_result(from_vre, rh, t);
+		bool is_signed = binary_result(lh, rh, t);
         int ins;
         if (op == toOp("+="))
         {
@@ -2270,19 +2278,17 @@ Value * BinaryExpr::codegen(Codegen * c)
             return 0;
         }
 
-        c->block()->add(Insn(ins, from_vre, from_vre, rh));
-		vre->store(c, from_vre);
-		return from_vre;
+        c->block()->add(Insn(ins, lh, lh, rh));
+		vre->store(c, lh);
+		return lh;
     }
     else if (op == toOp("-="))
     {
-		Value * lh = lhs->codegen(c);
 		c->block()->add(Insn(SUB, lh, lh, rh));
 		return lh;
     }
     else if (op == toOp("*="))
     {
-		Value * lh = lhs->codegen(c);
 		Type * t = 0;
 		bool is_signed = binary_result(lh, rh, t);
 		c->block()->add(Insn(is_signed ? MULS : MUL, lh, lh, rh));
@@ -2290,7 +2296,6 @@ Value * BinaryExpr::codegen(Codegen * c)
     }
     else if (op == toOp("/="))
     {
-		Value * lh = lhs->codegen(c);
 		Type * t = 0;
 		bool is_signed = binary_result(lh, rh, t);
 		c->block()->add(Insn(is_signed ? DIVS : DIV, lh, lh, rh));
