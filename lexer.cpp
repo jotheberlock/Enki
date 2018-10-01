@@ -588,7 +588,7 @@ void Lexer::lex(Chars & input)
     linepos = 0;
 
     int indent;
-
+    
     bool more = true;
     while (more)
     {

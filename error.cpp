@@ -32,7 +32,7 @@ void Error::print()
 	else
 	{
 		char buf[4096];
-		for (int loopc = 0; loopc <= br; fgets(buf, 4096, f), loopc++)
+		for (int loopc = 0; loopc < br; fgets(buf, 4096, f), loopc++)
 		{
 		}
 
