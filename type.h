@@ -953,5 +953,6 @@ void destroyTypes();
 extern Type * register_type;
 extern Type * signed_register_type;
 extern Type * byte_type;
+extern Type * void_type;
 
 #endif

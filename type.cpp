@@ -9,6 +9,8 @@
 Type * register_type = 0;
 Type * signed_register_type = 0;
 Type * byte_type = 0;
+Type * void_type = 0;
+
 uint64 class_id_counter = 1;  // 0 is unknown class
 
 void IntegerType::copy(Codegen * c, Value * a, Value * v)
@@ -396,6 +398,8 @@ Types::Types()
 	}
 
 	types["Byte^"] = new PointerType(byte_type);
+    void_type = new VoidType();
+    types["Void"] = void_type;
 }
 
 Types::~Types()
