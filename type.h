@@ -390,6 +390,7 @@ public:
 
     uint64 increment()
     {
+        printf("Pointed type size %d\n", pointed_type->size());
         return pointed_type->size() / 8;
     }
     

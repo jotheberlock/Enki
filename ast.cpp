@@ -2032,6 +2032,7 @@ Value * BinaryExpr::codegen(Codegen * c)
     uint64 rhi = 1;
     if (lh && (!lh->is_number))
     {
+        printf("%s\n", lh->type->name().c_str());
         lhi = lh->type->increment();
     }
     if (rh && (!rh->is_number))
@@ -2054,6 +2055,10 @@ Value * BinaryExpr::codegen(Codegen * c)
             return 0;
         }
     }
+
+    int incr = rhi < lhi ? lhi : rhi;
+    printf("Incr %d\n", incr);
+    
     
 	if (token.toString() == "and")
 	{
@@ -2098,7 +2103,19 @@ Value * BinaryExpr::codegen(Codegen * c)
 		binary_result(lh, rh, t);
 		Value * v = c->getTemporary(t, "add");
 		fprintf(log_file, ">>> Adding an add\n");
-		c->block()->add(Insn(ADD, v, lh, rh));
+        
+        if (incr > 1)
+        {
+            Value * mul = c->getTemporary(rh->type ? rh->type : register_type,
+                                          "ptrmul");
+            c->block()->add(Insn(MUL, mul, rh, Operand::usigc(incr)));
+            c->block()->add(Insn(ADD, v, lh, mul));
+        }
+        else
+        {
+            c->block()->add(Insn(ADD, v, lh, rh));
+        }
+
 		return v;
 	}
 	else if (op == '-')
@@ -2106,7 +2123,18 @@ Value * BinaryExpr::codegen(Codegen * c)
 		Type * t = 0;
 		binary_result(lh, rh, t);
 		Value * v = c->getTemporary(t, "sub");
-		c->block()->add(Insn(SUB, v, lh, rh));
+        
+        if (incr > 1)
+        {
+            Value * mul = c->getTemporary(rh->type ? rh->type : register_type,
+                                          "ptrmul");
+            c->block()->add(Insn(MUL, mul, rh, Operand::usigc(incr)));
+            c->block()->add(Insn(SUB, v, lh, mul));
+        }
+        else
+        {
+            c->block()->add(Insn(SUB, v, lh, rh));
+        }
 		return v;
 	}
 	else if (op == '*')
@@ -2278,29 +2306,25 @@ Value * BinaryExpr::codegen(Codegen * c)
             return 0;
         }
 
-        c->block()->add(Insn(ins, lh, lh, rh));
+            // Ugh need to deal with pointers only
+            // allowed on lhs somehow
+
+        if (incr > 1)
+        {
+            Value * mul = c->getTemporary(rh->type ? rh->type : register_type,
+                                          "ptrmul");
+            c->block()->add(Insn(MUL, mul, rh, Operand::usigc(incr)));
+            c->block()->add(Insn(ins, lh, lh, mul));
+        }
+        else
+        {
+            c->block()->add(Insn(ins, lh, lh, rh));
+        }
+        
 		vre->store(c, lh);
 		return lh;
     }
-    else if (op == toOp("-="))
-    {
-		c->block()->add(Insn(SUB, lh, lh, rh));
-		return lh;
-    }
-    else if (op == toOp("*="))
-    {
-		Type * t = 0;
-		bool is_signed = binary_result(lh, rh, t);
-		c->block()->add(Insn(is_signed ? MULS : MUL, lh, lh, rh));
-		return lh;
-    }
-    else if (op == toOp("/="))
-    {
-		Type * t = 0;
-		bool is_signed = binary_result(lh, rh, t);
-		c->block()->add(Insn(is_signed ? DIVS : DIV, lh, lh, rh));
-		return lh;
-    }
+
         /*
 	else if (op == eval_op)
 	{

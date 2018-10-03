@@ -30,9 +30,9 @@ def find_export(Byte^ name) Uint64
             return reloc
         exports_ptr += slen
         count += 1
-    write("Failed to find import ")
+    write("Failed to find import [")
     write(name)
-    write(" !\n")
+    write("] !\n")
     exit(1)
 
 def load_import(Byte^ file) Uint64
@@ -65,7 +65,7 @@ def load_import(Byte^ file) Uint64
         write_num(tmp)
         write(" records\n\n")
     Uint32 count = 0
-    rec += 4
+    rec += 1
     Uint64[10] offsets
     Byte^ textptr
     Byte^ importsptr
@@ -74,16 +74,16 @@ def load_import(Byte^ file) Uint64
     # Process sections
     while count < recs
         Uint32 arch = rec^
-        rec += 4
+        rec += 1
         Uint32 type = rec^
-        rec += 4
+        rec += 1
         Uint32 offset = rec^
-        rec += 4
+        rec += 1
         Uint32 size = rec^
-        rec += 4
+        rec += 1
         Uint64^ rec64 = rec
         Uint64 vmem = rec64^
-        rec += 8
+        rec += 2
         constif DEBUG
             write("Arch ")
         tmp = arch    
@@ -121,15 +121,15 @@ def load_import(Byte^ file) Uint64
     Uint64 rtype = rec^
     while rtype != 5
         if rtype == 1
-            rec += 8
+            rec += 2
             Uint64 fromsec = rec^
-            rec += 8
+            rec += 2
             Uint64 fromoff = rec^
-            rec += 8
+            rec += 2
             Uint64 tosec = rec^
-            rec += 8
+            rec += 2
             Uint64 tooff = rec^
-            rec += 8
+            rec += 2
             Uint64^ fromptr = offsets[fromsec]
             fromptr += fromoff
             Uint64 toaddr = offsets[tosec]
@@ -151,7 +151,7 @@ def load_import(Byte^ file) Uint64
     # Fix up imports
     Uint64^ imports = header + 8192
     Uint64 modules = imports^
-    imports += 8
+    imports += 1
     constif DEBUG
         display_num("Module count ", modules)
     Uint64 mcount = 0
@@ -172,11 +172,11 @@ def load_import(Byte^ file) Uint64
     while mcount < modules
         Uint64 entries_offset = imports^
         Uint64^ entries = modules + entries_offset
-        imports += 8
+        imports += 1
         Uint64 mentries = imports^
-        imports += 8
+        imports += 1
         Uint64 strsize = imports^
-        imports += 8
+        imports += 1
         Byte^ mname = imports
         constif DEBUG
             write("Mentries ")
@@ -189,16 +189,19 @@ def load_import(Byte^ file) Uint64
             write(mname)
             write("\n")
         mcount += 1
-        imports += entries_offset
+        Byte^ twiddler
+        twiddler = imports
+        twiddler += entries_offset
+        imports = twiddler
         Uint64 fcount = 0
         while fcount < mentries
             Uint64^ fp = imports
             Uint64 fstrsize = imports^
-            imports += 8
+            imports += 1
             Uint64 addr = imports^
-            imports += 8
+            imports += 1
             Uint64 fstrlen = imports^
-            imports += 8
+            imports += 1
             Uint64 export_addr = find_export(imports)
             constif DEBUG
                 write("Function ")
@@ -208,9 +211,13 @@ def load_import(Byte^ file) Uint64
                 write(" resolves to ")
                 write_num(export_addr)
                 write("\n")
-            Uint64^ to_write = frameptr + addr
-            to_write^ = export_addr
-            imports += fstrsize
+            Byte^ to_write = frameptr
+            to_write += addr
+            Uint64^ writer = to_write
+            writer^ = export_addr
+            twiddler = imports
+            twiddler += fstrsize
+            imports = twiddler
             fcount += 1
     constif DEBUG
         display_num("Jumping to ", entrypoint)
