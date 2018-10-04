@@ -1130,7 +1130,22 @@ Expr * Parser::parseDef()
 
     if (parsing_imports && (is_macro || is_extern || is_generic))
     {
-        addError(Error(&current, "Can't have non-plain functions in interface"));
+        std::string thing = "";
+        if (is_macro)
+        {
+            thing = "Macro";
+        }
+        else if (is_extern)
+        {
+            thing = "Extern";
+        }
+        else
+        {
+            thing = "Generic";
+        }
+        
+        addError(Error(&current, thing +
+                       " functions are not permitted in interfaces"));
     }
 
 	if (current.type != IDENTIFIER)
