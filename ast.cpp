@@ -2047,7 +2047,6 @@ Value * BinaryExpr::codegen(Codegen * c)
     uint64 rhi = 1;
     if (lh && (!lh->is_number))
     {
-        printf("%s\n", lh->type->name().c_str());
         lhi = lh->type->increment();
     }
     if (rh && (!rh->is_number))
@@ -2072,8 +2071,6 @@ Value * BinaryExpr::codegen(Codegen * c)
     }
 
     int incr = rhi < lhi ? lhi : rhi;
-    printf("Incr %d\n", incr);
-    
     
 	if (token.toString() == "and")
 	{

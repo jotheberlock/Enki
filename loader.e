@@ -108,6 +108,7 @@ def load_import(Byte^ file) Uint64
         Byte^ secptr = header
         secptr += offset
         offsets[type] = secptr
+        Uint64 offy = offsets[type]
         if type == 0
             textptr = secptr
             textsize = size
@@ -130,8 +131,9 @@ def load_import(Byte^ file) Uint64
             rec += 2
             Uint64 tooff = rec^
             rec += 2
-            Uint64^ fromptr = offsets[fromsec]
-            fromptr += fromoff
+            Byte^ fromptrb = offsets[fromsec]
+            fromptrb += fromoff
+            Uint64^ fromptr = fromptrb
             Uint64 toaddr = offsets[tosec]
             toaddr += tooff
             constif DEBUG
@@ -142,10 +144,7 @@ def load_import(Byte^ file) Uint64
                 write(" offset ")
                 write_num(tooff)
                 write("\n")
-            Uint64 val = 0
-            val = fromptr^
             fromptr^ = toaddr
-            val = fromptr^
         rtype = rec^
 
     # Fix up imports
@@ -159,13 +158,13 @@ def load_import(Byte^ file) Uint64
     constif DEBUG
         display_num("Entry addr ", entryaddroff)
     entrypoint = textptr
-    Byte^ tmpentry = cast(entrypoint,Uint64)
+    Byte^ tmpentry = cast(entrypoint,Byte^)
     tmpentry += entryaddroff
     entrypoint = cast(tmpentry,entrypointtype)
     remap(textptr, textsize, EXECUTE_PERMISSION)
     Uint64$ ret = 0
     ret = entrypoint()
-    Uint64^ frameptr = cast(ret, Uint64^)
+    Byte^ frameptr = cast(ret, Byte^)
     constif DEBUG
         display_num("Frame ptr ", frameptr)
 
