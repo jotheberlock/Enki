@@ -1,16 +1,16 @@
 def len(Byte^ ptr) Uint
-    Uint64 count = 0
+    Uint count = 0
     Byte^ counter = ptr
     while counter^ != 0
         counter += 1
         count += 1
     return count
 
-def num_to_str(Uint64 in, Byte^ out)
+def num_to_str(Uint in, Byte^ out)
     Byte^ out_end = out + 16
     out_end^ = 0
     out_end -= 1
-    Uint64 count = 8
+    Uint count = 8
     while count > 0
         Byte the_digit = in & 255
         Byte digit1 = the_digit

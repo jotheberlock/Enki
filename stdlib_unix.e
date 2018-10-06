@@ -5,7 +5,7 @@ def write(Byte^ ptr) Uint
     written = __syscall(SYSCALL_WRITE, STDOUT, ptr, count)
     return written
 
-def write_num(Uint64 num) Uint64
+def write_num(Uint num) Uint
     Byte[20] bytes
     num_to_str(num, @bytes)
     __syscall(SYSCALL_WRITE, STDOUT, @bytes, 16)
@@ -17,15 +17,15 @@ def read(Byte^ ptr, Uint len) Uint
     ptr ^= 0
     return count
 
-def open_file(Byte^ filename) Uint64
+def open_file(Byte^ filename) Uint
     Uint64 handle
     handle = __syscall(SYSCALL_OPEN, filename, 2, 0)
     return handle
 
-def close_file(Uint64 fd)
+def close_file(Uint fd)
     __syscall(SYSCALL_CLOSE, fd)
 
-def get_file_size(Uint64 fd) Uint64
+def get_file_size(Uint fd) Uint
     Uint64 current
     Uint64 size
     current = __syscall(SYSCALL_LSEEK, fd, 0, 1)
@@ -33,7 +33,7 @@ def get_file_size(Uint64 fd) Uint64
     __syscall(SYSCALL_LSEEK, fd, 0, 0)
     return size
 
-def map_file(Uint64 fd, Uint64 offset, Uint64 size, Uint64 permissions) Byte^
+def map_file(Uint fd, Uint offset, Uint size, Uint permissions) Byte^
     Uint32 protect
     
     if permissions == READ_PERMISSION
@@ -50,7 +50,7 @@ def map_file(Uint64 fd, Uint64 offset, Uint64 size, Uint64 permissions) Byte^
     ret = __syscall(SYSCALL_MMAP, 0, size, protect, flags, fd, offset)
     return ret
     
-def remap(Byte^ ptr, Uint64 size, Uint64 permissions) Uint64
+def remap(Byte^ ptr, Uint size, Uint permissions) Uint
     Uint32 protect
 
     if permissions == READ_PERMISSION
@@ -67,16 +67,16 @@ def remap(Byte^ ptr, Uint64 size, Uint64 permissions) Uint64
         display_num("Failure to remap!", ret)
     return 0
 
-def get_argc() Uint64
-    Uint64^ argcp = __osstackptr
-    Uint64 argc = argcp^
+def get_argc() Uint
+    Uint^ argcp = __osstackptr
+    Uint argc = argcp^
     return argc
 
-def get_argv(Uint64 index) Byte^
+def get_argv(Uint index) Byte^
     Byte^^ argp = __osstackptr+8
-    Uint64 idx = index * 8
+    Uint idx = index * 8
     argp += idx
     return argp^
 
-def exit(Uint64 ret)
+def exit(Uint ret)
     __syscall(SYSCALL_EXIT, ret)
