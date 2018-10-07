@@ -60,7 +60,7 @@ def remap(Byte^ ptr, Uint size, Uint permissions) Uint
     elif permissions == EXECUTE_PERMISSION
         protect = PROT_EXEC
     else
-       write("Unknown permissions\n")
+       display_num("Unknown permissions", permissions)
        return 0
     Uint64 ret = __syscall(SYSCALL_MPROTECT, ptr, size, protect)
     if ret != 0
