@@ -446,7 +446,7 @@ int main(int argc, char ** argv)
         {
             if (found_interface)
             {
-                printf("More than one interface file specified!\n");
+                printf("More than one interface file specified! %s\n", argv[loopc]);
                 return 1;
             }
             const char * fname = argv[loopc];
