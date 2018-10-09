@@ -80,6 +80,7 @@ Lexer::Lexer()
     keywords["module"] = MODULE;
     keywords["cast"] = CAST;
     keywords["constif"] = CONSTIF;
+    keywords["sizeof"] = SIZEOF;
     
 	oldcol = -1;
 	oldline = -1;

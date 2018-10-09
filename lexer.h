@@ -82,6 +82,7 @@ typedef std::vector<uint32> Chars;
 #define MODULE 54
 #define CAST 55
 #define CONSTIF 56
+#define SIZEOF 57
 
 class Token
 {

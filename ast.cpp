@@ -226,6 +226,30 @@ Expr * Parser::parseCast()
     return new CastExpr(to_cast, cast_type);
 }
 
+Expr * Parser::parseSizeof()
+{
+    next();
+    if (current.type != OPEN_BRACKET)
+    {
+        addError(Error(&current, "Expected ( after sizeof"));
+        return 0;
+    }
+    next();
+    Type * sizeof_type = parseType();
+    if (!sizeof_type)
+    {
+        addError(Error(&current, "Expected type in sizeof"));
+        return 0;
+    }
+    if (current.type != CLOSE_BRACKET)
+    {
+        addError(Error(&current, "Expected ) at end of sizeof"));
+        return 0;
+    }
+    next();
+    return new SizeofExpr(sizeof_type);
+}
+
 int Parser::getPrecedence()
 {
 	bool dummy;
@@ -330,6 +354,10 @@ Expr * Parser::parsePrimary()
     else if (current.type == CAST)
     {
         return parseCast();
+    }
+    else if (current.type == SIZEOF)
+    {
+        return parseSizeof();
     }
 	else
 	{
@@ -3173,4 +3201,10 @@ Value * CastExpr::codegen(Codegen * c)
     Value * r = to_cast->codegen(c);
     c->block()->add(Insn(MOVE, v, r));
     return v;
+}
+
+Value * SizeofExpr::codegen(Codegen * c)
+{
+    Value * ret = new Value(to_sizeof->size() / 8);
+    return ret;
 }

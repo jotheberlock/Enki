@@ -131,6 +131,29 @@ public:
 
 };
 
+class SizeofExpr : public Expr
+{
+  public:
+
+    SizeofExpr(Type * t)
+    {
+        to_sizeof = t;
+    }
+
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "sizeof(%s)", to_sizeof->name().c_str());
+    }
+
+    virtual Value * codegen(Codegen * c);
+
+  protected:
+
+    Type * to_sizeof;
+
+};
+    
 class CastExpr : public Expr
 {
   public:
@@ -1056,6 +1079,7 @@ protected:
     Expr * parseInterfaceDef();
     Expr * parseImport(Token);
     Expr * parseCast();
+    Expr * parseSizeof();
     
     void checkInterfaceTypes(Token &, std::string &, FunctionScope *, std::vector<Type *> &, Type *);
 	Type * parseType();
