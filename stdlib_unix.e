@@ -18,7 +18,7 @@ def read(Byte^ ptr, Uint len) Uint
     return count
 
 def open_file(Byte^ filename) Uint
-    Uint64 handle
+    Uint handle
     handle = __syscall(SYSCALL_OPEN, filename, 2, 0)
     return handle
 
@@ -26,8 +26,8 @@ def close_file(Uint fd)
     __syscall(SYSCALL_CLOSE, fd)
 
 def get_file_size(Uint fd) Uint
-    Uint64 current
-    Uint64 size
+    Uint current
+    Uint size
     current = __syscall(SYSCALL_LSEEK, fd, 0, 1)
     size = __syscall(SYSCALL_LSEEK, fd, 0, 2)
     __syscall(SYSCALL_LSEEK, fd, 0, 0)
@@ -62,7 +62,7 @@ def remap(Byte^ ptr, Uint size, Uint permissions) Uint
     else
        display_num("Unknown permissions", permissions)
        return 0
-    Uint64 ret = __syscall(SYSCALL_MPROTECT, ptr, size, protect)
+    Uint ret = __syscall(SYSCALL_MPROTECT, ptr, size, protect)
     if ret != 0
         display_num("Failure to remap!", ret)
     return 0
