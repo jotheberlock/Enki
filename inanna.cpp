@@ -102,7 +102,7 @@ void InannaImage::finalise()
         if (sizes[loopc])
         {
             InannaSection s;
-            s.arch = 0;
+            s.arch = arch;
             s.type = loopc;
             s.offset = next_offset;
             s.size = sizes[loopc];
