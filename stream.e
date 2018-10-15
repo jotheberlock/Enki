@@ -15,20 +15,20 @@ generic readline(stream, param, count) Uint
 
 # O_CREAT|O_RDWR, 0777
 def init_stream(FileStream^ stream, Byte^ path) Uint
-    Uint fd = __syscall(2, path, 66, 0x1ff)
+    Uint fd = __syscall(SYSCALL_OPEN, path, 66, 0x1ff)
     stream^.in = fd
     stream^.out = fd
 
 def close_stream(FileStream^ stream)
-    __syscall(3,stream^.in)
+    __syscall(SYSCALL_CLOSE,stream^.in)
 
 def print(FileStream^ stream, Byte^ param) Uint
     Uint count = len(param)
-    Uint ret = __syscall(1, stream^.out, param, count)
+    Uint ret = __syscall(SYSCALL_WRITE, stream^.out, param, count)
     return ret
 
 def readline(FileStream^ stream, Byte^ param, Uint count) Uint
-    Uint ret = __syscall(0, stream^.in, param, count)
+    Uint ret = __syscall(SYSCALL_READ, stream^.in, param, count)
     Byte^ end = param+ret
     end^ = 0
     return ret
