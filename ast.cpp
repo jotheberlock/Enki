@@ -591,6 +591,13 @@ extern void readFile(FILE * f, Chars & input);
 
 Expr * Parser::parseImport(Token t)
 {
+    if (!configuration->image->supportsModules())
+    {
+        addError(Error(&t, "Import specified but image type '"
+                       + configuration->image->name() + "' doesn't support imports."));
+        return 0;
+    }
+        
     std::string name = t.toString();
     std::string fname = name + ".i";
     FILE * ifile = fopen(fname.c_str(), "rb");

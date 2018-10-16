@@ -56,6 +56,11 @@ public:
 
     virtual void materialiseSection(int);
 
+    virtual bool supportsModules()
+    {
+        return true;
+    }
+    
 protected:
 
     int arch;

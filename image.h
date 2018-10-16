@@ -92,6 +92,12 @@ public:
     
     std::string sectionName(int);
 
+        // will 'import sys' work
+    virtual bool supportsModules()
+    {
+        return false;
+    }
+    
 protected:
 
 	unsigned char * sections[IMAGE_LAST];
