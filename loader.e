@@ -145,6 +145,30 @@ def load_import(Byte^ file) Uint64
                 write_num(tooff)
                 write("\n")
             fromptr^ = toaddr
+        elif rtype == 2
+            rec += 2
+            Uint64 fromsec = rec^
+            rec += 2
+            Uint64 fromoff = rec^
+            rec += 2
+            Uint64 tosec = rec^
+            rec += 2
+            Uint64 tooff = rec^
+            rec += 2
+            Byte^ fromptrb = offsets[fromsec]
+            fromptrb += fromoff
+            Uint32^ fromptr = fromptrb
+            Uint32 toaddr = offsets[tosec]
+            toaddr += tooff
+            constif DEBUG
+                write("Setting ")
+                write_num(fromptr)
+                write(" to ")
+                write_num(toaddr)
+                write(" offset ")
+                write_num(tooff)
+                write("\n")
+            fromptr^ = toaddr
         rtype = rec^
 
     # Fix up imports

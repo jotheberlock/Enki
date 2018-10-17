@@ -163,6 +163,14 @@ void InannaImage::finalise()
                     wle64(ptr, secto);
                     wle64(ptr, offto);
                 }
+                else if ((*it).bits == 32 && (*it).mask == 0)
+                {
+                    wle64(ptr, INANNA_RELOC_32);
+                    wle32(ptr, secfrom);
+                    wle32(ptr, offfrom);
+                    wle32(ptr, secto);
+                    wle32(ptr, offto);
+                }
             }
             uint64 * up = (uint64 *)p;
             printf("Expected %llx is %llx\n", v, *up);
