@@ -415,13 +415,11 @@ Expr * Parser::parseBodyLine()
 {
 	if (current.type == DONE)
 	{
-		fprintf(log_file, "Null because done\n");
 		return 0;
 	}
 
 	if (current.type == EOL)
 	{
-		fprintf(log_file, "Null because eol\n");
 		return 0;
 	}
 
@@ -438,11 +436,9 @@ Expr * Parser::parseBodyLine()
 
 		if (!is_funcall)
 		{
-			fprintf(log_file, "Looking up type\n");
 			Type * t = parseType();
 			if (t)
 			{
-				fprintf(log_file, "Trying var\n");
 				Expr * ret = parseVarExpr(t);
 				if (current.type != EOL)
 				{
@@ -862,7 +858,6 @@ Expr * Parser::parseVarExpr(Type * t)
 		Expr * assigned = 0;
 		if (current.toString() == "=")
 		{
-			fprintf(log_file, "Caught assign\n");
 			next();
 			assigned = parseExpr();
 		}
@@ -1117,7 +1112,6 @@ Expr * Parser::parseVarRef(Expr * e)
     
 	while (true)
 	{
-		fprintf(log_file, ">>>> parseVarRef %d\n", current.type);
 		if (current.type == POINTER)
 		{
 			vre->add(VarRefElement(VARREF_DEREF));
@@ -1155,8 +1149,6 @@ Expr * Parser::parseVarRef(Expr * e)
 
 Expr * Parser::parseDef()
 {
-	fprintf(log_file, "Entering def\n");
-
 	bool is_macro = (current.type == MACRO);
 	bool is_extern = (current.type == EXTERN);
 	bool is_generic = (current.type == GENERIC);
@@ -1341,8 +1333,6 @@ Expr * Parser::parseDef()
 					ft->setReturn(t);
 					if (current.type != EOL)
 					{
-						fprintf(log_file, ">>>>> %d\n", current.type);
-
 						addError(Error(&current,
 							"Expected EOL after return type"));
 						expectedEol();
@@ -1547,24 +1537,20 @@ Type * Parser::parseType()
 
 	while (true)
 	{
-		fprintf(log_file, ">>> parseType %d\n", current.type);
 
 		if (current.type == POINTER)
 		{
-			fprintf(log_file, "Pointy!\n");
 			i += "^";
 
 			Type * t = types->lookup(i);
 			if (!t)
 			{
-				fprintf(log_file, "New pointer type!\n");
 				t = new PointerType(ret_type);
 				ret_type = t;
 				types->add(ret_type, i);
 			}
 			else
 			{
-				fprintf(log_file, "Found pointer type!\n");
 				ret_type = t;
 			}
 		}
@@ -1894,7 +1880,6 @@ Type * VarRefExpr::checkType(Codegen * c)
 		{
 			if (ret->canIndex())
 			{
-				fprintf(log_file, ">>> index\n");
 				ret = ret->indexType();
 			}
 			else
@@ -1908,7 +1893,6 @@ Type * VarRefExpr::checkType(Codegen * c)
 		{
 			if (ret->canField())
 			{
-				fprintf(log_file, ">>> field\n");
 				ret = ret->fieldType(((IdentifierExpr *)vre.subs)->getString());
 			}
 			else
@@ -1997,8 +1981,6 @@ Value * VarDefExpr::codegen(Codegen * c)
 
 Value * Block::codegen(Codegen * c)
 {
-	fprintf(log_file, "In block!\n");
-
 	Value * ret = c->getRet();
 
 	std::list<Expr *>::iterator it = contents.begin();
@@ -2149,7 +2131,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 		Type * t = 0;
 		binary_result(lh, rh, t);
 		Value * v = c->getTemporary(t, "add");
-		fprintf(log_file, ">>> Adding an add\n");
         
         if (incr > 1)
         {
@@ -2305,10 +2286,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 			addError(Error(&token, "Type not assignable"));
 			return 0;
 		}
-		else
-		{
-			fprintf(log_file, "Type check succeeded! %s\n", t->name().c_str());
-		}
 
 		if (vre->value->isConst())
 		{
@@ -2412,7 +2389,6 @@ Value * BinaryExpr::codegen(Codegen * c)
         */
 	else if (op == '=')
 	{
-		fprintf(log_file, ">>>> Checking assign\n");
 		VarRefExpr * vre = dynamic_cast<VarRefExpr *>(lhs);
 		if (!vre)
 		{
@@ -2427,10 +2403,6 @@ Value * BinaryExpr::codegen(Codegen * c)
 			fprintf(log_file, "Type check failed!\n");
 			addError(Error(&token, "Type not assignable"));
 			return 0;
-		}
-		else
-		{
-			fprintf(log_file, "Type check succeeded! %s\n", t->name().c_str());
 		}
 
 		if (vre->value->isConst())
@@ -2935,7 +2907,6 @@ void VarRefExpr::store(Codegen * c, Value * v)
 	if (i->type->inRegister() && copied->type->inRegister() && elements.size() == 0
 		&& depth == 0)
 	{
-		fprintf(log_file, ">>> Adding a move\n");
 		c->block()->add(Insn(MOVE, i, copied));
 		return;
 	}
