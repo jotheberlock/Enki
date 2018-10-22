@@ -479,12 +479,6 @@ int main(int argc, char ** argv)
 		return 2;
 	}
 
-	std::vector<Token> & tokens = lex.tokens();
-	for (unsigned int loopc = 0; loopc < tokens.size(); loopc++)
-	{
-		tokens[loopc].print();
-	}
-
 	Type * byteptr = types->lookup("Byte^");
 	assert(byteptr);
 
