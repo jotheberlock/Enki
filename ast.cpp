@@ -1216,20 +1216,8 @@ Expr * Parser::parseDef()
 	// So, for a generic function, only the generic function exists in the scope, and it is
 	// the address of the function table. Ignore specialisers other than tacking them onto the generic.
 
-	Value * v = 0;  
-
-	if (prev)
-	{
-		if (prev->isGeneric())
-		{
-                //printf("Found generic!\n");
-		}
-		else
-		{
-                //printf("Found non-generic %s\n", prev->fqName().c_str());
-		}
-	}
-
+	Value * v = 0;
+    
 	if (prev && (is_extern || prev->isGeneric()))
 	{
 		already_added = true;
