@@ -16,6 +16,18 @@
 #define INANNA_RELOC_MASKED 4
 #define INANNA_RELOC_END    5
 
+class InannaHeader
+{
+public:
+
+    char magic[4];
+    uint32 version;
+    uint64 start_address;
+    uint32 section_count;
+    uint32 strings_offset;
+    
+};
+    
 class InannaSection
 {
 public:
@@ -24,8 +36,27 @@ public:
     uint32 type;
     uint32 offset;
     uint32 size;
+    uint32 relocs;   // offset from start of file
+    uint32 name;
     uint64 vmem;
 
+};
+
+class InannaReloc
+{
+public:
+
+    uint32 type;
+    uint32 secfrom;
+    uint32 secto;
+    uint32 rshift;
+    uint64 mask;
+    uint32 lshift;
+    uint32 bits;
+    uint64 offset;
+    uint64 offrom;
+    uint64 offto;
+    
 };
 
 InannaImage::InannaImage()
@@ -63,8 +94,30 @@ void InannaImage::materialiseSection(int s)
     materialised[s] = true;
 }
 
+int InannaImage::stringOffset(const char * c)
+{
+	int ret = 0;
+	int tmpid = stringtable.getID(c);
+	if (tmpid > 0)
+	{
+		ret = stringtable.offsetOf(tmpid);
+	}
+	return ret;
+}
+
 void InannaImage::finalise()
 {
+    stringtable.clear();
+    stringtable.add(""); // Null byte at start
+    stringtable.add(".text");
+    stringtable.add(".rodata");
+    stringtable.add(".data");
+    stringtable.add(".bss");
+    stringtable.add(".symtab");
+    stringtable.add(".rtti");
+    stringtable.add(".mtables");
+    stringtable.add(".exports");
+
     if (bases[IMAGE_MTABLES] == 0)
     {
         materialiseSection(IMAGE_MTABLES);
@@ -107,6 +160,36 @@ void InannaImage::finalise()
             s.offset = next_offset;
             s.size = sizes[loopc];
             s.vmem = bases[loopc];
+
+            if (loopc == IMAGE_CODE)
+            {
+                s.name = stringOffset(".text");
+            }
+            else if (loopc == IMAGE_DATA)
+            {
+                s.name = stringOffset(".data");
+            }
+            else if (loopc == IMAGE_CONST_DATA)
+            {
+                s.name = stringOffset(".rodata");
+            }
+            else if (loopc == IMAGE_UNALLOCED_DATA)
+            {
+                s.name = stringOffset(".bss");
+            }
+            else if (loopc == IMAGE_RTTI)
+            {
+                s.name = stringOffset(".rtti");
+            }
+            else if (loopc == IMAGE_MTABLES)
+            {
+                s.name = stringOffset(".mtables");
+            }
+            else if (loopc == IMAGE_EXPORTS)
+            {
+                s.name = stringOffset(".exports");
+            }
+
             next_offset += s.size;
             while (next_offset % 4096)
             {

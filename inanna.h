@@ -63,8 +63,10 @@ public:
     
 protected:
 
+    int stringOffset(const char * c);
     int arch;
-
+    StringBox stringtable;
+    
 };
 
 #endif
