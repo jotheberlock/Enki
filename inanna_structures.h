@@ -14,6 +14,7 @@
    512 bytes of anything
    Inanna header
    <archs_count> arch headers
+   String table
    arch1 section headers
    arch1 relocs
    arch2 section headers
