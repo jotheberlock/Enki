@@ -9,6 +9,19 @@
 #define INANNA_RELOC_MASKED 4
 #define INANNA_RELOC_END    5
 
+/*
+   File format is:
+   512 bytes of anything
+   Inanna header
+   <archs_count> arch headers
+   arch1 section headers
+   arch1 relocs
+   arch2 section headers
+   arch2 relocs
+   arch1 sections
+   arch2 sections
+*/
+
 class InannaHeader
 {
 public:
@@ -16,11 +29,22 @@ public:
     char magic[4];
     uint32 version;
     uint64 start_address;
-    uint32 section_count;
+    uint32 archs_count;
     uint32 strings_offset;
     
 };
+
+class InannaArchHeader
+{
+  public:
+
+    uint32 arch;
+    uint32 offset;
+    uint32 sec_count;
+    uint32 reloc_count;
     
+};
+
 class InannaSection
 {
 public:
