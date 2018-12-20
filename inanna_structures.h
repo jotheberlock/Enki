@@ -15,6 +15,7 @@
    Inanna header
    <archs_count> arch headers
    String table
+   Imports
    arch1 section headers
    arch1 relocs
    arch2 section headers
@@ -22,6 +23,8 @@
    arch1 sections
    arch2 sections
 */
+
+#define INANNA_PREAMBLE 512
 
 class InannaHeader
 {
@@ -32,6 +35,10 @@ public:
     uint64 start_address;
     uint32 archs_count;
     uint32 strings_offset;
+    uint32 imports_offset;
+    uint32 dummy;
+    
+    static int size() { return 32; }
     
 };
 
@@ -43,6 +50,8 @@ class InannaArchHeader
     uint32 offset;
     uint32 sec_count;
     uint32 reloc_count;
+
+    static int size() { return 16; }
     
 };
 
@@ -50,14 +59,14 @@ class InannaSection
 {
 public:
 
-    uint32 arch;
     uint32 type;
     uint32 offset;
-    uint32 size;
-    uint32 relocs;   // offset from start of file
+    uint32 length;
     uint32 name;
     uint64 vmem;
 
+    static int size() { return 24; }
+    
 };
 
 class InannaReloc
@@ -74,6 +83,8 @@ public:
     uint64 offset;
     uint64 offrom;
     uint64 offto;
+
+    static int size() { return 56; }
     
 };
 

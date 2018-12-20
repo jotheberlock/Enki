@@ -81,6 +81,15 @@ void InannaImage::finalise()
         materialiseSection(IMAGE_EXPORTS);
     }
 
+    int seccount = 0;
+    for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
+    {
+        if (sizes[loopc])
+        {
+            seccount++;
+        }
+    }
+    
     FILE * f = fopen(fname.c_str(), "wb+");
     if (!f)
     {
@@ -88,30 +97,31 @@ void InannaImage::finalise()
         return;
     }
 
-    unsigned char * header = new unsigned char[8192];
-    memset((char *)header, 0, 8192);
-    strcpy((char *)header, "#!/usr/bin/env enkiloader\n");
-    strcpy((char *)header + 512, "enki");
-    unsigned char * ptr = header + 516;
-
+    int stablesize = stringtable.dataSize();
+    while (stablesize % 8)
+    {
+        stablesize++;
+    }
     
-    uint32 next_offset = 8192;
-    next_offset += imports->size();
+    int headersize = INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
+        stablesize + imports->size() + (seccount * InannaSection::size()) +
+        ((relocs.size()+1) * InannaReloc::size());
+
+    uint32 next_offset = headersize;
     while (next_offset % 4096)
     {
         next_offset++;
     }
-
+    
     std::vector<InannaSection> sections;
     for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
     {
         if (sizes[loopc])
         {
             InannaSection s;
-            s.arch = arch;
             s.type = loopc;
             s.offset = next_offset;
-            s.size = sizes[loopc];
+            s.length = sizes[loopc];
             s.vmem = bases[loopc];
 
             if (loopc == IMAGE_CODE)
@@ -143,7 +153,7 @@ void InannaImage::finalise()
                 s.name = stringOffset(".exports");
             }
 
-            next_offset += s.size;
+            next_offset += s.length;
             while (next_offset % 4096)
             {
                 next_offset++;
@@ -152,16 +162,40 @@ void InannaImage::finalise()
         }
     }
 
+    unsigned char * header = new unsigned char[headersize];
+    memset((char *)header, 0, headersize);
+    strcpy((char *)header, "#!/usr/bin/env enkiloader\n");
+
+    unsigned char * ptr = header+INANNA_PREAMBLE;
+    strcpy((char *)ptr, "enki");
+    ptr += 4;
+    wle32(ptr, 1);
     wle64(ptr, functionAddress(root_function)-bases[IMAGE_CODE]);
+    wle32(ptr, 1);
+    wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size());
+    wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+stablesize);
+    wle32(ptr, 0);
+        
+    wle32(ptr, arch);
+    wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
+          stablesize + imports->size());
     wle32(ptr, sections.size());
+    wle32(ptr, relocs.size());
+
+    memcpy(ptr, stringtable.getData(), stringtable.dataSize());
+    ptr += stablesize;
+
+    memcpy(ptr, imports->getData(), imports->size());
+    ptr += imports->size();
+    
     for (unsigned int loopc = 0; loopc < sections.size(); loopc++)
     {
         InannaSection & is = sections[loopc];
-        printf(">>>> %x %x %x %x %lx\n", is.arch, is.type, is.offset, is.size, is.vmem);
-        wle32(ptr, is.arch);
+        printf(">>>> %x %x %x %lx\n", is.type, is.offset, is.length, is.vmem);
         wle32(ptr, is.type);
         wle32(ptr, is.offset);
-        wle32(ptr, is.size);
+        wle32(ptr, is.length);
+        wle32(ptr, is.name);
         wle64(ptr, is.vmem);
     }
 
@@ -191,22 +225,26 @@ void InannaImage::finalise()
                 printf("  Off %llx rshift %d mask %llx lshift %d bits %d\n",
                        (*it).offset, (*it).rshift, (*it).mask, (*it).lshift,
                        (*it).bits);
+                int type = 0;
                 if ((*it).bits == 64 && (*it).mask == 0)
                 {
-                    wle64(ptr, INANNA_RELOC_64);
-                    wle64(ptr, secfrom);
-                    wle64(ptr, offfrom);
-                    wle64(ptr, secto);
-                    wle64(ptr, offto);
+                    type = INANNA_RELOC_64;
                 }
                 else if ((*it).bits == 32 && (*it).mask == 0)
                 {
-                    wle64(ptr, INANNA_RELOC_32);
-                    wle32(ptr, secfrom);
-                    wle32(ptr, offfrom);
-                    wle32(ptr, secto);
-                    wle32(ptr, offto);
+                    type = INANNA_RELOC_32;
                 }
+
+                wle32(ptr, type);
+                wle32(ptr, secfrom);
+                wle32(ptr, secto);
+                wle32(ptr, 0);
+                wle64(ptr, 0);
+                wle32(ptr, 0);
+                wle32(ptr, 0);
+                wle64(ptr, 0);
+                wle64(ptr, offfrom);
+                wle64(ptr, offto);
             }
             uint64 * up = (uint64 *)p;
             printf("Expected %llx is %llx\n", v, *up);
@@ -214,9 +252,7 @@ void InannaImage::finalise()
     }
     wle64(ptr, INANNA_RELOC_END);
     
-    fwrite(header, 8192, 1, f);
-    
-    fwrite(imports->getData(), imports->size(), 1, f);
+    fwrite(header, headersize, 1, f);
 
     for (unsigned int loopc = 0; loopc < sections.size(); loopc++)
     {
@@ -238,14 +274,6 @@ void InannaImage::finalise()
 
 bool InannaImage::configure(std::string param, std::string val)
 {
-    if (false)
-    {
-
-    }
-    else
-    {
-        return Image::configure(param, val);
-    }
-
-    return true;
+    return Image::configure(param, val);
 }
+
