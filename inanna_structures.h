@@ -15,11 +15,13 @@
    Inanna header
    <archs_count> arch headers
    String table
+   <align to 64 bits>
    Imports
    arch1 section headers
    arch1 relocs
    arch2 section headers
    arch2 relocs
+   <align to 4k>
    arch1 sections
    arch2 sections
 */
@@ -32,13 +34,12 @@ public:
 
     char magic[4];
     uint32 version;
-    uint64 start_address;
     uint32 archs_count;
     uint32 strings_offset;
     uint32 imports_offset;
     uint32 dummy;
     
-    static int size() { return 32; }
+    static int size() { return 24; }
     
 };
 
@@ -50,8 +51,9 @@ class InannaArchHeader
     uint32 offset;
     uint32 sec_count;
     uint32 reloc_count;
+    uint64 start_address;
 
-    static int size() { return 16; }
+    static int size() { return 24; }
     
 };
 

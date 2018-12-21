@@ -108,6 +108,9 @@
     <ClInclude Include="..\imports.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\inanna_structures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\amd64.cpp">

@@ -66,14 +66,14 @@ int main(int argc, char ** argv)
         return 4;
     }
 
-    printf("Version %d, start address %llx, %d architectures, string offset %d\n",
-           ih->version, ih->start_address, ih->archs_count, ih->strings_offset);
+    printf("Version %d, %d architectures, string offset %d\n",
+           ih->version, ih->archs_count, ih->strings_offset);
     strings = buf+ih->strings_offset;
     
     InannaArchHeader * iah = (InannaArchHeader *)(buf+INANNA_PREAMBLE+InannaHeader::size());
     for (int loopc=0; loopc<ih->archs_count; loopc++)
     {
-        printf("\nArch %d - sections:\n", iah->arch);
+        printf("\nArch %d, start address %llx - sections:\n", iah->arch, iah->start_address);
         display_arch(buf+iah->offset, iah->sec_count, iah->reloc_count);
         iah++;
     }

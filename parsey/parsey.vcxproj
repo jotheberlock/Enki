@@ -159,6 +159,7 @@
     <ClInclude Include="..\image.h" />
     <ClInclude Include="..\imports.h" />
     <ClInclude Include="..\inanna.h" />
+    <ClInclude Include="..\inanna_structures.h" />
     <ClInclude Include="..\lexer.h" />
     <ClInclude Include="..\macho.h" />
     <ClInclude Include="..\mem.h" />

@@ -105,7 +105,7 @@ void InannaImage::finalise()
     
     int headersize = INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
         stablesize + imports->size() + (seccount * InannaSection::size()) +
-        ((relocs.size()+1) * InannaReloc::size());
+        (relocs.size() * InannaReloc::size());
 
     uint32 next_offset = headersize;
     while (next_offset % 4096)
@@ -170,7 +170,6 @@ void InannaImage::finalise()
     strcpy((char *)ptr, "enki");
     ptr += 4;
     wle32(ptr, 1);
-    wle64(ptr, functionAddress(root_function)-bases[IMAGE_CODE]);
     wle32(ptr, 1);
     wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size());
     wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+stablesize);
@@ -181,6 +180,7 @@ void InannaImage::finalise()
           stablesize + imports->size());
     wle32(ptr, sections.size());
     wle32(ptr, relocs.size());
+    wle64(ptr, functionAddress(root_function) - bases[IMAGE_CODE]);
 
     memcpy(ptr, stringtable.getData(), stringtable.dataSize());
     ptr += stablesize;
@@ -250,7 +250,6 @@ void InannaImage::finalise()
             printf("Expected %llx is %llx\n", v, *up);
         }
     }
-    wle64(ptr, INANNA_RELOC_END);
     
     fwrite(header, headersize, 1, f);
 
