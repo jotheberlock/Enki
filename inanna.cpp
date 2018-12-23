@@ -102,10 +102,21 @@ void InannaImage::finalise()
     {
         stablesize++;
     }
+
+    int no_subrelocs = 0;
+
+    for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
+    {
+        BaseRelocation * br = relocs[loopc];
+        if (br->isAbsolute())
+        {
+            no_subrelocs += br->relocs.size();
+        }
+    }
     
     int headersize = INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
         stablesize + imports->size() + (seccount * InannaSection::size()) +
-        (relocs.size() * InannaReloc::size());
+        (no_subrelocs * InannaReloc::size());
 
     uint32 next_offset = headersize;
     while (next_offset % 4096)
@@ -246,8 +257,6 @@ void InannaImage::finalise()
                 wle64(ptr, offfrom);
                 wle64(ptr, offto);
             }
-            uint64 * up = (uint64 *)p;
-            printf("Expected %llx is %llx\n", v, *up);
         }
     }
     
