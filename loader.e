@@ -57,197 +57,29 @@ def load_import(Byte^ file) Uint64
         display_num("Mapped at ", header)
     if header == 0
         exit(3)
-    Uint64^ entryaddrp = header + 516
-    Uint32^ rec = header + 524
-    Uint32 recs = rec^
-    Uint64 tmp = recs
-    constif DEBUG
-        write_num(tmp)
-        write(" records\n\n")
-    Uint32 count = 0
-    rec += 1
-    Uint64[10] offsets
-    Byte^ textptr
-    Byte^ importsptr
-    Uint64 textsize
-
-    # Process sections
-    while count < recs
-        Uint32 arch = rec^
-        rec += 1
-        Uint32 type = rec^
-        rec += 1
-        Uint32 offset = rec^
-        rec += 1
-        Uint32 size = rec^
-        rec += 1
-        Uint64^ rec64 = rec
-        Uint64 vmem = rec64^
-        rec += 2
-        constif DEBUG
-            write("Arch ")
-        tmp = arch    
-        constif DEBUG
-            write_num(tmp)
-            write(" type ")
-        tmp = type
-        constif DEBUG
-            write_num(tmp)
-            write(" offset ")
-        tmp = offset
-        constif DEBUG
-            write_num(tmp)
-            write(" size ")
-        tmp = size
-        constif DEBUG
-            write_num(tmp)
-            write(" vmem ")
-            write_num(vmem)
-            write("\n")
-        count += 1
-        Byte^ secptr = header
-        secptr += offset
-        offsets[type] = secptr
-        Uint64 offy = offsets[type]
-        if type == 0
-            textptr = secptr
-            textsize = size
-            constif DEBUG
-                display_num("Text ptr ", textptr)
-        elif type == 1
-            remap(secptr, size, RW_PERMISSION)
-
-    # Now process relocations
-    Uint64^ relocs = rec
-    Uint64 rtype = rec^
-    while rtype != 5
-        if rtype == 1
-            rec += 2
-            Uint64 fromsec = rec^
-            rec += 2
-            Uint64 fromoff = rec^
-            rec += 2
-            Uint64 tosec = rec^
-            rec += 2
-            Uint64 tooff = rec^
-            rec += 2
-            Byte^ fromptrb = offsets[fromsec]
-            fromptrb += fromoff
-            Uint64^ fromptr = fromptrb
-            Uint64 toaddr = offsets[tosec]
-            toaddr += tooff
-            constif DEBUG
-                write("Setting ")
-                write_num(fromptr)
-                write(" to ")
-                write_num(toaddr)
-                write(" offset ")
-                write_num(tooff)
-                write("\n")
-            fromptr^ = toaddr
-        elif rtype == 2
-            rec += 2
-            Uint64 fromsec = rec^
-            rec += 2
-            Uint64 fromoff = rec^
-            rec += 2
-            Uint64 tosec = rec^
-            rec += 2
-            Uint64 tooff = rec^
-            rec += 2
-            Byte^ fromptrb = offsets[fromsec]
-            fromptrb += fromoff
-            Uint32^ fromptr = fromptrb
-            Uint32 toaddr = offsets[tosec]
-            toaddr += tooff
-            constif DEBUG
-                write("Setting ")
-                write_num(fromptr)
-                write(" to ")
-                write_num(toaddr)
-                write(" offset ")
-                write_num(tooff)
-                write("\n")
-            fromptr^ = toaddr
-        rtype = rec^
-
-    # Fix up imports
-    Uint64^ imports = header + 8192
-    Uint64 modules = imports^
-    imports += 1
-    constif DEBUG
-        display_num("Module count ", modules)
-    Uint64 mcount = 0
-    Uint64 entryaddroff = entryaddrp^
-    constif DEBUG
-        display_num("Entry addr ", entryaddroff)
-    entrypoint = textptr
-    Byte^ tmpentry = cast(entrypoint,Byte^)
-    tmpentry += entryaddroff
-    entrypoint = cast(tmpentry,entrypointtype)
-    remap(textptr, textsize, EXECUTE_PERMISSION)
-    Uint64$ ret = 0
-    ret = entrypoint()
-    Byte^ frameptr = cast(ret, Byte^)
-    constif DEBUG
-        display_num("Frame ptr ", frameptr)
-
-    while mcount < modules
-        Uint64 entries_offset = imports^
-        Uint64^ entries = modules + entries_offset
-        imports += 1
-        Uint64 mentries = imports^
-        imports += 1
-        Uint64 strsize = imports^
-        imports += 1
-        Byte^ mname = imports
-        constif DEBUG
-            write("Mentries ")
-            write_num(mentries)
-            write("\n")
-            write("Strsize ")
-            write_num(strsize)
-            write("\n")
-            write("Module ")
-            write(mname)
-            write("\n")
-        mcount += 1
-        Byte^ twiddler
-        twiddler = imports
-        twiddler += entries_offset
-        imports = twiddler
-        Uint64 fcount = 0
-        while fcount < mentries
-            Uint64^ fp = imports
-            Uint64 fstrsize = imports^
-            imports += 1
-            Uint64 addr = imports^
-            imports += 1
-            Uint64 fstrlen = imports^
-            imports += 1
-            Uint64 export_addr = find_export(imports)
-            constif DEBUG
-                write("Function ")
-                write(imports)
-                write(" stack offset ")
-                write_num(addr)
-                write(" resolves to ")
-                write_num(export_addr)
-                write("\n")
-            Byte^ to_write = frameptr
-            to_write += addr
-            Uint64^ writer = to_write
-            writer^ = export_addr
-            twiddler = imports
-            twiddler += fstrsize
-            imports = twiddler
-            fcount += 1
-    constif DEBUG
-        display_num("Jumping to ", entrypoint)
-    !ret
-    constif DEBUG
-        display_num("Returned second ", ret)
-    return ret
+    Byte^ ptr = header + 512
+    if ptr^ != 101
+        display_num("Wrong magic 0 - ", ptr^)
+        return 1
+    ptr = ptr + 1
+    if ptr^ != 110
+        display_num("Wrong magic 1 - ", ptr^)
+        return 1
+    ptr = ptr + 1
+    if ptr^ != 107
+        display_num("Wrong magic 2 - ", ptr^)
+        return 1
+    ptr = ptr + 1
+    if ptr^ != 105
+        display_num("Wrong magic 3 - ", ptr^)
+        return 1
+    ptr = ptr + 1
+    Uint32 iversion
+    Uint32^ iversionp
+    iversionp = cast(ptr, Uint32^)
+    iversion = iversionp^
+    display_num("Inanna version ", iversion)
+    return 0
 
 constif DEBUG    
     display_num("OS stack ptr ", __osstackptr)
