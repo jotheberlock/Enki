@@ -66,8 +66,9 @@ int main(int argc, char ** argv)
         return 4;
     }
 
-    printf("Version %d, %d architectures, string offset %d\n",
-           ih->version, ih->archs_count, ih->strings_offset);
+    printf("Version %d, %d architectures, string offset %d (%x), imports offset %d (%x)\n",
+           ih->version, ih->archs_count, ih->strings_offset,
+           ih->strings_offset, ih->imports_offset, ih->imports_offset);
     strings = buf+ih->strings_offset;
     
     InannaArchHeader * iah = (InannaArchHeader *)(buf+INANNA_PREAMBLE+InannaHeader::size());

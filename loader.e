@@ -35,6 +35,13 @@ def find_export(Byte^ name) Uint64
     write("] !\n")
     exit(1)
 
+struct InannaHeader
+    Uint32 magic
+    Uint32 version
+    Uint32 archs_count
+    Uint32 strings_offset
+    Uint32 imports_offset
+    
 def load_import(Byte^ file) Uint64
     constif DEBUG
         write("About to open ")
@@ -58,27 +65,12 @@ def load_import(Byte^ file) Uint64
     if header == 0
         exit(3)
     Byte^ ptr = header + 512
-    if ptr^ != 101
-        display_num("Wrong magic 0 - ", ptr^)
-        return 1
-    ptr = ptr + 1
-    if ptr^ != 110
-        display_num("Wrong magic 1 - ", ptr^)
-        return 1
-    ptr = ptr + 1
-    if ptr^ != 107
-        display_num("Wrong magic 2 - ", ptr^)
-        return 1
-    ptr = ptr + 1
-    if ptr^ != 105
-        display_num("Wrong magic 3 - ", ptr^)
-        return 1
-    ptr = ptr + 1
-    Uint32 iversion
-    Uint32^ iversionp
-    iversionp = cast(ptr, Uint32^)
-    iversion = iversionp^
-    display_num("Inanna version ", iversion)
+    InannaHeader^ ih = cast(ptr, InannaHeader^)
+    display_num("Magic ", ih^.magic)
+    display_num("Inanna version ", ih^.version)
+    display_num("Archs ", ih^.archs_count)
+    display_num("Strings offset ", ih^.strings_offset)
+    display_num("Imports offset ", ih^.imports_offset)
     return 0
 
 constif DEBUG    
