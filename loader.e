@@ -35,8 +35,8 @@ def find_export(Byte^ name) Uint64
     write("] !\n")
     exit(1)
 
-struct InannaHeader
-    Uint32 magic
+struct raw InannaHeader
+    Uint8[4] magic
     Uint32 version
     Uint32 archs_count
     Uint32 strings_offset
@@ -66,7 +66,18 @@ def load_import(Byte^ file) Uint64
         exit(3)
     Byte^ ptr = header + 512
     InannaHeader^ ih = cast(ptr, InannaHeader^)
-    display_num("Magic ", ih^.magic)
+    if ih^.magic[0] != 101
+        display_num("Wrong magic 0 ",ih^.magic[0])
+        return 1
+    if ih^.magic[1] != 110
+        display_num("Wrong magic 1 ",ih^.magic[1])
+        return 1
+    if ih^.magic[2] != 107
+        display_num("Wrong magic 2 ",ih^.magic[2])
+        return 1
+    if ih^.magic[3] != 105
+        display_num("Wrong magic 3 ",ih^.magic[3])
+        return 1
     display_num("Inanna version ", ih^.version)
     display_num("Archs ", ih^.archs_count)
     display_num("Strings offset ", ih^.strings_offset)
