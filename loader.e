@@ -41,6 +41,13 @@ struct raw InannaHeader
     Uint32 archs_count
     Uint32 strings_offset
     Uint32 imports_offset
+
+struct raw InannaArchHeader
+    Uint32 arch
+    Uint32 offset
+    Uint32 sec_count
+    Uint32 reloc_count
+    Uint64 start_address
     
 def load_import(Byte^ file) Uint64
     constif DEBUG
