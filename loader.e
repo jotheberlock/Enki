@@ -1,31 +1,31 @@
 
-fptr (Uint64) Uint64 entrypointtype
+fptr (Uint) Uint entrypointtype
 
 # Entrypoint is top-level function, sibling of load_import
 entrypointtype entrypoint
 
-def find_export(Byte^ name) Uint64
+def find_export(Byte^ name) Uint
     Byte^ exports_ptr = __exports
     exports_ptr += 8
-    Uint64^ lenptr = exports_ptr
-    Uint64 len = lenptr^
+    Uint^ lenptr = exports_ptr
+    Uint len = lenptr^
     exports_ptr += 8
     exports_ptr += len
     lenptr = exports_ptr
-    Uint64 recs = lenptr^
+    Uint recs = lenptr^
     exports_ptr += 8
     constif DEBUG
         write_num(recs)
         write(" entries in exports\n")
-    Uint64 count = 0
+    Uint count = 0
     while count < recs
         lenptr = exports_ptr
-        Uint64 reloc = lenptr^
+        Uint reloc = lenptr^
         exports_ptr += 8
         lenptr = exports_ptr
-        Uint64 slen = lenptr^
+        Uint slen = lenptr^
         exports_ptr += 8
-        Uint64 ret = strcmp(exports_ptr, name)
+        Uint ret = strcmp(exports_ptr, name)
         if ret == 1
             return reloc
         exports_ptr += slen
@@ -48,13 +48,21 @@ struct raw InannaArchHeader
     Uint32 sec_count
     Uint32 reloc_count
     Uint64 start_address
+
+def load_arch(InannaArchHeader^ iah) Uint
+    display_num("Arch ", iah^.arch)
+    display_num("Offset ", iah^.offset)
+    display_num("Sec count ", iah^.sec_count)
+    display_num("Reloc count ", iah^.reloc_count)
+    display_num("Start addr ", iah^.start_address)
+    return 0
     
-def load_import(Byte^ file) Uint64
+def load_import(Byte^ file) Uint
     constif DEBUG
         write("About to open ")
         write(file)
         write("\n")
-    Uint64 handle = open_file(file)
+    Uint handle = open_file(file)
     if handle > 0x10000000  # Bit of a hack, it's -1 (or -2 for some reason on Windows)
         write("Unable to open ")
         write(file)
@@ -62,7 +70,7 @@ def load_import(Byte^ file) Uint64
         exit(2)
     constif DEBUG
         display_num("Handle: ", handle)
-    Uint64 size = 42
+    Uint size = 42
     size = get_file_size(handle)
     constif DEBUG
         display_num("Size: ",size)
@@ -89,11 +97,20 @@ def load_import(Byte^ file) Uint64
     display_num("Archs ", ih^.archs_count)
     display_num("Strings offset ", ih^.strings_offset)
     display_num("Imports offset ", ih^.imports_offset)
-    return 0
+    Uint count = 0
+    ptr += 24
+    InannaArchHeader^ iah = cast(ptr, InannaArchHeader^)
+    while count < ih^.archs_count
+        if iah^.arch == MACHINE_ARCH
+            return load_arch(iah)
+        count += 1
+        iah += 1
+    write("No suitable architecture found!\n")
+    return 1
 
 constif DEBUG    
     display_num("OS stack ptr ", __osstackptr)
-Uint64 argc = get_argc()
+Uint argc = get_argc()
 constif DEBUG
     display_num("Argc ", argc)
     write("Argv0 ")
