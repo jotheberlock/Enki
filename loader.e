@@ -49,6 +49,13 @@ struct raw InannaArchHeader
     Uint32 reloc_count
     Uint64 start_address
 
+struct raw InannaSection
+    Uint32 type
+    Uint32 offset
+    Uint32 length
+    Uint32 name
+    Uint64 vmem
+    
 def load_arch(InannaArchHeader^ iah) Uint
     display_num("Arch ", iah^.arch)
     display_num("Offset ", iah^.offset)
