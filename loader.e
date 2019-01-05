@@ -55,13 +55,46 @@ struct raw InannaSection
     Uint32 length
     Uint32 name
     Uint64 vmem
+
+struct raw InannaReloc
+    Uint32 type
+    Uint32 secfrom
+    Uint32 secto
+    Uint32 rshift
+    Uint64 mask
+    Uint32 lshift
+    Uint32 bits
+    Uint64 offset
+    Uint64 offrom
+    Uint64 offto
     
-def load_arch(InannaArchHeader^ iah) Uint
-    display_num("Arch ", iah^.arch)
+def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset) Uint
+    display_num("\nArch ", iah^.arch)
     display_num("Offset ", iah^.offset)
     display_num("Sec count ", iah^.sec_count)
     display_num("Reloc count ", iah^.reloc_count)
     display_num("Start addr ", iah^.start_address)
+    Uint count = iah^.sec_count
+    Byte^ start = base+iah^.offset
+    InannaSection^ is = cast(start, InannaSection^)
+    while count > 0
+        display_num("\nSection type ", is^.type)
+        display_num("Offset ", is^.offset)
+        display_num("Length ", is^.length)
+        Byte^ nameptr = base + soffset
+        nameptr += is^.name
+        write("Name ")
+        write(nameptr)
+        write("\n")
+        display_num("Vmem ", is^.vmem)
+        count -= 1
+        is += 1
+    InannaReloc^ ir = cast(is, InannaReloc^)
+    count = iah^.reloc_count
+    while count > 0
+        display_num("\nReloc type ", ir^.type)
+        count -= 1
+        ir += 1
     return 0
     
 def load_import(Byte^ file) Uint
@@ -109,7 +142,7 @@ def load_import(Byte^ file) Uint
     InannaArchHeader^ iah = cast(ptr, InannaArchHeader^)
     while count < ih^.archs_count
         if iah^.arch == MACHINE_ARCH
-            return load_arch(iah)
+            return load_arch(iah, header, ih^.strings_offset)
         count += 1
         iah += 1
     write("No suitable architecture found!\n")
