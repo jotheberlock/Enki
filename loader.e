@@ -77,6 +77,13 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset) Uint
     Uint count = iah^.sec_count
     Byte^ start = base+iah^.offset
     InannaSection^ is = cast(start, InannaSection^)
+    Uint64[10] offsets
+    Uint64[10] sizes
+    Uint64 scount = 0
+    while scount < 10
+        offsets[scount] = 0
+        sizes[scount] = 0
+        scount += 1
     while count > 0
         display_num("\nSection type ", is^.type)
         display_num("Offset ", is^.offset)
@@ -87,6 +94,8 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset) Uint
         write(nameptr)
         write("\n")
         display_num("Vmem ", is^.vmem)
+        offsets[is^.type] = is^.offset
+        sizes[is^.type] = is^.length
         count -= 1
         is += 1
     InannaReloc^ ir = cast(is, InannaReloc^)
