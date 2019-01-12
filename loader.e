@@ -77,6 +77,9 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset) Uint
     Uint count = iah^.sec_count
     Byte^ start = base+iah^.offset
     InannaSection^ is = cast(start, InannaSection^)
+    if iah^.sec_count > 10
+        write("Too many sections in object file!\n")
+        return 1
     Uint64[10] offsets
     Uint64[10] sizes
     Uint64 scount = 0
