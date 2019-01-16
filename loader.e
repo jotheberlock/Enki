@@ -105,9 +105,57 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset) Uint
     count = iah^.reloc_count
     while count > 0
         display_num("\nReloc type ", ir^.type)
+        if ir^.type == 1
+           Byte^ fromptrb = offsets[ir^.secfrom]
+           fromptrb += ir^.offrom
+           Uint64^ fromptr = cast(fromptrb, Uint64^)
+           Uint64 toaddr = offsets[ir^.secto]
+           toaddr += ir^.offto
+           constif DEBUG
+               write("Setting ")
+               write_num(fromptr)
+               write(" to ")
+               write_num(toaddr)
+               write(" offset ")
+               write_num(ir^.offto)
+               write("\n")
+           fromptr^ = toaddr
+        elif ir^.type == 2
+           Byte^ fromptrb = base
+           base += offsets[ir^.secfrom]
+           fromptrb += ir^.offrom
+           Uint32^ fromptr = cast(fromptrb, Uint32^)
+           Uint32 toaddr = offsets[ir^.secto]
+           toaddr += ir^.offto
+           constif DEBUG
+               write("Setting ")
+               write_num(fromptr)
+               write(" to ")
+               write_num(toaddr)
+               write(" offset ")
+               write_num(ir^.offto)
+               write("\n")
+           fromptr^ = toaddr
         count -= 1
         ir += 1
-    return 0
+    Byte^ textsec = base
+    textsec += offsets[0]
+    remap(textsec, sizes[0], EXECUTE_PERMISSION)
+    Uint$ ret = 0
+    Byte^ entrypointp = textsec
+    entrypointp += iah^.start_address
+    entrypoint = cast(entrypointp, entrypointtype)
+    display_num("About to do first call to ", entrypointp)
+    ret = entrypoint()    
+    Byte^ frameptr = cast(ret, Byte^)
+    constif DEBUG
+        display_num("Frame ptr ", frameptr)    
+    constif DEBUG
+        display_num("Jumping to ", entrypoint)
+    !ret
+    constif DEBUG
+        display_num("Returned second ", ret)
+    return ret
     
 def load_import(Byte^ file) Uint
     constif DEBUG
