@@ -97,7 +97,9 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset) Uint
         write(nameptr)
         write("\n")
         display_num("Vmem ", is^.vmem)
-        offsets[is^.type] = is^.offset
+        Byte^ offptr = base
+        offptr += is^.offset
+        offsets[is^.type] = offptr
         sizes[is^.type] = is^.length
         count -= 1
         is += 1
@@ -105,14 +107,16 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset) Uint
     count = iah^.reloc_count
     while count > 0
         display_num("\nReloc type ", ir^.type)
-        if ir^.type == 1
+        Uint itype = ir^.type
+        # hmm why does elif not work
+        if itype == 1
            Byte^ fromptrb = offsets[ir^.secfrom]
            fromptrb += ir^.offrom
            Uint64^ fromptr = cast(fromptrb, Uint64^)
            Uint64 toaddr = offsets[ir^.secto]
            toaddr += ir^.offto
            constif DEBUG
-               write("Setting ")
+               write("Setting 64 bit ")
                write_num(fromptr)
                write(" to ")
                write_num(toaddr)
@@ -120,15 +124,14 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset) Uint
                write_num(ir^.offto)
                write("\n")
            fromptr^ = toaddr
-        elif ir^.type == 2
-           Byte^ fromptrb = base
-           base += offsets[ir^.secfrom]
+        if itype == 2
+           Byte^ fromptrb = offsets[ir^.secfrom]
            fromptrb += ir^.offrom
            Uint32^ fromptr = cast(fromptrb, Uint32^)
            Uint32 toaddr = offsets[ir^.secto]
            toaddr += ir^.offto
            constif DEBUG
-               write("Setting ")
+               write("Setting 32 bit ")
                write_num(fromptr)
                write(" to ")
                write_num(toaddr)
@@ -138,8 +141,7 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset) Uint
            fromptr^ = toaddr
         count -= 1
         ir += 1
-    Byte^ textsec = base
-    textsec += offsets[0]
+    Byte^ textsec = offsets[0]
     remap(textsec, sizes[0], EXECUTE_PERMISSION)
     Uint$ ret = 0
     Byte^ entrypointp = textsec
