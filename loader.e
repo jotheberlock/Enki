@@ -67,13 +67,15 @@ struct raw InannaReloc
     Uint64 offset
     Uint64 offrom
     Uint64 offto
-    
-def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset) Uint
+
+def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uint
     display_num("\nArch ", iah^.arch)
     display_num("Offset ", iah^.offset)
     display_num("Sec count ", iah^.sec_count)
     display_num("Reloc count ", iah^.reloc_count)
     display_num("Start addr ", iah^.start_address)
+    display_num("String offset ", soffset)
+    display_num("Import offset ", ioffset)
     Uint count = iah^.sec_count
     Byte^ start = base+iah^.offset
     InannaSection^ is = cast(start, InannaSection^)
@@ -91,6 +93,7 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset) Uint
         display_num("\nSection type ", is^.type)
         display_num("Offset ", is^.offset)
         display_num("Length ", is^.length)
+        display_num("Soffset ", soffset)
         Byte^ nameptr = base + soffset
         nameptr += is^.name
         write("Name ")
@@ -141,6 +144,14 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset) Uint
            fromptr^ = toaddr
         count -= 1
         ir += 1
+
+    Byte^ importbp = base + ioffset
+    Uint64^ importp = cast(importbp, Uint64^)
+    Uint64 modules = importp^
+    importp += 1
+    constif DEBUG
+        display_num("Module count ", modules)
+	
     Byte^ textsec = offsets[0]
     remap(textsec, sizes[0], EXECUTE_PERMISSION)
     Uint$ ret = 0
@@ -204,7 +215,10 @@ def load_import(Byte^ file) Uint
     InannaArchHeader^ iah = cast(ptr, InannaArchHeader^)
     while count < ih^.archs_count
         if iah^.arch == MACHINE_ARCH
-            return load_arch(iah, header, ih^.strings_offset)
+            # FIXME: weirdness if we don't extract before call
+            Uint so = ih^.strings_offset
+            Uint io = ih^.imports_offset
+            return load_arch(iah, header, so, io)
         count += 1
         iah += 1
     write("No suitable architecture found!\n")

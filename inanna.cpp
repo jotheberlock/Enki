@@ -195,6 +195,7 @@ void InannaImage::finalise()
     memcpy(ptr, stringtable.getData(), stringtable.dataSize());
     ptr += stablesize;
 
+    printf(">> Offset %x\n", ptr-header);
     memcpy(ptr, imports->getData(), imports->size());
     ptr += imports->size();
     
