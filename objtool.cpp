@@ -6,7 +6,7 @@ char * strings = 0;
 void display_arch(char * ptr, uint32 secs, uint32 relocs)
 {
     InannaSection * is = (InannaSection *)ptr;
-    for (int loopc=0; loopc<secs; loopc++)
+    for (unsigned int loopc=0; loopc<secs; loopc++)
     {
         printf("Type %d offset %d size %d vmem %llx name %s\n",
                is->type, is->offset, is->length, is->vmem, strings+is->name);
@@ -14,9 +14,9 @@ void display_arch(char * ptr, uint32 secs, uint32 relocs)
     }
     printf("\nRelocations:\n");
     InannaReloc * ir = (InannaReloc *)is;
-    for (int loopc2=0; loopc2<relocs; loopc2++)
+    for (unsigned int loopc2=0; loopc2<relocs; loopc2++)
     {
-        printf("Type %d from %d:%llx to %d:%llx rshift %d mask %llx lshift %d bits %d offset %d\n",
+        printf("Type %d from %d:%llx to %d:%llx rshift %d mask %llx lshift %d bits %d offset %lld\n",
                ir->type, ir->secfrom, ir->offrom, ir->secto, ir->offto, ir->rshift, ir->mask, ir->lshift,
                ir->bits, ir->offset);
         ir++;
@@ -52,7 +52,7 @@ int main(int argc, char ** argv)
     int read = fread(buf, 1, len, f);
     if (read != len)
     {
-        printf("Short read! Expected %d got %d\n", len, read);
+        printf("Short read! Expected %ld got %d\n", len, read);
         return 3;
     }
     
@@ -72,7 +72,7 @@ int main(int argc, char ** argv)
     strings = buf+ih->strings_offset;
     
     InannaArchHeader * iah = (InannaArchHeader *)(buf+INANNA_PREAMBLE+InannaHeader::size());
-    for (int loopc=0; loopc<ih->archs_count; loopc++)
+    for (unsigned int loopc=0; loopc<ih->archs_count; loopc++)
     {
         printf("\nArch %d, start address %llx - sections:\n", iah->arch, iah->start_address);
         display_arch(buf+iah->offset, iah->sec_count, iah->reloc_count);
