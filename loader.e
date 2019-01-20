@@ -69,13 +69,14 @@ struct raw InannaReloc
     Uint64 offto
 
 def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uint
-    display_num("\nArch ", iah^.arch)
-    display_num("Offset ", iah^.offset)
-    display_num("Sec count ", iah^.sec_count)
-    display_num("Reloc count ", iah^.reloc_count)
-    display_num("Start addr ", iah^.start_address)
-    display_num("String offset ", soffset)
-    display_num("Import offset ", ioffset)
+    constif DEBUG
+        display_num("\nArch ", iah^.arch)
+        display_num("Offset ", iah^.offset)
+        display_num("Sec count ", iah^.sec_count)
+        display_num("Reloc count ", iah^.reloc_count)
+        display_num("Start addr ", iah^.start_address)
+        display_num("String offset ", soffset)
+        display_num("Import offset ", ioffset)
     Uint count = iah^.sec_count
     Byte^ start = base+iah^.offset
     InannaSection^ is = cast(start, InannaSection^)
@@ -90,16 +91,17 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
         sizes[scount] = 0
         scount += 1
     while count > 0
-        display_num("\nSection type ", is^.type)
-        display_num("Offset ", is^.offset)
-        display_num("Length ", is^.length)
-        display_num("Soffset ", soffset)
-        Byte^ nameptr = base + soffset
-        nameptr += is^.name
-        write("Name ")
-        write(nameptr)
-        write("\n")
-        display_num("Vmem ", is^.vmem)
+        constif DEBUG
+            display_num("\nSection type ", is^.type)
+            display_num("Offset ", is^.offset)
+            display_num("Length ", is^.length)
+            display_num("Soffset ", soffset)
+            Byte^ nameptr = base + soffset
+            nameptr += is^.name
+            write("Name ")
+            write(nameptr)
+            write("\n")
+            display_num("Vmem ", is^.vmem)
         Byte^ offptr = base
         offptr += is^.offset
         offsets[is^.type] = offptr
@@ -109,7 +111,8 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
     InannaReloc^ ir = cast(is, InannaReloc^)
     count = iah^.reloc_count
     while count > 0
-        display_num("\nReloc type ", ir^.type)
+        constif DEBUG
+            display_num("\nReloc type ", ir^.type)
         Uint itype = ir^.type
         # hmm why does elif not work
         if itype == 1
@@ -145,24 +148,77 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
         count -= 1
         ir += 1
 
-    Byte^ importbp = base + ioffset
-    Uint64^ importp = cast(importbp, Uint64^)
-    Uint64 modules = importp^
-    importp += 1
-    constif DEBUG
-        display_num("Module count ", modules)
-	
     Byte^ textsec = offsets[0]
     remap(textsec, sizes[0], EXECUTE_PERMISSION)
     Uint$ ret = 0
     Byte^ entrypointp = textsec
     entrypointp += iah^.start_address
     entrypoint = cast(entrypointp, entrypointtype)
-    display_num("About to do first call to ", entrypointp)
+    constif DEBUG
+        display_num("About to do first call to ", entrypointp)
     ret = entrypoint()    
     Byte^ frameptr = cast(ret, Byte^)
     constif DEBUG
-        display_num("Frame ptr ", frameptr)    
+        display_num("Frame ptr ", frameptr)
+        
+    Byte^ importbp = base + ioffset
+    Uint64^ importp = cast(importbp, Uint64^)
+    Uint64 modules = importp^
+    importp += 1
+    constif DEBUG
+        display_num("Module count ", modules)
+    Uint64 mcount = 0
+    while mcount < modules
+        Uint64 entries_offset = importp^
+        Uint64^ entries = modules + entries_offset
+        importp += 1
+        Uint64 mentries = importp^
+        importp += 1
+        Uint64 strsize = importp^
+        importp += 1
+        Byte^ mname = importp
+        constif DEBUG
+            write("Mentries ")
+            write_num(mentries)
+            write("\n")
+            write("Strsize ")
+            write_num(strsize)
+            write("\n")
+            write("Module ")
+            write(mname)
+            write("\n")
+        mcount += 1
+        Byte^ twiddler
+        twiddler = importp
+        twiddler += entries_offset
+        importp = twiddler
+        Uint64 fcount = 0
+        while fcount < mentries
+            Uint64^ fp = importp
+            Uint64 fstrsize = importp^
+            importp += 1
+            Uint64 addr = importp^
+            importp += 1
+            Uint64 fstrlen = importp^
+            importp += 1
+            Uint64 export_addr = find_export(importp)
+            constif DEBUG
+                write("Function ")
+                write(importp)
+                write(" stack offset ")
+                write_num(addr)
+                write(" resolves to ")
+                write_num(export_addr)
+                write("\n")
+            Byte^ to_write = frameptr
+            to_write += addr
+            Uint64^ writer = to_write
+            writer^ = export_addr
+            twiddler = importp
+            twiddler += fstrsize
+            importp = twiddler
+            fcount += 1
+  
     constif DEBUG
         display_num("Jumping to ", entrypoint)
     !ret
@@ -206,10 +262,11 @@ def load_import(Byte^ file) Uint
     if ih^.magic[3] != 105
         display_num("Wrong magic 3 ",ih^.magic[3])
         return 1
-    display_num("Inanna version ", ih^.version)
-    display_num("Archs ", ih^.archs_count)
-    display_num("Strings offset ", ih^.strings_offset)
-    display_num("Imports offset ", ih^.imports_offset)
+    constif DEBUG
+        display_num("Inanna version ", ih^.version)
+        display_num("Archs ", ih^.archs_count)
+        display_num("Strings offset ", ih^.strings_offset)
+        display_num("Imports offset ", ih^.imports_offset)
     Uint count = 0
     ptr += 24
     InannaArchHeader^ iah = cast(ptr, InannaArchHeader^)
