@@ -589,17 +589,6 @@ bool Assembler::configure(std::string param, std::string val)
 			return false;
 		}
 	}
-	else if (param == "convert_uint64_to_32")
-	{
-		if (val == "true")
-		{
-			convert_64_to_32 = true;
-		}
-		else
-		{
-			convert_64_to_32 = false;
-		}
-	}
     else if (param == "temporary_stack_register")
     {
         temporary_stack_register = strtol(val.c_str(), 0, 10);

@@ -175,6 +175,11 @@ Component * make_conditionalbranchextender()
     return new ConditionalBranchExtender();
 }
 
+Component * make_convert64to32()
+{
+    return new Convert64to32();
+}
+
 ComponentFactory::ComponentFactory()
 {
 	add(make_memoryimage, "image", "memory");
@@ -206,6 +211,7 @@ ComponentFactory::ComponentFactory()
     add(make_thumbhighregisterpass, "pass", "thumbhighregister");
     add(make_cmpmoverpass, "pass", "cmpmover");
     add(make_conditionalbranchextender, "pass", "conditionalbranchextender");
+    add(make_convert64to32, "pass", "convert64to32");
     add(make_inannaentrypoint, "entrypoint", "inannaentrypoint");
 	add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
 	add(make_unixentrypoint, "entrypoint", "unixentrypoint");

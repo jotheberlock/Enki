@@ -380,4 +380,28 @@ public:
     virtual void processInsn();
 
 };
+
+// as a hack, rewrite 64-bit load/stores to 32-bit. Only works for little
+// endian targets...
+
+class Convert64to32 : public OptimisationPass
+{
+  public:
+
+public:
+
+    Convert64to32()
+        : OptimisationPass()
+    {
+    }
+
+    virtual std::string name()
+    {
+        return "Convert64to32";
+    }
+
+    virtual void processInsn();
+
+};
+
 #endif

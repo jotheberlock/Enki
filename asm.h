@@ -357,7 +357,6 @@ public:
 		le = true;
 		base = 0;
 		func_base = 0;
-		convert_64_to_32 = false;
         temporary_stack_register = -1;
 	}
 
@@ -431,10 +430,6 @@ public:
 	virtual void newFunction(Codegen *);
 
 	virtual bool configure(std::string, std::string);
-	bool convertUint64()
-	{
-		return convert_64_to_32;
-	}
 
     bool littleEndian()
     {
@@ -462,7 +457,6 @@ protected:
 	int psize;
 	bool le;
 	FunctionScope * current_function;
-	bool convert_64_to_32;
     int temporary_stack_register;
 
 };

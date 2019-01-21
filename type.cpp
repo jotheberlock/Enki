@@ -379,6 +379,8 @@ Types::Types()
 	signed_register_type = new IntegerType(true, assembler->pointerSize());
 	if (assembler->pointerSize() == 64)
 	{
+        types["Uint32"] = new IntegerType(false, 32);
+        types["Int32"] = new IntegerType(true, 32);
 		types["Uint64"] = register_type;
 		types["Int64"] = signed_register_type;
 	}
@@ -386,16 +388,12 @@ Types::Types()
 	{
 		types["Uint32"] = register_type;
 		types["Int32"] = signed_register_type;
+        types["Uint64"] = new IntegerType(false, 64);
+        types["Int64"] = new IntegerType(true, 64);
 	}
 
 	types["Uint"] = register_type;
 	types["Int"] = signed_register_type;
-
-	if (assembler->convertUint64())
-	{
-		types["Uint64"] = register_type;
-		types["Int64"] = signed_register_type;
-	}
 
 	types["Byte^"] = new PointerType(byte_type);
     void_type = new VoidType();
@@ -405,15 +403,19 @@ Types::Types()
 Types::~Types()
 {
         // Avoid double delete
-    types.erase("Uint");
-    types.erase("Int");
-
-    if (types["Uint64"] == types["Uint32"])
-    {
-            // Convert-uint64 hack as above; avoid double delete
+	if (assembler->pointerSize() == 64)
+	{
         types.erase("Uint64");
         types.erase("Int64");
     }
+    else
+    {
+        types.erase("Uint32");
+        types.erase("Int32");
+    }
+    
+    types.erase("Uint");
+    types.erase("Int");
     
 	for (std::map<std::string, Type *>::iterator it = types.begin();
 	it != types.end(); it++)

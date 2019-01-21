@@ -625,3 +625,17 @@ void ConditionalBranchExtender::processInsn()
         }
     }
 }
+
+void Convert64to32::processInsn()
+{
+    if (insn.ins == LOAD64)
+    {
+        insn.ins = LOAD32;
+        change(insn);
+    }
+    else if (insn.ins == STORE64)
+    {
+        insn.ins = STORE32;
+        change(insn);
+    }
+}
