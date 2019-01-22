@@ -159,7 +159,7 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
     ret = entrypoint()    
     Byte^ frameptr = cast(ret, Byte^)
     constif DEBUG
-        display_num("Frame ptr ", frameptr)
+        display_num("Frame ptr is ", frameptr)
         
     Byte^ importbp = base + ioffset
     Uint64^ importp = cast(importbp, Uint64^)
@@ -178,7 +178,7 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
         importp += 1
         Byte^ mname = importp
         constif DEBUG
-            write("Mentries ")
+            write("Module entries ")
             write_num(mentries)
             write("\n")
             write("Strsize ")
