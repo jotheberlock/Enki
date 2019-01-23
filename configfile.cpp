@@ -59,7 +59,7 @@ std::string ConfigFile::nativeTargetConfig()
 #endif
 #ifdef LINUX_HOST
 #ifdef  __arm__
-	return "linux_arm32_target.ini";
+	return "linux_thumb_target.ini";
 #else
 	return "linux_amd64_target.ini";
 #endif

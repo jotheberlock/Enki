@@ -84,7 +84,7 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
         write("Too many sections in object file!\n")
         return 1
     Uint64[10] offsets
-    Uint64[10] sizes
+    Uint[10] sizes
     Uint64 scount = 0
     while scount < 10
         offsets[scount] = 0
