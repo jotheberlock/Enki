@@ -649,15 +649,18 @@ void AddSplitter::processInsn()
             if (insn.ops[2].isUsigc())
             {
                 uint64 val = insn.ops[2].getUsigc();
-                while (val > 255)
+                if (val > 255)
                 {
-                    Insn preadd(ADD, insn.ops[0], insn.ops[1],
-                                Operand::usigc(255));
-                    val -= 255;
-                    prepend(preadd);
+                    while (val > 255)
+                    {
+                        Insn preadd(ADD, insn.ops[0], insn.ops[1],
+                                    Operand::usigc(255));
+                        val -= 255;
+                        prepend(preadd);
+                    }
+                    insn.ops[2] = Operand::usigc(val);
+                    change(insn);
                 }
-                insn.ops[2] = Operand::usigc(val);
-                change(insn);
             }
         }   
     }
