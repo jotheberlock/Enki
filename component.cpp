@@ -180,6 +180,11 @@ Component * make_convert64to32()
     return new Convert64to32();
 }
 
+Component * make_addsplitter()
+{
+    return new AddSplitter();
+}
+
 ComponentFactory::ComponentFactory()
 {
 	add(make_memoryimage, "image", "memory");
@@ -212,6 +217,7 @@ ComponentFactory::ComponentFactory()
     add(make_cmpmoverpass, "pass", "cmpmover");
     add(make_conditionalbranchextender, "pass", "conditionalbranchextender");
     add(make_convert64to32, "pass", "convert64to32");
+    add(make_addsplitter, "pass", "addsplitter");
     add(make_inannaentrypoint, "entrypoint", "inannaentrypoint");
 	add(make_windowsentrypoint, "entrypoint", "windowsentrypoint");
 	add(make_unixentrypoint, "entrypoint", "unixentrypoint");

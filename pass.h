@@ -404,4 +404,24 @@ public:
 
 };
 
+class AddSplitter : public OptimisationPass
+{
+  public:
+
+public:
+
+    AddSplitter()
+        : OptimisationPass()
+    {
+    }
+
+    virtual std::string name()
+    {
+        return "AddSplitter";
+    }
+
+    virtual void processInsn();
+
+};
+
 #endif
