@@ -232,7 +232,8 @@ def load_import(Byte^ file) Uint
         write(file)
         write("\n")
     Uint handle = open_file(file)
-    if handle > 0x10000000  # Bit of a hack, it's -1 (or -2 for some reason on Windows)
+    Uint handletest = 0x10000000
+    if handle > handletest  # Bit of a hack, it's -1 (or -2 for some reason on Windows)
         write("Unable to open ")
         write(file)
         write("\n")

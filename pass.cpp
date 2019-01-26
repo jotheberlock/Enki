@@ -644,24 +644,37 @@ void AddSplitter::processInsn()
 {
     if (insn.ins == ADD)
     {
-        if (insn.ops[0].eq(insn.ops[1]))
+        if (insn.ops[2].isUsigc())
         {
-            if (insn.ops[2].isUsigc())
+            uint64 val = insn.ops[2].getUsigc();
+            if (val > 255)
             {
-                uint64 val = insn.ops[2].getUsigc();
-                if (val > 255)
+                while (val > 255)
                 {
-                    while (val > 255)
-                    {
-                        Insn preadd(ADD, insn.ops[0], insn.ops[1],
-                                    Operand::usigc(255));
-                        val -= 255;
-                        prepend(preadd);
-                    }
-                    insn.ops[2] = Operand::usigc(val);
-                    change(insn);
+                    Insn preadd(ADD, insn.ops[0], insn.ops[0],
+                                Operand::usigc(255));
+                    val -= 255;
+                    prepend(preadd);
                 }
+                insn.ops[2] = Operand::usigc(val);
+                change(insn);
             }
-        }   
+        }
+        else if (insn.ops[2].isSigc())
+        {
+            int64 val = insn.ops[2].getSigc();
+            if (val > 255)
+            {
+                while (val > 255)
+                {
+                    Insn preadd(ADD, insn.ops[0], insn.ops[0],
+                                Operand::sigc(255));
+                    val -= 255;
+                    prepend(preadd);
+                }
+                insn.ops[2] = Operand::sigc(val);
+                change(insn);
+            }
+        }
     }
 }
