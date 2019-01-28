@@ -270,7 +270,8 @@ int Backend::process()
          it++)
     {
         char buf[4096];
-        sprintf(buf, "type %d %s %d\n", (*it).second->classId(), (*it).first.c_str(), (*it).second->size());
+        sprintf(buf, "type %u %s %u\n", (unsigned int)(*it).second->classId(),
+                (*it).first.c_str(), (unsigned int)(*it).second->size());
         fputs(buf, debug);
     }
     
@@ -279,13 +280,17 @@ int Backend::process()
 	{
         FunctionScope * fs = (*cit)->getScope();
         char buf[4096];
-        sprintf(buf, "function %s %d %d\n", fs->name().c_str(), config->image->functionAddress(fs), config->image->functionSize(fs));
+        sprintf(buf, "function %s %u %u\n", fs->name().c_str(),
+                (unsigned int)config->image->functionAddress(fs),
+                (unsigned int)config->image->functionSize(fs));
         fputs(buf, debug);
         std::vector<Value *> locals = (*cit)->getLocals();
         for (unsigned int loopc = 0; loopc<locals.size(); loopc++)
         {
             Value * v = locals[loopc];
-            sprintf(buf, "local %s %d %d\n", v->name.c_str(), v->type ? v->type->classId() : 0,  v->stackOffset());
+            sprintf(buf, "local %s %u %u\n", v->name.c_str(),
+                    (unsigned int)(v->type ? v->type->classId() : 0),
+                    (unsigned int)v->stackOffset());
             fputs(buf, debug);
         }
     }
