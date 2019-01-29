@@ -403,17 +403,6 @@ Types::Types()
 Types::~Types()
 {
         // Avoid double delete
-	if (assembler->pointerSize() == 64)
-	{
-        types.erase("Uint64");
-        types.erase("Int64");
-    }
-    else
-    {
-        types.erase("Uint32");
-        types.erase("Int32");
-    }
-    
     types.erase("Uint");
     types.erase("Int");
     
