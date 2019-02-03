@@ -495,7 +495,7 @@ bool Lexer::getLine(int & indent)
     indent = 0;
     bool seen_non_whitespace = false;
     bool in_string = false;
-    
+
     while (linepos < chars_list.size())
     {
         uint32 val = chars_list[linepos];
@@ -532,6 +532,8 @@ bool Lexer::getLine(int & indent)
                 }
                 val = chars_list[linepos];
             }
+            linepos++;
+            
             if (cont)
             {
                 while (true)
@@ -594,7 +596,7 @@ void Lexer::lex(Chars & input)
     while (more)
     {
         more = getLine(indent);
-
+        
         line++;
         col = indent;
         pos = 0;
