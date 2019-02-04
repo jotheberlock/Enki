@@ -71,6 +71,18 @@ int main(int argc, char ** argv)
            ih->strings_offset, ih->imports_offset, ih->imports_offset);
     strings = buf+ih->strings_offset;
 
+    if (ih->imports_offset > len)
+    {
+        printf("File too short for imports offset!\n");
+        return 5;
+    }
+
+    if (ih->strings_offset > len)
+    {
+        printf("File too short for strings offset!\n");
+        return 6;
+    }
+    
     uint64 * import_modulesp = (uint64 *)(buf+ih->imports_offset);
     printf("Imports %lld modules\n", *import_modulesp);
     
@@ -78,7 +90,14 @@ int main(int argc, char ** argv)
     for (unsigned int loopc=0; loopc<ih->archs_count; loopc++)
     {
         printf("\nArch %d, start address %llx - sections:\n", iah->arch, iah->start_address);
-        display_arch(buf+iah->offset, iah->sec_count, iah->reloc_count);
+        if (iah->offset > len)
+        {
+            printf("Offset is after end of file!\n");
+        }
+        else
+        {
+            display_arch(buf+iah->offset, iah->sec_count, iah->reloc_count);
+        }
         iah++;
     }
     
