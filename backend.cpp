@@ -94,6 +94,8 @@ int Backend::process()
         }
     }
 
+	BasicBlock * epilogue = gc->newBlock("epilogue");
+    
 	BasicBlock * body = gc->newBlock("body");
 	gc->setBlock(body);
 	gc->generate();
@@ -109,8 +111,6 @@ int Backend::process()
 		}
 		return 1;
 	}
-
-	BasicBlock * epilogue = gc->newBlock("epilogue");
 
 	if (jit)
 	{

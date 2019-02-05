@@ -2599,7 +2599,18 @@ Value * Return::codegen(Codegen * c)
 		c->setBlock(ret);
 		calling_convention->generateEpilogue(ret, c->getScope());
 	}
-
+    else if (c->callConvention() == CCONV_RAW)
+    {
+            // Probably the entry point
+        BasicBlock * ep = c->getUnplacedBlock("epilogue");
+        if (!ep)
+        {
+            printf("Can't find epilogue!\n");
+            return 0;
+        }
+        c->block()->add(Insn(BRA, ep));
+    }
+    
 	return 0;
 }
 

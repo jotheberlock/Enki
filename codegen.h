@@ -275,6 +275,20 @@ public:
 	// remain in that list since it's likely to be an error.
 	BasicBlock * newBlock(std::string = "");
 
+    BasicBlock * getUnplacedBlock(std::string name)
+    {
+        for (unsigned int loopc=0; loopc<blocks.size(); loopc++)
+        {
+            if (unplaced_blocks[loopc]->name() == name)
+            {
+                return unplaced_blocks[loopc];
+            }
+        }
+
+        return 0;
+    }
+
+    
 	std::string display(unsigned char *);
 
 	void addBreak(BasicBlock * b)
