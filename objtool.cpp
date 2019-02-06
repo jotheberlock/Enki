@@ -53,6 +53,7 @@ int main(int argc, char ** argv)
     if (read != len)
     {
         printf("Short read! Expected %ld got %d\n", len, read);
+        delete[] buf;
         return 3;
     }
     
@@ -63,6 +64,7 @@ int main(int argc, char ** argv)
     {
         printf("Not an Inanna file! Wrong magic %c %c %c %c\n",
                ih->magic[0], ih->magic[1], ih->magic[2], ih->magic[3]);
+        delete[] buf;
         return 4;
     }
 
@@ -74,12 +76,14 @@ int main(int argc, char ** argv)
     if (ih->imports_offset > len)
     {
         printf("File too short for imports offset!\n");
+        delete[] buf;
         return 5;
     }
 
     if (ih->strings_offset > len)
     {
         printf("File too short for strings offset!\n");
+        delete[] buf;
         return 6;
     }
     
@@ -100,6 +104,7 @@ int main(int argc, char ** argv)
         }
         iah++;
     }
-    
+
+    delete[] buf;
     return 0;
 }
