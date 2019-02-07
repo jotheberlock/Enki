@@ -44,6 +44,7 @@ int main(int argc, char ** argv)
     if (len < 512+24)
     {
         printf("Not an Inanna file! Too short\n");
+        fclose(f);
         return 2;
     }
     
