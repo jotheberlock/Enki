@@ -43,7 +43,7 @@ int main(int argc, char ** argv)
 
     if (len < 512+24)
     {
-        printf("Not an Inanna file! Too short\n");
+        printf("Not an Inanna file! Too short, length %ld\n", len);
         fclose(f);
         return 2;
     }
@@ -53,7 +53,7 @@ int main(int argc, char ** argv)
     int read = fread(buf, 1, len, f);
     if (read != len)
     {
-        printf("Short read! Expected %ld got %d\n", len, read);
+        printf("Short read! Expected %ld, got %d\n", len, read);
         delete[] buf;
         return 3;
     }
@@ -76,14 +76,16 @@ int main(int argc, char ** argv)
 
     if (ih->imports_offset > len)
     {
-        printf("File too short for imports offset!\n");
+        printf("File length %ld too short for imports offset of %d!\n",
+               len, ih->imports_offset);
         delete[] buf;
         return 5;
     }
 
     if (ih->strings_offset > len)
     {
-        printf("File too short for strings offset!\n");
+        printf("File length %ld too short for strings offset %d!\n",
+               len, ih->strings_offset);
         delete[] buf;
         return 6;
     }
