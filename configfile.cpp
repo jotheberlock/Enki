@@ -54,12 +54,18 @@ std::string ConfigFile::hostConfig()
 
 std::string ConfigFile::nativeTargetConfig()
 {
+    char * t = getenv("ENKI_NATIVE_TARGET");
+    if (t)
+    {
+        return t;
+    }
+    
 #ifdef CYGWIN_HOST
 	return "windows_amd64_target.ini";
 #endif
 #ifdef LINUX_HOST
 #ifdef  __arm__
-	return "linux_thumb_target.ini";
+	return "linux_arm32_target.ini";
 #else
 	return "linux_amd64_target.ini";
 #endif
