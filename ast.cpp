@@ -2770,11 +2770,6 @@ Value * If::codegen(Codegen * c)
 	for (std::list<IfClause *>::iterator it = clauses.begin();
 	it != clauses.end(); it++)
 	{
-		if (count > 0)
-		{
-			ifs[count - 1]->add(Insn(BRA, ifs[count]));
-		}
-
 		c->setBlock(ifcs[count]);
 
 		IfClause * ic = *it;
