@@ -1,4 +1,4 @@
-def foo(Uint64 count) Uint64
+def foo(Uint count) Uint
     Byte[10] buffer
     num_to_str(count, @buffer)
     write(@buffer)
