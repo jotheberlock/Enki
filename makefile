@@ -97,7 +97,7 @@ objtool.o : objtool.cpp
 	g++ $(CFLAGS) -g -c -Wall objtool.cpp
 
 clean:
-	rm -f *.o enki enki.exe *~
+	rm -f *.o enki enki.exe *~ objtool
 
 valgrind : enki
 	valgrind ./enki tests/TEST.001.twoplustwo.e
