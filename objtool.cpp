@@ -63,7 +63,7 @@ int main(int argc, char ** argv)
     InannaHeader * ih = (InannaHeader *)(buf+INANNA_PREAMBLE);
     if (ih->magic[0] != 'e' || ih->magic[1] != 'n' || ih->magic[2] != 'k' || ih->magic[3] != 'i')
     {
-        printf("Not an Inanna file! Wrong magic %c %c %c %c\n",
+        printf("Not an Inanna file! Wrong magic [%c%c%c%c]\n",
                ih->magic[0], ih->magic[1], ih->magic[2], ih->magic[3]);
         delete[] buf;
         return 4;
