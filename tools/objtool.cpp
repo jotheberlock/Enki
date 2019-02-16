@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "inanna_structures.h"
+#include "../inanna_structures.h"
+#include "md5.h"
 
 char * strings = 0;
 

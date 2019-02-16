@@ -3,8 +3,8 @@ all: enki objtool
 enki: main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o arm32.o rtti.o thumb.o exports.o inanna.o imports.o 
 	g++ -o enki $(LDFLAGS) main.o lexer.o ast.o error.o type.o codegen.o asm.o mem.o amd64.o platform.o regset.o pass.o cfuncs.o symbols.o image.o elf.o stringbox.o component.o configfile.o backend.o pe.o entrypoint.o macho.o arm32.o rtti.o thumb.o exports.o inanna.o imports.o -lpthread
 
-objtool: objtool.o
-	g++ -o objtool objtool.o
+objtool: objtool.o md5.o
+	g++ -o objtool objtool.o md5.o
 
 main.o : main.cpp lexer.h ast.h type.h codegen.h
 	g++ $(CFLAGS) -g -c -Wall main.cpp
@@ -93,8 +93,11 @@ inanna.o : inanna.cpp inanna.h
 imports.o : imports.cpp imports.h
 	g++ $(CFLAGS) -g -c -Wall imports.cpp
 
-objtool.o : objtool.cpp
-	g++ $(CFLAGS) -g -c -Wall objtool.cpp
+objtool.o : tools/objtool.cpp
+	g++ $(CFLAGS) -g -c -Wall tools/objtool.cpp
+
+md5.o : tools/md5.cpp
+	g++ $(CFLAGS) -g -c -Wall tools/md5.cpp
 
 clean:
 	rm -f *.o enki enki.exe *~ objtool
