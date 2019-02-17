@@ -100,7 +100,7 @@ md5.o : tools/md5.cpp
 	g++ $(CFLAGS) -g -c -Wall tools/md5.cpp
 
 clean:
-	rm -f *.o enki enki.exe *~ objtool
+	rm -f *.o enki enki.exe *~ objtool *.txt tests/*.txt
 
 valgrind : enki
 	valgrind ./enki tests/TEST.001.twoplustwo.e
