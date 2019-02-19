@@ -4,6 +4,14 @@
 
 char * strings = 0;
 
+const char * archs [] = 
+{
+    "unknown",
+    "amd64",
+    "arm32",
+    "thumb" 
+};
+    
 void display_arch(char * ptr, uint32 secs, uint32 relocs)
 {
     InannaSection * is = (InannaSection *)ptr;
@@ -70,8 +78,9 @@ int main(int argc, char ** argv)
         return 4;
     }
 
-    printf("Version %d, %d architectures, string offset %d (%x), imports offset %d (%x)\n",
-           ih->version, ih->archs_count, ih->strings_offset,
+    printf("Version %d, %d %s, string offset %d (%x), imports offset %d (%x)\n",
+           ih->version, ih->archs_count, ih->archs_count == 1 ?
+           "architecture" : "architectures", ih->strings_offset,
            ih->strings_offset, ih->imports_offset, ih->imports_offset);
     strings = buf+ih->strings_offset;
 
@@ -97,7 +106,8 @@ int main(int argc, char ** argv)
     InannaArchHeader * iah = (InannaArchHeader *)(buf+INANNA_PREAMBLE+InannaHeader::size());
     for (unsigned int loopc=0; loopc<ih->archs_count; loopc++)
     {
-        printf("\nArch %d, start address %llx - sections:\n", iah->arch, iah->start_address);
+        printf("\nArch %s (%d), start address %llx - sections:\n",
+               archs[iah->arch], iah->arch, iah->start_address);
         if (iah->offset > len)
         {
             printf("Offset is after end of file!\n");
