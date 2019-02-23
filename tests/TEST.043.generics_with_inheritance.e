@@ -1,22 +1,22 @@
 struct Foo
-    Uint64 thing
+    Uint thing
 
 struct Bar(Foo)
-    Uint64 another_thing
+    Uint another_thing
 
-generic test(val) Uint64
+generic test(val) Uint
 
-def test(Foo^ val) Uint64
+def test(Foo^ val) Uint
     write("Foo ")
     return 1
 
-def test(Bar^ val) Uint64
+def test(Bar^ val) Uint
     write("Bar ")
     return 2
     
 Foo foo
 Foo^ fooptr = @foo
-Uint64 ret
+Uint ret
 ret = 42
 ret = test(fooptr)
 Bar bar

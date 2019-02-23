@@ -277,7 +277,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case STORE64:
 		{
 			printf("64-bit load/store attempted on 32-bit ARM!\n");
-            assert(false);
+			assert(false);
 			break;
 		}
 		case MOVE:

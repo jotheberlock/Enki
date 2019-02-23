@@ -1,13 +1,13 @@
-def zargle() Uint64
+def zargle() Uint
     write("Foo\n")
 
-def frobnitz() Uint64
+def frobnitz() Uint
     zargle()
     
-def bar() Uint64
+def bar() Uint
     frobnitz()
 
-def foo() Uint64
+def foo() Uint
     bar()
     
 foo()

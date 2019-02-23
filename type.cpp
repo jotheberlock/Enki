@@ -623,16 +623,16 @@ void ActivationType::activate(Codegen * c, Value * frame)
 Value * FunctionType::allocStackFrame(Codegen * c, Value * faddr,
 	Value * & to_add, Funcall * f, Type * rettype)
 {
-	to_add = c->getTemporary(register_type, "to_add");
-	c->block()->add(Insn(LOAD, to_add, faddr));
-
-	int depth = 0;
-	Value * next_frame_ptr = c->getScope()->lookup("__stackptr", depth);
-	assert(next_frame_ptr);
-
-	Value * addrof = c->getTemporary(register_type, "addr_of_stackptr");
-	c->block()->add(Insn(GETADDR, addrof, next_frame_ptr, Operand::usigc(depth)));
-
+    to_add = c->getTemporary(register_type, "to_add");
+    c->block()->add(Insn(LOAD, to_add, faddr));
+  
+    int depth = 0;
+    Value * next_frame_ptr = c->getScope()->lookup("__stackptr", depth);
+    assert(next_frame_ptr);
+    
+    Value * addrof = c->getTemporary(register_type, "addr_of_stackptr");
+    c->block()->add(Insn(GETADDR, addrof, next_frame_ptr, Operand::usigc(depth)));
+    
     std::string nam = "@"+rettype->name();
     Type * at = types->lookup(nam);
     if (!at)
@@ -641,14 +641,14 @@ Value * FunctionType::allocStackFrame(Codegen * c, Value * faddr,
         types->add(at, nam);
     }
     
-	Value * new_ptr = c->getTemporary(at, "new_ptr");
-	c->block()->add(Insn(LOAD, new_ptr, addrof));
-
-	Value * adder = c->getTemporary(register_type, "stackptr_add");
-	c->block()->add(Insn(LOAD, adder, addrof));
-	c->block()->add(Insn(ADD, adder, adder, to_add));
-	c->block()->add(Insn(STORE, addrof, Operand::sigc(0), adder));
-	return new_ptr;
+    Value * new_ptr = c->getTemporary(at, "new_ptr");
+    c->block()->add(Insn(LOAD, new_ptr, addrof));
+    
+    Value * adder = c->getTemporary(register_type, "stackptr_add");
+    c->block()->add(Insn(LOAD, adder, addrof));
+    c->block()->add(Insn(ADD, adder, adder, to_add));
+    c->block()->add(Insn(STORE, addrof, Operand::sigc(0), adder));
+    return new_ptr;
 }
 
 bool FunctionType::validArgList(std::vector<Value *> & args, std::string & reason)

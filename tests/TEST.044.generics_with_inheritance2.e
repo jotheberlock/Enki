@@ -7,13 +7,13 @@ struct Bar(Foo)
 struct Frobnitz(Bar)
     pass
 
-generic test(val) Uint64
+generic test(val) Uint
 
-def test(Foo^ val) Uint64
+def test(Foo^ val) Uint
     write("Foo ")
     return 1
 
-def test(Frobnitz^ val) Uint64
+def test(Frobnitz^ val) Uint
     write("Frobnitz ")
     return 2
     
@@ -22,7 +22,7 @@ Bar bar
 Frobnitz frobnitz
 
 Foo^ fooptr = @foo
-Uint64 ret
+Uint ret
 ret = 42
 ret = test(fooptr)
 fooptr = @bar

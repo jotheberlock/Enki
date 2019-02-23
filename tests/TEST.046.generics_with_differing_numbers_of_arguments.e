@@ -1,12 +1,12 @@
-generic foo() Uint64
+generic foo() Uint
 
-def foo(Uint64 a) Uint64
+def foo(Uint a) Uint
     write("Hi")
 
-def foo(Uint64 a, Uint64 b) Uint64
+def foo(Uint a, Uint b) Uint
     write("Hello")
 
-Uint64 var = 0
+Uint var = 0
 foo(var,var)
 foo(var)
 return 0

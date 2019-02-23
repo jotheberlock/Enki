@@ -1,6 +1,6 @@
-Uint64 handle
+Uint handle
 handle = open_file("helloworld")
-Uint64 size
+Uint size
 size = get_file_size(handle)
 Byte^ ptr = 0
 
