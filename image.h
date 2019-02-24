@@ -162,7 +162,7 @@ public:
 	uint64 lshift;
 	int bits;
 
-	void apply(bool, unsigned char *, uint64);
+	bool apply(bool, unsigned char *, uint64);
 
 };
 
@@ -181,6 +181,10 @@ public:
 	}
 
     virtual std::string type() = 0;
+    virtual void display_failure()
+    {
+        printf("Type is %s\n", type().c_str());
+    }
     
     virtual bool isAbsolute()
     {
@@ -295,6 +299,8 @@ public:
     {
         return "basicblock";
     }
+
+    virtual void display_failure();
     
 protected:
 

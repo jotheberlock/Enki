@@ -57,8 +57,10 @@ FunctionTableRelocation::FunctionTableRelocation(Image * i, FunctionScope * f,
     section = s;
 }
 
-void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
+bool Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 {
+    bool ret = true;
+    
 	if (mask == 0)
 	{
 		if (bits == 8)
@@ -80,16 +82,17 @@ void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 		{
 			wee64(le, ptr, val);
 		}
-		return;
+		return true;
 	}
 
     if (!(val & 0x8000000000000000))
     {
         // If it's not negative, and it's too big for the mask, something has gone wrong.
         // (Probably? We hit this with ARM32 but the code works...)
-        if (!((val >> rshift) <= mask))
+        if (mask && (!((val >> rshift) <= mask)))
         {
-            printf("Val is %llx rshift %d mask %x!\n", val, rshift, mask);
+            printf("Possible overflow fixing up offset %llx - val is %llx rshift %lld mask %llx!\n", offset, val, rshift, mask);
+            ret = false;
         }
     }
     else
@@ -129,16 +132,27 @@ void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 		unsigned char * poffset = ptr + offset;
 		wee64(le, poffset, to_write);
 	}
+
+    return ret;
 }
 
 void BaseRelocation::apply()
 {
+    bool success = true;
 	unsigned char * patch_site = getPtr();
 	for (std::list<Reloc>::iterator it = relocs.begin();
 	it != relocs.end(); it++)
 	{
-		(*it).apply(image->littleEndian(), patch_site, getValue());
+		if (!(*it).apply(image->littleEndian(), patch_site, getValue()))
+        {
+            success = false;
+        }
 	}
+
+    if (!success)
+    {
+        display_failure();
+    }
 }
 
 ExtFunctionRelocation::ExtFunctionRelocation(Image * i,
@@ -621,5 +635,12 @@ unsigned char * FunctionTableRelocation::getPtr()
 uint64 FunctionTableRelocation::getValue()
 {
     return image->functionAddress(to_link);
+}
+
+void BasicBlockRelocation::display_failure()
+{
+    printf("Failure is a relative bb relocation in function %s, %llx to %llx (%s)\n",
+           to_patch->name().c_str(), image->functionAddress(to_patch)+patch_offset, to_link->getAddr(),
+           to_link->name().c_str());
 }
 
