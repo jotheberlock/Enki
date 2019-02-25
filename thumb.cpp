@@ -741,6 +741,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 int16 val = (int16)i.ops[0].getSigc();
                 val -= 2;
                 val >>= 1;
+                assert(val < 129 && val > -128);
                 uint16 * us = (uint16 *)&val;
                 mc |= (*us) & 0xff;
             }
