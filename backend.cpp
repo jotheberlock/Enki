@@ -189,6 +189,7 @@ int Backend::process()
 		int func_size = 0;
 		for (unsigned int loopc = 0; loopc < bbs.size(); loopc++)
 		{
+            bbs[loopc]->setEstimatedAddr(code_size);
 			int siz = config->assembler->size(bbs[loopc]);
 			code_size += siz;
 			func_size += siz;

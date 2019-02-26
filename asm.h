@@ -236,6 +236,7 @@ public:
 	{
 		nam = n;
 		addr = 0;
+        estaddr = 0;
 	}
 
 	std::string name()
@@ -310,6 +311,18 @@ public:
 		addr = a;
 	}
 
+    // Worst case size used for determining if
+    // branch offsets are encodable etc
+    void setEstimatedAddr(uint64 a)
+    {
+        estaddr = a;
+    }
+
+    uint64 getEstimatedAddr()
+    {
+        return estaddr;
+    }
+
 	RegSet getReservedRegs()
 	{
 		return reserved_regs;
@@ -327,6 +340,7 @@ protected:
 	std::list<Insn> insns;
 	std::string nam;
 	uint64 addr;
+    uint64 estaddr;
 	RegSet reserved_regs;
 
 };
