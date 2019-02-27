@@ -162,7 +162,7 @@ public:
 	uint64 lshift;
 	int bits;
 
-	bool apply(bool, unsigned char *, uint64);
+	void apply(bool, unsigned char *, uint64);
 
 };
 

@@ -57,10 +57,8 @@ FunctionTableRelocation::FunctionTableRelocation(Image * i, FunctionScope * f,
     section = s;
 }
 
-bool Reloc::apply(bool le, unsigned char * ptr, uint64 val)
+void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 {
-    bool ret = true;
-    
 	if (mask == 0)
 	{
 		if (bits == 8)
@@ -82,24 +80,8 @@ bool Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 		{
 			wee64(le, ptr, val);
 		}
-		return true;
+		return;
 	}
-
-    if (!(val & 0x8000000000000000))
-    {
-        // If it's not negative, and it's too big for the mask, something has gone wrong.
-        // (Probably? We hit this with ARM32 but the code works...)
-        if (mask && (!((val >> rshift) <= mask)))
-        {
-            printf("Possible overflow fixing up offset %llx - val is %llx rshift %lld mask %llx!\n", offset, val, rshift, mask);
-            ret = false;
-        }
-    }
-    else
-    {
-        // If it is negative and there's anything other than sign bits outside the mask, ditto
-        assert(((val >> rshift) | mask | (mask << (64 - rshift))) == 0xffffffffffffffff);
-    }
 
 	val = val >> rshift;
 	val = val & mask;
@@ -132,26 +114,49 @@ bool Reloc::apply(bool le, unsigned char * ptr, uint64 val)
 		unsigned char * poffset = ptr + offset;
 		wee64(le, poffset, to_write);
 	}
-
-    return ret;
 }
 
 void BaseRelocation::apply()
 {
-    bool success = true;
 	unsigned char * patch_site = getPtr();
+
+    uint64 val = getValue();
+    
+    uint64 written = val;
+    
+    int bits = 0;
 	for (std::list<Reloc>::iterator it = relocs.begin();
 	it != relocs.end(); it++)
 	{
-		if (!(*it).apply(image->littleEndian(), patch_site, getValue()))
-        {
-            success = false;
-        }
-	}
+        uint64 mask = (*it).mask << (*it).rshift;
 
-    if (!success)
+        if (mask == 0)
+        {
+            for (int loopc=0; loopc<(*it).bits; loopc++)
+            {
+                mask |= 0x1 << loopc;
+            }
+        }
+        
+        written = written & ~mask;
+        
+            // this should really be a BaseRelocation thing...
+        if (bits < (*it).bits)
+        {
+            bits = (*it).bits;
+        }
+        
+		(*it).apply(image->littleEndian(), patch_site, val);
+	}
+    
+    if (written)
     {
-        display_failure();
+            // this is not ideal
+        if (written != 0xfffffffffffff000 && written != 0xfffffffffc000000)
+        {
+            printf("Unwritten bits in %d bit relocation of %llx! %llx\n", bits, val, written);
+            display_failure();
+        }
     }
 }
 
