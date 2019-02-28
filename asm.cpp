@@ -166,6 +166,22 @@ BasicBlock * Operand::getBlock()
 	return contents.b;
 }
 
+int BasicBlock::getEstimatedBlockOffset(BasicBlock * to, uint64 o)
+{
+    if (to->getEstimatedAddr() > getEstimatedAddr())
+    {
+        uint64 dist = to->getEstimatedAddr() - getEstimatedAddr();
+        dist -= o;
+        return (int)dist;
+    }
+    else
+    {
+        uint64 dist = getEstimatedAddr() - to->getEstimatedAddr();
+        dist += o;
+        return -((int)dist);
+    }
+}
+
 FunctionScope * Operand::getFunction()
 {
 	assert(type == OPERAND_FUNCTION);

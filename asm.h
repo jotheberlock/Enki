@@ -333,6 +333,8 @@ public:
 		reserved_regs = r;
 	}
 
+    int getEstimatedBlockOffset(BasicBlock *, uint64 o);
+
 protected:
 
 	std::vector<BasicBlock *> children;
