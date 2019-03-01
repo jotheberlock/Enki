@@ -166,17 +166,20 @@ BasicBlock * Operand::getBlock()
 	return contents.b;
 }
 
-int BasicBlock::getEstimatedBlockOffset(BasicBlock * to, uint64 o)
+int BasicBlock::getEstimatedBlockOffset(BasicBlock * toblock, uint64 o)
 {
-    if (to->getEstimatedAddr() > getEstimatedAddr())
+    uint64 to = toblock->getEstimatedAddr();
+    uint64 from = getEstimatedAddr();
+
+    if (to > from)
     {
-        uint64 dist = to->getEstimatedAddr() - getEstimatedAddr();
+        uint64 dist = to - from;
         dist -= o;
         return (int)dist;
     }
     else
     {
-        uint64 dist = getEstimatedAddr() - to->getEstimatedAddr();
+        uint64 dist = from - to;
         dist += o;
         return -((int)dist);
     }

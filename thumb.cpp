@@ -2,6 +2,7 @@
 #include "platform.h"
 #include "codegen.h"
 #include "image.h"
+#include "symbols.h"
 
 bool Thumb::validRegOffset(Insn & i, int off)
 {
@@ -128,7 +129,9 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 	uint64 current_addr = (uint64)current;
 	assert((current_addr & 0x1) == 0);
-    
+
+    unsigned char * block_base = current;
+
 	for (std::list<Insn>::iterator it = code.begin(); it != code.end();
 	it++)
 	{
@@ -732,6 +735,11 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
             if (i.ops[0].isBlock())
             {
+                int offset = b->getEstimatedBlockOffset(i.ops[0].getBlock(), current-block_base);
+                if (offset < -252 || offset > 258)
+                {
+                    printf(">>> %x %s %s\n", offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
+                }
                 BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
                     current_function, flen(), flen() + 4, i.ops[0].getBlock());
                 bbr->addReloc(0, 1, 0x00ff, 0, 16);

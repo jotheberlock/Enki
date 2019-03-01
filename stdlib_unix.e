@@ -52,7 +52,6 @@ def map_file(Uint fd, Uint offset, Uint size, Uint permissions) Byte^
     
 def remap(Byte^ ptr, Uint size, Uint permissions) Uint
     Uint32 protect
-
     if permissions == READ_PERMISSION
         protect = PROT_READ
     elif permissions == RW_PERMISSION
