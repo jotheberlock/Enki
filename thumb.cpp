@@ -757,8 +757,6 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 int offset = b->getEstimatedBlockOffset(i.ops[0].getBlock(), current-block_base);
                 if (offset < -252 || offset > 258)
                 {
-                    printf(">>> Conditional branch offset overflow %x %s %s\n", offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
-                    
                         // Reverse the sense of the conditional branch
                     if (i.ins == BNE)
                     {
