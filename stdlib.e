@@ -6,7 +6,7 @@ def len(Byte^ ptr) Uint
         count += 1
     return count
 
-def num_to_str(Uint in, Byte^ out)
+def num_to_str(Uint64 in, Byte^ out)
     Byte^ out_end = out + 16
     out_end^ = 0
     out_end -= 1
@@ -53,7 +53,7 @@ def strcmp(Byte^ str1, Byte^ str2) Uint
           str2 += 1
     return 0
 
-def display_num(Byte^ text, Uint val) Uint
+def display_num(Byte^ text, Uint64 val) Uint
     write(text)
     write_num(val)
     write("\n")

@@ -647,6 +647,11 @@ public:
 		return true;
 	}
 
+    virtual bool inRegister()
+    {
+        return true;
+    }
+    
     FunctionSignature getSignature()
     {
         std::vector<uint64> ret;

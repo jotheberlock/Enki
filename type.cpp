@@ -675,10 +675,12 @@ bool FunctionType::validArgList(std::vector<Value *> & args, std::string & reaso
             else
             {
                 char buf[4096];
-                sprintf(buf, "%s - expected %d bit argument, got %d",
+                sprintf(buf, "%s - expected %d bit %s argument, got %d bit %s",
                         params[loopc].name.c_str(),
                         params[loopc].type->size(),
-                        args[loopc]->type->size());
+                        params[loopc].type->isSigned() ? "signed" : "unsigned",
+                        args[loopc]->type->size(),
+                        args[loopc]->type->isSigned() ? "signed" : "unsigned");
                 reason = buf;
                 return false;
             }

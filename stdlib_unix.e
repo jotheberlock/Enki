@@ -5,7 +5,7 @@ def write(Byte^ ptr) Uint
     written = __syscall(SYSCALL_WRITE, STDOUT, ptr, count)
     return written
 
-def write_num(Uint num) Uint
+def write_num(Uint64 num) Uint
     Byte[20] bytes
     num_to_str(num, @bytes)
     __syscall(SYSCALL_WRITE, STDOUT, @bytes, 16)
