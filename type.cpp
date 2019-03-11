@@ -570,15 +570,14 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * sl,
 
 	for (unsigned int loopc = 0; loopc < args.size(); loopc++)
 	{
-		int align = args[loopc]->type->align() / 8;
+		Value * arg = args[loopc];
+		Type * intype = arg->type;
+		Type * expectedtype = params.size() > loopc ? params[loopc].type : 0;
+		int align = (expectedtype) ? expectedtype->align() / 8 : args[loopc]->type->align() / 8;
 		while (current_offset % align)
 		{
 			current_offset++;
 		}
-
-		Value * arg = args[loopc];
-		Type * intype = arg->type;
-		Type * expectedtype = params.size() > loopc ? params[loopc].type : 0;
 
         if (expectedtype) // not available for generics yet!
         {
@@ -588,8 +587,8 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * sl,
             }
         }
 
-		c->block()->add(Insn(storeForType(arg->type), new_frame, Operand::sigc(current_offset), arg));
-		current_offset += args[loopc]->type->size() / 8;
+		c->block()->add(Insn(storeForType(intype), new_frame, Operand::sigc(current_offset), arg));
+		current_offset += (expectedtype) ? expectedtype->size() / 8 : intype->size() / 8;
 	}
 
 	new_frame->type->activate(c, new_frame);
