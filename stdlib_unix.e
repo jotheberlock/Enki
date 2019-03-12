@@ -72,7 +72,8 @@ def get_argc() Uint
     return argc
 
 def get_argv(Uint index) Byte^
-    Byte^^ argp = __osstackptr + 8
+    Byte^^ argp = __osstackptr
+    argp += 1
     argp += index
     return argp^
 
