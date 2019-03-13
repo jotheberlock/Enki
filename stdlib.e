@@ -6,7 +6,7 @@ def len(Byte^ ptr) Uint
         count += 1
     return count
 
-def num_to_str(Uint64 in, Byte^ out)
+def num_to_str(Uint64 in, Byte^ out) Uint
     Byte^ out_end = out + 16
     out_end^ = 0
     out_end -= 1
@@ -29,8 +29,9 @@ def num_to_str(Uint64 in, Byte^ out)
         out_end -= 1
         in = in >> 8
         count -= 1
+    return 0
 
-def to_upper(Byte^ str)
+def to_upper(Byte^ str) Uint
     Byte ch = str^
     while ch != 0
         if ch > 97
@@ -39,6 +40,7 @@ def to_upper(Byte^ str)
                 str^ = ch
         str += 1
         ch = str^
+    return 0
 
 def strcmp(Byte^ str1, Byte^ str2) Uint
     Uint true = 1

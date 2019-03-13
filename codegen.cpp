@@ -207,7 +207,7 @@ void Codegen::allocateStackSlots()
 	for (unsigned int loopc = 0; loopc < locals.size(); loopc++)
 	{
 		Value * v = locals[loopc];
-		if (v->onStack())
+		if (v->onStack() && (v->type != void_type))
 		{
 			assert(v->type->size() != 0);
 			int tsize = v->type->size() / 8;
