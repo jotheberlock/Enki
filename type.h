@@ -629,6 +629,8 @@ protected:
 
 typedef std::vector<uint64> FunctionSignature;
 
+extern Type * void_type;
+
 class FunctionType : public Type
 {
 public:
@@ -637,7 +639,7 @@ public:
 	{
 		siz = 0;
 		is_macro = m;
-        ret_type = 0;
+        ret_type = void_type;
 	}
 
 	// Address of target, source
@@ -683,6 +685,7 @@ public:
 
 	void setReturn(Type * t)
 	{
+        assert(t);
         ret_type = t;
 	}
 
@@ -958,6 +961,5 @@ void destroyTypes();
 extern Type * register_type;
 extern Type * signed_register_type;
 extern Type * byte_type;
-extern Type * void_type;
 
 #endif

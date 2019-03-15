@@ -531,7 +531,7 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * sl,
                                       Value * fp, std::vector<Value *> & args)
 {
 	Value * to_add = 0;
-	Value * new_frame = allocStackFrame(c, fp, to_add, f, ret_type == 0 ? void_type : ret_type);
+	Value * new_frame = allocStackFrame(c, fp, to_add, f, ret_type);
 
 	Value * fp_holder = c->getTemporary(register_type, "fp_holder");
 	c->block()->add(Insn(MOVE, fp_holder, fp));
@@ -553,9 +553,9 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * sl,
 
 	int current_offset = assembler->returnOffset();
 
-	if (ret_type == 0)
+	if (ret_type == void_type)
 	{
-		printf("Function has no return type!\n");
+		printf("Function has void return type!\n");
 	}
     else
 	{
