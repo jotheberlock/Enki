@@ -113,7 +113,7 @@ void ElfImage::finalise()
 	ptr++;
 	*ptr = 0x1;
 	ptr++;
-	*ptr = 0x0;  // Target ABI
+	*ptr = 64;   // abi
 	ptr++;
 	wee64(le, ptr, 0x0);  // ABI version and pad
 	wee16(le, ptr, 0x2);  // Executable
@@ -147,8 +147,16 @@ void ElfImage::finalise()
 		wee32(le, ptr, 0x34);  // Program header offset
 		wee32(le, ptr, 0x34 + (32 * no_pheaders));  // End of program headers; start of section headers
 	}
-	wee32(le, ptr, 0x0); // Flags
-	wee16(le, ptr, sf_bit ? 64 : 52); // This header size
+
+        if (arch == ARCH_ARM32)
+        {
+            wee32(le, ptr, 0x05000000);  // EABI v 5
+        }
+        else
+        {
+	    wee32(le, ptr, 0x0); // Flags
+	}
+        wee16(le, ptr, sf_bit ? 64 : 52); // This header size
 	wee16(le, ptr, sf_bit ? 56 : 32); // pheader size
 	wee16(le, ptr, no_pheaders);
 	wee16(le, ptr, sf_bit ? 64 : 40); // section header size

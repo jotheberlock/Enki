@@ -66,6 +66,8 @@ std::string ConfigFile::nativeTargetConfig()
 #ifdef LINUX_HOST
 #ifdef  __arm__
 	return "linux_arm32_target.ini";
+#elif __aarch64__
+        return "linux_arm32_target.ini";
 #else
 	return "linux_amd64_target.ini";
 #endif
@@ -82,6 +84,8 @@ std::string ConfigFile::nativeTargetConfig()
 std::string ConfigFile::relocatableTargetConfig()
 {
 #ifdef __arm__
+    return "inanna_arm32_target.ini";
+#elif __aarch64__
     return "inanna_arm32_target.ini";
 #else
     return "inanna_amd64_target.ini";
