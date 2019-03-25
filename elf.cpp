@@ -150,7 +150,7 @@ void ElfImage::finalise()
 
         if (arch == ARCH_ARM32)
         {
-            wee32(le, ptr, 0x05000000);  // EABI v 5
+            wee32(le, ptr, 0x05000402);  // EABI v5, hardfp, entry point
         }
         else
         {
