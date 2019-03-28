@@ -1690,7 +1690,7 @@ Expr * Parser::parseModule()
 void Parser::checkInterfaceTypes(Token & current, std::string & name, FunctionScope * prev, std::vector<Type *> & ftypes, Type * ret)
 {
     FunctionType * prevt = prev->getType();
-    if (prevt->argCount() != ftypes.size())
+    if (prevt->argCount() != (int)ftypes.size())
     {
         char buf[4096];
         sprintf(buf, "Interface for function %s has %ld arguments, implementation %ld", name.c_str(), ftypes.size(), prevt->getParams().size());

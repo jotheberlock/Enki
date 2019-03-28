@@ -195,7 +195,7 @@ void InannaImage::finalise()
     memcpy(ptr, stringtable.getData(), stringtable.dataSize());
     ptr += stablesize;
 
-    printf(">> Offset %x\n", ptr-header);
+    printf(">> Offset %lx\n", ptr-header);
     memcpy(ptr, imports->getData(), imports->size());
     ptr += imports->size();
     
@@ -233,7 +233,7 @@ void InannaImage::finalise()
             for (std::list<Reloc>::iterator it = relocs.begin();
                  it != relocs.end(); it++)
             {
-                printf("  Off %llx rshift %d mask %llx lshift %d bits %d\n",
+                printf("  Off %llx rshift %ld mask %llx lshift %ld bits %d\n",
                        (*it).offset, (*it).rshift, (*it).mask, (*it).lshift,
                        (*it).bits);
                 int type = 0;
