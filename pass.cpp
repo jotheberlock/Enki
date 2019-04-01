@@ -654,7 +654,7 @@ void AddSplitter::processInsn()
                     Insn preadd(ADD, insn.ops[0], insn.ops[0],
                                 Operand::usigc(255));
                     val -= 255;
-                    prepend(preadd);
+                    append(preadd);
                 }
                 insn.ops[2] = Operand::usigc(val);
                 change(insn);
@@ -670,7 +670,7 @@ void AddSplitter::processInsn()
                     Insn preadd(ADD, insn.ops[0], insn.ops[0],
                                 Operand::sigc(255));
                     val -= 255;
-                    prepend(preadd);
+                    append(preadd);
                 }
                 insn.ops[2] = Operand::sigc(val);
                 change(insn);
