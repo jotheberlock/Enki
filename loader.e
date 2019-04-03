@@ -145,6 +145,21 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
                write_num(ir^.offto)
                write("\n")
            fromptr^ = toaddr
+        if itype == 3
+           Byte^ fromptrb = offsets[ir^.secfrom]
+           fromptrb += ir^.offrom
+           Uint16^ fromptr = cast(fromptrb, Uint16^)
+           Uint16 toaddr = offsets[ir^.secto]
+           toaddr += ir^.offto
+           constif DEBUG
+               write("Setting 16 bit ")
+               write_num(fromptr)
+               write(" to ")
+               write_num(toaddr)
+               write(" offset ")
+               write_num(ir^.offto)
+               write("\n")
+           fromptr^ = toaddr
         count -= 1
         ir += 1
 
