@@ -289,10 +289,6 @@ void InannaImage::finalise()
         unsigned char * ptr = getPtr(sections[loopc].type);
         fwrite(ptr, sizes[sections[loopc].type], 1, f);
         printf("Writing %x bytes at %x\n", sizes[sections[loopc].type], sections[loopc].offset);
-        if (sections[loopc].type == 2)
-        {
-            printf(">> %p %d %d %d\n", ptr, ptr[0], ptr[1], ptr[2]);
-        }
     }
 
     fclose(f);
