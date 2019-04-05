@@ -195,14 +195,12 @@ void InannaImage::finalise()
     memcpy(ptr, stringtable.getData(), stringtable.dataSize());
     ptr += stablesize;
 
-    printf(">> Offset %lx\n", ptr-header);
     memcpy(ptr, imports->getData(), imports->size());
     ptr += imports->size();
     
     for (unsigned int loopc = 0; loopc < sections.size(); loopc++)
     {
         InannaSection & is = sections[loopc];
-        printf(">>>> %x %x %x %lx\n", is.type, is.offset, is.length, is.vmem);
         wle32(ptr, is.type);
         wle32(ptr, is.offset);
         wle32(ptr, is.length);
@@ -288,7 +286,6 @@ void InannaImage::finalise()
         fseek(f, sections[loopc].offset, SEEK_SET);
         unsigned char * ptr = getPtr(sections[loopc].type);
         fwrite(ptr, sizes[sections[loopc].type], 1, f);
-        printf("Writing %x bytes at %x\n", sizes[sections[loopc].type], sections[loopc].offset);
     }
 
     fclose(f);
