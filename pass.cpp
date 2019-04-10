@@ -440,11 +440,11 @@ void StackRegisterOffsetPass::processInsn()
         int offset = 0;
         if (insn.ops[2].isSigc())
         {
-            offset = insn.ops[2].getSigc();
+            offset = (int)insn.ops[2].getSigc();
         }
         else if (insn.ops[2].isUsigc())
         {
-            offset = insn.ops[2].getUsigc();
+            offset = (int)insn.ops[2].getUsigc();
         }
         else
         {
@@ -468,11 +468,11 @@ void StackRegisterOffsetPass::processInsn()
         int offset = 0;
         if (insn.ops[1].isSigc())
         {
-            offset = insn.ops[1].getSigc();
+            offset = (int)insn.ops[1].getSigc();
         }
         else if (insn.ops[1].isUsigc())
         {
-            offset = insn.ops[1].getUsigc();
+            offset = (int)insn.ops[1].getUsigc();
         }
         else
         {
@@ -531,7 +531,7 @@ void CmpMover::processInsn()
         while (it != block->getCode().end())
         {
             Insn ca = *it;
-            int o = ca.ins;
+            uint64 o = ca.ins;
             if (o == BG || o == BLE || o == BL || o == BGE ||
                 o == SELEQ || o == SELGE || o == SELGT || o == SELGES ||
                 o == SELGTS)
