@@ -2075,7 +2075,7 @@ Value * BinaryExpr::codegen(Codegen * c)
         }
     }
 
-    int incr = rhi < lhi ? lhi : rhi;
+    uint64 incr = rhi < lhi ? lhi : rhi;
     
 	if (token.toString() == "and")
 	{
@@ -2967,7 +2967,7 @@ Value * Funcall::codegen(Codegen * c)
     
     if (name().find(':') != std::string::npos)
     {
-        int pos = name().find(':');
+        size_t pos = name().find(':');
         std::string m = name().substr(0, pos);
         std::string f = name().substr(pos+1, std::string::npos);
         
