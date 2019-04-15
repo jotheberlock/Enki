@@ -912,10 +912,10 @@ void Mtables::processFunction(FunctionScope * fs)
 
 void MtableEntry::print()
 {
-    printf("%s %ld ", target ? target->name().c_str() : "<null!>", offset);
+    printf("%s %lld ", target ? target->name().c_str() : "<null!>", offset);
     for (unsigned int loopc=0; loopc<table.size(); loopc++)
     {
-        printf("[%d]", table[loopc]);
+        printf("[%lld]", table[loopc]);
     }
     puts("");
 }

@@ -357,7 +357,7 @@ std::string Insn::insToString()
     if (ins >= FIRST_PLATFORM_SPECIFIC)
     {
         char buf[4096];
-        sprintf(buf, "<platform-specific %ld>", ins - FIRST_PLATFORM_SPECIFIC);
+        sprintf(buf, "<platform-specific %lld>", ins - FIRST_PLATFORM_SPECIFIC);
         return buf;
     }
     

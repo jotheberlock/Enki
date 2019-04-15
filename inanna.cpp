@@ -231,7 +231,7 @@ void InannaImage::finalise()
             for (std::list<Reloc>::iterator it = relocs.begin();
                  it != relocs.end(); it++)
             {
-                printf("  Off %llx rshift %ld mask %llx lshift %ld bits %d\n",
+                printf("  Off %llx rshift %lld mask %llx lshift %lld bits %d\n",
                        (*it).offset, (*it).rshift, (*it).mask, (*it).lshift,
                        (*it).bits);
                 int type = 0;
