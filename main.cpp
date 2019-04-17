@@ -160,7 +160,7 @@ void readFile(FILE * f, Chars & input)
 	int len = ftell(f);
 	char * text = new char[len];
 	fseek(f, 0, SEEK_SET);
-	int read = fread(text, len, 1, f);
+	size_t read = fread(text, len, 1, f);
 	fclose(f);
     if (read < 1)
     {
@@ -187,17 +187,17 @@ bool sanity_check()
 {
 	if (sizeof(uint16) != 2)
 	{
-		printf("Uint16 is size %ld!\n", sizeof(uint16));
+		printf("Uint16 is size %lld!\n", sizeof(uint16));
 		return false;
 	}
 	if (sizeof(uint32) != 4)
 	{
-		printf("Uint32 is size %ld!\n", sizeof(uint32));
+		printf("Uint32 is size %lld!\n", sizeof(uint32));
 		return false;
 	}
 	if (sizeof(uint64) != 8)
 	{
-		printf("Uint64 is size %ld!\n", sizeof(uint64));
+		printf("Uint64 is size %lld!\n", sizeof(uint64));
 		return false;
 	}
 	uint32 test = 0xdeadbeef;

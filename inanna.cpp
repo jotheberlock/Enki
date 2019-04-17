@@ -97,7 +97,7 @@ void InannaImage::finalise()
         return;
     }
 
-    int stablesize = stringtable.dataSize();
+    size_t stablesize = stringtable.dataSize();
     while (stablesize % 8)
     {
         stablesize++;
@@ -110,7 +110,7 @@ void InannaImage::finalise()
         BaseRelocation * br = relocs[loopc];
         if (br->isAbsolute())
         {
-            no_subrelocs += br->relocs.size();
+            no_subrelocs += (int)br->relocs.size();
         }
     }
     
