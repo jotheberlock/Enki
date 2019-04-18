@@ -717,11 +717,25 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 if (offset < -2047 || offset > 2048)
                 {
                     printf(">>> Unconditional branch offset overflow %x %s %s\n", offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
+                    if ((uint64)current & 0x3)
+                    {
+                        // align
+                        wee16(le, current, 0x46c0);
+                    }
+                    wee16(le, current, 0x4600);  // ldr r0, pc
+                    wee16(le, current, 0xe7fe);  // b r0
+                    uint32 reloc = 0xdeadbeef;
+                    AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
+                    abbr->add32();
+                    wle32(current, reloc);
+                    no_mc = true;
                 }
-                
-				BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
-					current_function, flen(), flen()+4, i.ops[0].getBlock());
-				bbr->addReloc(0, 1, 0x07ff, 0, 16);
+                else
+                {
+                    BasicBlockRelocation * bbr = new BasicBlockRelocation(image,
+                        current_function, flen(), flen() + 4, i.ops[0].getBlock());
+                    bbr->addReloc(0, 1, 0x07ff, 0, 16);
+                }
 			}
 			break;
 		}
