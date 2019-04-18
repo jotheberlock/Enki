@@ -725,7 +725,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     wee16(le, current, 0x4f00);   // ldr r7, pc
                     wee16(le, current, 0xe7fe);  // b r7
                     uint32 reloc = 0xdeadbeef;
-                    AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
+                    AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[0].getBlock());
                     abbr->add32();
                     wle32(current, reloc);
                     no_mc = true;
