@@ -780,7 +780,12 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             if (i.ops[0].isBlock())
             {
                 int offset = b->getEstimatedBlockOffset(i.ops[0].getBlock(), current-block_base);
-                if (offset < -252 || offset > 258)
+
+		if (offset < -2047 || offset > 2048)
+                {
+		      printf(">>> Conditional branch offset double overflow %x %s %s\n", offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
+                }		
+                else if (offset < -252 || offset > 258)
                 {
                         // Reverse the sense of the conditional branch
                     if (i.ins == BNE)
@@ -814,16 +819,10 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         // unconditional branch with wider range
                     mc = 0xe000;
                     // Branch offset is stored >> 1
-                
-                    int offset = b->getEstimatedBlockOffset(i.ops[0].getBlock(), current-block_base);
-                    if (offset < -2047 || offset > 2048)
-                    {
-                        printf(">>> Conditional branch offset double overflow %x %s %s\n", offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
-                    }
-                
-                    BasicBlockRelocation * bbr =
-                        new BasicBlockRelocation(image, current_function, flen(), flen()+4, i.ops[0].getBlock());
-                    bbr->addReloc(0, 1, 0x07ff, 0, 16);
+
+		    BasicBlockRelocation * bbr =
+		      new BasicBlockRelocation(image, current_function, flen(), flen()+4, i.ops[0].getBlock());
+		    bbr->addReloc(0, 1, 0x07ff, 0, 16);
                 }
                 else
                 {
