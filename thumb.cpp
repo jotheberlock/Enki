@@ -715,7 +715,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 int offset = b->getEstimatedBlockOffset(i.ops[0].getBlock(), current-block_base);
                 if (offset < -2047 || offset > 2048 || always_do_long_range)
                 {
-                    printf(">>> Unconditional branch offset overflow %x %s %s\n", offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
+                    printf(">>> Unconditional branch offset overflow %d %x %s %s\n", offset, offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
                     if ((uint64)current & 0x3)
                     {
                         // align
