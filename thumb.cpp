@@ -722,8 +722,8 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         // align
                         wee16(le, current, 0x46c0);
                     }
-                    wee16(le, current, 0x4f00);   // ldr r7, pc
-                    wee16(le, current, 0xe7fe);  // b r7
+                    wee16(le, current, 0x4f00);   // ldr r7, pc (this+4)
+                    wee16(le, current, 0xe7fe);   // b r7
                     uint32 reloc = 0xdeadbeef;
                     AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[0].getBlock());
                     abbr->add32();
@@ -771,19 +771,35 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			}
 			else
 			{
-				// BGE
+                    // BGE
 				mc = 0xda00;
 			}
-			// Branch offset is stored >> 1
-			// Offset needs checking
+                // Branch offset is stored >> 1
+                // Offset needs checking
 
             if (i.ops[0].isBlock())
             {
                 int offset = b->getEstimatedBlockOffset(i.ops[0].getBlock(), current-block_base);
 
-		if (offset < -2047 || offset > 2048)
+                if (offset < -2047 || offset > 2048)
                 {
-		      printf(">>> Conditional branch offset double overflow %x %s %s\n", offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
+                    printf(">>> Conditional branch offset double overflow %x %s %s\n", offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
+                    
+                    if ((uint64)current & 0x3)
+                    {
+                        // align
+                        wee16(le, current, 0x46c0);
+                    }
+                    wee16(le, current, 0x4f01);      // ldr r7, pc+4
+                    wee16(le, current, mc | 0xfe);   // b.cond r7
+                    wee16(le, current, 0x46c0);      // nop
+					wee16(le, current, 0xe001);      // branch over constant
+                          
+                    uint32 reloc = 0xdeadbeef;
+                    AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[0].getBlock());
+                    abbr->add32();
+                    wle32(current, reloc);
+                    no_mc = true;
                 }		
                 else if (offset < -252 || offset > 258)
                 {
@@ -818,11 +834,11 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
                         // unconditional branch with wider range
                     mc = 0xe000;
-                    // Branch offset is stored >> 1
+                        // Branch offset is stored >> 1
 
-		    BasicBlockRelocation * bbr =
-		      new BasicBlockRelocation(image, current_function, flen(), flen()+4, i.ops[0].getBlock());
-		    bbr->addReloc(0, 1, 0x07ff, 0, 16);
+                    BasicBlockRelocation * bbr =
+                        new BasicBlockRelocation(image, current_function, flen(), flen()+4, i.ops[0].getBlock());
+                    bbr->addReloc(0, 1, 0x07ff, 0, 16);
                 }
                 else
                 {
