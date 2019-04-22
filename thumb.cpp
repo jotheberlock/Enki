@@ -722,7 +722,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         wee16(le, current, 0x46c0);
                     }
                     wee16(le, current, 0x4f00);   // ldr r7, pc (this+4)
-                    wee16(le, current, 0xe7fe);   // b r7
+                    wee16(le, current, 0x4738);   // bx r7
                     uint32 reloc = 0xdeadbeef;
                     AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[0].getBlock());
                     abbr->add32();
@@ -790,9 +790,9 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         wee16(le, current, 0x46c0);
                     }
                     wee16(le, current, 0x4f01);      // ldr r7, pc+4
-                    wee16(le, current, mc | 0xfe);   // b.cond r7
-                    wee16(le, current, 0x46c0);      // nop
-					wee16(le, current, 0xe001);      // branch over constant
+                    wee16(le, current, mc);          // conditional branch 4 bytes ahead
+					wee16(le, current, 0xe002);      // branch over constant
+                    wee16(le, current, 0x4738);      // b.x r7
                           
                     uint32 reloc = 0xdeadbeef;
                     AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[0].getBlock());
