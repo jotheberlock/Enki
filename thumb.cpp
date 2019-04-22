@@ -118,20 +118,19 @@ int Thumb::size(BasicBlock * b)
             {
                     // Worst case:
                     // align, load ip+x, cond branch,
-                    // uncond branch, 32-bit constant
-                ret += 12;
-                i.size = 12;
+                    // uncond branch, nop, 32-bit constant
+                ret += 14;
+                i.size = 14;
                 break;
             }
             case BRA:
-
             {
-                    // As above less cond branch
+                    // As above less cond branch and nop
                 ret += 10;
                 i.size = 10;
                 break;
             }
-            default:
+             default:
             {
                 ret += 2;
                 i.size = 2;
