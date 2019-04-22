@@ -782,7 +782,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
                 if (offset < -2047 || offset > 2048 || always_do_long_range)
                 {
-                    printf(">>> Conditional branch offset double overflow %x %s %s\n", offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
+                    printf(">>> Conditional branch offset double overflow %d %x %s %s\n", offset, offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
                     
                     if ((uint64)current & 0x3)
                     {
