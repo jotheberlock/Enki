@@ -948,6 +948,7 @@ bool Thumb::configure(std::string param, std::string val)
         if (val == "true")
         {
             always_do_long_range = true;
+            return true;
         }
     }
     
