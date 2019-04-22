@@ -17,6 +17,7 @@ public:
 	Thumb()
 	{
 		psize = 32;
+        always_do_long_range = false;
 	}
 
     int arch()
@@ -58,6 +59,10 @@ public:
 	virtual bool configure(std::string, std::string);
 
     virtual bool validRegOffset(Insn &, int);
+
+protected:
+
+    bool always_do_long_range;
     
 };
 

@@ -714,7 +714,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				// Branch offset is stored >> 1
                 
                 int offset = b->getEstimatedBlockOffset(i.ops[0].getBlock(), current-block_base);
-                if (offset < -2047 || offset > 2048)
+                if (offset < -2047 || offset > 2048 || always_do_long_range)
                 {
                     printf(">>> Unconditional branch offset overflow %x %s %s\n", offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
                     if ((uint64)current & 0x3)
@@ -781,7 +781,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             {
                 int offset = b->getEstimatedBlockOffset(i.ops[0].getBlock(), current-block_base);
 
-                if (offset < -2047 || offset > 2048)
+                if (offset < -2047 || offset > 2048 || always_do_long_range)
                 {
                     printf(">>> Conditional branch offset double overflow %x %s %s\n", offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
                     
@@ -944,7 +944,14 @@ bool Thumb::configure(std::string param, std::string val)
 	{
 		return false;
 	}
-
+    else if (param == "always_long_branch")
+    {
+        if (val == "true")
+        {
+            always_do_long_range = true;
+        }
+    }
+    
 	return Assembler::configure(param, val);
 }
 
