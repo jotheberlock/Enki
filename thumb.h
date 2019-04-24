@@ -43,7 +43,7 @@ public:
 
     int osStackPointer()
     {
-        return 13;  // Which will conflict with this...
+        return 7;
     }
 
 	int functionAlignment()

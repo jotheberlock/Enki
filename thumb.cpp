@@ -80,8 +80,8 @@ int Thumb::size(BasicBlock * b)
 		{
             case ENTER_THUMB_MODE:
             {
-                ret += 12;
-                i.size = 12;
+                ret += 14;
+                i.size = 14;
                 break;
             }
             case MOVE:
@@ -174,6 +174,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			wee32(le, current, 0xe1a0000f);   // mov r0, pc - r0 is now this instruction+8
 			wee32(le, current, 0xe2800005);   // add r0, r0, #5 - make sure to set thumb bit
 			wee32(le, current, 0xe12fff10);   // bx r0
+            wee16(le, current, 0x466f);       // mov r7, sp
 			break;
 		}
 
