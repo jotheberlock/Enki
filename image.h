@@ -156,10 +156,10 @@ public:
 
 	uint64 offset;  // from base pointer
 		// Extract bits to write - shift right then mask
-	uint64 rshift;
+	uint32 rshift;
 	uint64 mask;
 	// How many bits to shift left into relocation
-	uint64 lshift;
+	uint32 lshift;
 	int bits;
 
 	void apply(bool, unsigned char *, uint64);
@@ -191,8 +191,8 @@ public:
         return false;
     }
 
-	void addReloc(uint64 o, uint64 r, uint64 m,
-		uint64 l, int bits)
+	void addReloc(uint64 o, uint32 r, uint64 m,
+		uint32 l, int bits)
 	{
 		Reloc reloc;
 		reloc.offset = o;

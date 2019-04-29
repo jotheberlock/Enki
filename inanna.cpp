@@ -114,9 +114,9 @@ void InannaImage::finalise()
         }
     }
     
-    int headersize = INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
+    int headersize = (int)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
         stablesize + imports->size() + (seccount * InannaSection::size()) +
-        (no_subrelocs * InannaReloc::size());
+        (no_subrelocs * InannaReloc::size()));
 
     uint32 next_offset = headersize;
     while (next_offset % 4096)
@@ -132,7 +132,7 @@ void InannaImage::finalise()
             InannaSection s;
             s.type = loopc;
             s.offset = next_offset;
-            s.length = sizes[loopc];
+            s.length = (uint32)sizes[loopc];
             s.vmem = bases[loopc];
 
             if (loopc == IMAGE_CODE)
@@ -182,14 +182,14 @@ void InannaImage::finalise()
     wle32(ptr, 1);
     wle32(ptr, 1);
     wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size());
-    wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+stablesize);
+    wle32(ptr, (uint32)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+stablesize));
     wle32(ptr, 0);
         
     wle32(ptr, arch);
-    wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
-          stablesize + imports->size());
-    wle32(ptr, sections.size());
-    wle32(ptr, relocs.size());
+    wle32(ptr, (uint32)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
+          stablesize + imports->size()));
+    wle32(ptr, (uint32)sections.size());
+    wle32(ptr, (uint32)relocs.size());
     wle64(ptr, functionAddress(root_function) - bases[IMAGE_CODE]);
 
     memcpy(ptr, stringtable.getData(), stringtable.dataSize());
