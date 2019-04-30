@@ -174,6 +174,7 @@ void InannaImage::finalise()
     }
 
     unsigned char * header = new unsigned char[headersize];
+    memset(header, 0, headersize);
     strcpy((char *)header, "#!/usr/bin/env enkiloader\n");
 
     unsigned char * ptr = header+INANNA_PREAMBLE;
