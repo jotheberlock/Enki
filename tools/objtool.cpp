@@ -25,7 +25,7 @@ void display_arch(char * ptr, uint32 secs, uint32 relocs)
     InannaReloc * ir = (InannaReloc *)is;
     for (unsigned int loopc2=0; loopc2<relocs; loopc2++)
     {
-        printf("Type %d from %d:%llx to %d:%llx rshift %d mask %llx lshift %d bits %d offset %lld\n",
+        printf("Type %d, from %d:%llx to %d:%llx, rshift %d mask %llx lshift %d bits %d offset %lld\n",
                ir->type, ir->secfrom, ir->offrom, ir->secto, ir->offto, ir->rshift, ir->mask, ir->lshift,
                ir->bits, ir->offset);
         ir++;
