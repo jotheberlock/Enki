@@ -185,12 +185,22 @@ void InannaImage::finalise()
     wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size());
     wle32(ptr, (uint32)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+stablesize));
     wle32(ptr, 0);
-        
+
+    int relocs_count = 0;
+
+    for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
+    {        
+        if (relocs[loopc]->isAbsolute())
+        {
+            relocs_count += relocs[loopc]->relocs.size();
+        }
+    }
+    
     wle32(ptr, arch);
     wle32(ptr, (uint32)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
           stablesize + imports->size()));
     wle32(ptr, (uint32)sections.size());
-    wle32(ptr, (uint32)relocs.size());
+    wle32(ptr, relocs_count);
     wle64(ptr, functionAddress(root_function) - bases[IMAGE_CODE]);
 
     memcpy(ptr, stringtable.getData(), stringtable.dataSize());
@@ -264,7 +274,6 @@ void InannaImage::finalise()
                     bits = (*it).bits;
                     offset = (*it).offset;
                 }
-
                 
                 wle32(ptr, type);
                 wle32(ptr, secfrom);
