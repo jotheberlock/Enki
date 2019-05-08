@@ -274,6 +274,11 @@ void InannaImage::finalise()
                     bits = (*it).bits;
                     offset = (*it).offset;
                 }
+                else
+                {
+                    printf("Unknown relocation type!\n");
+                    assert(false);
+                }
                 
                 wle32(ptr, type);
                 wle32(ptr, secfrom);
