@@ -115,6 +115,8 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
             display_num("\nReloc type ", ir^.type)
         Uint itype = ir^.type
         # hmm why does elif not work
+        if itype == 0
+           write("invalid relocation found!\n")
         if itype == 1
            Byte^ fromptrb = offsets[ir^.secfrom]
            fromptrb += ir^.offrom
@@ -160,6 +162,26 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
                write_num(ir^.offto)
                write("\n")
            fromptr^ = toaddr
+        if itype == 4
+           Byte^ fromptrb = offsets[ir^.secfrom]
+           fromptrb += ir^.offrom
+           Uint32^ fromptr = cast(fromptrb, Uint32^)
+           Uint32 toaddr = offsets[ir^.secto]
+           toaddr += ir^.offto
+           constif DEBUG
+               write("Setting 32 bit masked ")
+               write_num(fromptr)
+               write(" to ")
+               write_num(toaddr)
+               write(" offset ")
+               write_num(ir^.offto)
+               write("\n")
+           Uint32 val = fromptr^
+           toaddr = toaddr >> ir^.rshift
+           toaddr = toaddr & ir^.mask
+           toaddr = toaddr << ir^.lshift
+           val = val | toaddr 
+           fromptr^ = val
         count -= 1
         ir += 1
 
@@ -233,7 +255,6 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
             twiddler += fstrsize
             importp = twiddler
             fcount += 1
-  
     constif DEBUG
         display_num("Jumping to ", entrypoint)
     !ret

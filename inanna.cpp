@@ -267,7 +267,7 @@ void InannaImage::finalise()
                 }
                 else if ((*it).bits == 32)
                 {
-                    type = INANNA_RELOC_MASKED;
+                    type = INANNA_RELOC_MASKED_32;
                     rshift = (*it).rshift;
                     mask = (*it).mask;
                     lshift = (*it).lshift;
