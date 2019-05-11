@@ -245,7 +245,7 @@ void InannaImage::finalise()
                 printf("  Off %llx rshift %lld mask %llx lshift %lld bits %d\n",
                        (*it).offset, (*it).rshift, (*it).mask, (*it).lshift,
                        (*it).bits);
-                int type = 0;
+                int type = INANNA_RELOC_INVALID;
 
                 uint32 rshift = 0;
                 uint64 mask = 0;
