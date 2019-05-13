@@ -274,10 +274,18 @@ void InannaImage::finalise()
                     bits = (*it).bits;
                     offset = (*it).offset;
                 }
+                else if ((*it).bits == 64)
+                {
+                    type = INANNA_RELOC_MASKED_64;
+                    rshift = (*it).rshift;
+                    mask = (*it).mask;
+                    lshift = (*it).lshift;
+                    bits = (*it).bits;
+                    offset = (*it).offset;
+                }
                 else
                 {
                     printf("Unknown relocation type!\n");
-                    assert(false);
                 }
                 
                 wle32(ptr, type);

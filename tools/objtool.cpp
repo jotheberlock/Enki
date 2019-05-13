@@ -11,7 +11,17 @@ const char * archs [] =
     "arm32",
     "thumb" 
 };
-    
+
+const char * reloc_types[] =
+{
+    "invalid",
+    "reloc64",
+    "reloc32",
+    "reloc16",
+    "relocmasked32",
+    "relocmasked64"
+};
+
 void display_arch(char * ptr, uint32 secs, uint32 relocs)
 {
     InannaSection * is = (InannaSection *)ptr;
@@ -25,9 +35,10 @@ void display_arch(char * ptr, uint32 secs, uint32 relocs)
     InannaReloc * ir = (InannaReloc *)is;
     for (unsigned int loopc2=0; loopc2<relocs; loopc2++)
     {
-        printf("Type %d, from %d:%llx to %d:%llx, rshift %d mask %llx lshift %d bits %d offset %lld\n",
-               ir->type, ir->secfrom, ir->offrom, ir->secto, ir->offto, ir->rshift, ir->mask, ir->lshift,
-               ir->bits, ir->offset);
+        printf("Type %s, from %d:%llx to %d:%llx, rshift %d mask %llx lshift %d bits %d offset %lld\n",
+               ir->type < INANNA_RELOC_END ? reloc_types[ir->type] :
+               "<too big!>", ir->secfrom, ir->offrom, ir->secto, ir->offto,
+               ir->rshift, ir->mask, ir->lshift, ir->bits, ir->offset);
         ir++;
     }
 }
