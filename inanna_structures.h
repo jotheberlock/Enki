@@ -7,9 +7,10 @@
 #define INANNA_RELOC_64        1    // 64-bit value written in place
 #define INANNA_RELOC_32        2
 #define INANNA_RELOC_16        3
-#define INANNA_RELOC_MASKED_32 4
-#define INANNA_RELOC_MASKED_64 5
-#define INANNA_RELOC_END       6
+#define INANNA_RELOC_MASKED_64 4
+#define INANNA_RELOC_MASKED_32 5
+#define INANNA_RELOC_MASKED_16 6
+#define INANNA_RELOC_END       7
 
 /*
    File format is:

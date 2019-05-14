@@ -265,6 +265,15 @@ void InannaImage::finalise()
                 {
                     type = INANNA_RELOC_16;
                 }
+                else if ((*it).bits == 64)
+                {
+                    type = INANNA_RELOC_MASKED_64;
+                    rshift = (*it).rshift;
+                    mask = (*it).mask;
+                    lshift = (*it).lshift;
+                    bits = (*it).bits;
+                    offset = (*it).offset;
+                }
                 else if ((*it).bits == 32)
                 {
                     type = INANNA_RELOC_MASKED_32;
@@ -274,9 +283,9 @@ void InannaImage::finalise()
                     bits = (*it).bits;
                     offset = (*it).offset;
                 }
-                else if ((*it).bits == 64)
+                else if ((*it).bits == 16)
                 {
-                    type = INANNA_RELOC_MASKED_64;
+                    type = INANNA_RELOC_MASKED_16;
                     rshift = (*it).rshift;
                     mask = (*it).mask;
                     lshift = (*it).lshift;

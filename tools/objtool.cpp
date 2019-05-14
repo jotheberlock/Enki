@@ -18,8 +18,9 @@ const char * reloc_types[] =
     "reloc64",
     "reloc32",
     "reloc16",
+    "relocmasked64",
     "relocmasked32",
-    "relocmasked64"
+    "relocmasked16"
 };
 
 void display_arch(char * ptr, uint32 secs, uint32 relocs)
