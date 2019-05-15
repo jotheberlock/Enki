@@ -162,7 +162,7 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
                write_num(ir^.offto)
                write("\n")
            fromptr^ = toaddr
-        if itype == 4
+        if itype == 5
            Byte^ fromptrb = offsets[ir^.secfrom]
            fromptrb += ir^.offrom
            Uint32^ fromptr = cast(fromptrb, Uint32^)
