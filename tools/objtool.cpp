@@ -119,7 +119,8 @@ int main(int argc, char ** argv)
     for (unsigned int loopc=0; loopc<ih->archs_count; loopc++)
     {
         printf("\nArch %s (%d), start address %llx - sections:\n",
-               archs[iah->arch], iah->arch, iah->start_address);
+               iah->arch > 3 ? "<invalid!>" : archs[iah->arch], iah->arch,
+               iah->start_address);
         if (iah->offset > len)
         {
             printf("Offset is after end of file!\n");
