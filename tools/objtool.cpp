@@ -113,7 +113,8 @@ int main(int argc, char ** argv)
     }
     
     uint64 * import_modulesp = (uint64 *)(buf+ih->imports_offset);
-    printf("Imports %lld modules\n", *import_modulesp);
+    printf("Imports %lld %s\n", *import_modulesp,
+           *import_modulesp == 1 ? "module" : "modules");
     
     InannaArchHeader * iah = (InannaArchHeader *)(buf+INANNA_PREAMBLE+InannaHeader::size());
     for (unsigned int loopc=0; loopc<ih->archs_count; loopc++)
