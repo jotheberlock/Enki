@@ -114,9 +114,9 @@ void InannaImage::finalise()
         }
     }
     
-    int headersize = INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
+    int headersize = (int)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
         stablesize + imports->size() + (seccount * InannaSection::size()) +
-        (no_subrelocs * InannaReloc::size());
+        (no_subrelocs * InannaReloc::size()));
 
     uint32 next_offset = headersize;
     while (next_offset % 4096)
@@ -132,7 +132,7 @@ void InannaImage::finalise()
             InannaSection s;
             s.type = loopc;
             s.offset = next_offset;
-            s.length = sizes[loopc];
+            s.length = (uint32)sizes[loopc];
             s.vmem = bases[loopc];
 
             if (loopc == IMAGE_CODE)
@@ -174,6 +174,7 @@ void InannaImage::finalise()
     }
 
     unsigned char * header = new unsigned char[headersize];
+    memset(header, 0, headersize);
     strcpy((char *)header, "#!/usr/bin/env enkiloader\n");
 
     unsigned char * ptr = header+INANNA_PREAMBLE;
@@ -182,14 +183,24 @@ void InannaImage::finalise()
     wle32(ptr, 1);
     wle32(ptr, 1);
     wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size());
-    wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+stablesize);
+    wle32(ptr, (uint32)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+stablesize));
     wle32(ptr, 0);
-        
+
+    int relocs_count = 0;
+
+    for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
+    {        
+        if (relocs[loopc]->isAbsolute())
+        {
+            relocs_count += relocs[loopc]->relocs.size();
+        }
+    }
+    
     wle32(ptr, arch);
-    wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
-          stablesize + imports->size());
-    wle32(ptr, sections.size());
-    wle32(ptr, relocs.size());
+    wle32(ptr, (uint32)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
+          stablesize + imports->size()));
+    wle32(ptr, (uint32)sections.size());
+    wle32(ptr, relocs_count);
     wle64(ptr, functionAddress(root_function) - bases[IMAGE_CODE]);
 
     memcpy(ptr, stringtable.getData(), stringtable.dataSize());
@@ -234,7 +245,7 @@ void InannaImage::finalise()
                 printf("  Off %llx rshift %lld mask %llx lshift %lld bits %d\n",
                        (*it).offset, (*it).rshift, (*it).mask, (*it).lshift,
                        (*it).bits);
-                int type = 0;
+                int type = INANNA_RELOC_INVALID;
 
                 uint32 rshift = 0;
                 uint64 mask = 0;
@@ -254,16 +265,37 @@ void InannaImage::finalise()
                 {
                     type = INANNA_RELOC_16;
                 }
-                else if ((*it).bits == 32)
+                else if ((*it).bits == 64)
                 {
-                    type = INANNA_RELOC_MASKED;
+                    type = INANNA_RELOC_MASKED_64;
                     rshift = (*it).rshift;
                     mask = (*it).mask;
                     lshift = (*it).lshift;
                     bits = (*it).bits;
                     offset = (*it).offset;
                 }
-
+                else if ((*it).bits == 32)
+                {
+                    type = INANNA_RELOC_MASKED_32;
+                    rshift = (*it).rshift;
+                    mask = (*it).mask;
+                    lshift = (*it).lshift;
+                    bits = (*it).bits;
+                    offset = (*it).offset;
+                }
+                else if ((*it).bits == 16)
+                {
+                    type = INANNA_RELOC_MASKED_16;
+                    rshift = (*it).rshift;
+                    mask = (*it).mask;
+                    lshift = (*it).lshift;
+                    bits = (*it).bits;
+                    offset = (*it).offset;
+                }
+                else
+                {
+                    printf("Unknown relocation type!\n");
+                }
                 
                 wle32(ptr, type);
                 wle32(ptr, secfrom);

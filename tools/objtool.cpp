@@ -11,7 +11,18 @@ const char * archs [] =
     "arm32",
     "thumb" 
 };
-    
+
+const char * reloc_types[] =
+{
+    "invalid",
+    "reloc64",
+    "reloc32",
+    "reloc16",
+    "relocmasked64",
+    "relocmasked32",
+    "relocmasked16"
+};
+
 void display_arch(char * ptr, uint32 secs, uint32 relocs)
 {
     InannaSection * is = (InannaSection *)ptr;
@@ -25,9 +36,10 @@ void display_arch(char * ptr, uint32 secs, uint32 relocs)
     InannaReloc * ir = (InannaReloc *)is;
     for (unsigned int loopc2=0; loopc2<relocs; loopc2++)
     {
-        printf("Type %d from %d:%llx to %d:%llx rshift %d mask %llx lshift %d bits %d offset %lld\n",
-               ir->type, ir->secfrom, ir->offrom, ir->secto, ir->offto, ir->rshift, ir->mask, ir->lshift,
-               ir->bits, ir->offset);
+        printf("Type %s, from %d:%llx to %d:%llx, rshift %d mask %llx lshift %d bits %d offset %lld\n",
+               ir->type < INANNA_RELOC_END ? reloc_types[ir->type] :
+               "<too big!>", ir->secfrom, ir->offrom, ir->secto, ir->offto,
+               ir->rshift, ir->mask, ir->lshift, ir->bits, ir->offset);
         ir++;
     }
 }
@@ -101,13 +113,15 @@ int main(int argc, char ** argv)
     }
     
     uint64 * import_modulesp = (uint64 *)(buf+ih->imports_offset);
-    printf("Imports %lld modules\n", *import_modulesp);
+    printf("Imports %lld %s\n", *import_modulesp,
+           *import_modulesp == 1 ? "module" : "modules");
     
     InannaArchHeader * iah = (InannaArchHeader *)(buf+INANNA_PREAMBLE+InannaHeader::size());
     for (unsigned int loopc=0; loopc<ih->archs_count; loopc++)
     {
         printf("\nArch %s (%d), start address %llx - sections:\n",
-               archs[iah->arch], iah->arch, iah->start_address);
+               iah->arch > 3 ? "<invalid!>" : archs[iah->arch], iah->arch,
+               iah->start_address);
         if (iah->offset > len)
         {
             printf("Offset is after end of file!\n");
