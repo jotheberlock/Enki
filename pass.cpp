@@ -433,6 +433,8 @@ void ThumbMoveConstantPass::processInsn()
 
 void StackRegisterOffsetPass::processInsn()
 {
+    int stack_register = assembler->framePointer();
+    
     if ((insn.ins == LOAD || insn.ins == LOAD8 || insn.ins == LOAD16 ||
          insn.ins == LOAD32 || insn.ins == LOADS32 || insn.ins == LOAD64)
         && insn.oc == 3)
@@ -453,7 +455,7 @@ void StackRegisterOffsetPass::processInsn()
 
         if (!assembler->validRegOffset(insn, offset) || insn.ins == LOAD8 || insn.ins == LOAD16)
         {
-            Insn get_sp(MOVE, Operand::reg(7), Operand::reg(13));
+            Insn get_sp(MOVE, Operand::reg(7), Operand::reg(stack_register));
             prepend(get_sp);
             Insn add_offset(ADD, Operand::reg(7), Operand::reg(7), Operand::usigc(offset));
             prepend(add_offset);
@@ -481,7 +483,7 @@ void StackRegisterOffsetPass::processInsn()
 
         if (!assembler->validRegOffset(insn, offset) || insn.ins == STORE8 || insn.ins == STORE16)
         {
-            Insn get_sp(MOVE, Operand::reg(7), Operand::reg(13));
+            Insn get_sp(MOVE, Operand::reg(7), Operand::reg(stack_register));
             prepend(get_sp);
             Insn add_offset(ADD, Operand::reg(7), Operand::reg(7), Operand::usigc(offset));
             prepend(add_offset);
