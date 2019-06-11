@@ -113,7 +113,7 @@ void ElfImage::finalise()
 	ptr++;
 	*ptr = 0x1;
 	ptr++;
-	*ptr = 64;   // abi
+	*ptr = 0;   // abi
 	ptr++;
 	wee64(le, ptr, 0x0);  // ABI version and pad
 	wee16(le, ptr, 0x2);  // Executable
