@@ -9,7 +9,9 @@ else
 	exit 1
 fi
 
-if [[ `uname` == "Linux" ]]; then
+if [[ -f "../parsey/x64/Debug/enki.exe" ]]; then
+    OUTPUT="./a.exe"
+elif [[ `uname` == "Linux" ]]; then
     OUTPUT="./a.out"
 elif [[ `uname` == "Darwin" ]]; then
     OUTPUT="./a.out"
@@ -97,7 +99,7 @@ function amd64only()
 
 function windowsonly()
 {
-	if [[ ! `uname` =~ CYGWIN* ]]; then
+    if [[ ! -f "../parsey/x64/Debug/enki.exe" ]]; then
 		skip
 	fi
 }
