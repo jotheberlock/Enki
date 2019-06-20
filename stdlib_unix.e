@@ -22,8 +22,9 @@ def open_file(Byte^ filename) Uint
     handle = __syscall(SYSCALL_OPEN, filename, 2, 0)
     return handle
 
-def close_file(Uint fd)
+def close_file(Uint fd) Uint
     __syscall(SYSCALL_CLOSE, fd)
+    return 0
 
 def get_file_size(Uint fd) Uint
     Uint current
@@ -77,5 +78,6 @@ def get_argv(Uint index) Byte^
     argp += index
     return argp^
 
-def exit(Uint ret)
+def exit(Uint ret) Uint
     __syscall(SYSCALL_EXIT, ret)
+    return 0

@@ -11,8 +11,9 @@ extern KERNEL32:CloseHandle(Uint64 file) Uint32
 extern KERNEL32:GetCommandLineA() Byte^
 extern KERNEL32:ExitProcess(Uint64 ret)
 
-def exit(Uint64 ret)
+def exit(Uint64 ret) Uint64
     ExitProcess(ret)    
+    return 0
 
 def write(Byte^ ptr) Uint64
     Uint32 count 

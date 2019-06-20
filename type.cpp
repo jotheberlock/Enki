@@ -554,7 +554,7 @@ Value * FunctionType::generateFuncall(Codegen * c, Funcall * f, Value * sl,
 
 	if (ret_type == void_type)
 	{
-		printf("Function has void return type!\n");
+		printf("Function %s has void return type!\n", f->name().c_str());
 	}
     else
 	{
