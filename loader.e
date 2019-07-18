@@ -175,6 +175,12 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
                write_num(toaddr)
                write(" offset ")
                write_num(ir^.offto)
+               write(" rshift ")
+               write_num(ir^.rshift)
+               write(" mask ")
+               write_num(ir^.mask)
+               write(" lshift ")
+               write_num(ir^.lshift)
                write("\n")
            Uint32 val = fromptr^
            toaddr = toaddr >> ir^.rshift
