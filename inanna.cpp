@@ -242,7 +242,7 @@ void InannaImage::finalise()
             for (std::list<Reloc>::iterator it = relocs.begin();
                  it != relocs.end(); it++)
             {
-                printf("  Off %llx rshift %lld mask %llx lshift %lld bits %d\n",
+                printf("  Off %llx rshift %d mask %llx lshift %d bits %d\n",
                        (*it).offset, (*it).rshift, (*it).mask, (*it).lshift,
                        (*it).bits);
                 int type = INANNA_RELOC_INVALID;
@@ -294,8 +294,12 @@ void InannaImage::finalise()
                 }
                 else
                 {
-                    printf("Unknown relocation type!\n");
+                    printf("Unknown relocation type! Bits %d mask %llx\n", (*it).bits, (*it).mask);
                 }
+
+                printf("Writing t %x sf %x st %x rs %x m %llx ls %x b %x o %llx off %llx ot %llx\n",
+                       type, secfrom, secto, rshift, mask, lshift, bits,
+                       offset, offfrom, offto);
                 
                 wle32(ptr, type);
                 wle32(ptr, secfrom);
