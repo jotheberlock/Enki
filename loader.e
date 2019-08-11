@@ -165,6 +165,7 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
         if itype == 5
            Byte^ fromptrb = offsets[ir^.secfrom]
            fromptrb += ir^.offrom
+           fromptrb += ir^.offset
            Uint32^ fromptr = cast(fromptrb, Uint32^)
            Uint32 toaddr = offsets[ir^.secto]
            toaddr += ir^.offto
@@ -183,10 +184,13 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
                write_num(ir^.lshift)
                write("\n")
            Uint32 val = fromptr^
+           display_num("Val was ", val)
            toaddr = toaddr >> ir^.rshift
            toaddr = toaddr & ir^.mask
            toaddr = toaddr << ir^.lshift
-           val = val | toaddr 
+           display_num("Toaddr shifted is ", toaddr)
+           val = val | toaddr
+           display_num("Writing back ", val)
            fromptr^ = val
         count -= 1
         ir += 1
@@ -199,7 +203,8 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
     entrypoint = cast(entrypointp, entrypointtype)
     constif DEBUG
         display_num("About to do first call to ", entrypointp)
-    ret = entrypoint()    
+    ret = entrypoint()
+    display_num("First ret is ", ret)
     Byte^ frameptr = cast(ret, Byte^)
     constif DEBUG
         display_num("Frame ptr is ", frameptr)

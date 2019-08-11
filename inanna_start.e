@@ -1,2 +1,2 @@
-yield 0
+yield 42
 
