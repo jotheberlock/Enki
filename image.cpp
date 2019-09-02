@@ -134,7 +134,7 @@ void BaseRelocation::apply()
         {
             for (int loopc=0; loopc<(*it).bits; loopc++)
             {
-                mask |= (uint64)(0x1 << loopc);
+                mask |= (uint64)0x1 << loopc;
             }
         }
         
