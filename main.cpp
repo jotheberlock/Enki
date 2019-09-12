@@ -164,7 +164,7 @@ void readFile(FILE * f, Chars & input)
 	fclose(f);
     if (read < 1)
     {
-        printf("readFile got read result of %d!\n", read);
+        printf("readFile got read result of %ld!\n", read);
         return;
     }
     
@@ -187,17 +187,17 @@ bool sanity_check()
 {
 	if (sizeof(uint16) != 2)
 	{
-		printf("Uint16 is size %lld!\n", sizeof(uint16));
+		printf("Uint16 is size %d!\n", (int)sizeof(uint16));
 		return false;
 	}
 	if (sizeof(uint32) != 4)
 	{
-		printf("Uint32 is size %lld!\n", sizeof(uint32));
+		printf("Uint32 is size %d!\n", (int)sizeof(uint32));
 		return false;
 	}
 	if (sizeof(uint64) != 8)
 	{
-		printf("Uint64 is size %lld!\n", sizeof(uint64));
+		printf("Uint64 is size %d!\n", (int)sizeof(uint64));
 		return false;
 	}
 	uint32 test = 0xdeadbeef;
