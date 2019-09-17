@@ -124,7 +124,7 @@ void InannaImage::finalise()
         next_offset++;
     }
     
-    std::vector<InannaSection> sections;
+    std::vector<InannaSection> isections;
     for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
     {
         if (sizes[loopc])
@@ -169,7 +169,7 @@ void InannaImage::finalise()
             {
                 next_offset++;
             }
-            sections.push_back(s);
+            isections.push_back(s);
         }
     }
 
@@ -199,7 +199,7 @@ void InannaImage::finalise()
     wle32(ptr, arch);
     wle32(ptr, (uint32)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
           stablesize + imports->size()));
-    wle32(ptr, (uint32)sections.size());
+    wle32(ptr, (uint32)isections.size());
     wle32(ptr, relocs_count);
     wle64(ptr, functionAddress(root_function) - bases[IMAGE_CODE]);
 
@@ -209,9 +209,9 @@ void InannaImage::finalise()
     memcpy(ptr, imports->getData(), imports->size());
     ptr += imports->size();
     
-    for (unsigned int loopc = 0; loopc < sections.size(); loopc++)
+    for (unsigned int loopc = 0; loopc < isections.size(); loopc++)
     {
-        InannaSection & is = sections[loopc];
+        InannaSection & is = isections[loopc];
         wle32(ptr, is.type);
         wle32(ptr, is.offset);
         wle32(ptr, is.length);
@@ -300,6 +300,20 @@ void InannaImage::finalise()
                 printf("Writing t %x sf %x st %x rs %x m %llx ls %x b %x o %llx off %llx ot %llx\n",
                        type, secfrom, secto, rshift, mask, lshift, bits,
                        offset, offfrom, offto);
+
+                unsigned char * optr = sections[secfrom] + offfrom;
+                if ((*it).bits == 64)
+                {
+                    printf("Currently %llx\n", *((uint64 *)optr));
+                }
+                else if ((*it).bits == 32)
+                {
+                    printf("Currently %x\n", *((uint32 *)optr));
+                }
+                else
+                {
+                    printf("Currently %x\n", *((uint16 *)optr));
+                }
                 
                 wle32(ptr, type);
                 wle32(ptr, secfrom);
@@ -317,11 +331,11 @@ void InannaImage::finalise()
     
     fwrite(header, headersize, 1, f);
 
-    for (unsigned int loopc = 0; loopc < sections.size(); loopc++)
+    for (unsigned int loopc = 0; loopc < isections.size(); loopc++)
     {
-        fseek(f, sections[loopc].offset, SEEK_SET);
-        unsigned char * ptr = getPtr(sections[loopc].type);
-        fwrite(ptr, sizes[sections[loopc].type], 1, f);
+        fseek(f, isections[loopc].offset, SEEK_SET);
+        unsigned char * ptr = getPtr(isections[loopc].type);
+        fwrite(ptr, sizes[isections[loopc].type], 1, f);
     }
 
     fclose(f);
