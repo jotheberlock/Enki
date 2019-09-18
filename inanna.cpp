@@ -236,8 +236,9 @@ void InannaImage::finalise()
             {
                 continue;
             }
-            printf("Section %d offset %llx points to section %d offset %llx\n",
-                   secfrom, offfrom, secto, offto);
+            printf("\nSection %d %s offset %llx points to section %d %s offset %llx\n",
+                   secfrom, sectionName(secfrom).c_str(), offfrom,
+                   secto, sectionName(secto).c_str(), offto);
             std::list<Reloc> & relocs = br->relocs;
             for (std::list<Reloc>::iterator it = relocs.begin();
                  it != relocs.end(); it++)
@@ -297,22 +298,22 @@ void InannaImage::finalise()
                     printf("Unknown relocation type! Bits %d mask %llx\n", (*it).bits, (*it).mask);
                 }
 
-                printf("Writing t %x sf %x st %x rs %x m %llx ls %x b %x o %llx off %llx ot %llx\n",
+                printf("  Writing t %x sf %x st %x rs %x m %llx ls %x b %x o %llx off %llx ot %llx\n",
                        type, secfrom, secto, rshift, mask, lshift, bits,
                        offset, offfrom, offto);
 
                 unsigned char * optr = sections[secfrom] + offfrom;
                 if ((*it).bits == 64)
                 {
-                    printf("Currently %llx\n", *((uint64 *)optr));
+                    printf("  Currently %llx\n", *((uint64 *)optr));
                 }
                 else if ((*it).bits == 32)
                 {
-                    printf("Currently %x\n", *((uint32 *)optr));
+                    printf("  Currently %x\n", *((uint32 *)optr));
                 }
                 else
                 {
-                    printf("Currently %x\n", *((uint16 *)optr));
+                    printf("  Currently %x\n", *((uint16 *)optr));
                 }
                 
                 wle32(ptr, type);
