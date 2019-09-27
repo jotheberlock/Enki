@@ -302,7 +302,7 @@ void InannaImage::finalise()
                        type, secfrom, secto, rshift, mask, lshift, bits,
                        offset, offfrom, offto);
 
-                unsigned char * optr = sections[secfrom] + offfrom;
+                unsigned char * optr = sections[secfrom] + offset+ offfrom;
                 if ((*it).bits == 64)
                 {
                     printf("  Currently %llx\n", *((uint64 *)optr));
