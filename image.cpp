@@ -152,7 +152,8 @@ void BaseRelocation::apply()
     if (written)
     {
             // this is not ideal
-        if (written != 0xfffffffffffff000 && written != 0xfffffffffc000000)
+        if (written != 0xfffffffffffff000 && written != 0xfffffffffc000000 &&
+            written != 0xffffffff00000000)
         {
             printf("Unwritten bits in %d bit relocation of %llx! %llx\n", bits, val, written);
             display_failure();
@@ -261,11 +262,14 @@ void Image::setRootFunction(FunctionScope * f)
 	root_function = f;
 }
 
-void Image::relocate()
+void Image::relocate(bool relative_only)
 {
 	for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
 	{
-		relocs[loopc]->apply();
+		if ((!relative_only) || (!relocs[loopc]->isAbsolute()))
+        {
+            relocs[loopc]->apply();
+        }
 	}
 }
 

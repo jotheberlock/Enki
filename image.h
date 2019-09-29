@@ -59,7 +59,7 @@ public:
     
 	// Fix up perms
 	virtual void finalise() = 0;
-	void relocate();
+	void relocate(bool relative_only);
 	void addFunction(FunctionScope *, uint64);
 	uint64 functionAddress(FunctionScope *);
 	uint64 functionSize(FunctionScope *);

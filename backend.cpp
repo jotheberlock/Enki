@@ -306,7 +306,7 @@ int Backend::process()
 	}
 
 	config->image->endOfImports();
-	config->image->relocate();
+	config->image->relocate(config->relocatable);
 	config->image->setRootFunction(gc->getScope());
 	config->image->finalise();
 
