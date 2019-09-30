@@ -251,9 +251,11 @@ int Backend::process()
 		log_file = keep_log;
 	}
 
-    FILE * debug = fopen("debug.txt", "w");
+    FILE * debug = fopen(config->relocatable ? (
+                             config->image->fileName()+"_debug.txt").c_str()
+                         : "debug.txt", "w");
 
-    if (config-assembler->littleEndian())
+    if (config->assembler->littleEndian())
     {
         fputs("endian little\n", debug);
     }
@@ -264,6 +266,9 @@ int Backend::process()
 
     char buf[4096];
     sprintf(buf, "arch %d\n", config->assembler->arch());
+    fputs(buf, debug);
+
+    sprintf(buf, "textbase %lld\n", config->image->getAddr(IMAGE_CODE));
     fputs(buf, debug);
     
     std::map<std::string, Type *> & typelist = types->get();
