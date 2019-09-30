@@ -46,7 +46,7 @@ def map_file(Uint fd, Uint offset, Uint size, Uint permissions) Byte^
     else
        write("Unknown permissions\n")
        return 0
-    Uint32 flags = MAP_SHARED
+    Uint32 flags = MAP_PRIVATE
     Byte^ ret
     ret = __syscall(SYSCALL_MMAP, 0, size, protect, flags, fd, offset)
     return ret

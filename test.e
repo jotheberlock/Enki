@@ -1,6 +1,6 @@
-#import sys
+import sys
 
-#sys:write("Hello world!\n")
+sys:write("Hello world!\n")
 return 42
 
 
