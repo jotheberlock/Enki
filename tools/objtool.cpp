@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "../inanna_structures.h"
 #include "md5.h"
 
@@ -46,13 +47,30 @@ void display_arch(char * ptr, uint32 secs, uint32 relocs)
 
 int main(int argc, char ** argv)
 {
-    if (argc != 2)
+    if (argc < 2)
     {
-        printf("Usage: %s <Inanna object file>\n", argv[0]);
+        printf("Usage: %s [-c combined file] <Inanna object file> <Inanna object file> ...\n", argv[0]);
         return 0;
     }
 
-    FILE * f = fopen(argv[1], "rb");
+    bool making_combined = false;
+    const char * combined_output = "";
+    int idx = 1;
+    
+    if (!strcmp(argv[1], "-c"))
+    {
+        if (argc < 4)
+        {
+            printf("Must specify combined output file and at least one input file!\n");
+            return 1;
+        }
+        
+        making_combined = true;
+        combined_output = argv[2];
+        idx = 3;
+    }
+    
+    FILE * f = fopen(argv[idx], "rb");
     if (!f)
     {
         printf("Can't open %s!\n", argv[1]);
