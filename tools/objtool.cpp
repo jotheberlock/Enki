@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <vector>
+#include <string>
 #include "../inanna_structures.h"
 #include "md5.h"
 
@@ -45,6 +47,76 @@ void display_arch(char * ptr, uint32 secs, uint32 relocs)
     }
 }
 
+class FileContents
+{
+public:
+
+    FileContents() { data=0; ih=0; }
+    ~FileContents() { delete data; }
+    
+    bool load(std::string);
+    
+    std::string name;
+    char * data;
+    int len;
+    InannaHeader * ih;
+    std::vector<InannaArchHeader *> iah;
+};
+
+bool FileContents::load(std::string name)
+{
+    FILE * f = fopen(name.c_str(), "rb");
+    if (!f)
+    {
+        printf("Can't open %s!\n", name.c_str());
+        return false;
+    }
+
+    fseek(f, 0, SEEK_END);
+    long len = ftell(f);
+
+    if (len < 512+24)
+    {
+        printf("Not an Inanna file! Too short, length %ld\n", len);
+        fclose(f);
+        return false;
+    }
+    
+    data = new char[len];
+
+    fseek(f, 0, SEEK_SET);
+    int read = fread(data, 1, len, f);
+    if (read != len)
+    {
+        printf("Short read! Expected %ld, got %d\n", len, read);
+        delete[] data;
+        fclose(f);
+        return false;
+    }
+
+    ih = (InannaHeader *)(data+INANNA_PREAMBLE);
+    
+    if (ih->magic[0] != 'e' || ih->magic[1] != 'n' || ih->magic[2] != 'k' || ih->magic[3] != 'i')
+    {
+        printf("Not an Inanna file! Wrong magic [%c%c%c%c]\n",
+               ih->magic[0], ih->magic[1], ih->magic[2], ih->magic[3]);
+        delete[] data;
+        return false;
+    }
+    
+    InannaArchHeader * iahp = (InannaArchHeader *)(data+INANNA_PREAMBLE+InannaHeader::size());
+    for (unsigned int loopc=0; loopc<ih->archs_count; loopc++)
+    {
+        iah.push_back(iahp);
+        iahp++;
+    }
+    
+    fclose(f);
+    return true;
+}
+
+std::vector<FileContents *> sources;
+
 int main(int argc, char ** argv)
 {
     if (argc < 2)
@@ -68,6 +140,19 @@ int main(int argc, char ** argv)
         making_combined = true;
         combined_output = argv[2];
         idx = 3;
+    }
+
+    for (int loopc=idx; loopc<argc; loopc++)
+    {
+        FileContents * fc = new FileContents;
+        if (fc->load(argv[loopc]))
+        {
+            sources.push_back(fc);
+        }
+        else
+        {
+            delete fc;
+        }
     }
     
     FILE * f = fopen(argv[idx], "rb");
