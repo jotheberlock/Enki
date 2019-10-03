@@ -7,7 +7,7 @@
 
 char * strings = 0;
 
-const char * archs [] = 
+const char * arch_names [] = 
 {
     "unknown",
     "amd64",
@@ -47,6 +47,14 @@ void display_arch(char * ptr, uint32 secs, uint32 relocs)
     }
 }
 
+class ArchContents
+{
+public:
+
+    InannaArchHeader * iah;
+    
+};
+
 class FileContents
 {
 public:
@@ -55,16 +63,37 @@ public:
     ~FileContents() { delete data; }
     
     bool load(std::string);
+
+    void print();
     
     std::string name;
     char * data;
     int len;
     InannaHeader * ih;
-    std::vector<InannaArchHeader *> iah;
+    std::vector<ArchContents> archs;
 };
 
-bool FileContents::load(std::string name)
+void FileContents::print()
 {
+    printf("File: %s - version %d, %d %s, string offset %d (%x), imports offset %d (%x)\n",
+           name.c_str(), ih->version, ih->archs_count, ih->archs_count == 1 ?
+           "architecture" : "architectures", ih->strings_offset,
+           ih->strings_offset, ih->imports_offset, ih->imports_offset);
+
+    for (unsigned int loopc=0; loopc<archs.size(); loopc++)
+    {
+        InannaArchHeader * i = archs[loopc].iah;
+        printf("  Arch %s (%d), start address %llx - sections:\n",
+               i->arch > 3 ? "<invalid!>" : arch_names[i->arch], i->arch,
+               i->start_address);
+    }
+    
+    printf("\n");
+}
+
+bool FileContents::load(std::string n)
+{
+    name = n;
     FILE * f = fopen(name.c_str(), "rb");
     if (!f)
     {
@@ -107,7 +136,9 @@ bool FileContents::load(std::string name)
     InannaArchHeader * iahp = (InannaArchHeader *)(data+INANNA_PREAMBLE+InannaHeader::size());
     for (unsigned int loopc=0; loopc<ih->archs_count; loopc++)
     {
-        iah.push_back(iahp);
+        ArchContents ac;
+        ac.iah = iahp;
+        archs.push_back(ac);
         iahp++;
     }
     
@@ -147,7 +178,16 @@ int main(int argc, char ** argv)
         FileContents * fc = new FileContents;
         if (fc->load(argv[loopc]))
         {
-            sources.push_back(fc);
+            if (making_combined)
+            {
+                sources.push_back(fc);
+            }
+            else
+            {
+                fc->print();
+                delete fc;
+            }
+            
         }
         else
         {
@@ -223,7 +263,7 @@ int main(int argc, char ** argv)
     for (unsigned int loopc=0; loopc<ih->archs_count; loopc++)
     {
         printf("\nArch %s (%d), start address %llx - sections:\n",
-               iah->arch > 3 ? "<invalid!>" : archs[iah->arch], iah->arch,
+               iah->arch > 3 ? "<invalid!>" : arch_names[iah->arch], iah->arch,
                iah->start_address);
         if (iah->offset > len)
         {
