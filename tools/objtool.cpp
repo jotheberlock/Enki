@@ -52,6 +52,9 @@ class ArchContents
 public:
 
     InannaArchHeader * iah;
+    std::vector<InannaSection *> secs;
+    std::vector<InannaReloc *> relocs;
+    char * strings;
     
 };
 
@@ -60,7 +63,7 @@ class FileContents
 public:
 
     FileContents() { data=0; ih=0; }
-    ~FileContents() { delete data; }
+    ~FileContents() { delete[] data; }
     
     bool load(std::string);
 
@@ -80,12 +83,32 @@ void FileContents::print()
            "architecture" : "architectures", ih->strings_offset,
            ih->strings_offset, ih->imports_offset, ih->imports_offset);
 
+    uint64 * import_modulesp = (uint64 *)(data+ih->imports_offset);
+    printf("Imports %lld %s\n", *import_modulesp,
+           *import_modulesp == 1 ? "module" : "modules");
+    
     for (unsigned int loopc=0; loopc<archs.size(); loopc++)
     {
         InannaArchHeader * i = archs[loopc].iah;
-        printf("  Arch %s (%d), start address %llx - sections:\n",
+        printf("  Arch %s (%d), start address %llx\n",
                i->arch > 3 ? "<invalid!>" : arch_names[i->arch], i->arch,
                i->start_address);
+        printf("  %d sections\n", i->sec_count);
+        for (unsigned int loopc2=0; loopc2<i->sec_count; loopc2++)
+        {
+            InannaSection * is = archs[loopc].secs[loopc2];
+            printf("    Type %d offset %d size %d vmem %llx name %s\n",
+                   is->type, is->offset, is->length, is->vmem, strings+is->name);
+        }
+        printf("  %d relocations\n", i->reloc_count);
+        for (unsigned int loopc3=0; loopc3<i->reloc_count; loopc3++)
+        {
+            InannaReloc * ir = archs[loopc].relocs[loopc3];
+            printf("    Type %s, from %d:%llx to %d:%llx, rshift %d mask %llx lshift %d bits %d offset %lld\n",
+                   ir->type < INANNA_RELOC_END ? reloc_types[ir->type] :
+                   "<too big!>", ir->secfrom, ir->offrom, ir->secto, ir->offto,
+                   ir->rshift, ir->mask, ir->lshift, ir->bits, ir->offset);
+        }
     }
     
     printf("\n");
@@ -132,12 +155,44 @@ bool FileContents::load(std::string n)
         delete[] data;
         return false;
     }
+
+    if (ih->imports_offset > len)
+    {
+        printf("File length %ld too short for imports offset of %d!\n",
+               len, ih->imports_offset);
+        delete[] data;
+        return false;
+    }
+
+    if (ih->strings_offset > len)
+    {
+        printf("File length %ld too short for strings offset %d!\n",
+               len, ih->strings_offset);
+        delete[] data;
+        return false;
+    }
+    
+    strings = data + ih->strings_offset;
     
     InannaArchHeader * iahp = (InannaArchHeader *)(data+INANNA_PREAMBLE+InannaHeader::size());
     for (unsigned int loopc=0; loopc<ih->archs_count; loopc++)
     {
         ArchContents ac;
         ac.iah = iahp;
+
+        InannaSection * is = (InannaSection *)(data+iahp->offset);
+        for (unsigned int loopc2=0; loopc2<iahp->sec_count; loopc2++)
+        {
+            ac.secs.push_back(is);
+            is++;
+        }
+        InannaReloc * ir = (InannaReloc *)is;
+        for (unsigned int loopc3=0; loopc3<iahp->reloc_count; loopc3++)
+        {
+            ac.relocs.push_back(ir);
+            ir++;
+        }
+        
         archs.push_back(ac);
         iahp++;
     }
@@ -187,95 +242,17 @@ int main(int argc, char ** argv)
                 fc->print();
                 delete fc;
             }
-            
         }
         else
         {
             delete fc;
         }
     }
-    
-    FILE * f = fopen(argv[idx], "rb");
-    if (!f)
+
+    for (unsigned int loopc=0; loopc<sources.size(); loopc++)
     {
-        printf("Can't open %s!\n", argv[1]);
-        return 1;
+        delete sources[loopc];
     }
 
-    fseek(f, 0, SEEK_END);
-    long len = ftell(f);
-
-    if (len < 512+24)
-    {
-        printf("Not an Inanna file! Too short, length %ld\n", len);
-        fclose(f);
-        return 2;
-    }
-    
-    char * buf = new char[len];
-    fseek(f, 0, SEEK_SET);
-    int read = fread(buf, 1, len, f);
-    if (read != len)
-    {
-        printf("Short read! Expected %ld, got %d\n", len, read);
-        delete[] buf;
-        return 3;
-    }
-    
-    fclose(f);
-    
-    InannaHeader * ih = (InannaHeader *)(buf+INANNA_PREAMBLE);
-    if (ih->magic[0] != 'e' || ih->magic[1] != 'n' || ih->magic[2] != 'k' || ih->magic[3] != 'i')
-    {
-        printf("Not an Inanna file! Wrong magic [%c%c%c%c]\n",
-               ih->magic[0], ih->magic[1], ih->magic[2], ih->magic[3]);
-        delete[] buf;
-        return 4;
-    }
-
-    printf("Version %d, %d %s, string offset %d (%x), imports offset %d (%x)\n",
-           ih->version, ih->archs_count, ih->archs_count == 1 ?
-           "architecture" : "architectures", ih->strings_offset,
-           ih->strings_offset, ih->imports_offset, ih->imports_offset);
-    strings = buf+ih->strings_offset;
-
-    if (ih->imports_offset > len)
-    {
-        printf("File length %ld too short for imports offset of %d!\n",
-               len, ih->imports_offset);
-        delete[] buf;
-        return 5;
-    }
-
-    if (ih->strings_offset > len)
-    {
-        printf("File length %ld too short for strings offset %d!\n",
-               len, ih->strings_offset);
-        delete[] buf;
-        return 6;
-    }
-    
-    uint64 * import_modulesp = (uint64 *)(buf+ih->imports_offset);
-    printf("Imports %lld %s\n", *import_modulesp,
-           *import_modulesp == 1 ? "module" : "modules");
-    
-    InannaArchHeader * iah = (InannaArchHeader *)(buf+INANNA_PREAMBLE+InannaHeader::size());
-    for (unsigned int loopc=0; loopc<ih->archs_count; loopc++)
-    {
-        printf("\nArch %s (%d), start address %llx - sections:\n",
-               iah->arch > 3 ? "<invalid!>" : arch_names[iah->arch], iah->arch,
-               iah->start_address);
-        if (iah->offset > len)
-        {
-            printf("Offset is after end of file!\n");
-        }
-        else
-        {
-            display_arch(buf+iah->offset, iah->sec_count, iah->reloc_count);
-        }
-        iah++;
-    }
-
-    delete[] buf;
     return 0;
 }
