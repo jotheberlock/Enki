@@ -53,6 +53,7 @@ public:
 
     InannaArchHeader * iah;
     std::vector<InannaSection *> secs;
+    std::vector<std::string> md5s;
     std::vector<InannaReloc *> relocs;
     char * strings;
     
@@ -184,6 +185,14 @@ bool FileContents::load(std::string n)
         for (unsigned int loopc2=0; loopc2<iahp->sec_count; loopc2++)
         {
             ac.secs.push_back(is);
+            
+            MD5_CTX ctx;
+            MD5_Init(&ctx);
+            MD5_Update(&ctx, data+is->offset, is->length);
+            unsigned char buf[64];
+            MD5_Final(buf, &ctx);
+            ac.md5s.push_back((char *)buf);
+            
             is++;
         }
         InannaReloc * ir = (InannaReloc *)is;
