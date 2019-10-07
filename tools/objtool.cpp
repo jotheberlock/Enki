@@ -98,8 +98,9 @@ void FileContents::print()
         for (unsigned int loopc2=0; loopc2<i->sec_count; loopc2++)
         {
             InannaSection * is = archs[loopc].secs[loopc2];
-            printf("    Type %d offset %d size %d vmem %llx name %s\n",
-                   is->type, is->offset, is->length, is->vmem, strings+is->name);
+            printf("    Type %d offset %d size %d vmem %llx name %s md5 %s\n",
+                   is->type, is->offset, is->length, is->vmem,
+                   strings+is->name, archs[loopc].md5s[loopc2].c_str());
         }
         printf("  %d relocations\n", i->reloc_count);
         for (unsigned int loopc3=0; loopc3<i->reloc_count; loopc3++)
@@ -189,9 +190,17 @@ bool FileContents::load(std::string n)
             MD5_CTX ctx;
             MD5_Init(&ctx);
             MD5_Update(&ctx, data+is->offset, is->length);
-            unsigned char buf[64];
+            unsigned char buf[MD5_DIGEST_LENGTH];
             MD5_Final(buf, &ctx);
-            ac.md5s.push_back((char *)buf);
+            std::string md5;
+            for (int loopc4=0; loopc4<MD5_DIGEST_LENGTH; loopc4++)
+            {
+                char hex[3];
+                sprintf(hex, "%02x", buf[loopc4]);
+                md5 += hex;
+            }
+            
+            ac.md5s.push_back(md5);
             
             is++;
         }
