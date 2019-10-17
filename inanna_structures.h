@@ -39,10 +39,12 @@ public:
     uint32 version;
     uint32 archs_count;
     uint32 strings_offset;
+    uint32 strings_size;
     uint32 imports_offset;
+    uint32 imports_size;
     uint32 dummy;
     
-    static int size() { return 24; }
+    static int size() { return 32; }
     
 };
 

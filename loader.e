@@ -40,7 +40,9 @@ struct raw InannaHeader
     Uint32 version
     Uint32 archs_count
     Uint32 strings_offset
+    Uint32 string_size
     Uint32 imports_offset
+    Uint32 imports_size
 
 struct raw InannaArchHeader
     Uint32 arch
@@ -316,7 +318,7 @@ def load_import(Byte^ file) Uint
         display_num("Strings offset ", ih^.strings_offset)
         display_num("Imports offset ", ih^.imports_offset)
     Uint count = 0
-    ptr += 24
+    ptr += 32
     InannaArchHeader^ iah = cast(ptr, InannaArchHeader^)
     while count < ih^.archs_count
         if iah^.arch == MACHINE_ARCH

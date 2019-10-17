@@ -183,7 +183,9 @@ void InannaImage::finalise()
     wle32(ptr, 1);
     wle32(ptr, 1);
     wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size());
+    wle32(ptr, stablesize);
     wle32(ptr, (uint32)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+stablesize));
+    wle32(ptr, imports->size());
     wle32(ptr, 0);
 
     int relocs_count = 0;

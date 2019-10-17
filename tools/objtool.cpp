@@ -99,13 +99,32 @@ int FileContents::find_arch(uint32 a)
 
     return -1;
 }
- 
+
+std::string do_md5(char * ptr, int len)
+{
+    MD5_CTX ctx;
+    MD5_Init(&ctx);
+    MD5_Update(&ctx, ptr, len);
+    unsigned char buf[MD5_DIGEST_LENGTH];
+    memset(buf, 0, MD5_DIGEST_LENGTH);
+    MD5_Final(buf, &ctx);
+    std::string md5;
+    for (int loopc4=0; loopc4<MD5_DIGEST_LENGTH; loopc4++)
+    {
+        char hex[3];
+        sprintf(hex, "%02x", buf[loopc4]);
+        md5 += hex;
+    }
+    return md5;
+}
+
 void FileContents::print()
 {
-    printf("File: %s - version %d, %d %s, string offset %d (%x), imports offset %d (%x)\n",
+    printf("File: %s - version %d, %d %s, string offset %d (%x) size %d, imports offset %d (%x) size %d\n",
            name.c_str(), ih->version, ih->archs_count, ih->archs_count == 1 ?
            "architecture" : "architectures", ih->strings_offset,
-           ih->strings_offset, ih->imports_offset, ih->imports_offset);
+           ih->strings_offset, ih->strings_size, ih->imports_offset, ih->imports_offset,
+           ih->imports_size);
 
     uint64 * import_modulesp = (uint64 *)(data+ih->imports_offset);
     printf("Imports %lld %s\n", *import_modulesp,
@@ -211,22 +230,8 @@ bool FileContents::load(std::string n)
         for (unsigned int loopc2=0; loopc2<iahp->sec_count; loopc2++)
         {
             ac.secs.push_back(is);
-            
-            MD5_CTX ctx;
-            MD5_Init(&ctx);
-            MD5_Update(&ctx, data+is->offset, is->length);
-            unsigned char buf[MD5_DIGEST_LENGTH];
-            MD5_Final(buf, &ctx);
-            std::string md5;
-            for (int loopc4=0; loopc4<MD5_DIGEST_LENGTH; loopc4++)
-            {
-                char hex[3];
-                sprintf(hex, "%02x", buf[loopc4]);
-                md5 += hex;
-            }
-            
+            std::string md5 = do_md5(data+is->offset, is->length);
             ac.md5s.push_back(md5);
-
             sections_by_md5[md5] = data+is->offset;
             is++;
         }
@@ -251,9 +256,49 @@ void FileContents::build(std::string n)
 {
     name = n;
     ih = new InannaHeader;
+    char * fstrings_ptr = 0;
+    char * fimports_ptr = 0;
+    int fstrings_size = 0;
+    int fimports_size = 0;
+    
     for (unsigned int loopc=0; loopc<sources.size(); loopc++)
     {
         FileContents * fc = sources[loopc];
+
+        if (loopc ==0)
+        {
+            fstrings_ptr= fc->data + fc->ih->strings_offset;
+            fstrings_size = fc->ih->strings_size;
+            fimports_ptr = fc->data + fc->ih->imports_offset;
+            fimports_size = fc->ih->imports_size;
+        }
+        else
+        {
+            char * thisstrings_ptr = fc->data + fc->ih->strings_offset;
+            char * thisimports_ptr = fc->data + fc->ih->strings_offset;
+            if (fc->ih->strings_size != fstrings_size ||
+                memcmp(fstrings_ptr, thisstrings_ptr, fstrings_size) != 0)
+            {
+                printf("Ignoring mismatched strings section!\n");
+                continue;
+            }
+            
+            if (fc->ih->imports_size != fimports_size ||
+                memcmp(fimports_ptr, thisimports_ptr, fimports_size) != 0)
+            {
+                printf("Ignoring mismatched imports section in %s! %d %d %s %s\n",
+                       fc->name.c_str(),
+                       fc->ih->imports_size, fimports_size,
+                       do_md5(fimports_ptr, fimports_size).c_str(),
+                       do_md5(thisimports_ptr, fc->ih->imports_size).c_str());
+                continue;
+            }
+            else
+            {
+                printf("%s matches\n", fc->name.c_str());
+            }   
+        }
+        
         for (unsigned int loopc2=0; loopc2<fc->archs.size(); loopc2++)
         {
             ArchContents & ac = fc->archs[loopc2];
