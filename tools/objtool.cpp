@@ -2,6 +2,8 @@
 #include <string.h>
 #include <vector>
 #include <string>
+#include <map>
+
 #include "../inanna_structures.h"
 #include "md5.h"
 
@@ -25,6 +27,11 @@ const char * reloc_types[] =
     "relocmasked32",
     "relocmasked16"
 };
+
+int round_to_4k(int size)
+{
+    return (size+4096-1) & ~4096;
+}
 
 void display_arch(char * ptr, uint32 secs, uint32 relocs)
 {
@@ -67,8 +74,11 @@ public:
     ~FileContents() { delete[] data; }
     
     bool load(std::string);
-
+    void build(std::string);
+    
     void print();
+
+    int find_arch(uint32);
     
     std::string name;
     char * data;
@@ -77,6 +87,19 @@ public:
     std::vector<ArchContents> archs;
 };
 
+int FileContents::find_arch(uint32 a)
+{
+    for (unsigned int loopc=0; loopc<archs.size(); loopc++)
+    {
+        if (archs[loopc].iah->arch == a)
+        {
+            return loopc;
+        }
+    }
+
+    return -1;
+}
+ 
 void FileContents::print()
 {
     printf("File: %s - version %d, %d %s, string offset %d (%x), imports offset %d (%x)\n",
@@ -116,6 +139,8 @@ void FileContents::print()
     printf("\n");
 }
 
+std::map<std::string, char *> sections_by_md5;
+         
 bool FileContents::load(std::string n)
 {
     name = n;
@@ -201,7 +226,8 @@ bool FileContents::load(std::string n)
             }
             
             ac.md5s.push_back(md5);
-            
+
+            sections_by_md5[md5] = data+is->offset;
             is++;
         }
         InannaReloc * ir = (InannaReloc *)is;
@@ -220,6 +246,25 @@ bool FileContents::load(std::string n)
 }
 
 std::vector<FileContents *> sources;
+
+void FileContents::build(std::string n)
+{
+    name = n;
+    ih = new InannaHeader;
+    for (unsigned int loopc=0; loopc<sources.size(); loopc++)
+    {
+        FileContents * fc = sources[loopc];
+        for (unsigned int loopc2=0; loopc2<fc->archs.size(); loopc2++)
+        {
+            ArchContents & ac = fc->archs[loopc2];
+            if (find_arch(ac.iah->arch) > -1)
+            {
+                printf("Ignoring duplicate arch %s in %s!\n", arch_names[ac.iah->arch], fc->name.c_str());
+                break;
+            }
+        }
+    }
+}
 
 int main(int argc, char ** argv)
 {
@@ -267,6 +312,12 @@ int main(int argc, char ** argv)
         }
     }
 
+    if (making_combined)
+    {
+        FileContents output;
+        output.build(combined_output);
+    }
+    
     for (unsigned int loopc=0; loopc<sources.size(); loopc++)
     {
         delete sources[loopc];
