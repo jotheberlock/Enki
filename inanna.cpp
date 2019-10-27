@@ -188,7 +188,7 @@ void InannaImage::finalise()
     wle32(ptr, imports->size());
     wle32(ptr, 0);
 
-    int relocs_count = 0;
+    size_t relocs_count = 0;
 
     for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
     {        
@@ -202,7 +202,7 @@ void InannaImage::finalise()
     wle32(ptr, (uint32)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
           stablesize + imports->size()));
     wle32(ptr, (uint32)isections.size());
-    wle32(ptr, relocs_count);
+    wle32(ptr, (uint32)relocs_count);
     wle64(ptr, functionAddress(root_function) - bases[IMAGE_CODE]);
 
     memcpy(ptr, stringtable.getData(), stringtable.dataSize());
