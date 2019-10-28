@@ -275,7 +275,7 @@ void FileContents::build(std::string n)
         else
         {
             char * thisstrings_ptr = fc->data + fc->ih->strings_offset;
-            char * thisimports_ptr = fc->data + fc->ih->strings_offset;
+            //char * thisimports_ptr = fc->data + fc->ih->strings_offset;
             if (fc->ih->strings_size != fstrings_size ||
                 memcmp(fstrings_ptr, thisstrings_ptr, fstrings_size) != 0)
             {
@@ -283,6 +283,7 @@ void FileContents::build(std::string n)
                 continue;
             }
             
+            /*
             if (fc->ih->imports_size != fimports_size ||
                 memcmp(fimports_ptr, thisimports_ptr, fimports_size) != 0)
             {
@@ -296,7 +297,8 @@ void FileContents::build(std::string n)
             else
             {
                 printf("%s matches\n", fc->name.c_str());
-            }   
+            } 
+            */
         }
         
         for (unsigned int loopc2=0; loopc2<fc->archs.size(); loopc2++)

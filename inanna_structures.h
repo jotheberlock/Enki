@@ -40,11 +40,9 @@ public:
     uint32 archs_count;
     uint32 strings_offset;
     uint32 strings_size;
-    uint32 imports_offset;
-    uint32 imports_size;
     uint32 dummy;
     
-    static int size() { return 32; }
+    static int size() { return 24; }
     
 };
 
@@ -57,8 +55,10 @@ class InannaArchHeader
     uint32 sec_count;
     uint32 reloc_count;
     uint64 start_address;
+    uint32 imports_offset;
+    uint32 imports_size;
 
-    static int size() { return 24; }
+    static int size() { return 32; }
     
 };
 

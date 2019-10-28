@@ -41,8 +41,6 @@ struct raw InannaHeader
     Uint32 archs_count
     Uint32 strings_offset
     Uint32 string_size
-    Uint32 imports_offset
-    Uint32 imports_size
 
 struct raw InannaArchHeader
     Uint32 arch
@@ -50,6 +48,8 @@ struct raw InannaArchHeader
     Uint32 sec_count
     Uint32 reloc_count
     Uint64 start_address
+    Uint32 imports_offset
+    Uint32 imports_size
 
 struct raw InannaSection
     Uint32 type
@@ -316,15 +316,15 @@ def load_import(Byte^ file) Uint
         display_num("Inanna version ", ih^.version)
         display_num("Archs ", ih^.archs_count)
         display_num("Strings offset ", ih^.strings_offset)
-        display_num("Imports offset ", ih^.imports_offset)
     Uint count = 0
-    ptr += 32
+    ptr += 24
     InannaArchHeader^ iah = cast(ptr, InannaArchHeader^)
     while count < ih^.archs_count
         if iah^.arch == MACHINE_ARCH
             # FIXME: weirdness if we don't extract before call
             Uint so = ih^.strings_offset
-            Uint io = ih^.imports_offset
+            Uint io = iah^.imports_offset
+            display_num("Imports offset ", io)  
             return load_arch(iah, header, so, io)
         count += 1
         iah += 1
