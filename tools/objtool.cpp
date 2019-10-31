@@ -62,8 +62,9 @@ public:
     std::vector<InannaSection *> secs;
     std::vector<std::string> md5s;
     std::vector<InannaReloc *> relocs;
-    char * strings;
-    
+    char* imports;
+    std::string imports_md5;
+
 };
 
 class FileContents
@@ -85,6 +86,7 @@ public:
     int len;
     InannaHeader * ih;
     std::vector<ArchContents> archs;
+    char* strings;
 };
 
 int FileContents::find_arch(uint32 a)
@@ -242,6 +244,8 @@ bool FileContents::load(std::string n)
             ir++;
         }
         
+        ac.strings = data + iahp->imports_offset;
+        ac.imports_md5 = do_md5(ac.strings, iahp->imports_size);
         archs.push_back(ac);
         iahp++;
     }

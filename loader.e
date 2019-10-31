@@ -118,7 +118,7 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
         Uint itype = ir^.type
         # hmm why does elif not work
         if itype == 0
-           write("invalid relocation found!\n")
+           write("Invalid relocation found!\n")
         if itype == 1
            Byte^ fromptrb = offsets[ir^.secfrom]
            fromptrb += ir^.offrom
@@ -231,7 +231,7 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
             write("Module entries ")
             write_num(mentries)
             write("\n")
-            write("Strsize ")
+            write("String size ")
             write_num(strsize)
             write("\n")
             write("Module ")
