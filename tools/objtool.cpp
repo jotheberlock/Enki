@@ -62,7 +62,6 @@ public:
     std::vector<InannaSection *> secs;
     std::vector<std::string> md5s;
     std::vector<InannaReloc *> relocs;
-    char* imports;
     std::string imports_md5;
 
 };
@@ -122,16 +121,11 @@ std::string do_md5(char * ptr, int len)
 
 void FileContents::print()
 {
-    printf("File: %s - version %d, %d %s, string offset %d (%x) size %d, imports offset %d (%x) size %d\n",
+    printf("File: %s - version %d, %d %s, string offset %d (%x) size %d\n",
            name.c_str(), ih->version, ih->archs_count, ih->archs_count == 1 ?
            "architecture" : "architectures", ih->strings_offset,
-           ih->strings_offset, ih->strings_size, ih->imports_offset, ih->imports_offset,
-           ih->imports_size);
+           ih->strings_offset, ih->strings_size);
 
-    uint64 * import_modulesp = (uint64 *)(data+ih->imports_offset);
-    printf("Imports %lld %s\n", *import_modulesp,
-           *import_modulesp == 1 ? "module" : "modules");
-    
     for (unsigned int loopc=0; loopc<archs.size(); loopc++)
     {
         InannaArchHeader * i = archs[loopc].iah;
@@ -204,14 +198,6 @@ bool FileContents::load(std::string n)
         return false;
     }
 
-    if (ih->imports_offset > len)
-    {
-        printf("File length %ld too short for imports offset of %d!\n",
-               len, ih->imports_offset);
-        delete[] data;
-        return false;
-    }
-
     if (ih->strings_offset > len)
     {
         printf("File length %ld too short for strings offset %d!\n",
@@ -244,8 +230,7 @@ bool FileContents::load(std::string n)
             ir++;
         }
         
-        ac.strings = data + iahp->imports_offset;
-        ac.imports_md5 = do_md5(ac.strings, iahp->imports_size);
+        ac.imports_md5 = do_md5(data+iahp->imports_offset, iahp->imports_size);
         archs.push_back(ac);
         iahp++;
     }
@@ -261,9 +246,7 @@ void FileContents::build(std::string n)
     name = n;
     ih = new InannaHeader;
     char * fstrings_ptr = 0;
-    char * fimports_ptr = 0;
-    int fstrings_size = 0;
-    int fimports_size = 0;
+    unsigned int fstrings_size = 0;
     
     for (unsigned int loopc=0; loopc<sources.size(); loopc++)
     {
@@ -273,36 +256,16 @@ void FileContents::build(std::string n)
         {
             fstrings_ptr= fc->data + fc->ih->strings_offset;
             fstrings_size = fc->ih->strings_size;
-            fimports_ptr = fc->data + fc->ih->imports_offset;
-            fimports_size = fc->ih->imports_size;
         }
         else
         {
             char * thisstrings_ptr = fc->data + fc->ih->strings_offset;
-            //char * thisimports_ptr = fc->data + fc->ih->strings_offset;
             if (fc->ih->strings_size != fstrings_size ||
                 memcmp(fstrings_ptr, thisstrings_ptr, fstrings_size) != 0)
             {
                 printf("Ignoring mismatched strings section!\n");
                 continue;
             }
-            
-            /*
-            if (fc->ih->imports_size != fimports_size ||
-                memcmp(fimports_ptr, thisimports_ptr, fimports_size) != 0)
-            {
-                printf("Ignoring mismatched imports section in %s! %d %d %s %s\n",
-                       fc->name.c_str(),
-                       fc->ih->imports_size, fimports_size,
-                       do_md5(fimports_ptr, fimports_size).c_str(),
-                       do_md5(thisimports_ptr, fc->ih->imports_size).c_str());
-                continue;
-            }
-            else
-            {
-                printf("%s matches\n", fc->name.c_str());
-            } 
-            */
         }
         
         for (unsigned int loopc2=0; loopc2<fc->archs.size(); loopc2++)
