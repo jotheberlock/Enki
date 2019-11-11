@@ -66,6 +66,13 @@ public:
 
 };
 
+struct ImportsInfo
+{
+    char * data;
+    int len;
+    std::string md5;
+};
+
 class FileContents
 {
 public:
@@ -86,7 +93,28 @@ public:
     InannaHeader * ih;
     std::vector<ArchContents> archs;
     char* strings;
+
+    std::vector<ImportsInfo> imports_info;
+    void addImports(char *, int, std::string);
+    
 };
+
+void FileContents::addImports(char * data, int len, std::string md5)
+{
+    for (unsigned int loopc=0; loopc<imports_info.size(); loopc++)
+    {
+        if (imports_info[loopc].md5 == md5)
+        {
+            return;
+        }
+    }
+
+    ImportsInfo ii;
+    ii.md5 = md5;
+    ii.data = data;
+    ii.len = len;
+    imports_info.push_back(ii);
+}
 
 int FileContents::find_arch(uint32 a)
 {
@@ -230,7 +258,9 @@ bool FileContents::load(std::string n)
             ir++;
         }
         
-        ac.imports_md5 = do_md5(data+iahp->imports_offset, iahp->imports_size);
+        std::string md5 = do_md5(data+iahp->imports_offset, iahp->imports_size);
+        addImports(data+iahp->imports_offset, iahp->imports_size, md5);
+        ac.imports_md5 = md5;
         archs.push_back(ac);
         iahp++;
     }
