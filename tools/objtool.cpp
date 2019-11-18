@@ -96,6 +96,7 @@ public:
 
     std::vector<ImportsInfo> imports_info;
     void addImports(char *, int, std::string);
+    bool findImports(std::string md5, ImportsInfo& import);
     
 };
 
@@ -114,6 +115,21 @@ void FileContents::addImports(char * data, int len, std::string md5)
     ii.data = data;
     ii.len = len;
     imports_info.push_back(ii);
+}
+
+bool findImports(std::string md5, ImportsInfo & import)
+{
+
+    for (unsigned int loopc = 0; loopc < imports_info.size(); loopc++)
+    {
+        if (imports_info[loopc].md5 == md5)
+        {
+            import = imports_info[loopc];
+            return true;
+        }
+    }
+
+    return false;
 }
 
 int FileContents::find_arch(uint32 a)
