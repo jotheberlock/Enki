@@ -117,9 +117,8 @@ void FileContents::addImports(char * data, int len, std::string md5)
     imports_info.push_back(ii);
 }
 
-bool findImports(std::string md5, ImportsInfo & import)
+bool FileContents::findImports(std::string md5, ImportsInfo & import)
 {
-
     for (unsigned int loopc = 0; loopc < imports_info.size(); loopc++)
     {
         if (imports_info[loopc].md5 == md5)
