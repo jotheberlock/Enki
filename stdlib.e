@@ -31,6 +31,26 @@ def num_to_str(Uint64 in, Byte^ out) Uint
         count -= 1
     return 0
 
+def str_to_num(Byte^ in) Uint
+    Byte^ ptr = in
+    Uint ret = 0
+    while ptr^ > 0
+        ret = ret << 4
+        Byte the_digit
+        the_digit = ptr^
+        Uint to_add = the_digit
+        if the_digit < 58
+            to_add = to_add - 48
+            ret = ret + to_add
+        elif the_digit < 71
+            to_add = to_add - 55
+            ret = ret + to_add
+        else
+            to_add = to_add - 87
+            ret = ret + to_add
+        ptr = ptr + 1
+    return ret
+
 def to_upper(Byte^ str) Uint
     Byte ch = str^
     while ch != 0
@@ -60,5 +80,4 @@ def display_num(Byte^ text, Uint64 val) Uint
     write_num(val)
     write("\n")
     return 0
-
 
