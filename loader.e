@@ -164,6 +164,9 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
                write_num(ir^.offto)
                write("\n")
            fromptr^ = toaddr
+        if itype == 4
+           write("16 bit masked relocation not implemented yet!")
+           exit(1)
         if itype == 5
            Byte^ fromptrb = offsets[ir^.secfrom]
            fromptrb += ir^.offrom
@@ -194,6 +197,9 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
            val = val | toaddr
            display_num("Writing back ", val)
            fromptr^ = val
+        if itype == 6
+           write("64 bit masked relocation not implemented yet!")
+           exit(1)
         count -= 1
         ir += 1
 
@@ -210,7 +216,7 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
     Byte^ frameptr = cast(ret, Byte^)
     constif DEBUG
         display_num("Frame ptr is ", frameptr)
-        
+
     Byte^ importbp = base + ioffset
     Uint64^ importp = cast(importbp, Uint64^)
     Uint64 modules = importp^
@@ -274,7 +280,7 @@ def load_arch(InannaArchHeader^ iah, Byte^ base, Uint soffset, Uint ioffset) Uin
     constif DEBUG
         display_num("Returned second ", ret)
     return ret
-    
+
 def load_import(Byte^ file) Uint
     constif DEBUG
         write("About to open ")
@@ -324,14 +330,14 @@ def load_import(Byte^ file) Uint
             # FIXME: weirdness if we don't extract before call
             Uint so = ih^.strings_offset
             Uint io = iah^.imports_offset
-            display_num("Imports offset ", io)  
+            display_num("Imports offset ", io)
             return load_arch(iah, header, so, io)
         count += 1
         iah += 1
     write("No suitable architecture found!\n")
     return 1
 
-constif DEBUG    
+constif DEBUG
     display_num("OS stack ptr ", __osstackptr)
 Uint argc = get_argc()
 constif DEBUG
