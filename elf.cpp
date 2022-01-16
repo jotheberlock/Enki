@@ -212,7 +212,7 @@ void ElfImage::finalise()
 			wee64(le, ptr, bases[the_one]);
 			wee64(le, ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : sizes[the_one]);
 			wee64(le, ptr, sizes[the_one]);
-			wee64(le, ptr, 0);
+			wee64(le, ptr, 0x1000);
 		}
 		else
 		{
@@ -222,7 +222,7 @@ void ElfImage::finalise()
 			wee32(le, ptr, (the_one == IMAGE_UNALLOCED_DATA) ? 0 : checked_32(sizes[the_one]));
 			wee32(le, ptr, checked_32(sizes[the_one]));
 			wee32(le, ptr, flags);  // Flags
-			wee32(le, ptr, 0);
+			wee32(le, ptr, 0x1000);
 		}
 	}
 
