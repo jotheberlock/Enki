@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
-project(MyProject VERSION 1.0
-                  DESCRIPTION "Enki"
-                  LANGUAGES CXX)
+project(Enki VERSION 1.0
+             DESCRIPTION "Enki"
+             LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -67,5 +67,6 @@ add_executable(enki
 	type.h)
 
 add_executable(objtool
+	tools/md5.h
 	tools/md5.cpp
 	tools/objtool.cpp)
