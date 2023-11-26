@@ -132,23 +132,23 @@ public:
 		return true;
 	}
 
-	uint64 getAddr()
+	uint64_t getAddr()
 	{
 		assert(addr);
 		return addr;
 	}
 
-	void setAddr(uint64 a)
+	void setAddr(uint64_t a)
 	{
 		addr = a;
 	}
 
-	void setStackSize(uint64 s)
+	void setStackSize(uint64_t s)
 	{
 		stack_size = s;
 	}
 
-	uint64 getStackSize()
+	uint64_t getStackSize()
 	{
 		assert(stack_size);
 		return stack_size;
@@ -158,8 +158,8 @@ protected:
 
 	std::vector<Value *> args_list;
 	FunctionType * type;
-	uint64 addr;
-	uint64 stack_size;
+	uint64_t addr;
+	uint64_t stack_size;
 
     Value * oldframe;
     Value * ip;

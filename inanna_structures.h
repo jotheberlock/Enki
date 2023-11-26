@@ -36,11 +36,11 @@ class InannaHeader
 public:
 
     char magic[4];
-    uint32 version;
-    uint32 archs_count;
-    uint32 strings_offset;
-    uint32 strings_size;
-    uint32 dummy;
+    uint32_t version;
+    uint32_t archs_count;
+    uint32_t strings_offset;
+    uint32_t strings_size;
+    uint32_t dummy;
     
     static int size() { return 24; }
     
@@ -50,13 +50,13 @@ class InannaArchHeader
 {
   public:
 
-    uint32 arch;
-    uint32 offset;
-    uint32 sec_count;
-    uint32 reloc_count;
-    uint64 start_address;
-    uint32 imports_offset;
-    uint32 imports_size;
+    uint32_t arch;
+    uint32_t offset;
+    uint32_t sec_count;
+    uint32_t reloc_count;
+    uint64_t start_address;
+    uint32_t imports_offset;
+    uint32_t imports_size;
 
     static int size() { return 32; }
     
@@ -66,11 +66,11 @@ class InannaSection
 {
 public:
 
-    uint32 type;
-    uint32 offset;
-    uint32 length;
-    uint32 name;
-    uint64 vmem;
+    uint32_t type;
+    uint32_t offset;
+    uint32_t length;
+    uint32_t name;
+    uint64_t vmem;
 
     static int size() { return 24; }
     
@@ -80,16 +80,16 @@ class InannaReloc
 {
 public:
 
-    uint32 type;
-    uint32 secfrom;
-    uint32 secto;
-    uint32 rshift;
-    uint64 mask;
-    uint32 lshift;
-    uint32 bits;
-    uint64 offset;
-    uint64 offrom;
-    uint64 offto;
+    uint32_t type;
+    uint32_t secfrom;
+    uint32_t secto;
+    uint32_t rshift;
+    uint64_t mask;
+    uint32_t lshift;
+    uint32_t bits;
+    uint64_t offset;
+    uint64_t offrom;
+    uint64_t offto;
 
     static int size() { return 56; }
     

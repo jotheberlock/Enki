@@ -49,25 +49,25 @@ public:
 	virtual ~Image();
 
 	virtual bool configure(std::string, std::string);
-	void setSectionSize(int, uint64);
-	uint64 sectionSize(int);
+	void setSectionSize(int, uint64_t);
+	uint64_t sectionSize(int);
 
-	uint64 getAddr(int);
+	uint64_t getAddr(int);
 	unsigned char * getPtr(int);
-    bool getSectionOffset(unsigned char *, int &, uint64 &);
-    bool getSectionOffset(uint64, int &, uint64 &);
-    
+        bool getSectionOffset(unsigned char *, int &, uint64_t &);
+        bool getSectionOffset(uint64_t, int &, uint64_t &);
+
 	// Fix up perms
 	virtual void finalise() = 0;
 	void relocate(bool relative_only);
-	void addFunction(FunctionScope *, uint64);
-	uint64 functionAddress(FunctionScope *);
-	uint64 functionSize(FunctionScope *);
+	void addFunction(FunctionScope *, uint64_t);
+	uint64_t functionAddress(FunctionScope *);
+	uint64_t functionSize(FunctionScope *);
 	unsigned char * functionPtr(FunctionScope *);
 	void setRootFunction(FunctionScope *);
 
 	void addImport(std::string, std::string);
-	virtual uint64 importAddress(std::string) = 0;
+	virtual uint64_t importAddress(std::string) = 0;
 
 	virtual void materialiseSection(int);
 	bool littleEndian()
@@ -79,7 +79,7 @@ public:
 	{
 		relocs.push_back(b);
 	}
-    
+
 	virtual void endOfImports()
 	{}
 
@@ -89,7 +89,7 @@ public:
     {
         return fname;
     }
-    
+
     std::string sectionName(int);
 
         // will 'import sys' work
@@ -97,31 +97,31 @@ public:
     {
         return false;
     }
-    
+
 protected:
 
 	unsigned char * sections[IMAGE_LAST];
-	uint64 bases[IMAGE_LAST];
-	uint64 sizes[IMAGE_LAST];
+	uint64_t bases[IMAGE_LAST];
+	uint64_t sizes[IMAGE_LAST];
     bool materialised[IMAGE_LAST];
-    
-	std::vector<uint64> foffsets;
-	std::vector<uint64> fsizes;
+
+	std::vector<uint64_t> foffsets;
+	std::vector<uint64_t> fsizes;
 	std::vector<FunctionScope *> fptrs;
 
 	std::vector<LibImport> ext_imports;
-	uint64 total_imports;
+	uint64_t total_imports;
 
-	uint64 current_offset;
-	uint64 align;
+	uint64_t current_offset;
+	uint64_t align;
 
 	std::vector<BaseRelocation *> relocs;
 	FunctionScope * root_function;
 
 	int arch;
 	bool guard_page;
-	uint64 base_addr;
-	uint64 next_addr;
+	uint64_t base_addr;
+	uint64_t next_addr;
 	std::string fname;
 	bool sf_bit;
 
@@ -134,9 +134,9 @@ public:
 	MemoryImage();
 	~MemoryImage();
 	void finalise();
-	void setImport(std::string, uint64);
-	uint64 importAddress(std::string);
-	uint64 importOffset(std::string);
+	void setImport(std::string, uint64_t);
+	uint64_t importAddress(std::string);
+	uint64_t importOffset(std::string);
 	void endOfImports();
 
 	std::string name() { return "memory"; }
@@ -146,7 +146,7 @@ protected:
 	void materialiseSection(int s);
 	MemBlock mems[IMAGE_LAST];
 	std::vector<std::string> import_names;
-	uint64 * import_pointers;
+	uint64_t * import_pointers;
 
 };
 
@@ -154,15 +154,15 @@ class Reloc
 {
 public:
 
-	uint64 offset;  // from base pointer
+	uint64_t offset;  // from base pointer
 		// Extract bits to write - shift right then mask
-	uint32 rshift;
-	uint64 mask;
+	uint32_t rshift;
+	uint64_t mask;
 	// How many bits to shift left into relocation
-	uint32 lshift;
+	uint32_t lshift;
 	int bits;
 
-	void apply(bool, unsigned char *, uint64);
+	void apply(bool, unsigned char *, uint64_t);
 
 };
 
@@ -185,14 +185,14 @@ public:
     {
         printf("Type is %s\n", type().c_str());
     }
-    
+
     virtual bool isAbsolute()
     {
         return false;
     }
 
-	void addReloc(uint64 o, uint32 r, uint64 m,
-		uint32 l, int bits)
+	void addReloc(uint64_t o, uint32_t r, uint64_t m,
+		uint32_t l, int bits)
 	{
 		Reloc reloc;
 		reloc.offset = o;
@@ -208,12 +208,12 @@ public:
     {
         addReloc(0, 0, 0, 0, 8);
     }
-    
+
     void add16()
     {
         addReloc(0, 0, 0, 0, 16);
     }
-    
+
 	void add32()
 	{
 		addReloc(0, 0, 0, 0, 32);
@@ -223,9 +223,9 @@ public:
 	{
 		addReloc(0, 0, 0, 0, 64);
 	}
-    
+
 	void apply();
-	virtual uint64 getValue() = 0;
+	virtual uint64_t getValue() = 0;
 	virtual unsigned char * getPtr() = 0;
 
 	std::list<Reloc> relocs;
@@ -241,8 +241,8 @@ class FunctionRelocation : public BaseRelocation
 public:
 
 	FunctionRelocation(Image *,
-		FunctionScope *, uint64, FunctionScope *, uint64);
-	uint64 getValue();
+		FunctionScope *, uint64_t, FunctionScope *, uint64_t);
+	uint64_t getValue();
 	unsigned char * getPtr();
 
     virtual bool isAbsolute()
@@ -250,17 +250,17 @@ public:
         return true;
     }
 
-    virtual std::string type() 
+    virtual std::string type()
     {
         return "function";
     }
-    
+
 protected:
 
 	FunctionScope * to_patch;
 	FunctionScope * to_link;
-	uint64 patch_offset;
-	uint64 link_offset;
+	uint64_t patch_offset;
+	uint64_t link_offset;
 
 };
 
@@ -268,21 +268,21 @@ class FunctionTableRelocation : public BaseRelocation
 {
   public:
 
-    FunctionTableRelocation(Image *, FunctionScope *, uint64, int);
-    uint64 getValue();
+    FunctionTableRelocation(Image *, FunctionScope *, uint64_t, int);
+    uint64_t getValue();
     unsigned char * getPtr();
 
-    virtual std::string type() 
+    virtual std::string type()
     {
         return "functiontable";
     }
-    
+
   protected:
 
-    uint64 patch_offset;
+    uint64_t patch_offset;
     FunctionScope * to_link;
     int section;
-    
+
 };
 
 class BasicBlockRelocation : public BaseRelocation
@@ -290,24 +290,24 @@ class BasicBlockRelocation : public BaseRelocation
 public:
 
 	BasicBlockRelocation(Image *,
-		FunctionScope *, uint64, uint64, BasicBlock *);
+		FunctionScope *, uint64_t, uint64_t, BasicBlock *);
 
-	uint64 getValue();
+	uint64_t getValue();
 	unsigned char * getPtr();
 
-    virtual std::string type() 
+    virtual std::string type()
     {
         return "basicblock";
     }
 
     virtual void display_failure();
-    
+
 protected:
 
 	FunctionScope * to_patch;
 	BasicBlock * to_link;
-	uint64 patch_offset;
-	uint64 patch_relative;
+	uint64_t patch_offset;
+	uint64_t patch_relative;
 
 };
 
@@ -317,8 +317,8 @@ class AbsoluteBasicBlockRelocation : public BaseRelocation
 public:
 
 	AbsoluteBasicBlockRelocation(Image *,
-		FunctionScope *, uint64, BasicBlock *);
-	uint64 getValue();
+		FunctionScope *, uint64_t, BasicBlock *);
+	uint64_t getValue();
 	unsigned char * getPtr();
 
     virtual bool isAbsolute()
@@ -326,17 +326,17 @@ public:
         return true;
     }
 
-    virtual std::string type() 
+    virtual std::string type()
     {
         return "absolutebasicblock";
     }
-    
+
 protected:
 
 	FunctionScope * to_patch;
 	BasicBlock * to_link;
-	uint64 patch_offset;
-	uint64 patch_relative;
+	uint64_t patch_offset;
+	uint64_t patch_relative;
 
 };
 
@@ -345,8 +345,8 @@ class SectionRelocation : public BaseRelocation
 {
 public:
 
-	SectionRelocation(Image *, int, uint64, int, uint64);
-	uint64 getValue();
+	SectionRelocation(Image *, int, uint64_t, int, uint64_t);
+	uint64_t getValue();
 	unsigned char * getPtr();
 
     virtual bool isAbsolute()
@@ -354,17 +354,17 @@ public:
         return true;
     }
 
-    virtual std::string type() 
+    virtual std::string type()
     {
         return "section";
     }
-    
+
 protected:
 
 	int patch_section;
-	uint64 patch_offset;
+	uint64_t patch_offset;
 	int dest_section;
-	uint64 dest_offset;
+	uint64_t dest_offset;
 
 };
 
@@ -372,19 +372,19 @@ class ExtFunctionRelocation : public BaseRelocation
 {
 public:
 
-	ExtFunctionRelocation(Image *, FunctionScope *, uint64, std::string);
-	uint64 getValue();
+	ExtFunctionRelocation(Image *, FunctionScope *, uint64_t, std::string);
+	uint64_t getValue();
 	unsigned char * getPtr();
 
-    virtual std::string type() 
+    virtual std::string type()
     {
         return "extfunction";
     }
-    
+
 protected:
 
 	FunctionScope * to_patch;
-	uint64 patch_offset;
+	uint64_t patch_offset;
 	std::string fname;
 
 };

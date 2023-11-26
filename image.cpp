@@ -7,7 +7,7 @@
 #include "platform.h"
 #include "type.h"
 
-FunctionRelocation::FunctionRelocation(Image * i, FunctionScope * p, uint64 po, FunctionScope * l, uint64 lo)
+FunctionRelocation::FunctionRelocation(Image * i, FunctionScope * p, uint64_t po, FunctionScope * l, uint64_t lo)
 	: BaseRelocation(i)
 {
 	image = i;
@@ -17,7 +17,7 @@ FunctionRelocation::FunctionRelocation(Image * i, FunctionScope * p, uint64 po, 
 	link_offset = lo;
 }
 
-BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64 po, uint64 pr, BasicBlock * l)
+BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64_t po, uint64_t pr, BasicBlock * l)
 	: BaseRelocation(i)
 {
 	image = i;
@@ -27,7 +27,7 @@ BasicBlockRelocation::BasicBlockRelocation(Image * i, FunctionScope * p, uint64 
 	to_link = l;
 }
 
-AbsoluteBasicBlockRelocation::AbsoluteBasicBlockRelocation(Image * i, FunctionScope * p, uint64 po, BasicBlock * l)
+AbsoluteBasicBlockRelocation::AbsoluteBasicBlockRelocation(Image * i, FunctionScope * p, uint64_t po, BasicBlock * l)
 	: BaseRelocation(i)
 {
 	image = i;
@@ -38,8 +38,8 @@ AbsoluteBasicBlockRelocation::AbsoluteBasicBlockRelocation(Image * i, FunctionSc
 }
 
 SectionRelocation::SectionRelocation(Image * i,
-	int p, uint64 po,
-	int d, uint64 dof)
+	int p, uint64_t po,
+	int d, uint64_t dof)
 	: BaseRelocation(i)
 {
 	patch_section = p;
@@ -49,7 +49,7 @@ SectionRelocation::SectionRelocation(Image * i,
 }
 
 FunctionTableRelocation::FunctionTableRelocation(Image * i, FunctionScope * f,
-                                   uint64 o, int s)
+                                   uint64_t o, int s)
     : BaseRelocation(i)
 {
     patch_offset = o;
@@ -57,7 +57,7 @@ FunctionTableRelocation::FunctionTableRelocation(Image * i, FunctionScope * f,
     section = s;
 }
 
-void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
+void Reloc::apply(bool le, unsigned char * ptr, uint64_t val)
 {
 	if (mask == 0)
 	{
@@ -95,74 +95,74 @@ void Reloc::apply(bool le, unsigned char * ptr, uint64 val)
     }
     else if (bits==16)
     {
-        uint16 to_write = ree16(le, ptr + offset);
-        to_write = to_write | (uint16)val;
+        uint16_t to_write = ree16(le, ptr + offset);
+        to_write = to_write | (uint16_t)val;
         unsigned char * poffset = ptr+offset;
         wee16(le, poffset, to_write);
     }
-	else if (bits==32)
-	{
-		uint32 to_write = ree32(le, ptr + offset);
-		to_write = to_write | (uint32)val;
-		unsigned char * poffset = ptr + offset;
-		wee32(le, poffset, to_write);
-	}
-	else
-	{
-		uint64 to_write = ree64(le, ptr + offset);
-		to_write = to_write | val;
-		unsigned char * poffset = ptr + offset;
-		wee64(le, poffset, to_write);
-	}
+    else if (bits==32)
+    {
+	uint32_t to_write = ree32(le, ptr + offset);
+	to_write = to_write | (uint32_t)val;
+	unsigned char * poffset = ptr + offset;
+	wee32(le, poffset, to_write);
+    }
+    else
+    {
+	uint64_t to_write = ree64(le, ptr + offset);
+	to_write = to_write | val;
+	unsigned char * poffset = ptr + offset;
+	wee64(le, poffset, to_write);
+    }
 }
 
 void BaseRelocation::apply()
 {
 	unsigned char * patch_site = getPtr();
 
-    uint64 val = getValue();
-    
-    uint64 written = val;
-    
+    uint64_t val = getValue();
+
+    uint64_t written = val;
+
     int bits = 0;
 	for (std::list<Reloc>::iterator it = relocs.begin();
 	it != relocs.end(); it++)
 	{
-        uint64 mask = (*it).mask << (*it).rshift;
+        uint64_t mask = (*it).mask << (*it).rshift;
 
         if (mask == 0)
         {
             for (int loopc=0; loopc<(*it).bits; loopc++)
             {
-                mask |= (uint64)0x1 << loopc;
+                mask |= (uint64_t)0x1 << loopc;
             }
         }
-        
+
         written = written & ~mask;
-        
+
             // this should really be a BaseRelocation thing...
         if (bits < (*it).bits)
         {
             bits = (*it).bits;
         }
-        
+
 		(*it).apply(image->littleEndian(), patch_site, val);
 	}
-    
+
     if (written)
     {
             // this is not ideal
         if (written != 0xfffffffffffff000 && written != 0xfffffffffc000000 &&
             written != 0xffffffff00000000)
         {
-            printf("Unwritten bits in %d bit relocation of %llx! %llx\n", bits, val, written);
+            printf("Unwritten bits in %d bit relocation of %lx! %lx\n", bits, val, written);
             display_failure();
         }
     }
 }
 
 ExtFunctionRelocation::ExtFunctionRelocation(Image * i,
-	FunctionScope * f, uint64 o,
+	FunctionScope * f, uint64_t o,
 	std::string n)
 	: BaseRelocation(i)
 {
@@ -273,7 +273,7 @@ void Image::relocate(bool relative_only)
 	}
 }
 
-void Image::addFunction(FunctionScope * ptr, uint64 size)
+void Image::addFunction(FunctionScope * ptr, uint64_t size)
 {
 	foffsets.push_back(current_offset);
 	fptrs.push_back(ptr);
@@ -301,7 +301,7 @@ unsigned char * Image::functionPtr(FunctionScope * ptr)
 	return 0;
 }
 
-uint64 Image::functionAddress(FunctionScope * ptr)
+uint64_t Image::functionAddress(FunctionScope * ptr)
 {
 	for (unsigned int loopc = 0; loopc < fptrs.size(); loopc++)
 	{
@@ -315,7 +315,7 @@ uint64 Image::functionAddress(FunctionScope * ptr)
 	return INVALID_ADDRESS;
 }
 
-uint64 Image::functionSize(FunctionScope * ptr)
+uint64_t Image::functionSize(FunctionScope * ptr)
 {
 	for (unsigned int loopc = 0; loopc < fptrs.size(); loopc++)
 	{
@@ -356,30 +356,30 @@ void Image::addImport(std::string lib, std::string name)
 	total_imports++;
 }
 
-uint64 MemoryImage::importAddress(std::string name)
+uint64_t MemoryImage::importAddress(std::string name)
 {
 	for (unsigned int loopc = 0; loopc < import_names.size(); loopc++)
 	{
 		if (import_names[loopc] == name)
 		{
-			return  (uint64)(&import_pointers[loopc]);
+			return  (uint64_t)(&import_pointers[loopc]);
 		}
 	}
 
 	return INVALID_ADDRESS;
 }
 
-void Image::setSectionSize(int t, uint64 l)
+void Image::setSectionSize(int t, uint64_t l)
 {
 	sizes[t] = l;
 }
 
-uint64 Image::sectionSize(int t)
+uint64_t Image::sectionSize(int t)
 {
 	return sizes[t];
 }
 
-uint64 Image::getAddr(int t)
+uint64_t Image::getAddr(int t)
 {
 	if (!materialised[t])
 	{
@@ -395,17 +395,17 @@ unsigned char * Image::getPtr(int t)
 	{
 		materialiseSection(t);
 	}
-    
+
 	return sections[t];
 }
 
-bool Image::getSectionOffset(unsigned char * ptr, int & section, uint64 & offset)
+bool Image::getSectionOffset(unsigned char * ptr, int & section, uint64_t & offset)
 {
     for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
     {
         if (sections[loopc] && ptr >= sections[loopc])
         {
-            uint64 off = ptr - sections[loopc];
+            uint64_t off = ptr - sections[loopc];
             if (off < sizes[loopc])
             {
                 section = loopc;
@@ -420,14 +420,14 @@ bool Image::getSectionOffset(unsigned char * ptr, int & section, uint64 & offset
 }
 
 
-bool Image::getSectionOffset(uint64 addr, int & section,
-                             uint64 & offset)
+bool Image::getSectionOffset(uint64_t addr, int & section,
+                             uint64_t & offset)
 {
     for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
     {
         if (addr >= bases[loopc])
         {
-            uint64 off = addr - bases[loopc];
+            uint64_t off = addr - bases[loopc];
             if (off < sizes[loopc])
             {
                 section = loopc;
@@ -437,14 +437,14 @@ bool Image::getSectionOffset(uint64 addr, int & section,
         }
     }
 
-    printf("Address %lld %llx not found in any section!\n", addr, addr);
+    printf("Address %ld %lx not found in any section!\n", addr, addr);
     return false;
 }
 
 void Image::materialiseSection(int s)
 {
 	assert(sections[s] == 0);
-    
+
 	sections[s] = new unsigned char[sizes[s]];
 	memset(sections[s], 0, sizes[s]);
 	bases[s] = next_addr;
@@ -519,11 +519,11 @@ void MemoryImage::materialiseSection(int s)
 {
 	Mem mem;
 	mems[s] = mem.getBlock(sizes[s], MEM_READ | MEM_WRITE);
-	bases[s] = (uint64)mems[s].ptr;
+	bases[s] = (uint64_t)mems[s].ptr;
 	sections[s] = mems[s].ptr;
 }
 
-void MemoryImage::setImport(std::string name, uint64 addr)
+void MemoryImage::setImport(std::string name, uint64_t addr)
 {
 	for (unsigned int loopc = 0; loopc < import_names.size(); loopc++)
 	{
@@ -547,7 +547,7 @@ void MemoryImage::endOfImports()
 			import_names.push_back(l.imports[loopc2]);
 		}
 	}
-	import_pointers = new uint64[import_names.size()];
+	import_pointers = new uint64_t[import_names.size()];
 }
 
 void MemoryImage::finalise()
@@ -559,9 +559,9 @@ void MemoryImage::finalise()
 	mem.changePerms(mems[IMAGE_UNALLOCED_DATA], MEM_READ | MEM_WRITE);
 }
 
-uint64 FunctionRelocation::getValue()
+uint64_t FunctionRelocation::getValue()
 {
-    uint64 laddr = 0;
+    uint64_t laddr = 0;
     if (to_link->getType()->isGeneric())
     {
         laddr = mtables->lookup(to_link) + image->getAddr(IMAGE_MTABLES);
@@ -570,44 +570,44 @@ uint64 FunctionRelocation::getValue()
     {
         laddr = image->functionAddress(to_link);
     }
-    
+
 	laddr += link_offset;
 	return laddr;
 }
 
-uint64 AbsoluteBasicBlockRelocation::getValue()
+uint64_t AbsoluteBasicBlockRelocation::getValue()
 {
 	return to_link->getAddr();
 }
 
-uint64 BasicBlockRelocation::getValue()
+uint64_t BasicBlockRelocation::getValue()
 {
-	uint64 baddr = to_link->getAddr();
-	uint64 oaddr = image->functionAddress(to_patch) + patch_relative;
+	uint64_t baddr = to_link->getAddr();
+	uint64_t oaddr = image->functionAddress(to_patch) + patch_relative;
 
-	int64 diff;
+	int64_t diff;
 	if (oaddr > baddr)
 	{
-		diff = -((int32)(oaddr - baddr));
+		diff = -((int32_t)(oaddr - baddr));
 	}
 	else
 	{
-		diff = (int32)(baddr - oaddr);
+		diff = (int32_t)(baddr - oaddr);
 	}
 
-	uint64 * ptr = (uint64 *)(&diff);
+	uint64_t * ptr = (uint64_t *)(&diff);
 	return *ptr;
 }
 
-uint64 SectionRelocation::getValue()
+uint64_t SectionRelocation::getValue()
 {
-	uint64 addr = image->getAddr(dest_section) + dest_offset;
+	uint64_t addr = image->getAddr(dest_section) + dest_offset;
 	return addr;
 }
 
-uint64 ExtFunctionRelocation::getValue()
+uint64_t ExtFunctionRelocation::getValue()
 {
-	uint64 addr = image->importAddress(fname);
+	uint64_t addr = image->importAddress(fname);
 	return addr;
 }
 
@@ -641,15 +641,14 @@ unsigned char * FunctionTableRelocation::getPtr()
     return image->getPtr(section) + patch_offset;
 }
 
-uint64 FunctionTableRelocation::getValue()
+uint64_t FunctionTableRelocation::getValue()
 {
     return image->functionAddress(to_link);
 }
 
 void BasicBlockRelocation::display_failure()
 {
-    printf("Failure is a relative bb relocation in function %s, %llx to %llx (%s)\n",
+    printf("Failure is a relative bb relocation in function %s, %lx to %lx (%s)\n",
            to_patch->name().c_str(), image->functionAddress(to_patch)+patch_offset, to_link->getAddr(),
            to_link->name().c_str());
 }
-

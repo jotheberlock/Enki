@@ -67,7 +67,7 @@ IntegerExpr::IntegerExpr(Token * t)
 
 	if (is_negative)
 	{
-		int64 * sval = (int64 *)(&val);
+		int64_t * sval = (int64_t *)(&val);
 		*sval = -*sval;
 	}
 }
@@ -132,7 +132,7 @@ std::string Parser::getIdentifier(std::string errstring)
         ret = ie->getString();
         delete ie;
     }
-    
+
     return ret;
 }
 
@@ -320,7 +320,7 @@ Expr * Parser::parsePrimary()
 	else if (current.type == IDENTIFIER)
 	{
         std::string token_value = current.toString();
-        uint64 dummy;
+        uint64_t dummy;
 
         if (configuration->lookupConfigConstant(token_value, dummy))
         {
@@ -328,7 +328,7 @@ Expr * Parser::parsePrimary()
             ConfigConstantExpr * ret = new ConfigConstantExpr(token_value);
             return ret;
         }
-        
+
 		Expr * ident = parseIdentifier();
  		if (current.type == OPEN_BRACKET)
 		{
@@ -375,8 +375,8 @@ Expr * Parser::parseUnary()
 	bool dummy;
 	OpRec rec;
 
-	uint32 first = 0;
-	uint32 second = 0;
+	uint32_t first = 0;
+	uint32_t second = 0;
 	if (current.value.size() > 0)
 	{
 		first = current.value[0];
@@ -593,7 +593,7 @@ Expr * Parser::parseImport(Token t)
                        + configuration->image->name() + "' doesn't support imports."));
         return 0;
     }
-        
+
     std::string name = t.toString();
     std::string fname = name + ".i";
     FILE * ifile = fopen(fname.c_str(), "rb");
@@ -749,7 +749,7 @@ Expr * Parser::parseWhile()
         addError(Error(&current, "Expected expression after while"));
         return 0;
     }
-    
+
 	Block * b = 0;
 
 	if (current.type != EOL)
@@ -851,7 +851,7 @@ Expr * Parser::parseVarExpr(Type * t)
 		next();
 		is_c = true;
 	}
-    
+
     std::string name = getIdentifier("Type not followed by variable name");
 	if (name != "")
 	{
@@ -977,13 +977,13 @@ Expr * Parser::parseStruct()
         cooked = false;
         next();
     }
-    
+
 	if (current.type != IDENTIFIER)
 	{
 		addError(Error(&current, "Expected identifier for struct"));
 		return 0;
     }
-    
+
     std::string sname = getIdentifier("Expected type name");
 	Type * t = types->lookup(sname);
 	if (t)
@@ -1002,7 +1002,7 @@ Expr * Parser::parseStruct()
 			addError(Error(&current, "Expected identifier for parent"));
 			return 0;
 		}
-        
+
 		std::string pname = getIdentifier("Expected parent type name");
 		Type * pt = types->lookup(pname);
 		if (!pt)
@@ -1021,7 +1021,7 @@ Expr * Parser::parseStruct()
             addError(Error(&current, "Cannot declare raw struct/union as a subtype of managed struct/union"));
             return 0;
         }
-        
+
 		st = new StructType(sname, type == UNION, (StructType *)pt, cooked);
 		next();
 		next();
@@ -1055,7 +1055,7 @@ Expr * Parser::parseStruct()
             next();
             break;
         }
-        
+
 		Type * t = parseType();
 		if (!t)
 		{
@@ -1109,7 +1109,7 @@ Expr * Parser::parseVarRef(Expr * e)
 		delete vre;
 		return 0;
 	}
-    
+
 	while (true)
 	{
 		if (current.type == POINTER)
@@ -1170,7 +1170,7 @@ Expr * Parser::parseDef()
         {
             thing = "Generic";
         }
-        
+
         addError(Error(&current, thing +
                        " functions are not permitted in interfaces"));
     }
@@ -1205,19 +1205,19 @@ Expr * Parser::parseDef()
 	{
 		ft = new FunctionType(is_macro);
 	}
-    
+
 	bool already_added = false;
 
 	// Need to add proper argument overloading for generics...
     FunctionScope * prev = 0;
-    
+
     prev = current_scope->lookup_function(name);
 
 	// So, for a generic function, only the generic function exists in the scope, and it is
 	// the address of the function table. Ignore specialisers other than tacking them onto the generic.
 
 	Value * v = 0;
-    
+
 	if (prev && (is_extern || prev->isGeneric()))
 	{
 		already_added = true;
@@ -1336,7 +1336,7 @@ Expr * Parser::parseDef()
                             {
                                 imports->add(module, name, ft);
                             }
-                            
+
 							return ret;
 						}
 
@@ -1349,7 +1349,7 @@ Expr * Parser::parseDef()
 							Expr * body = parseBlock();
 							ret->setBody(body);
 						}
-                        
+
                         types->add(ft, name);
 						current_scope = current_scope->parent();
 						return ret;
@@ -1512,7 +1512,7 @@ Type * Parser::parseType()
         push();
         return 0;
     }
-    
+
 	Type * ret_type = types->lookup(i);
 	if (!ret_type)
 	{
@@ -1585,7 +1585,7 @@ Type * Parser::parseType()
 				}
 
 				char buf[4096];
-				sprintf(buf, "%lld", ie->getVal());
+				sprintf(buf, "%ld", ie->getVal());
 				i += buf;
 				i += "]";
 
@@ -1640,7 +1640,7 @@ Expr * Parser::parseModule()
     }
 
     exports->setName(current.toString());
-    
+
     next();
     if (current.type != EOL)
     {
@@ -1714,7 +1714,7 @@ void Parser::checkInterfaceTypes(Token & current, std::string & name, FunctionSc
         if (ftypes[loopc] != prevt->getParams()[loopc].type)
         {
             char buf[4096];
-            sprintf(buf, "Function %s, argument %d: interface has type %s, implementation %s", name.c_str(), loopc, 
+            sprintf(buf, "Function %s, argument %d: interface has type %s, implementation %s", name.c_str(), loopc,
                 ftypes[loopc]->name().c_str(), prevt->getParams()[loopc].type->name().c_str());
             addError(Error(&current, buf));
             ok = false;
@@ -1752,7 +1752,7 @@ Expr * Parser::parseInterfaceDef()
         addError(Error(&current, "Interface defines unimplemented function!\n", name.c_str()));
         return 0;
     }
- 
+
     if (current.type != OPEN_BRACKET)
     {
         addError(Error(&current, "Expected open bracket"));
@@ -1815,7 +1815,7 @@ Expr * Parser::parseInterfaceDef()
             }
 
             ftypes.push_back(t);
-            
+
             if (current.type != IDENTIFIER)
             {
                 addError(Error(&current, "Expected identifier"));
@@ -1991,12 +1991,12 @@ Value * IntegerExpr::codegen(Codegen * c)
 
 Value * ConfigConstantExpr::codegen(Codegen * c)
 {
-    uint64 ret;
+    uint64_t ret;
     if (configuration->lookupConfigConstant(constant_name, ret))
     {
         return c->getInteger(ret);
     }
-    
+
     printf("Config constant %s not found in this config!\n",
            constant_name.c_str());
     return 0;
@@ -2031,9 +2031,9 @@ static bool binary_result(Value * l, Value * r, Type * & t)
 }
 
 // Should hopefully be optimised to a constant
-static inline uint64 toOp(const char * str)
+static inline uint64_t toOp(const char * str)
 {
-    return str[0] | ((uint64)str[1] << 32);
+    return str[0] | ((uint64_t)str[1] << 32);
 }
 
 Value * BinaryExpr::codegen(Codegen * c)
@@ -2047,8 +2047,8 @@ Value * BinaryExpr::codegen(Codegen * c)
 
     Value * lh = (op==toOp("=")) ? 0 : lhs->codegen(c);
 
-    uint64 lhi = 1;
-    uint64 rhi = 1;
+    uint64_t lhi = 1;
+    uint64_t rhi = 1;
     if (lh && (!lh->is_number))
     {
         lhi = lh->type->increment();
@@ -2057,7 +2057,7 @@ Value * BinaryExpr::codegen(Codegen * c)
     {
         rhi = rh->type->increment();
     }
-    
+
     if (!(op==toOp("==") || op==toOp("!=") || op=='='))
     {
         if (lhi == 0)
@@ -2074,8 +2074,8 @@ Value * BinaryExpr::codegen(Codegen * c)
         }
     }
 
-    uint64 incr = rhi < lhi ? lhi : rhi;
-    
+    uint64_t incr = rhi < lhi ? lhi : rhi;
+
 	if (token.toString() == "and")
 	{
 		Value * cmp1 = c->getTemporary(register_type, "land1");
@@ -2118,7 +2118,7 @@ Value * BinaryExpr::codegen(Codegen * c)
 		Type * t = 0;
 		binary_result(lh, rh, t);
 		Value * v = c->getTemporary(t, "add");
-        
+
         if (incr > 1)
         {
             Value * mul = c->getTemporary(rh->type ? rh->type : register_type,
@@ -2138,7 +2138,7 @@ Value * BinaryExpr::codegen(Codegen * c)
 		Type * t = 0;
 		binary_result(lh, rh, t);
 		Value * v = c->getTemporary(t, "sub");
-        
+
         if (incr > 1)
         {
             Value * mul = c->getTemporary(rh->type ? rh->type : register_type,
@@ -2331,7 +2331,7 @@ Value * BinaryExpr::codegen(Codegen * c)
         {
             c->block()->add(Insn(ins, lh, lh, rh));
         }
-        
+
 		vre->store(c, lh);
 		return lh;
     }
@@ -2405,11 +2405,11 @@ Value * BinaryExpr::codegen(Codegen * c)
 	else
 	{
 		addError(Error(&token, "Unknown binop"));
-		fprintf(log_file, "Argl unknown binop %llx %c for codegen!\n", op,
+		fprintf(log_file, "Argl unknown binop %lx %c for codegen!\n", op,
                 (unsigned char)(op & 0xff));
 	}
 
-    delete rh;
+        delete rh;
 	return 0;
 }
 
@@ -2449,7 +2449,7 @@ Value * UnaryExpr::codegen(Codegen * c)
 	}
 	else
 	{
-		fprintf(log_file, "Argl unknown unop %llx %c for codegen!\n", op,
+		fprintf(log_file, "Argl unknown unop %lx %c for codegen!\n", op,
 			(char)(op & 0xff));
 		addError(Error(&token, "Unknown unop"));
 	}
@@ -2552,7 +2552,7 @@ Value * Return::codegen(Codegen * c)
             fprintf(log_file, "Return type is null\n");
             return 0;
         }
-        
+
 		if (!returnvar_type->canActivate() && to_ret_type  &&
 			to_ret_type->canActivate())
 		{
@@ -2609,7 +2609,7 @@ Value * Return::codegen(Codegen * c)
         }
         c->block()->add(Insn(BRA, ep));
     }
-    
+
 	return 0;
 }
 
@@ -2640,10 +2640,10 @@ Value * While::codegen(Codegen * c)
 	return 0;
 }
 
-bool BinaryExpr::constEval(uint64 & ret)
+bool BinaryExpr::constEval(uint64_t & ret)
 {
-    uint64 lh;
-    uint64 rh;
+    uint64_t lh;
+    uint64_t rh;
     if (!lhs->constEval(lh))
     {
         return false;
@@ -2652,9 +2652,9 @@ bool BinaryExpr::constEval(uint64 & ret)
     {
         return false;
     }
-    
-	uint64 equality_op = (((uint64)'=' << 32) | '=');
-	uint64 inequality_op = (((uint64)'=' << 32) | '!');
+
+	uint64_t equality_op = (((uint64_t)'=' << 32) | '=');
+	uint64_t inequality_op = (((uint64_t)'=' << 32) | '!');
 
     if (op == equality_op)
     {
@@ -2696,11 +2696,11 @@ bool BinaryExpr::constEval(uint64 & ret)
         ret = lh ^ rh;
         return true;
     }
-    
+
     return false;
 }
 
-bool ConfigConstantExpr::constEval(uint64 & ret)
+bool ConfigConstantExpr::constEval(uint64_t & ret)
 {
     ret = configuration->config_constants[constant_name];
     return true;
@@ -2715,7 +2715,7 @@ Value * If::codegen(Codegen * c)
         for (it = clauses.begin(); it != clauses.end(); it++)
         {
             bool evaled;
-            uint64 ret;
+            uint64_t ret;
             IfClause * ic = *it;
             evaled = ic->condition->constEval(ret);
             if (!evaled)
@@ -2733,7 +2733,7 @@ Value * If::codegen(Codegen * c)
                 return ic->body->codegen(c);
             }
         }
-        
+
         if (elseblock)
         {
             return elseblock->codegen(c);
@@ -2823,7 +2823,7 @@ Value * VarRefExpr::codegen(Codegen * c)
                     printf("Failed to deref type!\n");
                     return 0;
                 }
-                
+
 				break;
 			}
 			case VARREF_ARRAY:
@@ -2963,13 +2963,13 @@ extern Codegen * root_gc;
 Value * Funcall::codegen(Codegen * c)
 {
     bool is_import_call = false;
-    
+
     if (name().find(':') != std::string::npos)
     {
         size_t pos = name().find(':');
         std::string m = name().substr(0, pos);
         std::string f = name().substr(pos+1, std::string::npos);
-        
+
         ImportRec * ir = imports->lookup(m, f);
         if (ir && (!ir->value))
         {
@@ -2992,14 +2992,14 @@ Value * Funcall::codegen(Codegen * c)
             is_import_call = true;
         }
     }
-    
+
 	Value * ptr = scope->lookupLocal(name());
 
     int depth = 0;
 	if (!ptr)
 	{
 		ptr = scope->lookup(name(), depth);
-        
+
 		if (ptr && (depth > 0))
 		{
 			Value * addrof = c->getTemporary(register_type, "addr_of_ptr");
@@ -3010,7 +3010,7 @@ Value * Funcall::codegen(Codegen * c)
 			ptr = localptr;
 		}
 	}
-    
+
 	if (!ptr)
 	{
 		addError(Error(&token, "Could not find function at codegen time", name()));
@@ -3045,7 +3045,7 @@ Value * Funcall::codegen(Codegen * c)
             printf("Null value in funcall!\n");
             return 0;
         }
-        
+
 		if (v->is_number)
 		{
 			Value * v2 = c->getTemporary(register_type, "funintcopy");
@@ -3086,7 +3086,7 @@ Value * Funcall::codegen(Codegen * c)
                                  Operand::sigc(assembler->staticLinkOffset())));
         }
     }
-    
+
 	Value * ret = ptr->type->generateFuncall(c, this, sl, ptr, evaled_args);
 	return ret;
 }
@@ -3113,7 +3113,7 @@ Value * DefExpr::codegen(Codegen * c)
         mtables->add(to_call);
         return ptr;
     }
-    
+
 	scope->addFunction(new FunctionScope(scope, type->name(), type));
 
 	Codegen * ch = new Codegen(body, scope);

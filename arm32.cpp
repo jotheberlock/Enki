@@ -10,7 +10,7 @@ bool Arm32::validRegOffset(Insn & i, int off)
         return (off > -256) && (off < 256);
     }
     else
-    {    
+    {
         return (off > -4096) && (off < 4096);
     }
     return false;
@@ -92,13 +92,13 @@ int Arm32::size(BasicBlock * b)
 	return ret;
 }
 
-bool Arm32::calcImm(uint64 raw, uint32 & result)
+bool Arm32::calcImm(uint64_t raw, uint32_t & result)
 {
 	// ARM encodes constants as an 8-bit value, rotated right by
 	// 0-30 bits
 
-	uint32 shift = 0;
-	uint32 trial = raw & 0xff;
+	uint32_t shift = 0;
+	uint32_t trial = raw & 0xff;
 	for (shift = 0; shift < 31; shift++)
 	{
 		if (trial == raw)
@@ -115,7 +115,7 @@ bool Arm32::calcImm(uint64 raw, uint32 & result)
 		}
 	}
 
-	printf("Error, cannot encode %llx as an ARM constant!\n", raw);
+	printf("Error, cannot encode %lx as an ARM constant!\n", raw);
 	return false;
 }
 
@@ -125,7 +125,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 	b->setAddr(address + flen());
 
-	uint64 current_addr = (uint64)current;
+	uint64_t current_addr = (uint64_t)current;
 	assert((current_addr & 0x3) == 0);
 
 	for (std::list<Insn>::iterator it = code.begin(); it != code.end();
@@ -134,7 +134,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		Insn & i = *it;
 		i.addr = address + flen();
 
-		uint32 mc = 0;
+		uint32_t mc = 0;
 
 		unsigned char * oldcurrent = current;
 
@@ -147,7 +147,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			{
 				assert(i.ops[0].isUsigc());
 				assert(i.ops[0].getUsigc() <= 0xffffff);
-				mc = (0xe << 28) | (0xf << 24) | (uint32)i.ops[0].getUsigc();
+				mc = (0xe << 28) | (0xf << 24) | (uint32_t)i.ops[0].getUsigc();
 			}
 			else
 			{
@@ -171,13 +171,13 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		{
 			assert(i.oc == 2 || i.oc == 3);
 
-			int32 val = 0;
-			uint32 uval = 0;
+			int32_t val = 0;
+			uint32_t uval = 0;
             bool negative_offset = false;
-            
+
 			if (i.oc == 3)
 			{
-				val = (int32)i.ops[2].getSigc();
+				val = (int32_t)i.ops[2].getSigc();
                 assert(validRegOffset(i, val));
                 if (val < 0)
                 {
@@ -190,8 +190,8 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 }
 			}
 
-            uint32 sign_bit = negative_offset ? 0x0 : 0x00800000;
-            
+            uint32_t sign_bit = negative_offset ? 0x0 : 0x00800000;
+
 			if (i.ins == LOAD || i.ins == LOAD32 || i.ins == LOADS32)
 			{
 				mc = 0xe5100000 | sign_bit
@@ -230,15 +230,15 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case STORE32:
 		{
 			assert(i.oc == 2 || i.oc == 3);
-			int32 val = 0;
-			uint32 uval = 0;
+			int32_t val = 0;
+			uint32_t uval = 0;
 
             bool negative_offset = false;
-            
+
 			int dest = 1;
 			if (i.oc == 3)
 			{
-				val = (int32)i.ops[1].getSigc();
+				val = (int32_t)i.ops[1].getSigc();
 				assert(validRegOffset(i, val));
                 if (val < 0)
                 {
@@ -252,8 +252,8 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				dest = 2;
 			}
 
-            uint32 sign_bit = negative_offset ? 0x0 : 0x00800000;
-            
+            uint32_t sign_bit = negative_offset ? 0x0 : 0x00800000;
+
 			if (i.ins == STORE || i.ins == STORE32)
 			{
 				mc = 0xe5000000 | sign_bit | (uval & 0xfff)
@@ -293,7 +293,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				i.ops[1].isFunction() || i.ops[1].isBlock() ||
 				i.ops[1].isSection() || i.ops[1].isExtFunction())
 			{
-				uint32 val = 0x0;
+				uint32_t val = 0x0;
 				BaseRelocation * br = 0;
 				if (i.ops[1].isFunction())
 				{
@@ -307,7 +307,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				else if (i.ops[1].isSection())
 				{
 					int s;
-					uint64 o = i.ops[1].getSection(s);
+					uint64_t o = i.ops[1].getSection(s);
 					br = new SectionRelocation(image, IMAGE_CODE, len(), s, o);
 				}
 				else if (i.ops[1].isExtFunction())
@@ -318,12 +318,12 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				{
 					if (i.ops[1].isUsigc())
 					{
-						val = (uint32)i.ops[1].getUsigc();
+						val = (uint32_t)i.ops[1].getUsigc();
 					}
 					else
 					{
-						int32 tmp = (int32)i.ops[1].getSigc();
-						val = *((uint32 *)&tmp);
+						int32_t tmp = (int32_t)i.ops[1].getSigc();
+						val = *((uint32_t *)&tmp);
 					}
 				}
 
@@ -361,7 +361,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			assert(i.ops[2].isReg() || i.ops[2].isUsigc() ||
 				i.ops[2].isSigc());
 
-			uint32 op = 0;
+			uint32_t op = 0;
 			if (i.ins == ADD)
 			{
 				op = 0x00800000;
@@ -385,17 +385,17 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 			if (i.ops[2].isUsigc() || i.ops[2].isSigc())
 			{
-				uint32 val = 0;
+				uint32_t val = 0;
 				if (i.ops[2].isUsigc())
 				{
-					val = (uint32)i.ops[2].getUsigc();
+					val = (uint32_t)i.ops[2].getUsigc();
 				}
 				else
 				{
-					int32 tmp = (int32)i.ops[2].getSigc();
-					val = *((uint32 *)&tmp);
+					int32_t tmp = (int32_t)i.ops[2].getSigc();
+					val = *((uint32_t *)&tmp);
 				}
-				uint32 cooked = 0;
+				uint32_t cooked = 0;
 				assert(calcImm(val, cooked));
 				mc = 0xe2000000 | op | (i.ops[0].getReg() << 12) | (i.ops[1].getReg() << 16) | cooked;
 			}
@@ -418,9 +418,9 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			assert(i.ops[0].isReg());
 			assert(i.ops[1].isReg());
 			assert(i.ops[2].isReg() || i.ops[2].isUsigc());
-			uint32 op = 0;
-			uint32 const_shift = (i.ops[2].isUsigc()) ?
-				(uint32)i.ops[2].getUsigc() : 0;
+			uint32_t op = 0;
+			uint32_t const_shift = (i.ops[2].isUsigc()) ?
+				(uint32_t)i.ops[2].getUsigc() : 0;
 
 			if (i.ops[2].isUsigc())
 			{
@@ -480,17 +480,17 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			assert(i.ops[1].isReg() || i.ops[1].isUsigc() || i.ops[1].isSigc());
 			if (i.ops[1].isUsigc() || i.ops[1].isSigc())
 			{
-				uint32 val = 0;
+				uint32_t val = 0;
 				if (i.ops[1].isUsigc())
 				{
-					val = (uint32)i.ops[1].getUsigc();
+					val = (uint32_t)i.ops[1].getUsigc();
 				}
 				else
 				{
-					int32 tmp = (int32)i.ops[1].getSigc();
-					val = *((uint32 *)&tmp);
+					int32_t tmp = (int32_t)i.ops[1].getSigc();
+					val = *((uint32_t *)&tmp);
 				}
-				uint32 cooked = 0;
+				uint32_t cooked = 0;
 				assert(calcImm(val, cooked));
 				mc = 0xe3500000 | (i.ops[0].getReg() << 16) | cooked;
 			}
@@ -520,8 +520,8 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			assert(i.ops[0].isReg());
 			assert(i.ops[1].isReg());
 			assert(i.ops[2].isReg());
-			uint32 op1 = 0;
-			uint32 op2 = 0;
+			uint32_t op1 = 0;
+			uint32_t op2 = 0;
 			if (i.ins == SELEQ)
 			{
 				op1 = 0x00000000;
@@ -583,7 +583,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		{
 			assert(i.oc == 1);
 			assert(i.ops[0].isBlock());
-			uint32 cond = 0;
+			uint32_t cond = 0;
 			if (i.ins == BNE)
 			{
 				cond = 0x10000000;
@@ -647,7 +647,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		default:
 		{
-			fprintf(log_file, "Don't know how to turn %lld [%s] into arm!\n", i.ins, i.toString().c_str());
+			fprintf(log_file, "Don't know how to turn %ld [%s] into arm!\n", i.ins, i.toString().c_str());
 			assert(false);
 			mc = 0xe1a00000; // NOP
 		}
@@ -655,7 +655,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		unsigned int siz = (unsigned int)(current - oldcurrent);
 		if (siz > i.size)
 		{
-			printf("Unexpectedly large instruction! estimate %lld actual %d %s\n",
+			printf("Unexpectedly large instruction! estimate %ld actual %d %s\n",
 				i.size, siz, i.toString().c_str());
 		}
 		}
@@ -672,7 +672,7 @@ bool Arm32::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	return true;
 }
 
-std::string Arm32::transReg(uint32 r)
+std::string Arm32::transReg(uint32_t r)
 {
 	assert(r < 16);
 	if (r < 12)
@@ -776,17 +776,17 @@ void Arm32::newFunction(Codegen * c)
 	Assembler::newFunction(c);
 	if (c->callConvention() == CCONV_STANDARD)
 	{
-		uint64 addr = c->stackSize();
+		uint64_t addr = c->stackSize();
 		wle32(current, checked_32(addr));
 	}
 }
 
-void Arm32::align(uint64 a)
+void Arm32::align(uint64_t a)
 {
-	uint32 nop = 0xf3af1000;
+	uint32_t nop = 0xf3af1000;
 	while (currentAddr() % a)
 	{
-		*((uint32 *)current) = nop;
+		*((uint32_t *)current) = nop;
 		current += 4;
 	}
 }
@@ -862,8 +862,3 @@ Value * ArmLinuxSyscallCallingConvention::generateCall(Codegen * c,
 
 	return ret;
 }
-
-
-
-
-

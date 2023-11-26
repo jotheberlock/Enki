@@ -11,11 +11,11 @@ Type * signed_register_type = 0;
 Type * byte_type = 0;
 Type * void_type = 0;
 
-uint64 class_id_counter = 1;  // 0 is unknown class
+uint64_t class_id_counter = 1;  // 0 is unknown class
 
 void IntegerType::copy(Codegen * c, Value * a, Value * v)
 {
-	uint64 store = STORE;
+	uint64_t store = STORE;
 	if (bits < 9)
 	{
 		store = STORE8;
@@ -191,7 +191,7 @@ void StructType::calc()
         {
             parent->calc();
         }
-        
+
 		siz = parent->size();
 	}
 
@@ -244,7 +244,7 @@ void StructType::copy(Codegen * c, Value * to, Value * from)
 	Value * v = c->getTemporary(byte_type, "copy");
 	for (int loopc = 0; loopc < siz / 8; loopc++)
 	{
-		// Needs more better        
+		// Needs more better
 		c->block()->add(Insn(LOAD8, v, fa));
 		c->block()->add(Insn(STORE8, to, v));
 		c->block()->add(Insn(ADD, fa, Operand::usigc(1)));
@@ -303,7 +303,7 @@ bool StructType::construct(Codegen * c, Value * t, Value *)
 	Value * v = c->getTemporary(register_type, "struct_addr");
 	c->block()->add(Insn(GETADDR, v, t, Operand::usigc(0)));
 	Value * ra = c->getTemporary(register_type, "rtti_addr");
-	uint64 offs = rtti->lookup(classId());
+	uint64_t offs = rtti->lookup(classId());
 
 	c->block()->add(Insn(MOVE, ra,
 		Operand::section(IMAGE_RTTI, offs)));
@@ -321,7 +321,7 @@ void Types::add(Type * t, std::string n)
 	types[n] = t;
 }
 
-Type * Types::lookup(uint64 id)
+Type * Types::lookup(uint64_t id)
 {
 	std::map<std::string, Type *>::iterator it;
     for (it = types.begin(); it != types.end(); it++)
@@ -378,16 +378,16 @@ Types::Types()
 	signed_register_type = new IntegerType(true, assembler->pointerSize());
 	if (assembler->pointerSize() == 64)
 	{
-        types["Uint32"] = new IntegerType(false, 32);
+        types["Uint32_t"] = new IntegerType(false, 32);
         types["Int32"] = new IntegerType(true, 32);
-		types["Uint64"] = register_type;
+		types["Uint64_t"] = register_type;
 		types["Int64"] = signed_register_type;
 	}
 	else
 	{
-		types["Uint32"] = register_type;
+		types["Uint32_t"] = register_type;
 		types["Int32"] = signed_register_type;
-        types["Uint64"] = new IntegerType(false, 64);
+        types["Uint64_t"] = new IntegerType(false, 64);
         types["Int64"] = new IntegerType(true, 64);
 	}
 
@@ -404,7 +404,7 @@ Types::~Types()
         // Avoid double delete
     types.erase("Uint");
     types.erase("Int");
-    
+
 	for (std::map<std::string, Type *>::iterator it = types.begin();
 	it != types.end(); it++)
 	{
@@ -414,7 +414,7 @@ Types::~Types()
 
 std::string BoolType::display(unsigned char * addr)
 {
-	uint64 val = *((uint64 *)addr);
+	uint64_t val = *((uint64_t *)addr);
 	if (val == 0)
 	{
 		return "false";
@@ -431,13 +431,13 @@ std::string IntegerType::display(unsigned char * addr)
 
     if (is_signed && size() < 65)
     {
-        int64 * val = ((int64 *)addr);
+        int64_t * val = ((int64_t *)addr);
         char buf[4096];
-        sprintf(buf, "%lld", *val);
+        sprintf(buf, "%ld", *val);
         ret = buf;
         return ret;
     }
-    
+
 	// Assume little endian unsigned for now
 	for (int loopc = 0; loopc < size() / 8; loopc++)
 	{
@@ -473,9 +473,9 @@ std::string IntegerType::display(unsigned char * addr)
 
 std::string PointerType::display(unsigned char * addr)
 {
-	uint64 val = *((uint64 *)addr);
+	uint64_t val = *((uint64_t *)addr);
 	char buf[4096];
-	sprintf(buf, "%llx", val);
+	sprintf(buf, "%lx", val);
 	return buf;
 }
 
@@ -514,7 +514,7 @@ std::string StructType::display(unsigned char * addr)
     {
         ret += " raw";
     }
-    
+
 	return ret;
 }
 
@@ -597,7 +597,7 @@ void ActivationType::activate(Codegen * c, Value * frame)
 {
     BasicBlock * call_block = c->newBlock("call");
     c->setBlock(call_block);
-    
+
 	BasicBlock * return_block = c->newBlock("return");
 	Value * ip_holder = c->getTemporary(register_type, "ip_holder");
 	c->block()->add(Insn(MOVE, ip_holder, return_block));
@@ -622,14 +622,14 @@ Value * FunctionType::allocStackFrame(Codegen * c, Value * faddr,
 {
     to_add = c->getTemporary(register_type, "to_add");
     c->block()->add(Insn(LOAD, to_add, faddr));
-  
+
     int depth = 0;
     Value * next_frame_ptr = c->getScope()->lookup("__stackptr", depth);
     assert(next_frame_ptr);
-    
+
     Value * addrof = c->getTemporary(register_type, "addr_of_stackptr");
     c->block()->add(Insn(GETADDR, addrof, next_frame_ptr, Operand::usigc(depth)));
-    
+
     std::string nam = "@"+rettype->name();
     Type * at = types->lookup(nam);
     if (!at)
@@ -637,10 +637,10 @@ Value * FunctionType::allocStackFrame(Codegen * c, Value * faddr,
         at = new ActivationType(rettype);
         types->add(at, nam);
     }
-    
+
     Value * new_ptr = c->getTemporary(at, "new_ptr");
     c->block()->add(Insn(LOAD, new_ptr, addrof));
-    
+
     Value * adder = c->getTemporary(register_type, "stackptr_add");
     c->block()->add(Insn(LOAD, adder, addrof));
     c->block()->add(Insn(ADD, adder, adder, to_add));
@@ -690,7 +690,7 @@ bool FunctionType::validArgList(std::vector<Value *> & args, std::string & reaso
 Value * ExternalFunctionType::generateFuncall(Codegen * c, Funcall * f, Value *,
                                               Value * fp, std::vector<Value *> & args)
 {
-    return convention->generateCall(c, fp, args);   
+    return convention->generateCall(c, fp, args);
 }
 
 GenericFunctionType::~GenericFunctionType()
@@ -721,24 +721,24 @@ static bool cmp_func(FunctionScope* a, FunctionScope* b)
 Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
                                              Value * sl,Value * fp,
                                              std::vector<Value *> & args)
-{   
-    uint64 wordsize = register_type->size() / 8;
-    
+{
+    uint64_t wordsize = register_type->size() / 8;
+
     BasicBlock * no_functions_found = c->newBlock("no_functions_found");
     no_functions_found->add(Insn(BREAKP));
 
     BasicBlock * start_candidate = c->newBlock("start_candidate");
     c->setBlock(start_candidate);
-    
+
     BasicBlock * arguments_loop_header = c->newBlock("arguments_loop_header");
     c->setBlock(arguments_loop_header);
 
     BasicBlock * args_count_check = c->newBlock("args_count_check");
     BasicBlock * arguments_loop_body = c->newBlock("arguments_loop_body");
-    
+
     Value * pointer = c->getTemporary(register_type, "pointer");
     start_candidate->add(Insn(MOVE, pointer, fp));
-    
+
     Value * next_candidate_offset = c->getTemporary(register_type, "next_candidate_offset");
     Value * next_candidate = c->getTemporary(register_type, "next_candidate");
     arguments_loop_header->add(Insn(LOAD, next_candidate_offset, pointer));
@@ -748,14 +748,14 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     arguments_loop_header->add(Insn(BEQ, no_functions_found, args_count_check));
 
     BasicBlock * no_we_did_not = c->newBlock("no_we_did_not");
-    
+
     c->setBlock(args_count_check);
     Value * no_args = c->getTemporary(register_type, "no_args");
     args_count_check->add(Insn(LOAD, no_args, pointer));
     args_count_check->add(Insn(ADD, pointer, pointer, Operand::usigc(wordsize)));
     args_count_check->add(Insn(CMP, no_args, Operand::usigc(args.size())));
     args_count_check->add(Insn(BEQ, arguments_loop_body, no_we_did_not));
-    
+
     Value * possible_matches = c->getTemporary(register_type, "possible_matches");
     Value * matched = c->getTemporary(register_type, "matched");
 
@@ -765,21 +765,21 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
     no_we_did_not->add(Insn(MOVE, pointer, next_candidate));
     no_we_did_not->add(Insn(BRA, arguments_loop_header));
     arguments_loop_header->add(Insn(BRA, arguments_loop_body));
-    
+
     BasicBlock * possible_matches_header = c->newBlock("possible_matches_header_0");
-    
+
         // Reuse for each arg to reduce naive stack usage
-    Value * candidate_type = c->getTemporary(register_type, "candidate_type");    
+    Value * candidate_type = c->getTemporary(register_type, "candidate_type");
     Value * expected_type = c->getTemporary(register_type, "expected_type");
     Value * classptr = c->getTemporary(register_type, "classptr");
-            
+
     for (unsigned int loopc=0; loopc<args.size(); loopc++)
     {
         c->setBlock(possible_matches_header);
         char buf[4096];
         sprintf(buf, "%d", loopc+1);
         std::string argnum(buf);
-        
+
         if (loopc == 0)
         {
             arguments_loop_body->add(Insn(BRA, possible_matches_header));
@@ -787,15 +787,15 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
 
         possible_matches_header->add(Insn(MOVE, matched, Operand::usigc(0)));
         possible_matches_header->add(Insn(LOAD, possible_matches, pointer));
-        possible_matches_header->add(Insn(ADD, pointer, pointer, 
+        possible_matches_header->add(Insn(ADD, pointer, pointer,
                                         Operand::usigc(wordsize)));
-        
+
         BasicBlock * possible_matches_body = c->newBlock("possible_matches_body"+argnum);
         c->setBlock(possible_matches_body);
         possible_matches_body->add(Insn(LOAD, candidate_type,  pointer));
-        possible_matches_body->add(Insn(ADD, pointer, pointer, 
+        possible_matches_body->add(Insn(ADD, pointer, pointer,
                                         Operand::usigc(wordsize)));
-        
+
             // If it's a ptr-to-struct, we load the class id from the pointer
         bool deref = false;
         if (args[loopc]->type->canDeref())
@@ -819,10 +819,10 @@ Value * GenericFunctionType::generateFuncall(Codegen * c, Funcall * f,
         {
             possible_matches_body->add(Insn(MOVE, expected_type, Operand::usigc(args[loopc]->type->classId())));
         }
-        
+
         possible_matches_body->add(Insn(CMP, candidate_type, expected_type));
         possible_matches_body->add(Insn(SELEQ, matched, Operand::usigc(1), matched));
-        
+
         BasicBlock * did_we_find_a_match = c->newBlock("did_we_find_a_match");
         possible_matches_body->add(Insn(SUB, possible_matches, possible_matches,
                                         Operand::usigc(1)));
@@ -865,11 +865,11 @@ std::vector<FunctionScope *> & GenericFunctionType::getSpecialisations()
 void Mtables::processFunction(FunctionScope * fs)
 {
     MtableEntry me(fs);
-     
+
     std::vector<StructElement> & params = fs->getType()->getParams();
 
     me.table.push_back(params.size());
-    
+
     for (unsigned int loopc=0; loopc<params.size(); loopc++)
     {
         Type * t = params[loopc].type;
@@ -911,10 +911,10 @@ void Mtables::processFunction(FunctionScope * fs)
 
 void MtableEntry::print()
 {
-    printf("%s %lld ", target ? target->name().c_str() : "<null!>", offset);
+    printf("%s %ld ", target ? target->name().c_str() : "<null!>", offset);
     for (unsigned int loopc=0; loopc<table.size(); loopc++)
     {
-        printf("[%lld]", table[loopc]);
+        printf("[%ld]", table[loopc]);
     }
     puts("");
 }
@@ -927,7 +927,7 @@ void Mtables::generateTables()
         offsets[(*it)] = offset;
 #ifdef DEBUG_MTABLES
         printf("Stored offset %llx for %s\n", offset, gft ? gft->name().c_str() : "<null!>");
-#endif        
+#endif
         std::vector<FunctionScope *> specialisations = gft->getSpecialisations();
         for (std::vector<FunctionScope *>::iterator it2 = specialisations.begin();
              it2 != specialisations.end(); it2++)
@@ -937,7 +937,7 @@ void Mtables::generateTables()
         MtableEntry term(0);  // Empty table endicates end of entry
         data.push_back(term);
         offset += 2;
-    } 
+    }
 }
 
 void Mtables::createSection(Image * i, Assembler * a)
@@ -964,7 +964,7 @@ void Mtables::createSection(Image * i, Assembler * a)
 			printf("(%llx) length %lld", ptr-orig, len);
 #endif
             wee64(le, ptr, len);
-			uint64 count = 0;
+			uint64_t count = 0;
             for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
             {
 				if (count == 0)
@@ -1008,7 +1008,7 @@ void Mtables::createSection(Image * i, Assembler * a)
 			printf("(%llx) length %lld", ptr-orig, len);
 #endif
             wee32(le, ptr, checked_32(len));
-			uint64 count = 0;
+			uint64_t count = 0;
             for (unsigned int loopc2=0; loopc2<me.table.size(); loopc2++)
             {
 				if (count == 0)
@@ -1044,7 +1044,7 @@ void Mtables::createSection(Image * i, Assembler * a)
 				printf(" (%llx)end\n", ptr-orig);
 #endif
                 wee32(le, ptr, 0x0);
-            }                
-        }   
+            }
+        }
     }
 }

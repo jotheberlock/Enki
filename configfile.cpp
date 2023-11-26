@@ -23,9 +23,9 @@ Configuration::~Configuration()
 }
 
 bool Configuration::lookupConfigConstant(std::string name,
-                                         uint64 & val)
+                                         uint64_t & val)
 {
-    std::map<std::string, uint64>::iterator it = config_constants.find(name);
+    std::map<std::string, uint64_t>::iterator it = config_constants.find(name);
     if (it == config_constants.end())
     {
         return false;
@@ -245,7 +245,7 @@ bool ConfigFile::processLine(std::string line)
                 printf("Invalid constant syntax %s\n", val.c_str());
                 return false;
             }
-            uint64 nval = strtol(value.c_str(), 0, 0);
+            uint64_t nval = strtol(value.c_str(), 0, 0);
             config->config_constants[name] = nval;
         }
 		else

@@ -188,7 +188,7 @@ int SillyRegalloc::findFree(RegSet & r, RegSet & c)
             !(block->getReservedRegs().isSet(loopc)))
         {
             int fp = assembler->framePointer();
-			int64 off = regs[loopc]->stackOffset();
+			int64_t off = regs[loopc]->stackOffset();
 			Insn store(storeForType(regs[loopc]->type), Operand::reg(fp),
 				Operand::sigc(off), Operand::reg(loopc));
             printf(">> Spilling %d\n", loopc);
@@ -296,7 +296,7 @@ void SillyRegalloc::handleInstruction(std::list<Insn>::iterator & it)
 		int fp = assembler->framePointer();
 		if (input[loopc])
 		{
-			int64 off = regs[loopc]->stackOffset();
+			int64_t off = regs[loopc]->stackOffset();
 			Insn load(loadForType(regs[loopc]->type),
 				Operand::reg(loopc), Operand::reg(fp),
 				Operand::sigc(off));
@@ -305,7 +305,7 @@ void SillyRegalloc::handleInstruction(std::list<Insn>::iterator & it)
 		}
 		if (output[loopc])
 		{
-			int64 off = regs[loopc]->stackOffset();
+			int64_t off = regs[loopc]->stackOffset();
 			Insn store(storeForType(regs[loopc]->type), Operand::reg(fp),
 				Operand::sigc(off), Operand::reg(loopc));
 			store.comment += "Store " + regs[loopc]->name;
@@ -327,7 +327,7 @@ void AddressOfPass::processInsn()
 {
 	if (insn.ins == GETADDR)
 	{
-		uint64 depth = insn.ops[2].getUsigc();
+		uint64_t depth = insn.ops[2].getUsigc();
 		Insn mover(MOVE, insn.ops[0], Operand::reg(assembler->framePointer()));
 		prepend(mover);
 		while (depth > 0)
@@ -371,8 +371,8 @@ void ResolveConstAddr::processInsn()
 	if (insn.ins == GETCONSTADDR)
 	{
 		insn.ins = MOVE;
-		uint64 offs = insn.ops[1].getUsigc();
-		uint64 addr = constants->lookupOffset(offs);
+		uint64_t offs = insn.ops[1].getUsigc();
+		uint64_t addr = constants->lookupOffset(offs);
 		insn.ops[1] = Operand::section(IMAGE_CONST_DATA, addr);
 		change(insn);
 	}
@@ -533,7 +533,7 @@ void CmpMover::processInsn()
         while (it != block->getCode().end())
         {
             Insn ca = *it;
-            uint64 o = ca.ins;
+            uint64_t o = ca.ins;
             if (o == BG || o == BLE || o == BL || o == BGE ||
                 o == SELEQ || o == SELGE || o == SELGT || o == SELGES ||
                 o == SELGTS)
@@ -648,7 +648,7 @@ void AddSplitter::processInsn()
     {
         if (insn.ops[2].isUsigc())
         {
-            uint64 val = insn.ops[2].getUsigc();
+            uint64_t val = insn.ops[2].getUsigc();
             if (val > 255)
             {
                 while (val > 255)
@@ -664,7 +664,7 @@ void AddSplitter::processInsn()
         }
         else if (insn.ops[2].isSigc())
         {
-            int64 val = insn.ops[2].getSigc();
+            int64_t val = insn.ops[2].getSigc();
             if (val > 255)
             {
                 while (val > 255)

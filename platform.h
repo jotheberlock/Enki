@@ -4,18 +4,12 @@
 /*
 	Various host platform specific defines,
 	most of which aren't too important without
-	macro/JIT support. Also my stdint.h replacement
-	since this compiles with e.g. gcc 3.4 that has no
-	such thing. Also functions to write little/big/either-endian
-	16/32/64-bit quantities portably.
+	macro/JIT support. Also functions to write
+	little/big/either-endian 16/32/64-bit quantities
+	portably.
 */
 
-typedef unsigned long long uint64;
-typedef signed long long int64;
-typedef unsigned int uint32;
-typedef signed int int32;
-typedef unsigned short uint16;
-typedef signed short int16;
+#include <stdint.h>
 
 #include <stdio.h>
 
@@ -27,7 +21,7 @@ typedef signed short int16;
 #define POSIX_HOST 1
 #elif defined(__linux__)
 #define HAVE_MPROTECT 1
-#define SYSV_CC 
+#define SYSV_CC
 #define POSIX_SIGNALS 1
 #define LINUX_HOST 1
 #define POSIX_HOST 1
@@ -55,41 +49,41 @@ typedef signed short int16;
 #endif
 #endif
 
-void wle16(unsigned char *&, uint16);
-void wle32(unsigned char *&, uint32);
-void wle64(unsigned char *&, uint64);
-void wles16(unsigned char *&, int16);
-void wles32(unsigned char *&, int32);
-void wles64(unsigned char *&, int64);
-uint16 rle16(unsigned char *);
-uint32 rle32(unsigned char *);
-uint64 rle64(unsigned char *);
+void wle16(unsigned char *&, uint16_t);
+void wle32(unsigned char *&, uint32_t);
+void wle64(unsigned char *&, uint64_t);
+void wles16(unsigned char *&, int16_t);
+void wles32(unsigned char *&, int32_t);
+void wles64(unsigned char *&, int64_t);
+uint16_t rle16(unsigned char *);
+uint32_t rle32(unsigned char *);
+uint64_t rle64(unsigned char *);
 
-void wbe16(unsigned char *&, uint16);
-void wbe32(unsigned char *&, uint32);
-void wbe64(unsigned char *&, uint64);
-void wbes16(unsigned char *&, int16);
-void wbes32(unsigned char *&, int32);
-void wbes64(unsigned char *&, int64);
-uint16 rbe16(unsigned char *);
-uint32 rbe32(unsigned char *);
-uint64 rbe64(unsigned char *);
+void wbe16(unsigned char *&, uint16_t);
+void wbe32(unsigned char *&, uint32_t);
+void wbe64(unsigned char *&, uint64_t);
+void wbes16(unsigned char *&, int16_t);
+void wbes32(unsigned char *&, int32_t);
+void wbes64(unsigned char *&, int64_t);
+uint16_t rbe16(unsigned char *);
+uint32_t rbe32(unsigned char *);
+uint64_t rbe64(unsigned char *);
 
-void wee16(bool, unsigned char *&, uint16);
-void wee32(bool, unsigned char *&, uint32);
-void wee64(bool, unsigned char *&, uint64);
-void wees16(bool, unsigned char *&, int16);
-void wees32(bool, unsigned char *&, int32);
-void wees64(bool, unsigned char *&, int64);
-uint16 ree16(bool, unsigned char *);
-uint32 ree32(bool, unsigned char *);
-uint64 ree64(bool, unsigned char *);
+void wee16(bool, unsigned char *&, uint16_t);
+void wee32(bool, unsigned char *&, uint32_t);
+void wee64(bool, unsigned char *&, uint64_t);
+void wees16(bool, unsigned char *&, int16_t);
+void wees32(bool, unsigned char *&, int32_t);
+void wees64(bool, unsigned char *&, int64_t);
+uint16_t ree16(bool, unsigned char *);
+uint32_t ree32(bool, unsigned char *);
+uint64_t ree64(bool, unsigned char *);
 
 // Will complain if the input is > 32 bits
-uint32 checked_32(uint64);
+uint32_t checked_32(uint64_t);
 
 extern FILE * log_file;
 
-uint64 roundup(uint64 in, uint64 align);
+uint64_t roundup(uint64_t in, uint64_t align);
 
 #endif

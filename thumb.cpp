@@ -30,7 +30,7 @@ bool Thumb::validRegOffset(Insn & i, int off)
         {
             return (off >= 0) && (off < 1021);
         }
-        
+
         return (off >= 0) && (off < 125);
     }
     return false;
@@ -139,20 +139,20 @@ int Thumb::size(BasicBlock * b)
 	}
 
     ret += 64;  // Size is wrong somewhere
-      
+
 	return ret;
 }
 
 bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 {
 	std::list<Insn> & code = b->getCode();
-    
+
 	b->setAddr(address + flen());
 
-	uint64 current_addr = (uint64)current;
+	uint64_t current_addr = (uint64_t)current;
 	assert((current_addr & 0x1) == 0);
 
-    unsigned char * block_base = current;
+        unsigned char * block_base = current;
 
 	for (std::list<Insn>::iterator it = code.begin(); it != code.end();
 	it++)
@@ -160,44 +160,44 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		Insn & i = *it;
 		i.addr = address + flen();
 
-		uint16 mc = 0x46c0;  // nop
-        bool no_mc = false;
-        
+		uint16_t mc = 0x46c0;  // nop
+                bool no_mc = false;
+
 		unsigned char * oldcurrent = current;
 
 		switch (i.ins)
 		{
 		case ENTER_THUMB_MODE:
 		{
-            assert(i.oc == 0);
-			// Temporary hack - load r0 with pc then bx to Thumb
-			wee32(le, current, 0xe1a0000f);   // mov r0, pc - r0 is now this instruction+8
-			wee32(le, current, 0xe2800005);   // add r0, r0, #5 - make sure to set thumb bit
-			wee32(le, current, 0xe12fff10);   // bx r0
-            wee16(le, current, 0x466f);       // mov r7, sp
-			break;
+		    assert(i.oc == 0);
+		    // Temporary hack - load r0 with pc then bx to Thumb
+		    wee32(le, current, 0xe1a0000f);   // mov r0, pc - r0 is now this instruction+8
+		    wee32(le, current, 0xe2800005);   // add r0, r0, #5 - make sure to set thumb bit
+		    wee32(le, current, 0xe12fff10);   // bx r0
+		    wee16(le, current, 0x466f);       // mov r7, sp
+		    break;
 		}
 
 		case SYSCALL:
 		{
 
-			assert(i.oc == 1 || i.oc == 0);
-			if (i.oc == 1)
-			{
-				assert(i.ops[0].isUsigc());
-				assert(i.ops[0].getUsigc() <= 0xff);
-				mc = 0xdf00 | (i.ops[0].getUsigc() & 0xff);
+		    assert(i.oc == 1 || i.oc == 0);
+		    if (i.oc == 1)
+		    {
+			assert(i.ops[0].isUsigc());
+			assert(i.ops[0].getUsigc() <= 0xff);
+			mc = 0xdf00 | (i.ops[0].getUsigc() & 0xff);
+		    }
+		    else
+		    {
+			mc = 0xdf00;
 			}
-			else
-			{
-				mc = 0xdf00;
-			}
-			break;
+		    break;
 		}
 		case BREAKP:
 		{
-            assert(i.oc == 0);
-			mc = 0xbe00;
+		    assert(i.oc == 0);
+		    mc = 0xbe00;
 			break;
 		}
 		case LOAD8:
@@ -208,44 +208,44 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		case LOAD:
 		case LOAD32:
 		{
-			assert(i.oc == 2 || i.oc == 3);
-			assert(i.ops[0].isReg());
-			assert(i.ops[1].isReg());
-			assert(i.ops[0].getReg() < 8);
+		    assert(i.oc == 2 || i.oc == 3);
+		    assert(i.ops[0].isReg());
+		    assert(i.ops[1].isReg());
+		    assert(i.ops[0].getReg() < 8);
 
-			bool regreg = false;
-			uint64 offset = 0;
-			if (i.oc == 3)
+		    bool regreg = false;
+		    uint64_t offset = 0;
+		    if (i.oc == 3)
+		    {
+			if (i.ops[2].isReg())
 			{
-				if (i.ops[2].isReg())
-				{
-					regreg = true;
-				}
-				else
-				{
-					assert(i.ops[2].isUsigc() || i.ops[2].isSigc());
-					if (i.ops[2].isUsigc())
-					{
-						offset = i.ops[2].getUsigc();
-					}
+			    regreg = true;
+			}
+			else
+			{
+			    assert(i.ops[2].isUsigc() || i.ops[2].isSigc());
+			    if (i.ops[2].isUsigc())
+			    {
+				offset = i.ops[2].getUsigc();
+			    }
 					else
 					{
-						assert(i.ops[2].getSigc() >= 0);
-						offset = i.ops[2].getSigc();
+					    assert(i.ops[2].getSigc() >= 0);
+					    offset = i.ops[2].getSigc();
 					}
-				}
+			}
 			}
 
 			if ((i.ins == LOAD32 || i.ins == LOADS32 || i.ins == LOAD)
-				&& i.ops[1].getReg() == 13 && offset < 1021 && ((offset & 0x3) == 0))
+			    && i.ops[1].getReg() == 13 && offset < 1021 && ((offset & 0x3) == 0))
 			{
-				mc = 0x9800 | i.ops[0].getReg() << 8 | (uint16)offset >> 2;
+				mc = 0x9800 | i.ops[0].getReg() << 8 | (uint16_t)offset >> 2;
 			}
 			else if (i.ins == LOAD8 || i.ins == LOADS8)
 			{
-				if (regreg)
-				{
-					assert(i.ops[1].getReg() < 8);
+			    if (regreg)
+			    {
+				assert(i.ops[1].getReg() < 8);
 					assert(i.ops[2].getReg() < 8);
 					mc = (i.ins == LOAD8 ? 0x5c00 : 0x5600) | i.ops[0].getReg() | i.ops[1].getReg() << 3 | i.ops[2].getReg() << 6;
 				}
@@ -254,7 +254,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 					assert(offset < 32);
 					if (i.ins == LOADS8)
 					{
-						assert(i.ops[2].isReg());
+					    assert(i.ops[2].isReg());
 					}
 					else
 					{
@@ -327,7 +327,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			assert(i.ops[0].isReg());
 			assert(i.ops[i.oc == 3 ? 2 : 1].isReg());
 			assert(i.ops[i.oc == 3 ? 2 : 1].getReg() < 8);
-			uint64 offset = 0;
+			uint64_t offset = 0;
 			int sreg = (i.oc == 3) ? 2 : 1;
 			bool regreg = false;
 			if (i.oc == 3)
@@ -356,7 +356,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				offset < 1021 &&
 				(offset & 0x3) == 0)
 			{
-				mc = 0x9000 | i.ops[(i.oc == 3 ? 2 : 1)].getReg() << 8 | (uint16)offset >> 2;
+				mc = 0x9000 | i.ops[(i.oc == 3 ? 2 : 1)].getReg() << 8 | (uint16_t)offset >> 2;
 			}
 			else if (i.ins == STORE8)
 			{
@@ -453,61 +453,61 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				{
 					assert(i.ops[0].getReg() < 8);
 
-					if ((uint64)current & 0x3)  // Address is not 32 bit aligned
+					if ((uint64_t)current & 0x3)  // Address is not 32 bit aligned
 					{
 						wee16(le, current, 0x46c0); // 32-bit align with nop
 					}
 
-                    assert(((uint64)current & 0x3) == 0);
+                    assert(((uint64_t)current & 0x3) == 0);
                     no_mc = true;
-                    
+
 					// ldr r<x>, pc+0 (which is this instruction+4)
 					wee16(le, current, 0x4800 | (i.ops[0].getReg() << 8));
 					// branch over constant
 					wee16(le, current, 0xe001);
 
-                    assert(((uint64)current & 0x3) == 0);
+                    assert(((uint64_t)current & 0x3) == 0);
 					if (i.ops[1].isFunction())
 					{
-						uint32 reloc = 0xdeadbeef;
+						uint32_t reloc = 0xdeadbeef;
 						FunctionRelocation * fr = new FunctionRelocation(image, current_function, flen(), i.ops[1].getFunction(), 0);
 						fr->add32();
 						wle32(current, reloc);
 					}
 					else if (i.ops[1].isBlock())
 					{
-						uint32 reloc = 0xdeadbeef;
+						uint32_t reloc = 0xdeadbeef;
 						AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[1].getBlock());
 						abbr->add32();
 						wle32(current, reloc);
 					}
 					else if (i.ops[1].isSection())
 					{
-						uint32 reloc = 0xdeadbeef;
+						uint32_t reloc = 0xdeadbeef;
 						int s;
-						uint64 o = i.ops[1].getSection(s);
+						uint64_t o = i.ops[1].getSection(s);
 						SectionRelocation * sr = new SectionRelocation(image, IMAGE_CODE, len(), s, o);
 						sr->add32();
 						wle32(current, reloc);
 					}
 					else if (i.ops[1].isExtFunction())
 					{
-						uint32 reloc = 0xdeadbeef;
+						uint32_t reloc = 0xdeadbeef;
 						ExtFunctionRelocation * efr = new ExtFunctionRelocation(image, current_function, len(), i.ops[1].getExtFunction());
 						efr->add32();
 						wle32(current, reloc);
 					}
 					else
 					{
-						uint32 val;
+						uint32_t val;
 						if (i.ops[1].isUsigc())
 						{
-							val = (uint32)i.ops[1].getUsigc();
+							val = (uint32_t)i.ops[1].getUsigc();
 						}
 						else if (i.ops[1].isSigc())
 						{
-							int32 sval = (int32)i.ops[1].getSigc();
-							val = *((uint32 *)&sval);
+							int32_t sval = (int32_t)i.ops[1].getSigc();
+							val = *((uint32_t *)&sval);
 						}
 						wle32(current, val);
 					}
@@ -646,7 +646,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			else
 			{
 				assert(i.ops[1].getUsigc() < 256);
-				mc = 0x2800 | (i.ops[0].getReg() << 8) | (uint16)i.ops[1].getUsigc();
+				mc = 0x2800 | (i.ops[0].getReg() << 8) | (uint16_t)i.ops[1].getUsigc();
 			}
 			break;
 		}
@@ -669,7 +669,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			assert(i.oc == 3);
 			assert(i.ops[0].isReg());
             assert(i.ops[1].isReg());
-            assert(i.ops[2].isReg());   
+            assert(i.ops[2].isReg());
 
 			// Ugh fixed signed/unsigned at some point
 			if (i.ins == SELEQ)
@@ -695,7 +695,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			wee16(le, current, 0x1c00 | i.ops[0].getReg() | i.ops[1].getReg() << 3);
 			wee16(le, current, 0xe000);
 			mc = 0x1c00 | i.ops[0].getReg() | i.ops[2].getReg() << 3;
-				
+
 			break;
 		}
 		case BRA:
@@ -712,19 +712,19 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			{
 				mc = 0xe000;
 				// Branch offset is stored >> 1
-                
+
                 int offset = b->getEstimatedBlockOffset(i.ops[0].getBlock(), current-block_base);
                 if (offset < -2047 || offset > 2048 || always_do_long_range)
                 {
                     printf(">>> Unconditional branch offset overflow %d %x %s %s\n", offset, offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
-                    if ((uint64)current & 0x3)
+                    if ((uint64_t)current & 0x3)
                     {
                         // align
                         wee16(le, current, 0x46c0);
                     }
                     wee16(le, current, 0x4f00);   // ldr r7, pc (this+4)
                     wee16(le, current, 0x46bf);   // mov pc, r7
-                    uint32 reloc = 0xdeadbeef;
+                    uint32_t reloc = 0xdeadbeef;
                     AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[0].getBlock());
                     abbr->add32();
                     wle32(current, reloc);
@@ -766,7 +766,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				mc = 0xdd00;
 			}
 			else if (i.ins == BL)
-			{ 
+			{
 				mc = 0xdb00;
 			}
 			else
@@ -784,8 +784,8 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                 if (offset < -2047 || offset > 2048 || always_do_long_range)
                 {
                     printf(">>> Conditional branch offset double overflow %d %x %s %s\n", offset, offset, current_function->name().c_str(), i.ops[0].getBlock()->name().c_str());
-                    
-                    if ((uint64)current & 0x3)
+
+                    if ((uint64_t)current & 0x3)
                     {
                         // align
                         wee16(le, current, 0x46c0);
@@ -794,13 +794,13 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                     wee16(le, current, mc);          // conditional branch 4 bytes ahead
 					wee16(le, current, 0xe002);      // branch over constant
                     wee16(le, current, 0x46bf);      // mov pc, r7
-                          
-                    uint32 reloc = 0xdeadbeef;
+
+                    uint32_t reloc = 0xdeadbeef;
                     AbsoluteBasicBlockRelocation * abbr = new AbsoluteBasicBlockRelocation(image, current_function, flen(), i.ops[0].getBlock());
                     abbr->add32();
                     wle32(current, reloc);
                     no_mc = true;
-                }		
+                }
                 else if (offset < -252 || offset > 258)
                 {
                         // Reverse the sense of the conditional branch
@@ -821,7 +821,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
                         mc = 0xdc00;
                     }
                     else if (i.ins == BL)
-                    { 
+                    {
                         mc = 0xda00;
                     }
                     else
@@ -849,11 +849,11 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
             }
             else
             {
-                int16 val = (int16)i.ops[0].getSigc();
+                int16_t val = (int16_t)i.ops[0].getSigc();
                 val -= 2;
                 val >>= 1;
                 assert(val < 129 && val > -128);
-                uint16 * us = (uint16 *)&val;
+                uint16_t * us = (uint16_t *)&val;
                 mc |= (*us) & 0xff;
             }
 			break;
@@ -877,14 +877,14 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		default:
 		{
-			fprintf(log_file, "Don't know how to turn %lld [%s] into arm!\n", i.ins, i.toString().c_str());
+			fprintf(log_file, "Don't know how to turn %ld [%s] into arm!\n", i.ins, i.toString().c_str());
 			assert(false);
 		}
 
 		unsigned int siz = (unsigned int)(current - oldcurrent);
 		if (siz > i.size)
 		{
-			printf("Unexpectedly large instruction! estimate %lld actual %d %s\n",
+			printf("Unexpectedly large instruction! estimate %ld actual %d %s\n",
 				i.size, siz, i.toString().c_str());
 		}
 		}
@@ -893,7 +893,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
         {
             wee16(le, current, mc);
         }
-        
+
 		if (current >= limit)
 		{
 			printf("Ran out of space to assemble into, %d %s\n", (int)(limit - base), i.toString().c_str());
@@ -905,7 +905,7 @@ bool Thumb::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	return true;
 }
 
-std::string Thumb::transReg(uint32 r)
+std::string Thumb::transReg(uint32_t r)
 {
 	assert(r < 16);
 	if (r < 12)
@@ -952,7 +952,7 @@ bool Thumb::configure(std::string param, std::string val)
             return true;
         }
     }
-    
+
 	return Assembler::configure(param, val);
 }
 
@@ -986,7 +986,7 @@ ValidRegs Thumb::validRegs(Insn & i)
         ret.ops[1].set(13);
         ret.ops[2].set(13);
     }
-    
+
 	return ret;
 }
 
@@ -1026,14 +1026,14 @@ bool Thumb::validConst(Insn & i, int idx)
         {
             return false;
         }
-        
+
         if (i.ops[2].isSigc() && i.ops[2].getSigc() < 0)
         {
             return false;
         }
 
-        uint64 val = i.ops[2].isSigc() ? i.ops[2].getSigc() : i.ops[2].getUsigc();
-        
+        uint64_t val = i.ops[2].isSigc() ? i.ops[2].getSigc() : i.ops[2].getUsigc();
+
         if (i.ins == LOAD8)
         {
             return (val < 32);
@@ -1059,14 +1059,14 @@ bool Thumb::validConst(Insn & i, int idx)
         {
             return false;
         }
-        
+
         if (i.ops[1].isSigc() && i.ops[1].getSigc() < 0)
         {
             return false;
         }
 
-        uint64 val = i.ops[1].isSigc() ? i.ops[1].getSigc() : i.ops[1].getUsigc();
-        
+        uint64_t val = i.ops[1].isSigc() ? i.ops[1].getSigc() : i.ops[1].getUsigc();
+
         if (i.ins == STORE8)
         {
             return (val < 32);
@@ -1101,17 +1101,17 @@ void Thumb::newFunction(Codegen * c)
 	Assembler::newFunction(c);
 	if (c->callConvention() == CCONV_STANDARD)
 	{
-		uint64 addr = c->stackSize();
+		uint64_t addr = c->stackSize();
 		wle32(current, checked_32(addr));
 	}
 }
 
-void Thumb::align(uint64 a)
+void Thumb::align(uint64_t a)
 {
-	uint16 nop = 0xb000;
+	uint16_t nop = 0xb000;
 	while (currentAddr() % a)
 	{
-		*((uint16 *)current) = nop;
+		*((uint16_t *)current) = nop;
 		current += 2;
 	}
 }
@@ -1133,7 +1133,7 @@ Value * ThumbLinuxSyscallCallingConvention::generateCall(Codegen * c,
 	res.set(assembler->regnum("r7"));
 
 	call->setReservedRegs(res);
-    
+
 	if (args.size() > 7)
 	{
 		fprintf(log_file, "Warning, syscall passed more than 6 args!\n");
@@ -1188,8 +1188,3 @@ Value * ThumbLinuxSyscallCallingConvention::generateCall(Codegen * c,
 
 	return ret;
 }
-
-
-
-
-

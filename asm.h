@@ -105,20 +105,20 @@ public:
 	Operand(BasicBlock *);
 	Operand(FunctionScope *);
 
-	uint32 getReg();
-	uint64 getUsigc();
-	int64 getSigc();
+	uint32_t getReg();
+	uint64_t getUsigc();
+	int64_t getSigc();
 	Value * getValue();
 	BasicBlock * getBlock();
 	FunctionScope * getFunction();
-	uint64 getSection(int &);   // e.g. 'data segment address'
+	uint64_t getSection(int &);   // e.g. 'data segment address'
 	std::string getExtFunction();
 
-	static Operand sigc(int64);
-	static Operand usigc(uint64);
-	static Operand reg(int32);
+	static Operand sigc(int64_t);
+	static Operand usigc(uint64_t);
+	static Operand reg(int32_t);
 	static Operand reg(std::string);
-	static Operand section(int, uint64);
+	static Operand section(int, uint64_t);
 	static Operand extFunction(std::string);
 
 	bool eq(Operand &);
@@ -145,12 +145,12 @@ protected:
 	union
 	{
 		Value * v;
-		uint64 c;
-		int64 sc;
+		uint64_t c;
+		int64_t sc;
 		BasicBlock * b;
-		uint32 r;
+		uint32_t r;
 		FunctionScope * f;
-		uint64 s;
+		uint64_t s;
 		std::string * e;
 	} contents;
 
@@ -168,7 +168,7 @@ public:
 		size = 0;
 	}
 
-	Insn(uint64 i)
+	Insn(uint64_t i)
 	{
 		ins = i;
 		oc = 0;
@@ -176,7 +176,7 @@ public:
 		size = 0;
 	}
 
-	Insn(uint64 i, Operand o1)
+	Insn(uint64_t i, Operand o1)
 	{
 		ins = i;
 		ops[0] = o1;
@@ -185,7 +185,7 @@ public:
 		size = 0;
 	}
 
-	Insn(uint64 i, Operand o1, Operand o2)
+	Insn(uint64_t i, Operand o1, Operand o2)
 	{
 		ins = i;
 		ops[0] = o1;
@@ -195,7 +195,7 @@ public:
 		size = 0;
 	}
 
-	Insn(uint64 i, Operand o1, Operand o2, Operand o3)
+	Insn(uint64_t i, Operand o1, Operand o2, Operand o3)
 	{
 		ins = i;
 		ops[0] = o1;
@@ -215,9 +215,9 @@ public:
     bool isLoad();
     bool isStore();
     
-	uint64 ins;
-	uint64 addr;
-	uint64 size;
+	uint64_t ins;
+	uint64_t addr;
+	uint64_t size;
 	int oc;
 	Operand ops[4];
 	std::string comment;
@@ -301,24 +301,24 @@ public:
 		return (addr != 0);
 	}
 
-	uint64 getAddr()
+	uint64_t getAddr()
 	{
 		return addr;
 	}
 
-	void setAddr(uint64 a)
+	void setAddr(uint64_t a)
 	{
 		addr = a;
 	}
 
     // Worst case size used for determining if
     // branch offsets are encodable etc
-    void setEstimatedAddr(uint64 a)
+    void setEstimatedAddr(uint64_t a)
     {
         estaddr = a;
     }
 
-    uint64 getEstimatedAddr()
+    uint64_t getEstimatedAddr()
     {
         return estaddr;
     }
@@ -333,7 +333,7 @@ public:
 		reserved_regs = r;
 	}
 
-    int getEstimatedBlockOffset(BasicBlock *, uint64 o);
+    int getEstimatedBlockOffset(BasicBlock *, uint64_t o);
 
 protected:
 
@@ -341,8 +341,8 @@ protected:
 	std::vector<BasicBlock *> parents;
 	std::list<Insn> insns;
 	std::string nam;
-	uint64 addr;
-    uint64 estaddr;
+	uint64_t addr;
+    uint64_t estaddr;
 	RegSet reserved_regs;
 
 };
@@ -417,7 +417,7 @@ public:
 	virtual int regnum(std::string) = 0;
 	virtual int size(BasicBlock *) = 0;  // Size in bytes of machine code
 	virtual bool assemble(BasicBlock *, BasicBlock * next, Image * image) = 0;
-	virtual std::string transReg(uint32) = 0;
+	virtual std::string transReg(uint32_t) = 0;
 	virtual ValidRegs validRegs(Insn &) = 0;
 	virtual bool validConst(Insn &, int) = 0;
     virtual int framePointer() = 0;
@@ -429,20 +429,20 @@ public:
 		return psize;
 	}
 
-	uint64 len() { return current - base; }  // From beginning of code segment
-	uint64 flen() { return current - func_base; }   // From beginning of function
+	uint64_t len() { return current - base; }  // From beginning of code segment
+	uint64_t flen() { return current - func_base; }   // From beginning of function
 
-	uint64 currentAddr()
+	uint64_t currentAddr()
 	{
 		return address + len();
 	}
 
-	void setAddr(uint64 a)
+	void setAddr(uint64_t a)
 	{
 		address = a;
 	}
 
-	virtual void align(uint64 a) = 0;  // Pads with NOPs
+	virtual void align(uint64_t a) = 0;  // Pads with NOPs
 	virtual void newFunction(Codegen *);
 
 	virtual bool configure(std::string, std::string);
@@ -469,7 +469,7 @@ protected:
 	unsigned char * current;
 	unsigned char * limit;
 	unsigned char * func_base;
-	uint64 address;
+	uint64_t address;
 	int psize;
 	bool le;
 	FunctionScope * current_function;

@@ -29,7 +29,7 @@ static int getFlags(int in)
 }
 
 
-MemBlock Mem::getBlock(uint64 len, int perms)
+MemBlock Mem::getBlock(uint64_t len, int perms)
 {
 	MemBlock ret;
 #ifdef HAVE_MPROTECT

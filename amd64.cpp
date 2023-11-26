@@ -10,12 +10,12 @@
 bool Amd64::validRegOffset(Insn & i, int off)
 {
     return true;
-    
+
     if (off < 0)
     {
         return false;
     }
-    
+
     if (i.ins == LOAD8 || i.ins == LOADS8 || i.ins == STORE8)
     {
         return (off < 32);
@@ -26,7 +26,7 @@ bool Amd64::validRegOffset(Insn & i, int off)
     }
     else
     {
-    
+
         return (off < 128) && ((off & 0x3) == 0);
     }
     return false;
@@ -39,12 +39,12 @@ const char * regnames[] =
 	0
 };
 
-unsigned char reg(uint32 r)
+unsigned char reg(uint32_t r)
 {
 	return r;
 }
 
-unsigned char rexreg(uint32 r1, uint32 r2)
+unsigned char rexreg(uint32_t r1, uint32_t r2)
 {
 	unsigned char ret = 0;
 	if (r1 > 7)
@@ -276,15 +276,15 @@ int Amd64::size(BasicBlock * b)
 				}
 				else
 				{
-					uint64 val;
+					uint64_t val;
 					if (i.ops[1].isUsigc())
 					{
 						val = i.ops[1].getUsigc();
 					}
 					else
 					{
-						int64 tmp = i.ops[1].getSigc();
-						val = *((uint64 *)&tmp);
+						int64_t tmp = i.ops[1].getSigc();
+						val = *((uint64_t *)&tmp);
 					}
 
 					bool big = (val > 0xffffffff);
@@ -423,7 +423,7 @@ int Amd64::size(BasicBlock * b)
 		}
 		default:
 		{
-			fprintf(log_file, "Don't know how to turn %lld into amd64!\n", i.ins);
+			fprintf(log_file, "Don't know how to turn %ld into amd64!\n", i.ins);
 			assert(false);
 		}
 		}
@@ -459,7 +459,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			int dr = 0;
 			int oreg = 0;
 
-			int32 offs = 0;
+			int32_t offs = 0;
 
 			if (i.oc == 3)
 			{
@@ -475,7 +475,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 			if (i.oc == 3)
 			{
-				offs = (int32)i.ops[oreg].getSigc();
+				offs = (int32_t)i.ops[oreg].getSigc();
 			}
 
 			if (i.ins == STORE16)
@@ -541,7 +541,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			int dr = 0;
 			int oreg = 0;
 
-			int32 offs = 0;
+			int32_t offs = 0;
 
 			if (i.oc == 3)
 			{
@@ -557,7 +557,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 			if (i.oc == 3)
 			{
-				offs = (int32)i.ops[oreg].getSigc();
+				offs = (int32_t)i.ops[oreg].getSigc();
 			}
 
 			*current++ = (0x48 |
@@ -631,7 +631,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 			int dr = 0;
 			int oreg = 0;
 
-			int32 offs = 0;
+			int32_t offs = 0;
 
 			bool is_load = (i.ins == LOAD || i.ins == LOAD32 || i.ins == LOAD64 || i.ins == LOADS32);
 
@@ -666,7 +666,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 			if (i.oc == 3)
 			{
-				offs = (int32)i.ops[oreg].getSigc();
+				offs = (int32_t)i.ops[oreg].getSigc();
 			}
 
 			unsigned char do64 = (i.ins == LOAD || i.ins == LOAD64
@@ -743,7 +743,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 
 				if (i.ops[1].isFunction())
 				{
-					uint64 reloc = 0xdeadbeefdeadbeefLL;
+					uint64_t reloc = 0xdeadbeefdeadbeefLL;
 					unsigned char r = 0xb8;
 					r |= reg(i.ops[0].getReg() & 0x7);
 					*current++ = r;
@@ -757,7 +757,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				}
 				else if (i.ops[1].isBlock())
 				{
-					uint64 reloc = 0xdeadbeefdeadbeefLL;
+					uint64_t reloc = 0xdeadbeefdeadbeefLL;
 					unsigned char r = 0xb8;
 					r |= reg(i.ops[0].getReg() & 0x7);
 					*current++ = r;
@@ -770,14 +770,14 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				}
 				else if (i.ops[1].isSection())
 				{
-					uint64 reloc = 0xdeadbeefdeadbeefLL;
+					uint64_t reloc = 0xdeadbeefdeadbeefLL;
 					unsigned char r = 0xb8;
 					r |= reg(i.ops[0].getReg() & 0x7);
 					*current++ = r;
 
 					int s;
-					uint64 o = i.ops[1].getSection(s);
-                    
+					uint64_t o = i.ops[1].getSection(s);
+
 					SectionRelocation * sr = new SectionRelocation(image, IMAGE_CODE, len(), s, o);
 					sr->add64();
 					//relocs.push_back(Relocation(REL_A64, len()+8, len(),
@@ -786,7 +786,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				}
 				else if (i.ops[1].isExtFunction())
 				{
-					uint64 reloc = 0xdeadbeefdeadbeefLL;
+					uint64_t reloc = 0xdeadbeefdeadbeefLL;
 					unsigned char r = 0xb8;
 					r |= reg(i.ops[0].getReg() & 0x7);
 					*current++ = r;
@@ -798,15 +798,15 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				}
 				else
 				{
-					uint64 val;
+					uint64_t val;
 					if (i.ops[1].isUsigc())
 					{
 						val = i.ops[1].getUsigc();
 					}
 					else
 					{
-						int64 tmp = i.ops[1].getSigc();
-						val = *((uint64 *)&tmp);
+						int64_t tmp = i.ops[1].getSigc();
+						val = *((uint64_t *)&tmp);
 					}
 
 					unsigned char r = 0xb8;
@@ -859,22 +859,22 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				case XOR: *current++ = 0xf0 | rr;
 					break;
 				default:
-					fprintf(log_file, "Unknown logop %lld!\n", i.ins);
+					fprintf(log_file, "Unknown logop %ld!\n", i.ins);
 					break;
 				}
 
 				if (i.ops[2].isSigc())
 				{
-					int64 val = i.ops[2].getSigc();
-					int32 v = (int32_t)val;
-					uint32 * ptr = (uint32 *)&v;
+					int64_t val = i.ops[2].getSigc();
+					int32_t v = (int32_t)val;
+					uint32_t * ptr = (uint32_t *)&v;
 					wle32(current, *ptr);
 				}
 				else
 				{
-					uint64 imm = i.ops[2].getUsigc();
+					uint64_t imm = i.ops[2].getUsigc();
 					assert(imm < 0x100000000LL);
-					wle32(current, (uint32)imm);
+					wle32(current, (uint32_t)imm);
 				}
 			}
 			else
@@ -894,7 +894,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				case XOR: *current++ = 0x31;
 					break;
 				default:
-					fprintf(log_file, "Unknown logop %lld!\n", i.ins);
+					fprintf(log_file, "Unknown logop %ld!\n", i.ins);
 					break;
 				}
 
@@ -907,8 +907,8 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		case NOT:
 		{
-			assert(i.oc == 2);
-            assert(i.ops[0].isReg());
+ 			assert(i.oc == 2);
+                        assert(i.ops[0].isReg());
 			assert(i.ops[0].eq(i.ops[1]));
 
 			if (reg(i.ops[0].getReg()) < 8)
@@ -995,10 +995,10 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				break;
 			}
 
-			uint64 sr = i.ops[2].getUsigc();
+			uint64_t sr = i.ops[2].getUsigc();
 			if (sr > 0xff)
 			{
-				fprintf(log_file, "Too large shift %lld!\n", sr);
+				fprintf(log_file, "Too large shift %ld!\n", sr);
 			}
 
 			*current++ = (sr & 0xff);
@@ -1059,9 +1059,9 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 				*current++ = 0x81;
 				*current++ = 0xf8 | (i.ops[0].getReg() & 0x7);
 
-				uint64 imm = i.ops[1].getUsigc();
+				uint64_t imm = i.ops[1].getUsigc();
 				assert(imm < 0x100000000LL);
-				wle32(current, (uint32)imm);
+				wle32(current, (uint32_t)imm);
 			}
 
 			break;
@@ -1274,14 +1274,14 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 		}
 		default:
 		{
-			fprintf(log_file, "Don't know how to turn %lld [%s] into amd64!\n", i.ins, i.toString().c_str());
+			fprintf(log_file, "Don't know how to turn %ld [%s] into amd64!\n", i.ins, i.toString().c_str());
 			assert(false);
 		}
 
 		unsigned int siz = (unsigned int)(current - oldcurrent);
 		if (siz > i.size)
 		{
-			printf("Unexpectedly large instruction! estimate %lld actual %d %s\n",
+			printf("Unexpectedly large instruction! estimate %ld actual %d %s\n",
 				i.size, siz, i.toString().c_str());
 		}
 		}
@@ -1297,7 +1297,7 @@ bool Amd64::assemble(BasicBlock * b, BasicBlock * next, Image * image)
 	return true;
 }
 
-std::string Amd64::transReg(uint32 r)
+std::string Amd64::transReg(uint32_t r)
 {
 	std::string ret;
 
@@ -1320,12 +1320,12 @@ void Amd64::newFunction(Codegen * c)
 	Assembler::newFunction(c);
 	if (c->callConvention() == CCONV_STANDARD)
 	{
-		uint64 addr = c->stackSize();
+		uint64_t addr = c->stackSize();
 		wle64(current, addr);
 	}
 }
 
-void Amd64::align(uint64 a)
+void Amd64::align(uint64_t a)
 {
 	while (currentAddr() % a)
 	{
@@ -1455,7 +1455,7 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 	res.set(assembler->regnum("r11"));
 	current->setReservedRegs(res);
 
-    uint64 stack_size = 0x20;
+    uint64_t stack_size = 0x20;
 	if (args.size() > 4)
 	{
         for (unsigned int loopc = 4; loopc < args.size(); loopc++)
@@ -1472,7 +1472,7 @@ Value * Amd64WindowsCallingConvention::generateCall(Codegen * c,
 	{
    	    stack_size++;
     }
-	
+
     stack_size += 8;
 
     current->add(Insn(SUB, Operand::reg("rsp"), Operand::reg("rsp"),
@@ -1548,7 +1548,7 @@ Value * Amd64UnixCallingConvention::generateCall(Codegen * c,
 
 	current->setReservedRegs(res);
 
-	uint64 stack_size = 0x0;
+	uint64_t stack_size = 0x0;
 	if (args.size() > 6)
 	{
 		stack_size += (args.size() - 6) * 8;

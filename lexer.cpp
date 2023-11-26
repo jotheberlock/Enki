@@ -75,13 +75,13 @@ Lexer::Lexer()
 	keywords["fptr"] = FPTR;
 	keywords["elif"] = ELIF;
 	keywords["generic"] = GENERIC;
-    keywords["raw"] = RAW;
-    keywords["import"] = IMPORT;
-    keywords["module"] = MODULE;
-    keywords["cast"] = CAST;
-    keywords["constif"] = CONSTIF;
-    keywords["sizeof"] = SIZEOF;
-    
+	keywords["raw"] = RAW;
+	keywords["import"] = IMPORT;
+	keywords["module"] = MODULE;
+	keywords["cast"] = CAST;
+	keywords["constif"] = CONSTIF;
+	keywords["sizeof"] = SIZEOF;
+
 	oldcol = -1;
 	oldline = -1;
 	indentations.push(0);
@@ -90,14 +90,14 @@ Lexer::Lexer()
 	simpleToken(b, BEGIN);  // Implicit block
 }
 
-void Lexer::addOp(OpRec op, uint32 first, uint32 second)
+void Lexer::addOp(OpRec op, uint32_t first, uint32_t second)
 {
-	uint64 s64 = second;
-	uint64 encoded = ((s64 << 32) | first);
+	uint64_t s64 = second;
+	uint64_t encoded = ((s64 << 32) | first);
 	ops[encoded] = op;
 }
 
-bool Lexer::isOp(uint32 first, uint32 second, bool & two_char,
+bool Lexer::isOp(uint32_t first, uint32_t second, bool & two_char,
 	OpRec & op, std::string full_value)
 {
 	if (full_value == "or")
@@ -131,16 +131,16 @@ bool Lexer::isOp(uint32 first, uint32 second, bool & two_char,
 		return true;
 	}
 
-	uint64 s64 = second;
-	uint64 encoded = (s64 << 32) | first;
-	std::map<uint64, OpRec>::iterator it1 = ops.find(encoded);
+	uint64_t s64 = second;
+	uint64_t encoded = (s64 << 32) | first;
+	std::map<uint64_t, OpRec>::iterator it1 = ops.find(encoded);
 	if (it1 != ops.end())
 	{
 		two_char = true;
 		op = (*it1).second;
 		return true;
 	}
-	std::map<uint64, OpRec>::iterator it2 = ops.find(first);
+	std::map<uint64_t, OpRec>::iterator it2 = ops.find(first);
 	if (it2 != ops.end())
 	{
 		two_char = false;
@@ -166,7 +166,7 @@ ReadChar Lexer::eatWhitespace()
 ReadChar Lexer::eatLine()
 {
 	ReadChar ch = next();
-	uint32 val = ch.val;
+	uint32_t val = ch.val;
 	while (val != '\n' && val != 0)
 	{
 		ch = next();
@@ -203,7 +203,7 @@ void Lexer::readIdentifier()
 	}
 }
 
-int hexdig(uint32 val)
+int hexdig(uint32_t val)
 {
 	if (val >= '0' && val <= '9')
 	{
@@ -223,14 +223,14 @@ int hexdig(uint32 val)
 	return -1;
 }
 
-void Lexer::readStringLiteral(uint32 term)
+void Lexer::readStringLiteral(uint32_t term)
 {
 	bool not_raw = true;
 
 	while (true)
 	{
 		ReadChar ch = next();
-		uint32 val = ch.val;
+		uint32_t val = ch.val;
 		if (val == term || val == 0)
 		{
 			pushToken(ch);
@@ -239,7 +239,7 @@ void Lexer::readStringLiteral(uint32 term)
 		else if (val == '\\' && not_raw)
 		{
 			ReadChar nch = next();
-			uint32 val2 = nch.val;
+			uint32_t val2 = nch.val;
 			if (val2 == 'r')
 			{
 				not_raw = false;
@@ -270,7 +270,7 @@ void Lexer::readStringLiteral(uint32 term)
 			}
 			else if (val2 == 't')
 			{
-				current_token.value.push_back(9);   // Tab 
+				current_token.value.push_back(9);   // Tab
 			}
 			else if (val2 == 'a')
 			{
@@ -498,7 +498,7 @@ bool Lexer::getLine(int & indent)
 
     while (linepos < chars_list.size())
     {
-        uint32 val = chars_list[linepos];
+        uint32_t val = chars_list[linepos];
         linepos++;
 
         if (!seen_non_whitespace)
@@ -517,7 +517,7 @@ bool Lexer::getLine(int & indent)
         {
             in_string = !in_string;
         }
-        
+
         if (val == '#' || (val == '\\' && in_string == false))
         {
             bool cont = (val == '\\');
@@ -533,7 +533,7 @@ bool Lexer::getLine(int & indent)
                 val = chars_list[linepos];
             }
             linepos++;
-            
+
             if (cont)
             {
                 while (true)
@@ -553,7 +553,7 @@ bool Lexer::getLine(int & indent)
                 continue;
             }
         }
-        
+
         if (val == '\n')
         {
             if (seen_non_whitespace)
@@ -585,26 +585,26 @@ bool Lexer::getLine(int & indent)
 }
 
 void Lexer::lex(Chars & input)
-{    
+{
 	chars_list = input;
 	pos = 0;
     linepos = 0;
 
     int indent;
-    
+
     bool more = true;
     while (more)
     {
         more = getLine(indent);
-        
+
         line++;
         col = indent;
         pos = 0;
-        
+
         while (true)
         {
             ReadChar begin = eatWhitespace();
-            uint32 val = begin.val;
+            uint32_t val = begin.val;
             if (val == 0)
             {
                     /*
@@ -621,15 +621,15 @@ void Lexer::lex(Chars & input)
                     // ignore
                 continue;
             }
-            
+
             int oll = oldline;
             oldline = begin.line;
-            
+
             if (begin.line > oll)
             {
                 int occ = oldcol;
                 oldcol = begin.col;
-            
+
                 if (begin.col > indentations.top())
                 {
                         // New level of indentation

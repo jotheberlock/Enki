@@ -67,7 +67,7 @@ void MachOImage::finalise()
 
 	unsigned char * ptr = header;
 
-	uint32 magic = (sf_bit) ? 0xfeedfacf : 0xfeedface;
+	uint32_t magic = (sf_bit) ? 0xfeedfacf : 0xfeedface;
 	wee32(le, ptr, magic);
 	wee32(le, ptr, arch);
 	wee32(le, ptr, arch_subtype);   // cpu subtype

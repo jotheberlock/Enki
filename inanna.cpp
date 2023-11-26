@@ -89,7 +89,7 @@ void InannaImage::finalise()
             seccount++;
         }
     }
-    
+
     FILE * f = fopen(fname.c_str(), "wb+");
     if (!f)
     {
@@ -113,17 +113,17 @@ void InannaImage::finalise()
             no_subrelocs += (int)br->relocs.size();
         }
     }
-    
+
     int headersize = (int)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
         stablesize + imports->size() + (seccount * InannaSection::size()) +
         (no_subrelocs * InannaReloc::size()));
 
-    uint32 next_offset = headersize;
+    uint32_t next_offset = headersize;
     while (next_offset % 4096)
     {
         next_offset++;
     }
-    
+
     std::vector<InannaSection> isections;
     for (int loopc = 0; loopc < IMAGE_LAST; loopc++)
     {
@@ -132,7 +132,7 @@ void InannaImage::finalise()
             InannaSection s;
             s.type = loopc;
             s.offset = next_offset;
-            s.length = (uint32)sizes[loopc];
+            s.length = (uint32_t)sizes[loopc];
             s.vmem = bases[loopc];
 
             if (loopc == IMAGE_CODE)
@@ -189,20 +189,20 @@ void InannaImage::finalise()
     size_t relocs_count = 0;
 
     for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
-    {        
+    {
         if (relocs[loopc]->isAbsolute())
         {
             relocs_count += relocs[loopc]->relocs.size();
         }
     }
-    
+
     wle32(ptr, arch);
-    wle32(ptr, (uint32)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
+    wle32(ptr, (uint32_t)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
           stablesize + imports->size()));
-    wle32(ptr, (uint32)isections.size());
-    wle32(ptr, (uint32)relocs_count);
+    wle32(ptr, (uint32_t)isections.size());
+    wle32(ptr, (uint32_t)relocs_count);
     wle64(ptr, functionAddress(root_function) - bases[IMAGE_CODE]);
-    wle32(ptr, (uint32)(INANNA_PREAMBLE + InannaHeader::size() + InannaArchHeader::size() + stablesize));
+    wle32(ptr, (uint32_t)(INANNA_PREAMBLE + InannaHeader::size() + InannaArchHeader::size() + stablesize));
     wle32(ptr, imports->size());
 
     memcpy(ptr, stringtable.getData(), stringtable.dataSize());
@@ -210,7 +210,7 @@ void InannaImage::finalise()
 
     memcpy(ptr, imports->getData(), imports->size());
     ptr += imports->size();
-    
+
     for (unsigned int loopc = 0; loopc < isections.size(); loopc++)
     {
         InannaSection & is = isections[loopc];
@@ -226,10 +226,10 @@ void InannaImage::finalise()
         BaseRelocation * br = relocs[loopc];
         if (br->isAbsolute())
         {
-            uint64 v = br->getValue();
+            uint64_t v = br->getValue();
             unsigned char * p = br->getPtr();
             int secto,secfrom;
-            uint64 offto, offfrom;
+            uint64_t offto, offfrom;
             if (!getSectionOffset(v, secto, offto))
             {
                 continue;
@@ -238,24 +238,24 @@ void InannaImage::finalise()
             {
                 continue;
             }
-            printf("\nSection %d %s offset %llx points to section %d %s offset %llx\n",
+            printf("\nSection %d %s offset %lx points to section %d %s offset %lx\n",
                    secfrom, sectionName(secfrom).c_str(), offfrom,
                    secto, sectionName(secto).c_str(), offto);
             std::list<Reloc> & relocs = br->relocs;
             for (std::list<Reloc>::iterator it = relocs.begin();
                  it != relocs.end(); it++)
             {
-                printf("  Off %llx rshift %d mask %llx lshift %d bits %d\n",
+                printf("  Off %lx rshift %d mask %lx lshift %d bits %d\n",
                        (*it).offset, (*it).rshift, (*it).mask, (*it).lshift,
                        (*it).bits);
                 int type = INANNA_RELOC_INVALID;
 
-                uint32 rshift = 0;
-                uint64 mask = 0;
-                uint32 lshift = 0;
-                uint32 bits = 0;
-                uint64 offset = 0;
-                
+                uint32_t rshift = 0;
+                uint64_t mask = 0;
+                uint32_t lshift = 0;
+                uint32_t bits = 0;
+                uint64_t offset = 0;
+
                 if ((*it).bits == 64 && (*it).mask == 0)
                 {
                     type = INANNA_RELOC_64;
@@ -297,27 +297,27 @@ void InannaImage::finalise()
                 }
                 else
                 {
-                    printf("Unknown relocation type! Bits %d mask %llx\n", (*it).bits, (*it).mask);
+                    printf("Unknown relocation type! Bits %d mask %lx\n", (*it).bits, (*it).mask);
                 }
 
-                printf("  Writing t %x sf %x st %x rs %x m %llx ls %x b %x o %llx off %llx ot %llx\n",
+                printf("  Writing t %x sf %x st %x rs %x m %lx ls %x b %x o %lx off %lx ot %lx\n",
                        type, secfrom, secto, rshift, mask, lshift, bits,
                        offset, offfrom, offto);
 
                 unsigned char * optr = sections[secfrom] + offset+ offfrom;
                 if ((*it).bits == 64)
                 {
-                    printf("  Currently %llx\n", *((uint64 *)optr));
+                    printf("  Currently %lx\n", *((uint64_t *)optr));
                 }
                 else if ((*it).bits == 32)
                 {
-                    printf("  Currently %x\n", *((uint32 *)optr));
+                    printf("  Currently %x\n", *((uint32_t *)optr));
                 }
                 else
                 {
-                    printf("  Currently %x\n", *((uint16 *)optr));
+                    printf("  Currently %x\n", *((uint16_t *)optr));
                 }
-                
+
                 wle32(ptr, type);
                 wle32(ptr, secfrom);
                 wle32(ptr, secto);
@@ -331,7 +331,7 @@ void InannaImage::finalise()
             }
         }
     }
-    
+
     fwrite(header, headersize, 1, f);
 
     for (unsigned int loopc = 0; loopc < isections.size(); loopc++)
@@ -351,4 +351,3 @@ bool InannaImage::configure(std::string param, std::string val)
 {
     return Image::configure(param, val);
 }
-

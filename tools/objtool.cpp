@@ -9,12 +9,12 @@
 
 char * strings = 0;
 
-const char * arch_names [] = 
+const char * arch_names [] =
 {
     "unknown",
     "amd64",
     "arm32",
-    "thumb" 
+    "thumb"
 };
 
 const char * reloc_types[] =
@@ -33,12 +33,12 @@ int round_to_4k(int size)
     return (size+4096-1) & ~4096;
 }
 
-void display_arch(char * ptr, uint32 secs, uint32 relocs)
+void display_arch(char * ptr, uint32_t secs, uint32_t relocs)
 {
     InannaSection * is = (InannaSection *)ptr;
     for (unsigned int loopc=0; loopc<secs; loopc++)
     {
-        printf("Type %d offset %d size %d vmem %llx name %s\n",
+        printf("Type %d offset %d size %d vmem %lx name %s\n",
                is->type, is->offset, is->length, is->vmem, strings+is->name);
         is++;
     }
@@ -46,7 +46,7 @@ void display_arch(char * ptr, uint32 secs, uint32 relocs)
     InannaReloc * ir = (InannaReloc *)is;
     for (unsigned int loopc2=0; loopc2<relocs; loopc2++)
     {
-        printf("Type %s, from %d:%llx to %d:%llx, rshift %d mask %llx lshift %d bits %d offset %lld\n",
+        printf("Type %s, from %d:%lx to %d:%lx, rshift %d mask %lx lshift %d bits %d offset %ld\n",
                ir->type < INANNA_RELOC_END ? reloc_types[ir->type] :
                "<too big!>", ir->secfrom, ir->offrom, ir->secto, ir->offto,
                ir->rshift, ir->mask, ir->lshift, ir->bits, ir->offset);
@@ -79,14 +79,14 @@ public:
 
     FileContents() { data=0; ih=0; }
     ~FileContents() { delete[] data; }
-    
+
     bool load(std::string);
     void build(std::string);
-    
+
     void print();
 
-    int find_arch(uint32);
-    
+    int find_arch(uint32_t);
+
     std::string name;
     char * data;
     int len;
@@ -97,7 +97,7 @@ public:
     std::vector<ImportsInfo> imports_info;
     void addImports(char *, int, std::string);
     bool findImports(std::string md5, ImportsInfo& import);
-    
+
 };
 
 void FileContents::addImports(char * data, int len, std::string md5)
@@ -131,7 +131,7 @@ bool FileContents::findImports(std::string md5, ImportsInfo & import)
     return false;
 }
 
-int FileContents::find_arch(uint32 a)
+int FileContents::find_arch(uint32_t a)
 {
     for (unsigned int loopc=0; loopc<archs.size(); loopc++)
     {
@@ -172,14 +172,14 @@ void FileContents::print()
     for (unsigned int loopc=0; loopc<archs.size(); loopc++)
     {
         InannaArchHeader * i = archs[loopc].iah;
-        printf("  Arch %s (%d), start address %llx\n",
+        printf("  Arch %s (%d), start address %lx\n",
                i->arch > 3 ? "<invalid!>" : arch_names[i->arch], i->arch,
                i->start_address);
         printf("  %d sections\n", i->sec_count);
         for (unsigned int loopc2=0; loopc2<i->sec_count; loopc2++)
         {
             InannaSection * is = archs[loopc].secs[loopc2];
-            printf("    Type %d offset %d size %d vmem %llx name %s md5 %s\n",
+            printf("    Type %d offset %d size %d vmem %lx name %s md5 %s\n",
                    is->type, is->offset, is->length, is->vmem,
                    strings+is->name, archs[loopc].md5s[loopc2].c_str());
         }
@@ -187,18 +187,18 @@ void FileContents::print()
         for (unsigned int loopc3=0; loopc3<i->reloc_count; loopc3++)
         {
             InannaReloc * ir = archs[loopc].relocs[loopc3];
-            printf("    Type %s, from %d:%llx to %d:%llx, rshift %d mask %llx lshift %d bits %d offset %lld\n",
+            printf("    Type %s, from %d:%lx to %d:%lx, rshift %d mask %lx lshift %d bits %d offset %ld\n",
                    ir->type < INANNA_RELOC_END ? reloc_types[ir->type] :
                    "<too big!>", ir->secfrom, ir->offrom, ir->secto, ir->offto,
                    ir->rshift, ir->mask, ir->lshift, ir->bits, ir->offset);
         }
     }
-    
+
     printf("\n");
 }
 
 std::map<std::string, char *> sections_by_md5;
-         
+
 bool FileContents::load(std::string n)
 {
     name = n;
@@ -218,7 +218,7 @@ bool FileContents::load(std::string n)
         fclose(f);
         return false;
     }
-    
+
     data = new char[len];
 
     fseek(f, 0, SEEK_SET);
@@ -232,7 +232,7 @@ bool FileContents::load(std::string n)
     }
 
     ih = (InannaHeader *)(data+INANNA_PREAMBLE);
-    
+
     if (ih->magic[0] != 'e' || ih->magic[1] != 'n' || ih->magic[2] != 'k' || ih->magic[3] != 'i')
     {
         printf("Not an Inanna file! Wrong magic [%c%c%c%c]\n",
@@ -248,9 +248,9 @@ bool FileContents::load(std::string n)
         delete[] data;
         return false;
     }
-    
+
     strings = data + ih->strings_offset;
-    
+
     InannaArchHeader * iahp = (InannaArchHeader *)(data+INANNA_PREAMBLE+InannaHeader::size());
     for (unsigned int loopc=0; loopc<ih->archs_count; loopc++)
     {
@@ -272,14 +272,14 @@ bool FileContents::load(std::string n)
             ac.relocs.push_back(ir);
             ir++;
         }
-        
+
         std::string md5 = do_md5(data+iahp->imports_offset, iahp->imports_size);
         addImports(data+iahp->imports_offset, iahp->imports_size, md5);
         ac.imports_md5 = md5;
         archs.push_back(ac);
         iahp++;
     }
-    
+
     fclose(f);
     return true;
 }
@@ -292,7 +292,7 @@ void FileContents::build(std::string n)
     ih = new InannaHeader;
     char * fstrings_ptr = 0;
     unsigned int fstrings_size = 0;
-    
+
     for (unsigned int loopc=0; loopc<sources.size(); loopc++)
     {
         FileContents * fc = sources[loopc];
@@ -312,7 +312,7 @@ void FileContents::build(std::string n)
                 continue;
             }
         }
-        
+
         for (unsigned int loopc2=0; loopc2<fc->archs.size(); loopc2++)
         {
             ArchContents & ac = fc->archs[loopc2];
@@ -336,7 +336,7 @@ int main(int argc, char ** argv)
     bool making_combined = false;
     const char * combined_output = "";
     int idx = 1;
-    
+
     if (!strcmp(argv[1], "-c"))
     {
         if (argc < 4)
@@ -344,7 +344,7 @@ int main(int argc, char ** argv)
             printf("Must specify combined output file and at least one input file!\n");
             return 1;
         }
-        
+
         making_combined = true;
         combined_output = argv[2];
         idx = 3;
@@ -376,7 +376,7 @@ int main(int argc, char ** argv)
         FileContents output;
         output.build(combined_output);
     }
-    
+
     for (unsigned int loopc=0; loopc<sources.size(); loopc++)
     {
         delete sources[loopc];

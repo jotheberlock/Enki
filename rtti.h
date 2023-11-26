@@ -3,7 +3,7 @@
 
 /*
 	Enki images have a .rtti section containing run time
-	type information about non-raw structs (i.e. objects). Each 
+	type information about non-raw structs (i.e. objects). Each
 	struct has a pointer to an RTTI record, currently consisting
 	of an integer type code used by generic methods and a text
 	string with the name of the struct's type.
@@ -29,9 +29,9 @@ public:
 	}
 
 	void finalise();
-	uint64 lookup(uint64);
+	uint64_t lookup(uint64_t);
 
-	uint64 size()
+	uint64_t size()
 	{
 		return count;
 	}
@@ -43,9 +43,9 @@ public:
 
 protected:
 
-	std::map<uint64, uint64> indexes;
+        std::map<uint64_t, uint64_t> indexes;
 	unsigned char * data;
-	uint64 count;
+	uint64_t count;
 
 };
 

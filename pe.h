@@ -19,8 +19,8 @@ public:
 	bool configure(std::string, std::string);
 	void finalise();
 
-	virtual uint64 importAddress(std::string);
-	virtual uint64 importOffset(std::string)
+	virtual uint64_t importAddress(std::string);
+	virtual uint64_t importOffset(std::string)
 	{
 		return 0;
 	}
@@ -30,8 +30,8 @@ public:
 protected:
 
 	int subsystem;
-	uint64 imports_base;
-	uint64 symbols_base;
+	uint64_t imports_base;
+	uint64_t symbols_base;
 	int os_major;
 	int os_minor;
 

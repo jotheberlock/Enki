@@ -33,7 +33,7 @@ Backend::~Backend()
          it != codegens.end(); it++)
     {
         delete *it;
-    }   
+    }
 }
 
 int Backend::process()
@@ -45,7 +45,7 @@ int Backend::process()
 	root_gc = gc;
 
 	bool jit = false;
-    
+
 	if (jit)
 	{
 		gc->setCallConvention(CCONV_C);
@@ -63,7 +63,7 @@ int Backend::process()
         {
             gc->setCallConvention(CCONV_RAW);
             config->entrypoint->generatePrologue(gc->block(), root_scope, config->image);
-        
+
             gc->block()->add(Insn(MOVE, Operand::reg(config->assembler->framePointer()),
                                   Operand::section(IMAGE_UNALLOCED_DATA, 0)));
 
@@ -80,11 +80,11 @@ int Backend::process()
             root_scope->add(stacksize);
             gc->block()->add(Insn(GETSTACKSIZE, stacksize));
             gc->block()->add(Insn(ADD, Operand(v), Operand(v), stacksize));
-            
+
             Value * exports_ptr = root_scope->lookupLocal("__exports");
             assert(exports_ptr);
             gc->block()->add(Insn(MOVE, exports_ptr,
-                                  Operand::section(IMAGE_EXPORTS, 0)));        
+                                  Operand::section(IMAGE_EXPORTS, 0)));
 
             // Will need some 'magic' for Thumb. Maybe prologue puts in hi register which is 'osstackptr' here
             Value * os_stack_ptr = root_scope->lookupLocal("__osstackptr");
@@ -95,7 +95,7 @@ int Backend::process()
     }
 
 	BasicBlock * epilogue = gc->newBlock("epilogue");
-    
+
 	BasicBlock * body = gc->newBlock("body");
 	gc->setBlock(body);
 	gc->generate();
@@ -142,7 +142,7 @@ int Backend::process()
 		cg->allocateStackSlots();
 
 		BasicBlock::calcRelationships(cg->getBlocks());
-        
+
 		int count = 0;
 		for (std::vector<OptimisationPass *>::iterator it = passes.begin();
 		it != passes.end(); it++)
@@ -204,7 +204,7 @@ int Backend::process()
 
 	config->image->setSectionSize(IMAGE_CODE, code_size);
 
-	uint64 * fillptr = 0;
+	uint64_t * fillptr = 0;
 
 	config->assembler->setAddr(config->image->getAddr(IMAGE_CODE));
 	config->assembler->setMem(config->image->getPtr(IMAGE_CODE),
@@ -215,7 +215,7 @@ int Backend::process()
     mtables->createSection(config->image, config->assembler);
 
     imports->finalise();
-    
+
 	for (std::list<Codegen *>::iterator cit = codegens.begin();
 	cit != codegens.end(); cit++)
 	{
@@ -268,9 +268,9 @@ int Backend::process()
     sprintf(buf, "arch %d\n", config->assembler->arch());
     fputs(buf, debug);
 
-    sprintf(buf, "textbase %lld\n", config->image->getAddr(IMAGE_CODE));
+    sprintf(buf, "textbase %ld\n", config->image->getAddr(IMAGE_CODE));
     fputs(buf, debug);
-    
+
     std::map<std::string, Type *> & typelist = types->get();
     for (std::map<std::string, Type *>::iterator it = typelist.begin(); it != typelist.end();
          it++)
@@ -280,7 +280,7 @@ int Backend::process()
                 (*it).first.c_str(), (unsigned int)(*it).second->size());
         fputs(buf, debug);
     }
-    
+
 	for (std::list<Codegen *>::iterator cit = codegens.begin();
          cit != codegens.end(); cit++)
 	{
@@ -301,9 +301,9 @@ int Backend::process()
         }
     }
     fclose(debug);
-    
+
 	config->image->setSectionSize(IMAGE_DATA, DATA_SIZE);
-	fillptr = (uint64 *)config->image->getPtr(IMAGE_DATA);
+	fillptr = (uint64_t *)config->image->getPtr(IMAGE_DATA);
 	for (int loopc = 0; loopc < DATA_SIZE / 8; loopc++)
 	{
 		*fillptr = 0xdeadbeefdeadbeefLL;

@@ -130,7 +130,7 @@ Value * Operand::getValue()
 	return contents.v;
 }
 
-uint32 Operand::getReg()
+uint32_t Operand::getReg()
 {
 	if (type != OPERAND_REGISTER)
 	{
@@ -142,13 +142,13 @@ uint32 Operand::getReg()
 	return contents.r;
 }
 
-uint64 Operand::getUsigc()
+uint64_t Operand::getUsigc()
 {
 	assert(type == OPERAND_CONST);
 	return contents.c;
 }
 
-int64 Operand::getSigc()
+int64_t Operand::getSigc()
 {
 	assert(type == OPERAND_SIGNEDCONST);
 	return contents.sc;
@@ -166,20 +166,20 @@ BasicBlock * Operand::getBlock()
 	return contents.b;
 }
 
-int BasicBlock::getEstimatedBlockOffset(BasicBlock * toblock, uint64 o)
+int BasicBlock::getEstimatedBlockOffset(BasicBlock * toblock, uint64_t o)
 {
-    uint64 to = toblock->getEstimatedAddr();
-    uint64 from = getEstimatedAddr();
+    uint64_t to = toblock->getEstimatedAddr();
+    uint64_t from = getEstimatedAddr();
 
     if (to > from)
     {
-        uint64 dist = to - from;
+        uint64_t dist = to - from;
         dist -= o;
         return (int)dist;
     }
     else
     {
-        uint64 dist = from - to;
+        uint64_t dist = from - to;
         dist += o;
         return -((int)dist);
     }
@@ -191,7 +191,7 @@ FunctionScope * Operand::getFunction()
 	return contents.f;
 }
 
-uint64 Operand::getSection(int & sec)
+uint64_t Operand::getSection(int & sec)
 {
 	assert(type == OPERAND_SECTION);
 	sec = contents.s & 0xff;
@@ -204,7 +204,7 @@ std::string Operand::getExtFunction()
 	return *contents.e;
 }
 
-Operand Operand::sigc(int64 s)
+Operand Operand::sigc(int64_t s)
 {
 	Operand ret;
 	ret.type = OPERAND_SIGNEDCONST;
@@ -212,7 +212,7 @@ Operand Operand::sigc(int64 s)
 	return ret;
 }
 
-Operand Operand::usigc(uint64 u)
+Operand Operand::usigc(uint64_t u)
 {
 	Operand ret;
 	ret.type = OPERAND_CONST;
@@ -220,7 +220,7 @@ Operand Operand::usigc(uint64 u)
 	return ret;
 }
 
-Operand Operand::reg(int32 r)
+Operand Operand::reg(int32_t r)
 {
 	Operand ret;
 	ret.type = OPERAND_REGISTER;
@@ -233,7 +233,7 @@ Operand Operand::reg(std::string s)
 	return reg(assembler->regnum(s));
 }
 
-Operand Operand::section(int s, uint64 o)
+Operand Operand::section(int s, uint64_t o)
 {
 	Operand ret;
 	ret.type = OPERAND_SECTION;
@@ -270,13 +270,13 @@ std::string Operand::toString()
 	else if (type == OPERAND_CONST)
 	{
 		char buf[4096];
-		sprintf(buf, "%llu", contents.c);
+		sprintf(buf, "%lu", contents.c);
 		ret = buf;
 	}
 	else if (type == OPERAND_SIGNEDCONST)
 	{
 		char buf[4096];
-		sprintf(buf, "%lld", contents.sc);
+		sprintf(buf, "%ld", contents.sc);
 		ret = buf;
 	}
 	else if (type == OPERAND_BASICBLOCK)
@@ -298,7 +298,7 @@ std::string Operand::toString()
 	else if (type == OPERAND_SECTION)
 	{
 		char buf[4096];
-		sprintf(buf, "{%lld:%llx}", contents.s & 0xff, contents.s >> 8);
+		sprintf(buf, "{%ld:%lx}", contents.s & 0xff, contents.s >> 8);
 		ret = buf;
 	}
 	else if (type == OPERAND_EXTFUNCTION)
@@ -345,7 +345,7 @@ std::string Insn::toString()
 	if (addr != 0)
 	{
 		char buf[4096];
-		sprintf(buf, "%16llx ", addr);
+		sprintf(buf, "%16lx ", addr);
 		ret = std::string(buf) + ret;
 	}
 
@@ -357,10 +357,10 @@ std::string Insn::insToString()
     if (ins >= FIRST_PLATFORM_SPECIFIC)
     {
         char buf[4096];
-        sprintf(buf, "<platform-specific %lld>", ins - FIRST_PLATFORM_SPECIFIC);
+        sprintf(buf, "<platform-specific %ld>", ins - FIRST_PLATFORM_SPECIFIC);
         return buf;
     }
-    
+
 	switch (ins)
 	{
 	case LOAD: return "load";
@@ -416,7 +416,7 @@ std::string Insn::insToString()
 	case SELGES: return "selges";
 	case SELGTS: return "selgts";
 	case GETSTACKSIZE: return "getstacksize";
-    case GETBITSIZE: return "getbitsize";       
+    case GETBITSIZE: return "getbitsize";
 	default: return "<unknown!>";
 	}
 }

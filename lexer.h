@@ -5,7 +5,7 @@
 	First point of contact with the code. Takes in a list of Chars
 	(actually Unicode UCS-4 codepoints) read all at once from a source file
 	(because it is 2017 and source code is simply not that much of a memory
-	hog on a desktop computer), outputs a list of Tokens with a type and optional 
+	hog on a desktop computer), outputs a list of Tokens with a type and optional
 	associated text.
 */
 
@@ -17,7 +17,7 @@
 
 #include "platform.h"
 
-typedef std::vector<uint32> Chars;
+typedef std::vector<uint32_t> Chars;
 
 #define DONE 0
 #define STRING_LITERAL 1
@@ -121,7 +121,7 @@ public:
 		col = 0;
 	}
 
-	uint32 val;
+	uint32_t val;
 	int line;
 	int col;
 
@@ -225,22 +225,22 @@ public:
 		}
 	}
 
-	void addOp(OpRec o, uint32 first, uint32 second = 0);
-	bool isOp(uint32 first, uint32 second, bool & two_char, OpRec & rec,
+	void addOp(OpRec o, uint32_t first, uint32_t second_t = 0);
+	bool isOp(uint32_t first, uint32_t second, bool & two_char, OpRec & rec,
 		std::string);
 
 	void endLexing();
 
 protected:
 
-    bool getLine(int & indent);
+        bool getLine(int & indent);
 	ReadChar eatWhitespace();
 	ReadChar eatLine();
-	void readStringLiteral(uint32 term);
+	void readStringLiteral(uint32_t term);
 	void readNumber();
 	void readIdentifier();
 
-	bool isCombining(uint32 val)
+	bool isCombining(uint32_t val)
 	{
 		if (val > 0x300 && val <= 0x36f)
 			return true;
@@ -285,8 +285,8 @@ protected:
 	ReadChar previous_char;
 
 	Chars chars_list;
-    Chars line_list;
-    
+        Chars line_list;
+
 	std::list<ReadChar> push_list;
 
 	std::vector<Token> token_list;
@@ -295,13 +295,13 @@ protected:
 	int line;
 	int oldcol;
 	int oldline;
-    unsigned int linepos;
-    
-	std::map<uint64, OpRec> ops;
+        unsigned int linepos;
+
+	std::map<uint64_t, OpRec> ops;
 	std::map<std::string, int> keywords;
 	std::stack<int> indentations;
 	std::string file;
-    
+
 };
 
 #endif

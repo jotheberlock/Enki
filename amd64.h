@@ -24,7 +24,7 @@ public:
 	int regnum(std::string);
 	int size(BasicBlock *);
 	bool assemble(BasicBlock *, BasicBlock *, Image *);
-	std::string transReg(uint32);
+	std::string transReg(uint32_t);
 
     int numRegs()
     {
@@ -49,7 +49,7 @@ public:
 
 	bool validConst(Insn & i, int idx);
 	virtual void newFunction(Codegen *);
-	virtual void align(uint64 a);
+	virtual void align(uint64_t a);
 
 	virtual bool configure(std::string, std::string);
 

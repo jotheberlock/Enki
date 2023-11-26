@@ -38,7 +38,7 @@ public:
 		is_const = false;
 	}
 
-	Value(uint64 v)
+	Value(uint64_t v)
 	{
 		type = 0;
 		val = v;
@@ -63,12 +63,12 @@ public:
 		on_stack = b;
 	}
 
-	uint64 stackOffset()
+	uint64_t stackOffset()
 	{
 		return stack_offset;
 	}
 
-	void setStackOffset(uint64 o)
+	void setStackOffset(uint64_t o)
 	{
 		stack_offset = o;
 	}
@@ -83,10 +83,10 @@ public:
 		is_const = c;
 	}
 
-	uint64 stack_offset;
+	uint64_t stack_offset;
 
 	bool is_number;
-	uint64 val;
+	uint64_t val;
 
 	std::string name;
 	Type * type;
@@ -99,7 +99,7 @@ class Constant
 {
 public:
 
-	uint64 offset;
+	uint64_t offset;
 	char * data;
 	int len;
 };
@@ -115,13 +115,13 @@ public:
 
 	~Constants();
 
-	uint64 addConstant(const char * data, int len, int align);
-	uint64 lookupOffset(uint64 idx)
+	uint64_t addConstant(const char * data, int len, int align);
+        uint64_t lookupOffset(uint64_t idx)
 	{
 		return constants[idx].offset;
 	}
 
-	uint64 getSize()
+	uint64_t getSize()
 	{
 		return constantp;
 	}
@@ -131,7 +131,7 @@ public:
 protected:
 
 	std::vector<Constant> constants;
-	uint64 constantp;
+	uint64_t constantp;
 
 };
 
@@ -187,7 +187,7 @@ public:
 	}
 
 	void allocateStackSlots();
-	uint64 stackSize()
+	uint64_t stackSize()
 	{
 		assert(stack_size != 0xdeadbeef);
 		return stack_size;
@@ -210,13 +210,13 @@ public:
 			Value * ret = new Value(buf, t);
 			count++;
 			locals.push_back(ret);
-            
+
 			int alignment = t->align() / 8;
 			while (stack_size % alignment)
 			{
 				stack_size++;
 			}
-            
+
 			ret->setStackOffset(stack_size);
 			stack_size += ret->type->size() / 8;
 			return ret;
@@ -288,7 +288,7 @@ public:
         return 0;
     }
 
-    
+
 	std::string display(unsigned char *);
 
 	void addBreak(BasicBlock * b)
@@ -326,13 +326,13 @@ public:
 		return locals;
 	}
 
-    Value * getInteger(uint64 val)
+    Value * getInteger(uint64_t val)
     {
         Value * ret = new Value(val);
         integers.push_back(ret);
         return ret;
     }
-    
+
 protected:
 
 	std::list<BasicBlock *> break_targets;
@@ -343,12 +343,12 @@ protected:
 
 	std::vector<Value *> locals;
     std::vector<Value *> integers;
-    
+
 	Expr * base;
 	int count;
 	int bbcount;
 	BasicBlock * current_block;
-	uint64 stack_size;
+	uint64_t stack_size;
 
 	bool allocated_slots;
 	int cconv;

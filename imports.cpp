@@ -8,7 +8,7 @@ void Imports::add(std::string module, std::string fun, Type * ty)
     ImportRec rec;
     rec.type = ty;
     ifm[fun] = rec;
-} 
+}
 
 ImportRec * Imports::lookup(std::string module, std::string name)
 {
@@ -24,7 +24,7 @@ ImportRec * Imports::lookup(std::string module, std::string name)
     {
         return 0;
     }
-    
+
     return &ifm[name];
 }
 
@@ -39,7 +39,7 @@ ImportRec * Imports::lookup(std::string module, std::string name)
 //       import name
 //       padding to 64 bits
 
-static uint64 round64(uint64 i)
+static uint64_t round64(uint64_t i)
 {
     while (i & 0x7)
     {
@@ -57,7 +57,7 @@ void Imports::finalise()
     ImportModuleMap::iterator it;
     ImportFunctionMap::iterator it2;
     ImportFunctionMap::iterator next_it2;
-    
+
     for (it = modules.begin(); it != modules.end(); it++)
     {
         printf("Module %s\n", it->first.c_str());
@@ -66,7 +66,7 @@ void Imports::finalise()
         {
             next_it2 = it2;
             ++next_it2;
-            
+
             ImportRec & ir = it2->second;
             if (ir.value == 0)
             {
@@ -76,16 +76,16 @@ void Imports::finalise()
     }
 
     data_size = 8;
-    
+
     for (it = modules.begin(); it != modules.end(); it++)
     {
-        uint64 mcount = round64(it->first.size()) + 24;
-        
+        uint64_t mcount = round64(it->first.size()) + 24;
+
         data_size += mcount;
         ImportFunctionMap & ifm = it->second;
         for (it2 = ifm.begin(); it2 != ifm.end(); it2++)
         {
-            uint64 icount = round64(it2->first.size()) + 24;
+            uint64_t icount = round64(it2->first.size()) + 24;
             data_size += icount;
         }
     }
@@ -102,11 +102,11 @@ void Imports::finalise()
         wle64(ptr, it->first.size()+1);
         strcpy((char *)ptr, it->first.c_str());
         ptr += round64(it->first.size()+1);
-        
+
         for (it2 = ifm.begin(); it2 != ifm.end(); it2++)
         {
             wle64(ptr, round64(it2->first.size()));
-            printf(">> %s %lld\n",
+            printf(">> %s %ld\n",
                    it2->first.c_str(),
                    it2->second.value->stackOffset());
             wle64(ptr, it2->second.value->stackOffset());

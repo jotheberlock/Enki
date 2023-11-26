@@ -37,7 +37,7 @@ Mtables * mtables = 0;
 Exports * exports = 0;
 Imports * imports = 0;
 
-typedef uint64(*TestFunc)(uint64);
+typedef uint64_t(*TestFunc)(uint64_t);
 
 Codegen * root_gc = 0;
 unsigned char * root_buf = 0;
@@ -54,16 +54,16 @@ void dumpstack()
 	}
 }
 
-uint64 text_base = 0;
-uint64 text_len = 0;
-uint64 data_base = 0;
-uint64 data_len = 0;
-uint64 rodata_base = 0;
-uint64 rodata_len = 0;
+uint64_t text_base = 0;
+uint64_t text_len = 0;
+uint64_t data_base = 0;
+uint64_t data_len = 0;
+uint64_t rodata_base = 0;
+uint64_t rodata_len = 0;
 
 bool valid_pointer(unsigned char * ptr)
 {
-	uint64 val = (uint64)ptr;
+	uint64_t val = (uint64_t)ptr;
 	if (val >= text_base && val < (text_base + text_len))
 	{
 		return true;
@@ -90,9 +90,9 @@ void dump_codegen(Codegen * cg)
 	}
 }
 
-uint32 getUtf8(char * & f)
+uint32_t getUtf8(char * & f)
 {
-	uint32 val = *f;
+	uint32_t val = *f;
 	f++;
 
 	if (!(val & 0x80))
@@ -116,7 +116,7 @@ uint32 getUtf8(char * & f)
 		return 0;
 	}
 
-	uint32 ret = val;
+	uint32_t ret = val;
 
 	for (int loopc = 0; loopc < nobytes; loopc++)
 	{
@@ -167,11 +167,11 @@ void readFile(FILE * f, Chars & input)
         printf("readFile got read result of %ld!\n", read);
         return;
     }
-    
+
 	char * ptr = text;
 	while (ptr < text + len)
 	{
-		uint32 v = getUtf8(ptr);
+		uint32_t v = getUtf8(ptr);
 		if (v)
 		{
 			input.push_back(v);
@@ -185,22 +185,7 @@ void readFile(FILE * f, Chars & input)
 
 bool sanity_check()
 {
-	if (sizeof(uint16) != 2)
-	{
-		printf("Uint16 is size %d!\n", (int)sizeof(uint16));
-		return false;
-	}
-	if (sizeof(uint32) != 4)
-	{
-		printf("Uint32 is size %d!\n", (int)sizeof(uint32));
-		return false;
-	}
-	if (sizeof(uint64) != 8)
-	{
-		printf("Uint64 is size %d!\n", (int)sizeof(uint64));
-		return false;
-	}
-	uint32 test = 0xdeadbeef;
+	uint32_t test = 0xdeadbeef;
 	unsigned char * ptr = (unsigned char *)(&test);
 #ifdef HOST_BIG_ENDIAN
 	if (*ptr != 0xde)
@@ -232,7 +217,7 @@ int main(int argc, char ** argv)
 	rtti = new Rtti();
     exports = new Exports();
     imports = new Imports();
-    
+
 	FILE * hfile = findFile(ConfigFile::hostConfig().c_str());
 	if (!hfile)
 	{
@@ -246,10 +231,10 @@ int main(int argc, char ** argv)
 		hcf.process();
 	}
     fclose(hfile);
-    
+
 	Configuration config;
     configuration = &config;
-    
+
 	ConfigFile * current_config_file = 0;
 
 	bool done_ini = false;
@@ -321,7 +306,7 @@ int main(int argc, char ** argv)
         {
             cfile = findFile(ConfigFile::nativeTargetConfig());
         }
-        
+
 		if (!cfile)
 		{
 			printf("Can't find native target config [%s]\n", ConfigFile::nativeTargetConfig().c_str());
@@ -363,7 +348,7 @@ int main(int argc, char ** argv)
 	FunctionType * root_type = new FunctionType(false);
 	root_type->setReturn(register_type);
     types->add(root_type, "@root");
-    
+
     if (debug)
     {
         config.config_constants["DEBUG"] = 1;
@@ -506,7 +491,7 @@ int main(int argc, char ** argv)
         root_scope->add(new Value("__exports", register_type));
         root_scope->add(new Value("__osstackptr", register_type));
     }
-    
+
 	Parser parse(&lex);
 
 	if (errors.size() != 0)
@@ -532,7 +517,7 @@ int main(int argc, char ** argv)
 	}
 
 	fprintf(log_file, "\n\n\nCodegen:\n\n\n");
-    
+
 	rtti->finalise();
     exports->finalise();
 
@@ -547,12 +532,12 @@ int main(int argc, char ** argv)
     delete constants;
     fclose(log_file);
 
-#ifdef POSIX_HOST    
+#ifdef POSIX_HOST
     if (auto_run)
     {
         ret = system(config.image->fileName().c_str());
     }
 #endif
-    
+
     return ret;
 }

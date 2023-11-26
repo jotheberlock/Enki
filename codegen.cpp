@@ -93,7 +93,7 @@ Codegen::~Codegen()
     {
         delete integers[loopc2];
     }
-    
+
     for (unsigned int loopc3 = 0; loopc3 < locals.size(); loopc3++)
     {
         delete locals[loopc3];
@@ -152,7 +152,7 @@ std::string Codegen::display(unsigned char * addr)
 	for (unsigned int loopc = 0; loopc < locals.size(); loopc++)
 	{
 		char buf[4096];
-		sprintf(buf, "%p %-20s %4lld/%4llx: %s\n",
+		sprintf(buf, "%p %-20s %4ld/%4lx: %s\n",
 			addr + locals[loopc]->stackOffset(),
 			locals[loopc]->name.c_str(),
 			locals[loopc]->stackOffset(),
@@ -182,14 +182,14 @@ void Constants::fillPool(unsigned char * ptr)
 	}
 }
 
-uint64 Constants::addConstant(const char * data, int len, int align)
+uint64_t Constants::addConstant(const char * data, int len, int align)
 {
 	while (constantp % align)
 	{
 		constantp++;
 	}
 
-	uint64 ret = constants.size();
+	uint64_t ret = constants.size();
 	Constant c;
 	c.offset = constantp;
 	c.data = new char[len];

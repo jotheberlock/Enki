@@ -39,19 +39,19 @@ public:
 	void set(int i)
 	{
 		assert(i >= 0 && i < MAXREG);
-		regs[i / 64] |= (uint64)0x1 << (i % 64);
+		regs[i / 64] |= (uint64_t)0x1 << (i % 64);
 	}
 
 	void clear(int i)
 	{
 		assert(i >= 0 && i < MAXREG);
-		regs[i / 64] = (uint64)regs[i / 64] & ~(0x1 << (i % 64));
+		regs[i / 64] = (uint64_t)regs[i / 64] & ~(0x1 << (i % 64));
 	}
 
 	bool isSet(int i)
 	{
 		assert(i >= 0 && i < MAXREG);
-		return (regs[i / 64] & (uint64)0x1 << (i % 64)) ? true : false;
+		return (regs[i / 64] & (uint64_t)0x1 << (i % 64)) ? true : false;
 	}
 
 	bool operator[](int i)
@@ -73,7 +73,7 @@ public:
 
 protected:
 
-	uint64 regs[MAXREG / 64];
+	uint64_t regs[MAXREG / 64];
 
 };
 

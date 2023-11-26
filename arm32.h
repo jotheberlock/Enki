@@ -30,7 +30,7 @@ public:
     
 	int size(BasicBlock *);
 	bool assemble(BasicBlock *, BasicBlock *, Image *);
-	std::string transReg(uint32);
+	std::string transReg(uint32_t);
 	ValidRegs validRegs(Insn &);
 
 	int framePointer()
@@ -51,7 +51,7 @@ public:
 	bool validConst(Insn & i, int idx);
 
 	virtual void newFunction(Codegen *);
-	virtual void align(uint64 a);
+	virtual void align(uint64_t a);
 
 	virtual bool configure(std::string, std::string);
 
@@ -59,7 +59,7 @@ public:
     
 protected:
 
-	bool calcImm(uint64 raw, uint32 & result);
+	bool calcImm(uint64_t raw, uint32_t & result);
 
 };
 

@@ -48,7 +48,7 @@ class Imports
         return data;
     }
 
-    uint64 size()
+    uint64_t size()
     {
         return data_size;
     }
@@ -57,7 +57,7 @@ class Imports
 
     ImportModuleMap modules;
     unsigned char * data;
-    uint64 data_size;
+    uint64_t data_size;
     
 };
 

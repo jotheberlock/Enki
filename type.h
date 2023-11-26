@@ -33,7 +33,7 @@ class FunctionScope;
 
 // Should probably distinguish ranges for basic v
 // struct/union types at some point
-extern uint64 class_id_counter;
+extern uint64_t class_id_counter;
 
 class Type
 {
@@ -52,7 +52,7 @@ public:
 	{
 	}
 
-	uint64 classId()
+	uint64_t classId()
 	{
 		return class_id;
 	}
@@ -197,7 +197,7 @@ public:
         // What does += 1 mean? 1 for ints,
         // pointer destination type for pointers.
         // 0 means 'you can't'.
-    virtual uint64 increment()
+    virtual uint64_t increment()
     {
         return 0;
     }
@@ -217,7 +217,7 @@ public:
 
 protected:
 
-	uint64 class_id;
+	uint64_t class_id;
 	bool is_const;
 
 };
@@ -331,7 +331,7 @@ public:
 		return (bits / 8) * 8;
 	}
 
-    virtual uint64 increment()
+    virtual uint64_t increment()
     {
         return 1;
     }
@@ -388,7 +388,7 @@ public:
 		return assembler->pointerSize();
 	}
 
-    uint64 increment()
+    uint64_t increment()
     {
         return pointed_type->size() / 8;
     }
@@ -450,7 +450,7 @@ public:
 		return pointed_type;
 	}
 
-    uint64 increment()
+    uint64_t increment()
     {
         return pointed_type->increment();
     }
@@ -486,7 +486,7 @@ class ArrayType : public Type
 {
 public:
 
-	ArrayType(Type * t, uint64 s = 0)
+	ArrayType(Type * t, uint64_t s = 0)
 	{
 		pointed_type = t;
 		siz = (int)s;
@@ -538,7 +538,7 @@ public:
 
 	std::string name;
 	Type * type;
-	uint64 offset;
+	uint64_t offset;
 
 };
 
@@ -627,7 +627,7 @@ protected:
     
 };
 
-typedef std::vector<uint64> FunctionSignature;
+typedef std::vector<uint64_t> FunctionSignature;
 
 extern Type * void_type;
 
@@ -656,7 +656,7 @@ public:
     
     FunctionSignature getSignature()
     {
-        std::vector<uint64> ret;
+        std::vector<uint64_t> ret;
         for (unsigned int loopc=0; loopc<params.size(); loopc++)
         {
             ret.push_back(params[loopc].type->classId());
@@ -807,7 +807,7 @@ protected:
 class MtablesEntry
 {
   public:
-    std::vector<uint64> table;
+    std::vector<uint64_t> table;
     FunctionScope * ptr;
 };
 
@@ -886,7 +886,7 @@ public:
 	Types();
 	~Types();
 	Type * lookup(std::string);
-    Type * lookup(uint64); // By class ID
+    Type * lookup(uint64_t); // By class ID
 	void add(Type *, std::string);
 	std::map<std::string, Type *> & get();
 
@@ -910,9 +910,9 @@ class MtableEntry
 
     void print();
     
-    std::vector<uint64> table;
+    std::vector<uint64_t> table;
     FunctionScope * target;
-    uint64 offset;
+    uint64_t offset;
     
 };
 
@@ -930,7 +930,7 @@ class Mtables
     {
         entries.push_back(e);
     }
-    uint64 lookup(FunctionScope* fs)
+    uint64_t lookup(FunctionScope* fs)
     {
         return offsets[fs] * (sf_bit ? 8 : 4);
     }
@@ -945,9 +945,9 @@ class Mtables
     void processFunction(FunctionScope *);
     
     std::list<FunctionScope *> entries;
-    std::map<FunctionScope *, uint64> offsets;
+    std::map<FunctionScope *, uint64_t> offsets;
     std::vector<MtableEntry> data;
-    uint64 offset;  // in words
+    uint64_t offset;  // in words
     bool sf_bit;
     
 };

@@ -41,7 +41,7 @@ public:
 	FILE * open(std::string);
     
         // Config can define constants e.g. IS_WINDOWS, SYSCALL_WRITE
-    bool lookupConfigConstant(std::string, uint64 &);
+    bool lookupConfigConstant(std::string, uint64_t &);
     
 	std::list<std::string> paths;
 	std::map<std::string, Component *> components;
@@ -53,7 +53,7 @@ public:
 	Entrypoint * entrypoint;
 	std::string name;
 	std::vector<OptimisationPass *> passes;
-    std::map<std::string, uint64> config_constants;
+    std::map<std::string, uint64_t> config_constants;
     bool relocatable;
         
 };

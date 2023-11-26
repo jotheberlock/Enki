@@ -18,8 +18,8 @@ void Rtti::finalise()
 	}
 
 	data = new unsigned char[count];
-    memset(data, 0, count);
-    
+        memset(data, 0, count);
+
 	unsigned char * ptr = data;
 	for (std::map<std::string, Type *>::iterator it = tmap.begin();
 	it != tmap.end(); it++)
@@ -29,14 +29,14 @@ void Rtti::finalise()
 		wle64(ptr, t->classId());
 		strcpy((char *)ptr, t->name().c_str());
 		ptr += strlen(t->name().c_str()) + 1;
-		while ((uint64)ptr & 0x7)
+		while ((uint64_t)ptr & 0x7)
 		{
 			ptr++;
 		}
 	}
 }
 
-uint64 Rtti::lookup(uint64 id)
+uint64_t Rtti::lookup(uint64_t id)
 {
 	if (!data)
 	{
@@ -44,10 +44,10 @@ uint64 Rtti::lookup(uint64 id)
 		assert(false);
 	}
 
-	std::map<uint64, uint64>::iterator it = indexes.find(id);
+	std::map<uint64_t, uint64_t>::iterator it = indexes.find(id);
 	if (it == indexes.end())
 	{
-		printf("Couldn't find class id %lld!\n", id);
+		printf("Couldn't find class id %ld!\n", id);
 		assert(false);
 	}
 

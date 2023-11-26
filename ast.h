@@ -17,11 +17,11 @@ public:
 
 	virtual void print(int i) = 0;
 
-	virtual void printOp(uint64 val)
+	virtual void printOp(uint64_t val)
 	{
-		uint32 first = val & 0xffffffff;
-		uint64 big_second = val >> 32;
-		uint32 second = (uint32)big_second;
+		uint32_t first = val & 0xffffffff;
+		uint64_t big_second = val >> 32;
+		uint32_t second = (uint32_t)big_second;
 		fprintf(log_file, "%c", (char)first);
 		if (second)
 		{
@@ -39,11 +39,11 @@ public:
 	{
 	}
 
-    virtual bool constEval(uint64 &)
-    {
-        return false;
-    }
-    
+        virtual bool constEval(uint64_t &)
+        {
+            return false;
+        }
+
 protected:
 
 	void indent(int i)
@@ -65,25 +65,25 @@ public:
 	virtual void print(int i)
 	{
 		indent(i);
-		fprintf(log_file, "Int %lld", val);
+		fprintf(log_file, "Int %ld", val);
 	}
 
-	uint64 getVal()
+	uint64_t getVal()
 	{
 		return val;
 	}
 
 	virtual Value * codegen(Codegen *);
 
-    bool constEval(uint64 & ret)
+    bool constEval(uint64_t & ret)
     {
         ret = val;
         return true;
     }
-    
+
 protected:
 
-	uint64 val;
+	uint64_t val;
 
 };
 
@@ -106,11 +106,11 @@ class ConfigConstantExpr : public Expr
         indent(i);
         fprintf(log_file, "ConfigConstant %s", constant_name.c_str());
     }
-    
+
 	virtual Value * codegen(Codegen *);
 
-    virtual bool constEval(uint64 &);
-    
+    virtual bool constEval(uint64_t &);
+
   protected:
 
     std::string constant_name;
@@ -153,7 +153,7 @@ class SizeofExpr : public Expr
     Type * to_sizeof;
 
 };
-    
+
 class CastExpr : public Expr
 {
   public:
@@ -163,7 +163,7 @@ class CastExpr : public Expr
         to_cast = t;
         cast_type = c;
     }
-    
+
     virtual void print(int i)
     {
         indent(i);
@@ -180,7 +180,7 @@ class CastExpr : public Expr
     Type * cast_type;
 
 };
-                
+
 class IdentifierExpr : public Expr
 {
 public:
@@ -205,7 +205,7 @@ public:
 		value = v;
 		static_depth = s;
 	}
-    
+
 protected:
 
 	std::string val;
@@ -259,7 +259,7 @@ public:
 		return val;
 	}
 
-	uint64 getIndex()
+	uint64_t getIndex()
 	{
 		return idx;
 	}
@@ -269,7 +269,7 @@ public:
 protected:
 
 	std::string val;
-	uint64 idx;
+	uint64_t idx;
 
 };
 
@@ -337,7 +337,7 @@ public:
 	{
 		if (t->value.size() == 2)
 		{
-			uint64 second = t->value[1];
+			uint64_t second = t->value[1];
 			op = (second << 32) | t->value[0];
 		}
 		else if (t->value.size() == 1)
@@ -370,7 +370,7 @@ public:
 
 protected:
 
-	uint64 op;
+	uint64_t op;
 	Expr * expr;
 	Token token;
 
@@ -589,7 +589,7 @@ public:
 
 		if (t->value.size() == 2)
 		{
-			uint64 second = t->value[1];
+			uint64_t second = t->value[1];
 			op = (second << 32) | t->value[0];
 		}
 		else if (t->value.size() == 1)
@@ -633,11 +633,11 @@ public:
 
 	virtual Value * codegen(Codegen *);
 
-    virtual bool constEval(uint64 &);
-    
+    virtual bool constEval(uint64_t &);
+
 protected:
 
-	uint64 op;
+	uint64_t op;
 	Expr * lhs;
 	Expr * rhs;
 	Token token;
@@ -1041,7 +1041,7 @@ class Parser
 public:
 
 	Parser(Lexer * l, bool pi=false, std::string mo="");
-	~Parser() 
+	~Parser()
 	{
 		delete root;
 	}
@@ -1080,14 +1080,14 @@ protected:
     Expr * parseImport(Token);
     Expr * parseCast();
     Expr * parseSizeof();
-    
+
     void checkInterfaceTypes(Token &, std::string &, FunctionScope *, std::vector<Type *> &, Type *);
 	Type * parseType();
 
 	int getPrecedence();
 
     std::string getIdentifier(std::string errstring);
-    
+
 	Token next()
 	{
 		if (count < tokens.size())
@@ -1121,7 +1121,7 @@ protected:
     int generic_counter;
     bool parsing_imports;
     std::string module;
-    
+
 };
 
 extern std::list<Codegen *> macros;
