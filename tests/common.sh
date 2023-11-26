@@ -2,14 +2,14 @@
 
 if [[ -f "../enki" ]]; then
 	COMPILER="../enki"
-elif [[ -f "../parsey/x64/Debug/enki.exe" ]]; then
-	COMPILER="../parsey/x64/Debug/enki.exe"
+elif [[ -f "../out/build/x64-Debug/enki.exe" ]]; then
+	COMPILER="../out/build/x64-Debug/enki.exe"
 else
 	echo "Can't find compiler!"
 	exit 1
 fi
 
-if [[ -f "../parsey/x64/Debug/enki.exe" ]]; then
+if [[ -f "../out/build/x64-Debug/enki.exe" ]]; then
     OUTPUT="./a.exe"
 elif [[ `uname` == "Linux" ]]; then
     OUTPUT="./a.out"
@@ -60,7 +60,7 @@ function failure()
     tput op
     exit 1
 }
-    
+
 function expectExit()
 {
     if [[ $? -eq $1 ]]; then
@@ -99,7 +99,7 @@ function amd64only()
 
 function windowsonly()
 {
-    if [[ ! -f "../parsey/x64/Debug/enki.exe" ]]; then
+    if [[ ! -f "../out/build/x64-Debug/enki.exe" ]]; then
 		skip
 	fi
 }

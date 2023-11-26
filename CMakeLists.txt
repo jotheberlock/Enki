@@ -70,3 +70,5 @@ add_executable(objtool
 	tools/md5.h
 	tools/md5.cpp
 	tools/objtool.cpp)
+
+add_compile_definitions(_CRT_SECURE_NO_WARNINGS=1)  # Don't complain about6 e.g. fopen() and strcpy() in Visual Studio
