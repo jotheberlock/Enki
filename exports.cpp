@@ -29,8 +29,7 @@ void Exports::finalise()
 
     data_size += 8;   // Number of entries
 
-    std::map<std::string, FunctionScope *>::iterator it;
-    for (it = recs.begin(); it != recs.end(); it++)
+    for (auto it = recs.begin(); it != recs.end(); it++)
     {
         data_size += 8;  // Relocation
         data_size += 8;  // String size
@@ -49,7 +48,7 @@ void Exports::finalise()
     ptr += len;
 
     wle64(ptr, recs.size());
-    for (it = recs.begin(); it != recs.end(); it++)
+    for (auto it = recs.begin(); it != recs.end(); it++)
     {
         FunctionTableRelocation * ftr = new FunctionTableRelocation(configuration->image,
                                                                     it->second,

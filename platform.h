@@ -21,7 +21,7 @@
 #define POSIX_HOST 1
 #elif defined(__linux__)
 #define HAVE_MPROTECT 1
-#define SYSV_CC
+#define SYSV_CC 1
 #define POSIX_SIGNALS 1
 #define LINUX_HOST 1
 #define POSIX_HOST 1

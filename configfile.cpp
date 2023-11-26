@@ -9,7 +9,7 @@
 
 Configuration::~Configuration()
 {
-    for (std::map<std::string, Component *>::iterator it =
+    for (auto it =
              components.begin(); it != components.end(); it++)
     {
         delete (*it).second;
@@ -25,7 +25,7 @@ Configuration::~Configuration()
 bool Configuration::lookupConfigConstant(std::string name,
                                          uint64_t & val)
 {
-    std::map<std::string, uint64_t>::iterator it = config_constants.find(name);
+    auto it = config_constants.find(name);
     if (it == config_constants.end())
     {
         return false;
@@ -59,7 +59,7 @@ std::string ConfigFile::nativeTargetConfig()
     {
         return t;
     }
-    
+
 #ifdef CYGWIN_HOST
 	return "windows_amd64_target.ini";
 #endif

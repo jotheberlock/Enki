@@ -10,7 +10,7 @@
 */
 
 #include <string>
-#include <map>
+#include <unordered_map>
 
 class Component
 {
@@ -39,7 +39,7 @@ public:
 
 protected:
 
-	std::map<std::string, ComponentMaker> makers;
+	std::unordered_map<std::string, ComponentMaker> makers;
 
 };
 

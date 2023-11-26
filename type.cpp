@@ -311,7 +311,7 @@ bool StructType::construct(Codegen * c, Value * t, Value *)
 	return true;
 }
 
-std::map<std::string, Type *> & Types::get()
+std::unordered_map<std::string, Type *> & Types::get()
 {
 	return types;
 }
@@ -323,8 +323,7 @@ void Types::add(Type * t, std::string n)
 
 Type * Types::lookup(uint64_t id)
 {
-	std::map<std::string, Type *>::iterator it;
-    for (it = types.begin(); it != types.end(); it++)
+    for (auto it = types.begin(); it != types.end(); it++)
     {
         if ((*it).second->classId() == id)
         {
@@ -337,7 +336,7 @@ Type * Types::lookup(uint64_t id)
 
 Type * Types::lookup(std::string n)
 {
-	std::map<std::string, Type *>::iterator it = types.find(n);
+        auto it = types.find(n);
 	if (it != types.end())
 	{
 		return (*it).second;
@@ -405,8 +404,7 @@ Types::~Types()
     types.erase("Uint");
     types.erase("Int");
 
-	for (std::map<std::string, Type *>::iterator it = types.begin();
-	it != types.end(); it++)
+	for (auto it = types.begin(); it != types.end(); it++)
 	{
 		delete (*it).second;
 	}

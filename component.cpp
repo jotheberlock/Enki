@@ -231,7 +231,7 @@ void ComponentFactory::add(ComponentMaker ptr, std::string c, std::string n)
 
 Component * ComponentFactory::make(std::string c, std::string n)
 {
-	std::map<std::string, ComponentMaker>::const_iterator it =
+	auto it =
 		makers.find(c + "/" + n);
 	if (it == makers.end())
 	{

@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string>
 #include <list>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "platform.h"
@@ -36,15 +36,15 @@ public:
         relocatable = false;
 	}
 
-    ~Configuration();
-    
+        ~Configuration();
+
 	FILE * open(std::string);
-    
+
         // Config can define constants e.g. IS_WINDOWS, SYSCALL_WRITE
-    bool lookupConfigConstant(std::string, uint64_t &);
-    
+        bool lookupConfigConstant(std::string, uint64_t &);
+
 	std::list<std::string> paths;
-	std::map<std::string, Component *> components;
+	std::unordered_map<std::string, Component *> components;
 	std::vector<std::string> preloads;
 	Image * image;
 	CallingConvention * cconv;
@@ -53,9 +53,9 @@ public:
 	Entrypoint * entrypoint;
 	std::string name;
 	std::vector<OptimisationPass *> passes;
-    std::map<std::string, uint64_t> config_constants;
-    bool relocatable;
-        
+        std::unordered_map<std::string, uint64_t> config_constants;
+        bool relocatable;
+
 };
 
 class ConfigFile
@@ -67,10 +67,10 @@ public:
 	void process();
 	bool processLine(std::string line);
 
-    static std::string hostConfig();
+        static std::string hostConfig();
 	static std::string nativeTargetConfig();
-    static std::string relocatableTargetConfig();
-    
+        static std::string relocatableTargetConfig();
+
 	bool split(std::string, std::string, std::string &, std::string &);
 	void addPath(std::string);
 

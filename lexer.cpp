@@ -133,14 +133,14 @@ bool Lexer::isOp(uint32_t first, uint32_t second, bool & two_char,
 
 	uint64_t s64 = second;
 	uint64_t encoded = (s64 << 32) | first;
-	std::map<uint64_t, OpRec>::iterator it1 = ops.find(encoded);
+	auto it1 = ops.find(encoded);
 	if (it1 != ops.end())
 	{
 		two_char = true;
 		op = (*it1).second;
 		return true;
 	}
-	std::map<uint64_t, OpRec>::iterator it2 = ops.find(first);
+	auto it2 = ops.find(first);
 	if (it2 != ops.end())
 	{
 		two_char = false;
@@ -187,8 +187,7 @@ void Lexer::readIdentifier()
 		}
 		else
 		{
-			std::map<std::string, int>::iterator it =
-				keywords.find(current_token.toString());
+			auto it = keywords.find(current_token.toString());
 			if (it != keywords.end())
 			{
 				current_token.type = (*it).second;

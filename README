@@ -3,7 +3,11 @@ language, wherein I experiment with the following:
 
 A common ABI across operating systems, such that a file with the
 same machine code could run on Windows, Linux and MacOS (or Windows Mobile,
-Android and iOS).
+Android and iOS). Note that the MacOS support has bitrotted and definitely
+won't work with the new ARM-based Macs (part of the MachO format is a segment
+defining the initial thread which is basically a register dump similar to
+what you get from getcontext(3) which is inherently processor specific -
+I have support for older x86-based MacOS but nothing for ARM).
 
 A spaghetti stack/support for closures and generators.
 

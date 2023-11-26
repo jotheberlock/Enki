@@ -11,7 +11,7 @@
 
 #include <vector>
 #include <list>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <stack>
 
@@ -297,8 +297,8 @@ protected:
 	int oldline;
         unsigned int linepos;
 
-	std::map<uint64_t, OpRec> ops;
-	std::map<std::string, int> keywords;
+	std::unordered_map<uint64_t, OpRec> ops;
+	std::unordered_map<std::string, int> keywords;
 	std::stack<int> indentations;
 	std::string file;
 

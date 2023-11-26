@@ -25,22 +25,6 @@
   libraries on your platform of choice, but less well adapted for something more
   esoteric.
 </p>
-<h3>Haven't you heard of C++11?</h3>
-<p>
-  I have indeed heard of C++11, but I've more or less followed the conventions
-  Qt for example followed at the time of the start of the project; like Qt, I'd
-  like this to be widely and easily compilable by pretty much anything; indeed,
-  I've successfully compiled it on an old SPARC box with gcc 3.4.
-  So, no auto x=foo, no shared/unique_ptr, no lambdas, not even stdint.h.
-</p>
-<p>
-  Were I to start out again I might choose C++11 by default, but then again
-  I might not - being able to compile on pretty much anything is a nice
-  feature, and for instance IBM's compiler for AIX still in 2017 doesn't
-  have support for some fairly basic C++11 features like unique_ptr. As it is,
-  any C++ compiler more recent than about Visual Studio 6 or gcc 2.7 should
-  work.
-</p>
 <h3>Why the wacky syntax?</h3>
 <p>
   Well, I know Python syntax is like Marmite, but I happen to like

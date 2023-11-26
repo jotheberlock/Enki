@@ -4,8 +4,8 @@
 void Rtti::finalise()
 {
 	count = 0;
-	std::map<std::string, Type *> tmap = types->get();
-	for (std::map<std::string, Type *>::iterator it = tmap.begin();
+	auto tmap = types->get();
+	for (auto it = tmap.begin();
          it != tmap.end(); it++)
 	{
 		Type * t = (*it).second;
@@ -21,7 +21,7 @@ void Rtti::finalise()
         memset(data, 0, count);
 
 	unsigned char * ptr = data;
-	for (std::map<std::string, Type *>::iterator it = tmap.begin();
+	for (auto it = tmap.begin();
 	it != tmap.end(); it++)
 	{
 		Type * t = (*it).second;
@@ -44,7 +44,7 @@ uint64_t Rtti::lookup(uint64_t id)
 		assert(false);
 	}
 
-	std::map<uint64_t, uint64_t>::iterator it = indexes.find(id);
+	auto it = indexes.find(id);
 	if (it == indexes.end())
 	{
 		printf("Couldn't find class id %ld!\n", id);

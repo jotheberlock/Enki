@@ -25,7 +25,7 @@ void SymbolScope::addFunction(FunctionScope * f)
 
 Value * SymbolScope::lookup(std::string n, int & nest, bool recurse)
 {
-	std::map<std::string, Value *>::iterator it = contents.find(n);
+	auto it = contents.find(n);
 	if (it == contents.end())
 	{
 		if (parent() && recurse)
@@ -50,7 +50,7 @@ Value * SymbolScope::lookup(std::string n, int & nest, bool recurse)
 
 FunctionScope * SymbolScope::lookup_function(std::string n)
 {
-	std::map<std::string, FunctionScope *>::iterator it = functions.find(n);
+	auto it = functions.find(n);
 	if (it != functions.end())
 	{
 		return (*it).second;
@@ -68,7 +68,7 @@ FunctionScope * SymbolScope::lookup_function(std::string n)
 void SymbolScope::getValues(std::vector<Value *> & values)
 {
     values_gotten = true;
-    
+
 	for (std::vector<Value *>::iterator it = sorted_contents.begin();
 	it != sorted_contents.end(); it++)
 	{

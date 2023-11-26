@@ -8,7 +8,7 @@
 */
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <list>
 #include <vector>
 #include <assert.h>
@@ -89,14 +89,14 @@ public:
 protected:
 
 	SymbolScope * parent_scope;
-	std::map<std::string, Value *> contents;
+	std::unordered_map<std::string, Value *> contents;
 	std::vector<Value *> sorted_contents;
-	std::map<std::string, FunctionScope *> functions;
+	std::unordered_map<std::string, FunctionScope *> functions;
 	std::list<SymbolScope *> children;
 	std::string symbol_name;
 
     bool values_gotten;
-    
+
 };
 
 class FunctionScope : public SymbolScope
@@ -105,7 +105,7 @@ public:
 
 	FunctionScope(SymbolScope * p, std::string n, FunctionType * ft);
     ~FunctionScope();
-    
+
 	bool isGeneric();
 
 	virtual FunctionScope * currentFunction();

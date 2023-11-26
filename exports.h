@@ -1,7 +1,7 @@
 #ifndef _EXPORTS_
 #define _EXPORTS_
 
-#include <map>
+#include <unordered_map>
 #include "symbols.h"
 
 class Exports
@@ -18,7 +18,7 @@ public:
     {
         delete[] data;
     }
-    
+
     void setName(std::string s)
     {
         module_name = s;
@@ -38,11 +38,11 @@ public:
     }
 
 protected:
-    
+
     std::string module_name;
     unsigned char * data;
     uint64_t data_size;
-    std::map<std::string, FunctionScope *> recs;
+    std::unordered_map<std::string, FunctionScope *> recs;
 
 };
 

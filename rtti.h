@@ -9,7 +9,7 @@
 	string with the name of the struct's type.
 */
 
-#include <map>
+#include <unordered_map>
 #include "type.h"
 
 // Builds the rtti section in object files
@@ -43,7 +43,7 @@ public:
 
 protected:
 
-        std::map<uint64_t, uint64_t> indexes;
+        std::unordered_map<uint64_t, uint64_t> indexes;
 	unsigned char * data;
 	uint64_t count;
 

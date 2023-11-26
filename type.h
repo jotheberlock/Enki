@@ -20,6 +20,7 @@
 #include <string>
 #include <list>
 #include <vector>
+#include <unordered_map>
 
 #include "asm.h"
 #include "platform.h"
@@ -148,7 +149,7 @@ public:
             return this;
         }
     }
-    
+
 	virtual Type * fieldType(std::string)
 	{
 		return 0;
@@ -201,7 +202,7 @@ public:
     {
         return 0;
     }
-    
+
 	virtual int size() = 0;
 	virtual int align() = 0;
 
@@ -212,7 +213,7 @@ public:
 	{
 		return 0;
 	}
-    
+
 	virtual void registerSpecialiser(FunctionScope *) {}
 
 protected:
@@ -286,7 +287,7 @@ public:
 
 	IntegerType(bool u, int s)
 	{
-        assert((s % 8) == 0); 
+        assert((s % 8) == 0);
 		is_signed = u;
 		bits = s;
 	}
@@ -335,7 +336,7 @@ public:
     {
         return 1;
     }
-    
+
 	virtual bool construct(Codegen *, Value * t, Value * v);
 
 protected:
@@ -392,7 +393,7 @@ public:
     {
         return pointed_type->size() / 8;
     }
-    
+
 	int align()
 	{
 		return assembler->pointerSize();
@@ -454,7 +455,7 @@ public:
     {
         return pointed_type->increment();
     }
-    
+
 	void activate(Codegen *, Value *);
 
 	virtual Value * getActivatedValue(Codegen *, Value *);
@@ -573,7 +574,7 @@ public:
     {
         return children;
     }
-    
+
 	virtual void copy(Codegen *, Value *, Value *);
 	virtual bool canCopy(Type *);
 
@@ -588,7 +589,7 @@ public:
     {
         has_rtti = b;
     }
-    
+
 	bool canField()
 	{
 		return true;
@@ -624,7 +625,7 @@ protected:
 	int siz;
 	bool is_union;
     bool has_rtti;
-    
+
 };
 
 typedef std::vector<uint64_t> FunctionSignature;
@@ -653,7 +654,7 @@ public:
     {
         return true;
     }
-    
+
     FunctionSignature getSignature()
     {
         std::vector<uint64_t> ret;
@@ -663,7 +664,7 @@ public:
         }
         return ret;
     }
-    
+
 	virtual bool isMacro()
 	{
 		return is_macro;
@@ -695,7 +696,7 @@ public:
 	{
 		return params;
 	}
-    
+
 	Type * getReturn()
 	{
 		return ret_type;
@@ -814,7 +815,7 @@ class MtablesEntry
 class Mtable
 {
   public:
-    
+
     FunctionScope * fun;
     std::vector<MtablesEntry> entries;
 };
@@ -829,7 +830,7 @@ public:
 	}
 
     ~GenericFunctionType();
-    
+
 	virtual Value * generateFuncall(Codegen * c, Funcall * f, Value * sl,
                                     Value * fp, std::vector<Value *> & args);
 
@@ -839,7 +840,7 @@ public:
 	}
 
     void generateTable();
-    
+
 	std::string name()
 	{
 		std::string ret = "generic ";
@@ -855,7 +856,7 @@ public:
         {
             reason = "Differing number of arguments";
         }
-        
+
 		return args.size() == params.size();
             */
         return true;  // Checked at runtime
@@ -872,11 +873,11 @@ public:
 	}
 
     std::vector<FunctionScope *> & getSpecialisations();
-    
+
 protected:
-    
+
 	std::vector<FunctionScope *> specialisations;
-    
+
 };
 
 class Types
@@ -888,11 +889,11 @@ public:
 	Type * lookup(std::string);
     Type * lookup(uint64_t); // By class ID
 	void add(Type *, std::string);
-	std::map<std::string, Type *> & get();
+	std::unordered_map<std::string, Type *> & get();
 
 protected:
 
-	std::map<std::string, Type *> types;
+	std::unordered_map<std::string, Type *> types;
 
 };
 
@@ -909,11 +910,11 @@ class MtableEntry
     }
 
     void print();
-    
+
     std::vector<uint64_t> table;
     FunctionScope * target;
     uint64_t offset;
-    
+
 };
 
 class Mtables
@@ -924,8 +925,8 @@ class Mtables
     {
         sf_bit = false;
         offset = 0;
-    } 
-    
+    }
+
     void add(FunctionScope * e)
     {
         entries.push_back(e);
@@ -943,13 +944,13 @@ class Mtables
   protected:
 
     void processFunction(FunctionScope *);
-    
+
     std::list<FunctionScope *> entries;
-    std::map<FunctionScope *, uint64_t> offsets;
+    std::unordered_map<FunctionScope *, uint64_t> offsets;
     std::vector<MtableEntry> data;
     uint64_t offset;  // in words
     bool sf_bit;
-    
+
 };
 
 extern Types * types;

@@ -1,5 +1,4 @@
 #include "imports.h"
-#include <map>
 #include <string.h>
 
 void Imports::add(std::string module, std::string fun, Type * ty)

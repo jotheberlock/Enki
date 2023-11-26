@@ -271,8 +271,8 @@ int Backend::process()
     sprintf(buf, "textbase %ld\n", config->image->getAddr(IMAGE_CODE));
     fputs(buf, debug);
 
-    std::map<std::string, Type *> & typelist = types->get();
-    for (std::map<std::string, Type *>::iterator it = typelist.begin(); it != typelist.end();
+    auto & typelist = types->get();
+    for (auto it = typelist.begin(); it != typelist.end();
          it++)
     {
         char buf[4096];
