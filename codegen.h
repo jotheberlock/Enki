@@ -7,132 +7,126 @@
    may be automatically generated in the case of temporaries) and a type. A null type pointer indicates this particular
    Value is an integer. */
 
-#include "type.h"
-#include "ast.h"
 #include "asm.h"
-#include <stack>
-#include <vector>
+#include "ast.h"
+#include "type.h"
 #include <algorithm>
 #include <assert.h>
+#include <stack>
+#include <vector>
 
 class Value
 {
-public:
+  public:
+    Value(std::string n, Type *t)
+    {
+        name = n;
+        type = t;
+        is_number = false;
+        stack_offset = 0;
+        on_stack = false;
+        is_const = false;
+    }
 
-	Value(std::string n, Type * t)
-	{
-		name = n;
-		type = t;
-		is_number = false;
-		stack_offset = 0;
-		on_stack = false;
-		is_const = false;
-	}
+    Value()
+    {
+        type = 0;
+        is_number = false;
+        stack_offset = 0;
+        on_stack = false;
+        is_const = false;
+    }
 
-	Value()
-	{
-		type = 0;
-		is_number = false;
-		stack_offset = 0;
-		on_stack = false;
-		is_const = false;
-	}
+    Value(uint64_t v)
+    {
+        type = 0;
+        val = v;
+        is_number = true;
+        stack_offset = 0;
+        on_stack = false;
+        is_const = true;
+    }
 
-	Value(uint64_t v)
-	{
-		type = 0;
-		val = v;
-		is_number = true;
-		stack_offset = 0;
-		on_stack = false;
-		is_const = true;
-	}
+    Value(Value *c)
+    {
+        *this = *c;
+    }
 
-	Value(Value * c)
-	{
-		*this = *c;
-	}
+    bool onStack()
+    {
+        return on_stack;
+    }
 
-	bool onStack()
-	{
-		return on_stack;
-	}
+    void setOnStack(bool b)
+    {
+        on_stack = b;
+    }
 
-	void setOnStack(bool b)
-	{
-		on_stack = b;
-	}
+    uint64_t stackOffset()
+    {
+        return stack_offset;
+    }
 
-	uint64_t stackOffset()
-	{
-		return stack_offset;
-	}
+    void setStackOffset(uint64_t o)
+    {
+        stack_offset = o;
+    }
 
-	void setStackOffset(uint64_t o)
-	{
-		stack_offset = o;
-	}
+    bool isConst()
+    {
+        return is_const;
+    }
 
-	bool isConst()
-	{
-		return is_const;
-	}
+    void setConst(bool c)
+    {
+        is_const = c;
+    }
 
-	void setConst(bool c)
-	{
-		is_const = c;
-	}
+    uint64_t stack_offset;
 
-	uint64_t stack_offset;
+    bool is_number;
+    uint64_t val;
 
-	bool is_number;
-	uint64_t val;
-
-	std::string name;
-	Type * type;
-	bool on_stack;
-	bool is_const;
-
+    std::string name;
+    Type *type;
+    bool on_stack;
+    bool is_const;
 };
 
 class Constant
 {
-public:
-
-	uint64_t offset;
-	char * data;
-	int len;
+  public:
+    uint64_t offset;
+    char *data;
+    int len;
 };
 
 class Constants
 {
-public:
+  public:
+    Constants()
+    {
+        constantp = 0;
+    }
 
-	Constants()
-	{
-		constantp = 0;
-	}
+    ~Constants();
 
-	~Constants();
+    uint64_t addConstant(const char *data, int len, int align);
+    uint64_t lookupOffset(uint64_t idx)
+    {
+        return constants[idx].offset;
+    }
 
-	uint64_t addConstant(const char * data, int len, int align);
-        uint64_t lookupOffset(uint64_t idx)
-	{
-		return constants[idx].offset;
-	}
+    uint64_t getSize()
+    {
+        return constantp;
+    }
 
-	uint64_t getSize()
-	{
-		return constantp;
-	}
+    void fillPool(unsigned char *);
 
-	void fillPool(unsigned char *);
-
-protected:
-
-	std::vector<Constant> constants;
-	uint64_t constantp;
-
+  protected:
+    std::vector<Constant> constants;
+    uint64_t constantp;
 };
 
 /* Calling conventions - mostly relevant right now on Windows where
@@ -147,137 +141,135 @@ protected:
 
 class Codegen
 {
-public:
+  public:
+    Codegen(Expr *, FunctionScope *);
+    ~Codegen();
 
-	Codegen(Expr *, FunctionScope *);
-	~Codegen();
+    Codegen *copy();
 
-	Codegen * copy();
+    void generate();
 
-	void generate();
-
-	FunctionScope * getScope()
-	{
-		return scope;
-	}
-
-	Value * getRet()
-	{
-		return retvar;
-	}
-
-	Value * getIp()
-	{
-		return ipvar;
-	}
-
-	Value * getStaticLink()
-	{
-		return staticlink;
-	}
-
-	int callConvention()
-	{
-		return cconv;
-	}
-
-	void setCallConvention(int c)
-	{
-		cconv = c;
-	}
-
-	void allocateStackSlots();
-	uint64_t stackSize()
-	{
-		assert(stack_size != 0xdeadbeef);
-		return stack_size;
-	}
-
-	Value * getTemporary(Type * t, std::string n = "")
-	{
-		if (allocated_slots)
-		{
-			char buf[4096];
-			if (n == "")
-			{
-				sprintf(buf, "@latetemp%d", count);
-			}
-			else
-			{
-				sprintf(buf, "@late_%s_%d", n.c_str(), count);
-			}
-
-			Value * ret = new Value(buf, t);
-			count++;
-			locals.push_back(ret);
-
-			int alignment = t->align() / 8;
-			while (stack_size % alignment)
-			{
-				stack_size++;
-			}
-
-			ret->setStackOffset(stack_size);
-			stack_size += ret->type->size() / 8;
-			return ret;
-		}
-		else
-		{
-			char buf[4096];
-			if (n == "")
-			{
-				sprintf(buf, "@temp%d", count);
-			}
-			else
-			{
-				sprintf(buf, "@%s_%d", n.c_str(), count);
-			}
-			Value * ret = new Value(buf, t);
-			ret->setOnStack(true);
-			count++;
-			locals.push_back(ret);
-			//addScopeEntry(ret);
-			return ret;
-		}
-	}
-
-	BasicBlock * block()
-	{
-		return current_block;
-	}
-
-	void setBlock(BasicBlock * b)
-	{
-		current_block = b;
-		blocks.push_back(b);
-		std::vector<BasicBlock *>::iterator it = std::find(unplaced_blocks.begin(),
-			unplaced_blocks.end(), b);
-		if (it != unplaced_blocks.end())
-		{
-			unplaced_blocks.erase(it);
-		}
-	}
-
-	std::vector<BasicBlock *> & getBlocks()
-	{
-		return blocks;
-	}
-
-	std::vector<BasicBlock *> & getUnplacedBlocks()
-	{
-		return unplaced_blocks;
-	}
-
-	// Creates and returns a new block but does not yet add it to the
-	// list of blocks to codegen (this happens when and where setBlock()
-	// is called). It /is/ added to a list of unplaced blocks until then,
-	// and the code generator will bork at assembly time if any blocks
-	// remain in that list since it's likely to be an error.
-	BasicBlock * newBlock(std::string = "");
-
-    BasicBlock * getUnplacedBlock(std::string name)
+    FunctionScope *getScope()
     {
-        for (unsigned int loopc=0; loopc<blocks.size(); loopc++)
+        return scope;
+    }
+
+    Value *getRet()
+    {
+        return retvar;
+    }
+
+    Value *getIp()
+    {
+        return ipvar;
+    }
+
+    Value *getStaticLink()
+    {
+        return staticlink;
+    }
+
+    int callConvention()
+    {
+        return cconv;
+    }
+
+    void setCallConvention(int c)
+    {
+        cconv = c;
+    }
+
+    void allocateStackSlots();
+    uint64_t stackSize()
+    {
+        assert(stack_size != 0xdeadbeef);
+        return stack_size;
+    }
+
+    Value *getTemporary(Type *t, std::string n = "")
+    {
+        if (allocated_slots)
+        {
+            char buf[4096];
+            if (n == "")
+            {
+                sprintf(buf, "@latetemp%d", count);
+            }
+            else
+            {
+                sprintf(buf, "@late_%s_%d", n.c_str(), count);
+            }
+
+            Value *ret = new Value(buf, t);
+            count++;
+            locals.push_back(ret);
+
+            int alignment = t->align() / 8;
+            while (stack_size % alignment)
+            {
+                stack_size++;
+            }
+
+            ret->setStackOffset(stack_size);
+            stack_size += ret->type->size() / 8;
+            return ret;
+        }
+        else
+        {
+            char buf[4096];
+            if (n == "")
+            {
+                sprintf(buf, "@temp%d", count);
+            }
+            else
+            {
+                sprintf(buf, "@%s_%d", n.c_str(), count);
+            }
+            Value *ret = new Value(buf, t);
+            ret->setOnStack(true);
+            count++;
+            locals.push_back(ret);
+            // addScopeEntry(ret);
+            return ret;
+        }
+    }
+
+    BasicBlock *block()
+    {
+        return current_block;
+    }
+
+    void setBlock(BasicBlock *b)
+    {
+        current_block = b;
+        blocks.push_back(b);
+        std::vector<BasicBlock *>::iterator it = std::find(unplaced_blocks.begin(), unplaced_blocks.end(), b);
+        if (it != unplaced_blocks.end())
+        {
+            unplaced_blocks.erase(it);
+        }
+    }
+
+    std::vector<BasicBlock *> &getBlocks()
+    {
+        return blocks;
+    }
+
+    std::vector<BasicBlock *> &getUnplacedBlocks()
+    {
+        return unplaced_blocks;
+    }
+
+    // Creates and returns a new block but does not yet add it to the
+    // list of blocks to codegen (this happens when and where setBlock()
+    // is called). It /is/ added to a list of unplaced blocks until then,
+    // and the code generator will bork at assembly time if any blocks
+    // remain in that list since it's likely to be an error.
+    BasicBlock *newBlock(std::string = "");
+
+    BasicBlock *getUnplacedBlock(std::string name)
+    {
+        for (unsigned int loopc = 0; loopc < blocks.size(); loopc++)
         {
             if (unplaced_blocks[loopc]->name() == name)
             {
@@ -288,80 +280,77 @@ public:
         return 0;
     }
 
+    std::string display(unsigned char *);
 
-	std::string display(unsigned char *);
-
-	void addBreak(BasicBlock * b)
-	{
-		break_targets.push_back(b);
-	}
-
-	BasicBlock * currentBreak()
-	{
-		return break_targets.back();
-	}
-
-	void addContinue(BasicBlock * b)
-	{
-		continue_targets.push_back(b);
-	}
-
-	BasicBlock * currentContinue()
-	{
-		return continue_targets.back();
-	}
-
-	void removeBreak()
-	{
-		break_targets.pop_back();
-	}
-
-	void removeContinue()
-	{
-		continue_targets.pop_back();
-	}
-
-	std::vector<Value *> & getLocals()
-	{
-		return locals;
-	}
-
-    Value * getInteger(uint64_t val)
+    void addBreak(BasicBlock *b)
     {
-        Value * ret = new Value(val);
+        break_targets.push_back(b);
+    }
+
+    BasicBlock *currentBreak()
+    {
+        return break_targets.back();
+    }
+
+    void addContinue(BasicBlock *b)
+    {
+        continue_targets.push_back(b);
+    }
+
+    BasicBlock *currentContinue()
+    {
+        return continue_targets.back();
+    }
+
+    void removeBreak()
+    {
+        break_targets.pop_back();
+    }
+
+    void removeContinue()
+    {
+        continue_targets.pop_back();
+    }
+
+    std::vector<Value *> &getLocals()
+    {
+        return locals;
+    }
+
+    Value *getInteger(uint64_t val)
+    {
+        Value *ret = new Value(val);
         integers.push_back(ret);
         return ret;
     }
 
-protected:
+  protected:
+    std::list<BasicBlock *> break_targets;
+    std::list<BasicBlock *> continue_targets;
 
-	std::list<BasicBlock *> break_targets;
-	std::list<BasicBlock *> continue_targets;
+    std::vector<BasicBlock *> blocks;
+    std::vector<BasicBlock *> unplaced_blocks;
 
-	std::vector<BasicBlock *> blocks;
-	std::vector<BasicBlock *> unplaced_blocks;
-
-	std::vector<Value *> locals;
+    std::vector<Value *> locals;
     std::vector<Value *> integers;
 
-	Expr * base;
-	int count;
-	int bbcount;
-	BasicBlock * current_block;
-	uint64_t stack_size;
+    Expr *base;
+    int count;
+    int bbcount;
+    BasicBlock *current_block;
+    uint64_t stack_size;
 
-	bool allocated_slots;
-	int cconv;
+    bool allocated_slots;
+    int cconv;
 
-	FunctionScope * scope;
+    FunctionScope *scope;
 
-	Value * retvar;
-	Value * ipvar;
-	Value * staticlink;
-
+    Value *retvar;
+    Value *ipvar;
+    Value *staticlink;
 };
 
-extern std::list<Codegen *> * codegensptr;
-extern Constants * constants;
+extern std::list<Codegen *> *codegensptr;
+extern Constants *constants;
 
 #endif

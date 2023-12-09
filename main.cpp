@@ -1,57 +1,57 @@
 
-#include <stdio.h>
-#include <string.h>
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "platform.h"
-#include "lexer.h"
-#include "ast.h"
-#include "error.h"
-#include "type.h"
-#include "codegen.h"
-#include "mem.h"
 #include "amd64.h"
-#include "pass.h"
+#include "ast.h"
+#include "backend.h"
 #include "cfuncs.h"
-#include "symbols.h"
-#include "image.h"
-#include "elf.h"
+#include "codegen.h"
 #include "component.h"
 #include "configfile.h"
-#include "backend.h"
-#include "rtti.h"
+#include "elf.h"
+#include "error.h"
 #include "exports.h"
+#include "image.h"
 #include "imports.h"
+#include "lexer.h"
+#include "mem.h"
+#include "pass.h"
+#include "platform.h"
+#include "rtti.h"
+#include "symbols.h"
+#include "type.h"
 
-Assembler * assembler = 0;
-CallingConvention * calling_convention = 0;
-FILE * log_file = 0;
-Constants * constants = 0;
-FunctionScope * root_scope = 0;
-FunctionScope * loader_scope = 0;
-ComponentFactory * component_factory = 0;
-Types * types = 0;
-Rtti * rtti = 0;
-Mtables * mtables = 0;
-Exports * exports = 0;
-Imports * imports = 0;
+Assembler *assembler = 0;
+CallingConvention *calling_convention = 0;
+FILE *log_file = 0;
+Constants *constants = 0;
+FunctionScope *root_scope = 0;
+FunctionScope *loader_scope = 0;
+ComponentFactory *component_factory = 0;
+Types *types = 0;
+Rtti *rtti = 0;
+Mtables *mtables = 0;
+Exports *exports = 0;
+Imports *imports = 0;
 
-typedef uint64_t(*TestFunc)(uint64_t);
+typedef uint64_t (*TestFunc)(uint64_t);
 
-Codegen * root_gc = 0;
-unsigned char * root_buf = 0;
+Codegen *root_gc = 0;
+unsigned char *root_buf = 0;
 
 void dumpstack()
 {
-	if (root_buf && root_gc)
-	{
-		printf("Dumping stack:\n%s\n", root_gc->display(root_buf).c_str());
-	}
-	else
-	{
-		printf("Nothing to dump\n");
-	}
+    if (root_buf && root_gc)
+    {
+        printf("Dumping stack:\n%s\n", root_gc->display(root_buf).c_str());
+    }
+    else
+    {
+        printf("Nothing to dump\n");
+    }
 }
 
 uint64_t text_base = 0;
@@ -61,229 +61,229 @@ uint64_t data_len = 0;
 uint64_t rodata_base = 0;
 uint64_t rodata_len = 0;
 
-bool valid_pointer(unsigned char * ptr)
+bool valid_pointer(unsigned char *ptr)
 {
-	uint64_t val = (uint64_t)ptr;
-	if (val >= text_base && val < (text_base + text_len))
-	{
-		return true;
-	}
-	if (val >= data_base && val < (data_base + data_len))
-	{
-		return true;
-	}
-	if (val >= rodata_base && val < (rodata_base + rodata_len))
-	{
-		return true;
-	}
-	return false;
+    uint64_t val = (uint64_t)ptr;
+    if (val >= text_base && val < (text_base + text_len))
+    {
+        return true;
+    }
+    if (val >= data_base && val < (data_base + data_len))
+    {
+        return true;
+    }
+    if (val >= rodata_base && val < (rodata_base + rodata_len))
+    {
+        return true;
+    }
+    return false;
 }
 
-void dump_codegen(Codegen * cg)
+void dump_codegen(Codegen *cg)
 {
-	fprintf(log_file, "\n\nCode for %s:\n", cg->getScope()->name().c_str());
-	std::vector<BasicBlock *> & bbs = cg->getBlocks();
-	for (unsigned int loopc = 0; loopc < bbs.size(); loopc++)
-	{
-		std::string bp = bbs[loopc]->toString();
-		fprintf(log_file, "\n%s\n", bp.c_str());
-	}
+    fprintf(log_file, "\n\nCode for %s:\n", cg->getScope()->name().c_str());
+    std::vector<BasicBlock *> &bbs = cg->getBlocks();
+    for (unsigned int loopc = 0; loopc < bbs.size(); loopc++)
+    {
+        std::string bp = bbs[loopc]->toString();
+        fprintf(log_file, "\n%s\n", bp.c_str());
+    }
 }
 
-uint32_t getUtf8(char * & f)
+uint32_t getUtf8(char *&f)
 {
-	uint32_t val = *f;
-	f++;
+    uint32_t val = *f;
+    f++;
 
-	if (!(val & 0x80))
-		return val;
+    if (!(val & 0x80))
+        return val;
 
-	val &= ~0x80;
-	int nobytes = 0;
-	if (val & 0x40)
-	{
-		nobytes++;
-		val &= ~0x40;
-	}
-	if (val & 0x20)
-	{
-		nobytes++;
-		val &= ~0x20;
-	}
-	if (val & 0x10)
-	{
-		printf("Invalid UTF-8! Too many bytes\n");
-		return 0;
-	}
+    val &= ~0x80;
+    int nobytes = 0;
+    if (val & 0x40)
+    {
+        nobytes++;
+        val &= ~0x40;
+    }
+    if (val & 0x20)
+    {
+        nobytes++;
+        val &= ~0x20;
+    }
+    if (val & 0x10)
+    {
+        printf("Invalid UTF-8! Too many bytes\n");
+        return 0;
+    }
 
-	uint32_t ret = val;
+    uint32_t ret = val;
 
-	for (int loopc = 0; loopc < nobytes; loopc++)
-	{
-		val = *f;
-		f++;
+    for (int loopc = 0; loopc < nobytes; loopc++)
+    {
+        val = *f;
+        f++;
 
-		if ((!(val & 0x80)) || (val & 0x40))
-		{
-			printf("Invalid UTF-8! Wrong succeeding byte %x, nobytes %d\n", val, nobytes);
-			return 0;
-		}
+        if ((!(val & 0x80)) || (val & 0x40))
+        {
+            printf("Invalid UTF-8! Wrong succeeding byte %x, nobytes %d\n", val, nobytes);
+            return 0;
+        }
 
-		ret = ret << 6;
-		ret |= val;
-	}
+        ret = ret << 6;
+        ret |= val;
+    }
 
-	return ret;
+    return ret;
 }
 
-FILE * findFile(std::string name)
+FILE *findFile(std::string name)
 {
-	FILE * f = fopen(name.c_str(), "rb");
-	if (f)
-	{
-		return f;
-	}
+    FILE *f = fopen(name.c_str(), "rb");
+    if (f)
+    {
+        return f;
+    }
 
-	name = std::string("../") + name;
-	f = fopen(name.c_str(), "rb");
-	if (f)
-	{
-		return f;
-	}
+    name = std::string("../") + name;
+    f = fopen(name.c_str(), "rb");
+    if (f)
+    {
+        return f;
+    }
 
-	return 0;
+    return 0;
 }
 
-void readFile(FILE * f, Chars & input)
+void readFile(FILE *f, Chars &input)
 {
-	fseek(f, 0, SEEK_END);
-	int len = ftell(f);
-	char * text = new char[len];
-	fseek(f, 0, SEEK_SET);
-	size_t read = fread(text, len, 1, f);
-	fclose(f);
+    fseek(f, 0, SEEK_END);
+    int len = ftell(f);
+    char *text = new char[len];
+    fseek(f, 0, SEEK_SET);
+    size_t read = fread(text, len, 1, f);
+    fclose(f);
     if (read < 1)
     {
         printf("readFile got read result of %ld!\n", read);
         return;
     }
 
-	char * ptr = text;
-	while (ptr < text + len)
-	{
-		uint32_t v = getUtf8(ptr);
-		if (v)
-		{
-			input.push_back(v);
-		}
-	}
-	delete[] text;
+    char *ptr = text;
+    while (ptr < text + len)
+    {
+        uint32_t v = getUtf8(ptr);
+        if (v)
+        {
+            input.push_back(v);
+        }
+    }
+    delete[] text;
 
-	input.push_back('\n');
-	input.push_back('\n');
+    input.push_back('\n');
+    input.push_back('\n');
 }
 
 bool sanity_check()
 {
-	uint32_t test = 0xdeadbeef;
-	unsigned char * ptr = (unsigned char *)(&test);
+    uint32_t test = 0xdeadbeef;
+    unsigned char *ptr = (unsigned char *)(&test);
 #ifdef HOST_BIG_ENDIAN
-	if (*ptr != 0xde)
-	{
-		printf("This platform is little-endian, expected big-endian!\n");
-		return false;
-	}
+    if (*ptr != 0xde)
+    {
+        printf("This platform is little-endian, expected big-endian!\n");
+        return false;
+    }
 #else
-	if (*ptr != 0xef)
-	{
-		printf("This platform is big-endian, expected little-endian!\n");
-		return false;
-	}
+    if (*ptr != 0xef)
+    {
+        printf("This platform is big-endian, expected little-endian!\n");
+        return false;
+    }
 #endif
-	return true;
+    return true;
 }
 
-int main(int argc, char ** argv)
+int main(int argc, char **argv)
 {
     bool auto_run = false;
     bool debug = false;
 
-	if (!sanity_check())
-	{
-		return 1;
-	}
+    if (!sanity_check())
+    {
+        return 1;
+    }
 
-	component_factory = new ComponentFactory();
-	rtti = new Rtti();
+    component_factory = new ComponentFactory();
+    rtti = new Rtti();
     exports = new Exports();
     imports = new Imports();
 
-	FILE * hfile = findFile(ConfigFile::hostConfig().c_str());
-	if (!hfile)
-	{
-		printf("Can't find host config [%s], running without it\n", ConfigFile::hostConfig().c_str());
-	}
-	Configuration hostconfig;
+    FILE *hfile = findFile(ConfigFile::hostConfig().c_str());
+    if (!hfile)
+    {
+        printf("Can't find host config [%s], running without it\n", ConfigFile::hostConfig().c_str());
+    }
+    Configuration hostconfig;
 
-	if (hfile)
-	{
-		ConfigFile hcf(hfile, &hostconfig);
-		hcf.process();
-	}
+    if (hfile)
+    {
+        ConfigFile hcf(hfile, &hostconfig);
+        hcf.process();
+    }
     fclose(hfile);
 
-	Configuration config;
+    Configuration config;
     configuration = &config;
 
-	ConfigFile * current_config_file = 0;
+    ConfigFile *current_config_file = 0;
 
-	bool done_ini = false;
-	bool no_stdlib = false;
+    bool done_ini = false;
+    bool no_stdlib = false;
 
-	for (int loopc = 1; loopc < argc; loopc++)
-	{
-		if (strstr(argv[loopc], ".ini"))
-		{
-			delete current_config_file;
-			FILE * cfile = findFile(argv[loopc]);
-			current_config_file = new ConfigFile(cfile, &config);
-			current_config_file->process();
-			done_ini = true;
-		}
-		else if (strstr(argv[loopc], "=") && current_config_file)
-		{
-			char buf[4096];
-			sprintf(buf, "set %s", argv[loopc]);
-			if (!current_config_file->processLine(buf))
-			{
-				printf("Don't know how to set option %s\n", argv[loopc]);
-			}
-		}
-		else if (!strcmp(argv[loopc], "-nostdlib"))
-		{
-			no_stdlib = true;
-		}
+    for (int loopc = 1; loopc < argc; loopc++)
+    {
+        if (strstr(argv[loopc], ".ini"))
+        {
+            delete current_config_file;
+            FILE *cfile = findFile(argv[loopc]);
+            current_config_file = new ConfigFile(cfile, &config);
+            current_config_file->process();
+            done_ini = true;
+        }
+        else if (strstr(argv[loopc], "=") && current_config_file)
+        {
+            char buf[4096];
+            sprintf(buf, "set %s", argv[loopc]);
+            if (!current_config_file->processLine(buf))
+            {
+                printf("Don't know how to set option %s\n", argv[loopc]);
+            }
+        }
+        else if (!strcmp(argv[loopc], "-nostdlib"))
+        {
+            no_stdlib = true;
+        }
         else if (!strcmp(argv[loopc], "-r"))
         {
-                // Outputting a relocatable binary
+            // Outputting a relocatable binary
             config.relocatable = true;
         }
-		else if (!strcmp(argv[loopc], "-o"))
-		{
-			loopc++;
-			if (loopc < argc)
-			{
-				if (!current_config_file->processLine(argv[loopc]))
-				{
-					printf("Don't understand option [%s]\n", argv[loopc]);
-				}
-			}
-			else
-			{
-				printf("-o without option!\n");
-				break;
-			}
-		}
+        else if (!strcmp(argv[loopc], "-o"))
+        {
+            loopc++;
+            if (loopc < argc)
+            {
+                if (!current_config_file->processLine(argv[loopc]))
+                {
+                    printf("Don't understand option [%s]\n", argv[loopc]);
+                }
+            }
+            else
+            {
+                printf("-o without option!\n");
+                break;
+            }
+        }
         else if (!strcmp(argv[loopc], "-a"))
         {
             auto_run = true;
@@ -294,9 +294,9 @@ int main(int argc, char ** argv)
         }
     }
 
-	if (!done_ini)
-	{
-		FILE * cfile;
+    if (!done_ini)
+    {
+        FILE *cfile;
 
         if (config.relocatable)
         {
@@ -307,46 +307,46 @@ int main(int argc, char ** argv)
             cfile = findFile(ConfigFile::nativeTargetConfig());
         }
 
-		if (!cfile)
-		{
-			printf("Can't find native target config [%s]\n", ConfigFile::nativeTargetConfig().c_str());
-			return 1;
-		}
-		current_config_file = new ConfigFile(cfile, &config);
-		current_config_file->process();
+        if (!cfile)
+        {
+            printf("Can't find native target config [%s]\n", ConfigFile::nativeTargetConfig().c_str());
+            return 1;
+        }
+        current_config_file = new ConfigFile(cfile, &config);
+        current_config_file->process();
         fclose(cfile);
-	}
+    }
 
-	for (int loopc = 1; loopc < argc; loopc++)
-	{
-		if (strstr(argv[loopc], "=") && current_config_file)
-		{
-			char buf[4096];
-			sprintf(buf, "set %s", argv[loopc]);
-			current_config_file->processLine(buf);
-		}
-	}
+    for (int loopc = 1; loopc < argc; loopc++)
+    {
+        if (strstr(argv[loopc], "=") && current_config_file)
+        {
+            char buf[4096];
+            sprintf(buf, "set %s", argv[loopc]);
+            current_config_file->processLine(buf);
+        }
+    }
 
-	delete current_config_file;
+    delete current_config_file;
 
-	bool jit = false;
+    bool jit = false;
 
-	Image * image = config.image;
-	//MemoryImage * macros = new MemoryImage();
+    Image *image = config.image;
+    // MemoryImage * macros = new MemoryImage();
 
-	log_file = fopen("log.txt", "w");
-	if (!log_file)
-	{
-		printf("Failed to open log file\n");
-		return 1;
-	}
+    log_file = fopen("log.txt", "w");
+    if (!log_file)
+    {
+        printf("Failed to open log file\n");
+        return 1;
+    }
 
-	constants = new Constants();
+    constants = new Constants();
     mtables = new Mtables();
-	assembler = config.assembler;
-	types = new Types();
-	FunctionType * root_type = new FunctionType(false);
-	root_type->setReturn(register_type);
+    assembler = config.assembler;
+    types = new Types();
+    FunctionType *root_type = new FunctionType(false);
+    root_type->setReturn(register_type);
     types->add(root_type, "@root");
 
     if (debug)
@@ -368,74 +368,47 @@ int main(int argc, char ** argv)
         root_scope = new FunctionScope(0, "__root", root_type);
     }
 
-	FunctionType * syscall_type = new ExternalFunctionType(config.syscall, true);
-	syscall_type->setReturn(register_type);
-	Value * fptr = new Value("__syscall", syscall_type);  // Value never actually used
+    FunctionType *syscall_type = new ExternalFunctionType(config.syscall, true);
+    syscall_type->setReturn(register_type);
+    Value *fptr = new Value("__syscall", syscall_type); // Value never actually used
     types->add(syscall_type, "__syscall");
-	root_scope->add(fptr);
+    root_scope->add(fptr);
 
-	calling_convention = config.cconv;
+    calling_convention = config.cconv;
 
-	if (jit)
-	{
-		set_cfuncs((MemoryImage *)image);
-	}
+    if (jit)
+    {
+        set_cfuncs((MemoryImage *)image);
+    }
 
     Lexer lex;
     Lexer ilex;
 
-	if (!no_stdlib)
-	{
-		for (unsigned int loopc = 0; loopc < config.preloads.size(); loopc++)
-		{
-			FILE * f = config.open(config.preloads[loopc].c_str());
-
-			if (!f)
-			{
-				printf("Preload input file %s not found!\n", config.preloads[loopc].c_str());
-				return 1;
-			}
-
-			Chars input;
-			readFile(f, input);
-			lex.setFile(config.preloads[loopc]);
-			lex.lex(input);
-		}
-	}
-
-	for (int loopc = 1; loopc < argc; loopc++)
-	{
-		if (strstr(argv[loopc], ".e"))
-		{
-			const char * fname = argv[loopc];
-			FILE * f = config.open(fname);
-
-			if (!f)
-			{
-				printf("Input file %s not found\n", fname);
-				return 1;
-			}
-
-			Chars input;
-			readFile(f, input);
-			lex.setFile(fname);
-			lex.lex(input);
-		}
-	}
-
-    bool found_interface = false;
-    for (int loopc = 1; loopc < argc; loopc++)
+    if (!no_stdlib)
     {
-        char * ptr = strstr(argv[loopc], ".i");
-        if (ptr && *(ptr+2) == 0)
+        for (unsigned int loopc = 0; loopc < config.preloads.size(); loopc++)
         {
-            if (found_interface)
+            FILE *f = config.open(config.preloads[loopc].c_str());
+
+            if (!f)
             {
-                printf("More than one interface file specified! %s\n", argv[loopc]);
+                printf("Preload input file %s not found!\n", config.preloads[loopc].c_str());
                 return 1;
             }
-            const char * fname = argv[loopc];
-            FILE * f = config.open(fname);
+
+            Chars input;
+            readFile(f, input);
+            lex.setFile(config.preloads[loopc]);
+            lex.lex(input);
+        }
+    }
+
+    for (int loopc = 1; loopc < argc; loopc++)
+    {
+        if (strstr(argv[loopc], ".e"))
+        {
+            const char *fname = argv[loopc];
+            FILE *f = config.open(fname);
 
             if (!f)
             {
@@ -450,28 +423,54 @@ int main(int argc, char ** argv)
         }
     }
 
-	lex.endLexing();
+    bool found_interface = false;
+    for (int loopc = 1; loopc < argc; loopc++)
+    {
+        char *ptr = strstr(argv[loopc], ".i");
+        if (ptr && *(ptr + 2) == 0)
+        {
+            if (found_interface)
+            {
+                printf("More than one interface file specified! %s\n", argv[loopc]);
+                return 1;
+            }
+            const char *fname = argv[loopc];
+            FILE *f = config.open(fname);
 
-	if (errors.size() != 0)
-	{
-		printf("Lexer errors:\n\n");
-		for (std::list<Error>::iterator it = errors.begin();
-		it != errors.end(); it++)
-		{
-			printf("\n");
-			(*it).print();
-		}
-		return 2;
-	}
+            if (!f)
+            {
+                printf("Input file %s not found\n", fname);
+                return 1;
+            }
 
-	Type * byteptr = types->lookup("Byte^");
-	assert(byteptr);
+            Chars input;
+            readFile(f, input);
+            lex.setFile(fname);
+            lex.lex(input);
+        }
+    }
+
+    lex.endLexing();
+
+    if (errors.size() != 0)
+    {
+        printf("Lexer errors:\n\n");
+        for (std::list<Error>::iterator it = errors.begin(); it != errors.end(); it++)
+        {
+            printf("\n");
+            (*it).print();
+        }
+        return 2;
+    }
+
+    Type *byteptr = types->lookup("Byte^");
+    assert(byteptr);
 
     if (config.relocatable)
     {
-        Value * a = new Value("__activation", byteptr);
-        Value * s = new Value("__stackptr", byteptr);
-        Value * e = new Value("__exports", byteptr);
+        Value *a = new Value("__activation", byteptr);
+        Value *s = new Value("__stackptr", byteptr);
+        Value *e = new Value("__exports", byteptr);
         a->setOnStack(true);
         s->setOnStack(true);
         e->setOnStack(true);
@@ -481,7 +480,7 @@ int main(int argc, char ** argv)
         loader_scope->add(a);
         loader_scope->add(s);
         loader_scope->add(e);
-            // Value is initialised by the loader
+        // Value is initialised by the loader
         root_scope->add(new Value("__imports", register_type));
     }
     else
@@ -492,37 +491,36 @@ int main(int argc, char ** argv)
         root_scope->add(new Value("__osstackptr", register_type));
     }
 
-	Parser parse(&lex);
+    Parser parse(&lex);
 
-	if (errors.size() != 0)
-	{
-		printf("Parse errors:\n\n");
-		for (std::list<Error>::iterator it = errors.begin();
-		it != errors.end(); it++)
-		{
-			(*it).print();
-			printf("\n");
-		}
-		return 3;
-	}
+    if (errors.size() != 0)
+    {
+        printf("Parse errors:\n\n");
+        for (std::list<Error>::iterator it = errors.begin(); it != errors.end(); it++)
+        {
+            (*it).print();
+            printf("\n");
+        }
+        return 3;
+    }
 
-	if (parse.tree())
-	{
-		parse.tree()->print(0);
-	}
-	else
-	{
-		printf("Null tree\n");
-		return 4;
-	}
+    if (parse.tree())
+    {
+        parse.tree()->print(0);
+    }
+    else
+    {
+        printf("Null tree\n");
+        return 4;
+    }
 
-	fprintf(log_file, "\n\n\nCodegen:\n\n\n");
+    fprintf(log_file, "\n\n\nCodegen:\n\n\n");
 
-	rtti->finalise();
+    rtti->finalise();
     exports->finalise();
 
-	Backend output(&config, parse.tree());
-	int ret = output.process();
+    Backend output(&config, parse.tree());
+    int ret = output.process();
 
     delete root_scope;
     delete types;

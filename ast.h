@@ -1,10 +1,10 @@
 #ifndef _AST_
 #define _AST_
 
-#include <stdio.h>
-#include <string>
 #include "lexer.h"
 #include "type.h"
+#include <stdio.h>
+#include <string>
 
 class Codegen;
 class Value;
@@ -13,78 +13,72 @@ class SymbolScope;
 
 class Expr
 {
-public:
+  public:
+    virtual void print(int i) = 0;
 
-	virtual void print(int i) = 0;
-
-	virtual void printOp(uint64_t val)
-	{
-		uint32_t first = val & 0xffffffff;
-		uint64_t big_second = val >> 32;
-		uint32_t second = (uint32_t)big_second;
-		fprintf(log_file, "%c", (char)first);
-		if (second)
-		{
-			fprintf(log_file, "%c", (char)second);
-		}
-	}
-
-	virtual Value * codegen(Codegen *)
-	{
-		fprintf(log_file, "Null codegen called!\n");
-		return 0;
-	}
-
-	virtual ~Expr()
-	{
-	}
-
-        virtual bool constEval(uint64_t &)
+    virtual void printOp(uint64_t val)
+    {
+        uint32_t first = val & 0xffffffff;
+        uint64_t big_second = val >> 32;
+        uint32_t second = (uint32_t)big_second;
+        fprintf(log_file, "%c", (char)first);
+        if (second)
         {
-            return false;
+            fprintf(log_file, "%c", (char)second);
         }
+    }
 
-protected:
+    virtual Value *codegen(Codegen *)
+    {
+        fprintf(log_file, "Null codegen called!\n");
+        return 0;
+    }
 
-	void indent(int i)
-	{
-		for (int loopc = 0; loopc < i; loopc++)
-		{
-			fprintf(log_file, "  ");
-		}
-	}
+    virtual ~Expr()
+    {
+    }
 
+    virtual bool constEval(uint64_t &)
+    {
+        return false;
+    }
+
+  protected:
+    void indent(int i)
+    {
+        for (int loopc = 0; loopc < i; loopc++)
+        {
+            fprintf(log_file, "  ");
+        }
+    }
 };
 
 class IntegerExpr : public Expr
 {
-public:
+  public:
+    IntegerExpr(Token *);
 
-	IntegerExpr(Token *);
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "Int %ld", val);
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "Int %ld", val);
-	}
+    uint64_t getVal()
+    {
+        return val;
+    }
 
-	uint64_t getVal()
-	{
-		return val;
-	}
+    virtual Value *codegen(Codegen *);
 
-	virtual Value * codegen(Codegen *);
-
-    bool constEval(uint64_t & ret)
+    bool constEval(uint64_t &ret)
     {
         ret = val;
         return true;
     }
 
-protected:
-
-	uint64_t val;
-
+  protected:
+    uint64_t val;
 };
 
 // The idea with these is they are defined in the config
@@ -95,7 +89,6 @@ protected:
 class ConfigConstantExpr : public Expr
 {
   public:
-
     ConfigConstantExpr(std::string n)
     {
         constant_name = n;
@@ -107,35 +100,30 @@ class ConfigConstantExpr : public Expr
         fprintf(log_file, "ConfigConstant %s", constant_name.c_str());
     }
 
-	virtual Value * codegen(Codegen *);
+    virtual Value *codegen(Codegen *);
 
     virtual bool constEval(uint64_t &);
 
   protected:
-
     std::string constant_name;
-
 };
 
 class BreakpointExpr : public Expr
 {
-public:
+  public:
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "Breakpoint");
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "Breakpoint");
-	}
-
-	virtual Value * codegen(Codegen * c);
-
+    virtual Value *codegen(Codegen *c);
 };
 
 class SizeofExpr : public Expr
 {
   public:
-
-    SizeofExpr(Type * t)
+    SizeofExpr(Type *t)
     {
         to_sizeof = t;
     }
@@ -146,19 +134,16 @@ class SizeofExpr : public Expr
         fprintf(log_file, "sizeof(%s)", to_sizeof->name().c_str());
     }
 
-    virtual Value * codegen(Codegen * c);
+    virtual Value *codegen(Codegen *c);
 
   protected:
-
-    Type * to_sizeof;
-
+    Type *to_sizeof;
 };
 
 class CastExpr : public Expr
 {
   public:
-
-    CastExpr(Expr * t, Type * c)
+    CastExpr(Expr *t, Type *c)
     {
         to_cast = t;
         cast_type = c;
@@ -167,57 +152,49 @@ class CastExpr : public Expr
     virtual void print(int i)
     {
         indent(i);
-        fprintf(log_file, "cast(%s, %s)",
-                "<fixme>", cast_type->name().c_str());
+        fprintf(log_file, "cast(%s, %s)", "<fixme>", cast_type->name().c_str());
     }
 
-    virtual Value * codegen(Codegen * c);
-
+    virtual Value *codegen(Codegen *c);
 
   protected:
-
-    Expr * to_cast;
-    Type * cast_type;
-
+    Expr *to_cast;
+    Type *cast_type;
 };
 
 class IdentifierExpr : public Expr
 {
-public:
+  public:
+    IdentifierExpr(Token *);
 
-	IdentifierExpr(Token *);
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "Identifier %s", val.c_str());
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "Identifier %s", val.c_str());
-	}
+    std::string getString()
+    {
+        return val;
+    }
 
-	std::string getString()
-	{
-		return val;
-	}
+    virtual Value *codegen(Codegen *);
 
-	virtual Value * codegen(Codegen *);
+    void setValue(Value *v, int s)
+    {
+        value = v;
+        static_depth = s;
+    }
 
-	void setValue(Value * v, int s)
-	{
-		value = v;
-		static_depth = s;
-	}
-
-protected:
-
-	std::string val;
-	Value * value;
-	int static_depth;
-
+  protected:
+    std::string val;
+    Value *value;
+    int static_depth;
 };
 
 class ImportExpr : public Expr
 {
-public:
-
+  public:
     ImportExpr(std::string);
 
     virtual void print(int i)
@@ -231,897 +208,846 @@ public:
         return val;
     }
 
-    virtual Value * codegen(Codegen *)
+    virtual Value *codegen(Codegen *)
     {
         return 0;
     }
 
-protected:
-
+  protected:
     std::string val;
-
 };
 
 class StringLiteralExpr : public Expr
 {
-public:
+  public:
+    StringLiteralExpr(Token *);
 
-	StringLiteralExpr(Token *);
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "'%s'", val.c_str());
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "'%s'", val.c_str());
-	}
+    std::string getString()
+    {
+        return val;
+    }
 
-	std::string getString()
-	{
-		return val;
-	}
+    uint64_t getIndex()
+    {
+        return idx;
+    }
 
-	uint64_t getIndex()
-	{
-		return idx;
-	}
+    virtual Value *codegen(Codegen *);
 
-	virtual Value * codegen(Codegen *);
-
-protected:
-
-	std::string val;
-	uint64_t idx;
-
+  protected:
+    std::string val;
+    uint64_t idx;
 };
 
 class VarDefExpr : public Expr
 {
-public:
+  public:
+    VarDefExpr(Value *v, Expr *a, bool c)
+    {
+        value = v;
+        assigned = a;
+        is_const = c;
+    }
 
-	VarDefExpr(Value * v, Expr * a, bool c)
-	{
-		value = v;
-		assigned = a;
-		is_const = c;
-	}
+    ~VarDefExpr()
+    {
+        delete assigned;
+    }
 
-	~VarDefExpr()
-	{
-		delete assigned;
-	}
+    virtual void print(int i);
 
-	virtual void print(int i);
+    virtual Value *codegen(Codegen *c);
 
-	virtual Value * codegen(Codegen * c);
-
-protected:
-
-	Type * type;
-	Value * value;
-	Expr * assigned;
-	bool is_const;
-
+  protected:
+    Type *type;
+    Value *value;
+    Expr *assigned;
+    bool is_const;
 };
 
 class AddressOfExpr : public Expr
 {
-public:
+  public:
+    AddressOfExpr(Expr *e)
+    {
+        expr = e;
+    }
 
-	AddressOfExpr(Expr * e)
-	{
-		expr = e;
-	}
+    ~AddressOfExpr()
+    {
+        delete expr;
+    }
 
-	~AddressOfExpr()
-	{
-		delete expr;
-	}
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "&");
+        expr->print(0);
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "&");
-		expr->print(0);
-	}
-
-protected:
-
-	Expr * expr;
-
+  protected:
+    Expr *expr;
 };
 
 class UnaryExpr : public Expr
 {
-public:
+  public:
+    UnaryExpr(Token *t, Expr *e)
+    {
+        if (t->value.size() == 2)
+        {
+            uint64_t second = t->value[1];
+            op = (second << 32) | t->value[0];
+        }
+        else if (t->value.size() == 1)
+        {
+            op = t->value[0];
+        }
+        else
+        {
+            fprintf(log_file, "Trying to make a unop out of %d!\n", t->type);
+        }
 
-	UnaryExpr(Token * t, Expr * e)
-	{
-		if (t->value.size() == 2)
-		{
-			uint64_t second = t->value[1];
-			op = (second << 32) | t->value[0];
-		}
-		else if (t->value.size() == 1)
-		{
-			op = t->value[0];
-		}
-		else
-		{
-			fprintf(log_file, "Trying to make a unop out of %d!\n", t->type);
-		}
+        expr = e;
+        token = *t;
+    }
 
-		expr = e;
-		token = *t;
-	}
+    ~UnaryExpr()
+    {
+        delete expr;
+    }
 
-	~UnaryExpr()
-	{
-		delete expr;
-	}
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "unop ");
+        printOp(op);
+        expr->print(i + 1);
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "unop ");
-		printOp(op);
-		expr->print(i + 1);
-	}
+    virtual Value *codegen(Codegen *);
 
-	virtual Value * codegen(Codegen *);
-
-protected:
-
-	uint64_t op;
-	Expr * expr;
-	Token token;
-
+  protected:
+    uint64_t op;
+    Expr *expr;
+    Token token;
 };
 
 class Block : public Expr
 {
-public:
+  public:
+    Block()
+    {
+    }
 
-	Block()
-	{
-	}
+    ~Block()
+    {
+        std::list<Expr *>::iterator it = contents.begin();
+        while (it != contents.end())
+        {
+            delete *it;
+            it++;
+        }
+    }
 
-	~Block()
-	{
-		std::list<Expr *>::iterator it = contents.begin();
-		while (it != contents.end())
-		{
-			delete *it;
-			it++;
-		}
-	}
+    void add(Expr *e)
+    {
+        contents.push_back(e);
+    }
 
-	void add(Expr * e)
-	{
-		contents.push_back(e);
-	}
+    void absorb(Block *b)
+    {
+        std::list<Expr *>::iterator it = b->contents.begin();
+        while (it != b->contents.end())
+        {
+            add(*it);
+        }
+        b->contents.clear();
+    }
 
-	void absorb(Block * b)
-	{
-		std::list<Expr *>::iterator it = b->contents.begin();
-		while (it != b->contents.end())
-		{
-			add(*it);
-		}
-		b->contents.clear();
-	}
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "Block\n");
+        std::list<Expr *>::iterator it = contents.begin();
+        while (it != contents.end())
+        {
+            (*it)->print(i + 1);
+            fprintf(log_file, "\n");
+            it++;
+        }
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "Block\n");
-		std::list<Expr *>::iterator it = contents.begin();
-		while (it != contents.end())
-		{
-			(*it)->print(i + 1);
-			fprintf(log_file, "\n");
-			it++;
-		}
-	}
+    virtual Value *codegen(Codegen *c);
 
-	virtual Value * codegen(Codegen * c);
-
-protected:
-
-	std::list<Expr *> contents;
-
+  protected:
+    std::list<Expr *> contents;
 };
 
 class IfClause
 {
-public:
+  public:
+    IfClause(Expr *c, Block *b)
+    {
+        condition = c;
+        body = b;
+    }
 
-	IfClause(Expr * c, Block * b)
-	{
-		condition = c;
-		body = b;
-	}
+    ~IfClause()
+    {
+        delete condition;
+        delete body;
+    }
 
-	~IfClause()
-	{
-		delete condition;
-		delete body;
-	}
-
-	Expr * condition;
-	Block * body;
+    Expr *condition;
+    Block *body;
 };
 
 class If : public Expr
 {
-public:
-
-	If(bool c)
-	{
-		elseblock = 0;
+  public:
+    If(bool c)
+    {
+        elseblock = 0;
         constif = c;
-	}
+    }
 
-	~If()
-	{
-		for (std::list<IfClause *>::iterator it = clauses.begin();
-		it != clauses.end(); it++)
-		{
-			delete *it;
-		}
-		delete elseblock;
-	}
+    ~If()
+    {
+        for (std::list<IfClause *>::iterator it = clauses.begin(); it != clauses.end(); it++)
+        {
+            delete *it;
+        }
+        delete elseblock;
+    }
 
-	void addElse(Block * e)
-	{
-		elseblock = e;
-	}
+    void addElse(Block *e)
+    {
+        elseblock = e;
+    }
 
-	void addClause(Expr * c, Block * b)
-	{
-		clauses.push_back(new IfClause(c, b));
-	}
+    void addClause(Expr *c, Block *b)
+    {
+        clauses.push_back(new IfClause(c, b));
+    }
 
-	virtual void print(int i)
-	{
-		for (std::list<IfClause *>::iterator it = clauses.begin();
-		it != clauses.end(); it++)
-		{
-			indent(i);
-			fprintf(log_file, (it == clauses.begin()) ? "if " : "elif ");
-			(*it)->condition->print(0);
-			fprintf(log_file, "\n");
-			(*it)->body->print(i + 1);
-		}
+    virtual void print(int i)
+    {
+        for (std::list<IfClause *>::iterator it = clauses.begin(); it != clauses.end(); it++)
+        {
+            indent(i);
+            fprintf(log_file, (it == clauses.begin()) ? "if " : "elif ");
+            (*it)->condition->print(0);
+            fprintf(log_file, "\n");
+            (*it)->body->print(i + 1);
+        }
 
-		if (elseblock)
-		{
-			indent(i);
-			fprintf(log_file, "else\n");
-			elseblock->print(i + 1);
-		}
-	}
+        if (elseblock)
+        {
+            indent(i);
+            fprintf(log_file, "else\n");
+            elseblock->print(i + 1);
+        }
+    }
 
-	virtual Value * codegen(Codegen * c);
+    virtual Value *codegen(Codegen *c);
 
-protected:
-
-	std::list<IfClause *> clauses;
-	Block * elseblock;
+  protected:
+    std::list<IfClause *> clauses;
+    Block *elseblock;
     bool constif;
-
 };
 
 class While : public Expr
 {
 
-public:
+  public:
+    While(Expr *c, Block *b)
+    {
+        condition = c;
+        body = b;
+    }
 
-	While(Expr * c, Block * b)
-	{
-		condition = c;
-		body = b;
-	}
+    ~While()
+    {
+        delete condition;
+        delete body;
+    }
 
-	~While()
-	{
-		delete condition;
-		delete body;
-	}
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "while ");
+        condition->print(0);
+        body->print(i + 1);
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "while ");
-		condition->print(0);
-		body->print(i + 1);
-	}
+    virtual Value *codegen(Codegen *c);
 
-	virtual Value * codegen(Codegen * c);
-
-protected:
-
-	Expr * condition;
-	Block * body;
-
+  protected:
+    Expr *condition;
+    Block *body;
 };
 
 class VarExpr : public Expr
 {
-public:
+  public:
+    VarExpr(Token *t, Token *ty, Expr *v = 0)
+    {
+        name = t->toString();
+        type = ty->toString();
+        value = v;
+    }
 
-	VarExpr(Token * t, Token * ty, Expr * v = 0)
-	{
-		name = t->toString();
-		type = ty->toString();
-		value = v;
-	}
+    ~VarExpr()
+    {
+        delete value;
+    }
 
-	~VarExpr()
-	{
-		delete value;
-	}
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "var %s %s", name.c_str(), type.c_str());
+        if (value)
+        {
+            fprintf(log_file, " = ");
+            value->print(0);
+        }
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "var %s %s", name.c_str(), type.c_str());
-		if (value)
-		{
-			fprintf(log_file, " = ");
-			value->print(0);
-		}
-	}
+  protected:
+    std::string name;
+    std::string type;
 
-protected:
-
-	std::string name;
-	std::string type;
-
-	Expr * value;
-
+    Expr *value;
 };
 
 class BinaryExpr : public Expr
 {
-public:
+  public:
+    BinaryExpr(Token *t, Expr *l, Expr *r)
+    {
 
-	BinaryExpr(Token * t, Expr * l, Expr * r)
-	{
+        if (t->value.size() == 2)
+        {
+            uint64_t second = t->value[1];
+            op = (second << 32) | t->value[0];
+        }
+        else if (t->value.size() == 1)
+        {
+            op = t->value[0];
+        }
+        else
+        {
+            // E.g. 'or', 'and'
+            op = 0;
+        }
 
-		if (t->value.size() == 2)
-		{
-			uint64_t second = t->value[1];
-			op = (second << 32) | t->value[0];
-		}
-		else if (t->value.size() == 1)
-		{
-			op = t->value[0];
-		}
-		else
-		{
-			// E.g. 'or', 'and'
-			op = 0;
-		}
+        token = *t;
+        lhs = l;
+        rhs = r;
+    }
 
-		token = *t;
-		lhs = l;
-		rhs = r;
-	}
+    ~BinaryExpr()
+    {
+        delete lhs;
+        delete rhs;
+    }
 
-	~BinaryExpr()
-	{
-		delete lhs;
-		delete rhs;
-	}
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "binop ");
+        if (op == 0)
+        {
+            fputs(token.toString().c_str(), log_file);
+        }
+        else
+        {
+            printOp(op);
+        }
+        fprintf(log_file, " ");
+        lhs->print(0);
+        fprintf(log_file, " ");
+        rhs->print(0);
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "binop ");
-		if (op == 0)
-		{
-			fputs(token.toString().c_str(), log_file);
-		}
-		else
-		{
-			printOp(op);
-		}
-		fprintf(log_file, " ");
-		lhs->print(0);
-		fprintf(log_file, " ");
-		rhs->print(0);
-	}
-
-	virtual Value * codegen(Codegen *);
+    virtual Value *codegen(Codegen *);
 
     virtual bool constEval(uint64_t &);
 
-protected:
-
-	uint64_t op;
-	Expr * lhs;
-	Expr * rhs;
-	Token token;
-
+  protected:
+    uint64_t op;
+    Expr *lhs;
+    Expr *rhs;
+    Token token;
 };
 
 class Square : public Expr
 {
-public:
+  public:
+    Square(Expr *ss)
+    {
+        subscript = ss;
+    }
 
-	Square(Expr * ss)
-	{
-		subscript = ss;
-	}
+    ~Square()
+    {
+        delete subscript;
+    }
 
-	~Square()
-	{
-		delete subscript;
-	}
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "[");
+        if (subscript)
+            subscript->print(0);
+        fprintf(log_file, "]");
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "[");
-		if (subscript)
-			subscript->print(0);
-		fprintf(log_file, "]");
-	}
+    virtual Value *codegen(Codegen *c)
+    {
+        return subscript->codegen(c);
+    }
 
-	virtual Value * codegen(Codegen * c)
-	{
-		return subscript->codegen(c);
-	}
-
-protected:
-
-	Expr * subscript;
-
+  protected:
+    Expr *subscript;
 };
 
 class Pass : public Expr
 {
-public:
-
-	Pass() {}
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "pass");
-	}
+  public:
+    Pass()
+    {
+    }
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "pass");
+    }
 };
 
 class Break : public Expr
 {
-public:
+  public:
+    Break(Token t)
+    {
+        token = t;
+    }
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "break");
+    }
 
-	Break(Token t) { token = t; }
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "break");
-	}
-
-	virtual Value * codegen(Codegen * c);
-	Token token;
-
+    virtual Value *codegen(Codegen *c);
+    Token token;
 };
 
 class Continue : public Expr
 {
-public:
+  public:
+    Continue(Token t)
+    {
+        token = t;
+    }
 
-	Continue(Token t) { token = t; }
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "continue");
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "continue");
-	}
-
-	virtual Value * codegen(Codegen * c);
-	Token token;
-
+    virtual Value *codegen(Codegen *c);
+    Token token;
 };
 
 class Return : public Expr
 {
-public:
+  public:
+    Return(Expr *r)
+    {
+        ret = r;
+    }
 
-	Return(Expr * r) { ret = r; }
+    ~Return()
+    {
+        delete ret;
+    }
 
-	~Return()
-	{
-		delete ret;
-	}
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "return ");
+        if (ret)
+            ret->print(0);
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "return ");
-		if (ret)
-			ret->print(0);
-	}
+    virtual Value *codegen(Codegen *c);
 
-	virtual Value * codegen(Codegen * c);
-
-protected:
-
-	Expr * ret;
-
+  protected:
+    Expr *ret;
 };
-
 
 class Yield : public Expr
 {
-public:
+  public:
+    Yield(Expr *r)
+    {
+        ret = r;
+    }
+    ~Yield()
+    {
+        delete ret;
+    }
 
-	Yield(Expr * r) { ret = r; }
-	~Yield()
-	{
-		delete ret;
-	}
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "yield ");
+        if (ret)
+            ret->print(0);
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "yield ");
-		if (ret)
-			ret->print(0);
-	}
+    virtual Value *codegen(Codegen *c);
 
-	virtual Value * codegen(Codegen * c);
-
-protected:
-
-	Expr * ret;
-
+  protected:
+    Expr *ret;
 };
 
 class VarRefElement
 {
-public:
+  public:
+    VarRefElement(int i, Expr *s = 0)
+    {
+        type = i;
+        subs = s;
+    }
 
-	VarRefElement(int i, Expr * s = 0)
-	{
-		type = i;
-		subs = s;
-	}
+    ~VarRefElement()
+    {
+    }
 
-	~VarRefElement()
-	{
-	}
-
-	int type;
-	Expr * subs;
+    int type;
+    Expr *subs;
 };
 
 #define VARREF_DEREF 1
 #define VARREF_ARRAY 2
 #define VARREF_MEMBER 3
 
-//foo^^[1].bar
+// foo^^[1].bar
 class VarRefExpr : public Expr
 {
-public:
+  public:
+    VarRefExpr()
+    {
+        value = 0;
+        scope = 0;
+        depth = 0;
+    }
 
-	VarRefExpr()
-	{
-		value = 0;
-		scope = 0;
-		depth = 0;
-	}
-
-	~VarRefExpr()
-	{
-        for (std::vector<VarRefElement>::iterator it = elements.begin();
-             it != elements.end(); it++)
+    ~VarRefExpr()
+    {
+        for (std::vector<VarRefElement>::iterator it = elements.begin(); it != elements.end(); it++)
         {
             delete (*it).subs;
         }
     }
 
-	virtual void print(int i);
+    virtual void print(int i);
 
-	Type * checkType(Codegen *);
+    Type *checkType(Codegen *);
 
-	void add(VarRefElement vre)
-	{
-		elements.push_back(vre);
-	}
+    void add(VarRefElement vre)
+    {
+        elements.push_back(vre);
+    }
 
-	virtual Value * codegen(Codegen * c);
-	void store(Codegen * c, Value * v);
+    virtual Value *codegen(Codegen *c);
+    void store(Codegen *c, Value *v);
 
-	Value * value;
-	std::vector<VarRefElement> elements;
-	SymbolScope * scope;
-	Token token;
-	int depth;
-
+    Value *value;
+    std::vector<VarRefElement> elements;
+    SymbolScope *scope;
+    Token token;
+    int depth;
 };
 
 class MemberExpr : public Expr
 {
 
-public:
+  public:
+    MemberExpr(IdentifierExpr *m, Expr *e)
+    {
+        expr = e;
+        member = m;
+    }
 
-	MemberExpr(IdentifierExpr * m, Expr * e)
-	{
-		expr = e;
-		member = m;
-	}
+    ~MemberExpr()
+    {
+        delete expr;
+        delete member;
+    }
 
-	~MemberExpr()
-	{
-		delete expr;
-		delete member;
-	}
+    virtual void print(int i)
+    {
+        fprintf(log_file, ".%s", member->getString().c_str());
+        expr->print(0);
+    }
 
-	virtual void print(int i)
-	{
-		fprintf(log_file, ".%s", member->getString().c_str());
-		expr->print(0);
-	}
-
-protected:
-
-	Expr * expr;
-	IdentifierExpr * member;
-
+  protected:
+    Expr *expr;
+    IdentifierExpr *member;
 };
 
 class StructExpr : public Expr
 {
-public:
+  public:
+    StructExpr(Type *t)
+    {
+        type = t;
+    }
 
-	StructExpr(Type * t)
-	{
-		type = t;
-	}
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "struct %s", type->name().c_str());
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "struct %s", type->name().c_str());
-	}
-
-protected:
-
-	Type * type;
-
+  protected:
+    Type *type;
 };
 
 class DefExpr : public Expr
 {
-public:
+  public:
+    DefExpr(FunctionType *t, FunctionScope *fs, bool is_m, bool is_e, bool is_g, Value *p, std::string n,
+            std::string l = "")
+    {
+        type = t;
+        scope = fs;
+        is_macro = is_m;
+        is_extern = is_e;
+        is_generic = is_g;
+        name = n;
+        libname = l;
+        body = 0;
+        ptr = p;
+    }
 
-	DefExpr(FunctionType * t, FunctionScope * fs, bool is_m, bool is_e, bool is_g, Value * p, std::string n, std::string l = "")
-	{
-		type = t;
-		scope = fs;
-		is_macro = is_m;
-		is_extern = is_e;
-		is_generic = is_g;
-		name = n;
-		libname = l;
-		body = 0;
-		ptr = p;
-	}
+    ~DefExpr()
+    {
+        delete body;
+    }
 
-	~DefExpr()
-	{
-		delete body;
-	}
+    FunctionScope *getFunction()
+    {
+        return scope;
+    }
 
-	FunctionScope * getFunction()
-	{
-		return scope;
-	}
+    void setBody(Expr *e)
+    {
+        body = e;
+    }
 
-	void setBody(Expr * e)
-	{
-		body = e;
-	}
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "%s %s\n", is_extern ? "extern" : (is_macro ? "macro" : "def"), name.c_str());
+        if (!is_extern)
+        {
+            if (body)
+            {
+                body->print(i + 1);
+            }
+            else
+            {
+                fprintf(log_file, "Null body!\n");
+            }
+        }
+    }
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "%s %s\n", is_extern ? "extern" : (is_macro ? "macro" : "def"),
-			name.c_str());
-		if (!is_extern)
-		{
-			if (body)
-			{
-				body->print(i + 1);
-			}
-			else
-			{
-				fprintf(log_file, "Null body!\n");
-			}
-		}
-	}
+    virtual Value *codegen(Codegen *c);
 
-	virtual Value * codegen(Codegen * c);
-
-protected:
-
-	FunctionType * type;
-	Expr * body;
-	FunctionScope * scope;
-	bool is_macro;
-	bool is_extern;
-	bool is_generic;
-	std::string name;
-	std::string libname;
-	Value * ptr;
-
+  protected:
+    FunctionType *type;
+    Expr *body;
+    FunctionScope *scope;
+    bool is_macro;
+    bool is_extern;
+    bool is_generic;
+    std::string name;
+    std::string libname;
+    Value *ptr;
 };
 
 class Funcall : public Expr
 {
-public:
+  public:
+    Funcall(IdentifierExpr *ie)
+    {
+        ident = ie;
+        scope = 0;
+    }
 
-	Funcall(IdentifierExpr * ie)
-	{
-		ident = ie;
-		scope = 0;
-	}
+    ~Funcall()
+    {
+        delete ident;
+        for (unsigned int loopc = 0; loopc < args.size(); loopc++)
+        {
+            delete args[loopc];
+        }
+    }
 
-	~Funcall()
-	{
-		delete ident;
-		for (unsigned int loopc = 0; loopc < args.size(); loopc++)
-		{
-			delete args[loopc];
-		}
-	}
+    void setScope(SymbolScope *s)
+    {
+        scope = s;
+    }
 
-	void setScope(SymbolScope * s)
-	{
-		scope = s;
-	}
+    SymbolScope *getScope()
+    {
+        return scope;
+    }
 
-	SymbolScope * getScope()
-	{
-		return scope;
-	}
+    void addArg(Expr *e)
+    {
+        args.push_back(e);
+    }
 
-	void addArg(Expr * e)
-	{
-		args.push_back(e);
-	}
+    virtual void print(int i)
+    {
+        indent(i);
+        fprintf(log_file, "funcall ");
+        ident->print(0);
 
-	virtual void print(int i)
-	{
-		indent(i);
-		fprintf(log_file, "funcall ");
-		ident->print(0);
+        if (args.size() == 0)
+        {
+            fprintf(log_file, "(");
+        }
+        else
+        {
+            for (unsigned int loopc = 0; loopc < args.size(); loopc++)
+            {
+                fprintf(log_file, (loopc == 0) ? "(" : ",");
+                args[loopc]->print(0);
+            }
+        }
+        fprintf(log_file, ")");
+    }
 
-		if (args.size() == 0)
-		{
-			fprintf(log_file, "(");
-		}
-		else
-		{
-			for (unsigned int loopc = 0; loopc < args.size(); loopc++)
-			{
-				fprintf(log_file, (loopc == 0) ? "(" : ",");
-				args[loopc]->print(0);
-			}
-		}
-		fprintf(log_file, ")");
-	}
+    std::string name()
+    {
+        return ident->getString();
+    }
 
-	std::string name()
-	{
-		return ident->getString();
-	}
+    std::vector<Expr *> &getArgs()
+    {
+        return args;
+    }
 
-	std::vector<Expr *> & getArgs()
-	{
-		return args;
-	}
+    virtual Value *codegen(Codegen *c);
 
-	virtual Value * codegen(Codegen * c);
+    Token token;
 
-	Token token;
-
-protected:
-
-	SymbolScope * scope;
-	std::vector<Expr *> args;
-	IdentifierExpr * ident;
-
+  protected:
+    SymbolScope *scope;
+    std::vector<Expr *> args;
+    IdentifierExpr *ident;
 };
 
 class SymbolScope;
 
 class Parser
 {
-public:
+  public:
+    Parser(Lexer *l, bool pi = false, std::string mo = "");
+    ~Parser()
+    {
+        delete root;
+    }
 
-	Parser(Lexer * l, bool pi=false, std::string mo="");
-	~Parser()
-	{
-		delete root;
-	}
+    Expr *tree()
+    {
+        return root;
+    }
 
-	Expr * tree()
-	{
-		return root;
-	}
-
-protected:
-
-	Expr * parseVarExpr(Type *);
-	Expr * parseBodyLine();
-	Expr * parseInteger();
-	Expr * parseStringLiteral();
-	Expr * parseIdentifier();
-	Expr * parseParen();
-	Expr * parseExpr();
-	Expr * parsePrimary();
-	Expr * parseBinopRHS(int prec, Expr * lhs);
-	Expr * parseUnary();
-	Expr * parseBlock();
-	Expr * parseIf();
-	Expr * parseWhile();
-	Expr * parseSquare();
-	Expr * parseReturn();
-	Expr * parseYield();
-	Expr * parseStruct();
-	Expr * parseDef();
-	Expr * parseFuncall(IdentifierExpr *);
-	Expr * parseVarRef(Expr *);
-	Expr * parseAddressOf();
-	Expr * parseFptr();
-    Expr * parseModule();
-    Expr * parseInterfaceDef();
-    Expr * parseImport(Token);
-    Expr * parseCast();
-    Expr * parseSizeof();
+  protected:
+    Expr *parseVarExpr(Type *);
+    Expr *parseBodyLine();
+    Expr *parseInteger();
+    Expr *parseStringLiteral();
+    Expr *parseIdentifier();
+    Expr *parseParen();
+    Expr *parseExpr();
+    Expr *parsePrimary();
+    Expr *parseBinopRHS(int prec, Expr *lhs);
+    Expr *parseUnary();
+    Expr *parseBlock();
+    Expr *parseIf();
+    Expr *parseWhile();
+    Expr *parseSquare();
+    Expr *parseReturn();
+    Expr *parseYield();
+    Expr *parseStruct();
+    Expr *parseDef();
+    Expr *parseFuncall(IdentifierExpr *);
+    Expr *parseVarRef(Expr *);
+    Expr *parseAddressOf();
+    Expr *parseFptr();
+    Expr *parseModule();
+    Expr *parseInterfaceDef();
+    Expr *parseImport(Token);
+    Expr *parseCast();
+    Expr *parseSizeof();
 
     void checkInterfaceTypes(Token &, std::string &, FunctionScope *, std::vector<Type *> &, Type *);
-	Type * parseType();
+    Type *parseType();
 
-	int getPrecedence();
+    int getPrecedence();
 
     std::string getIdentifier(std::string errstring);
 
-	Token next()
-	{
-		if (count < tokens.size())
-		{
-			current = tokens[count];
-			count++;
-			fprintf(log_file, "Returning %d %c\n", current.type, (char)(current.value.size() > 0 ? current.value[0] : ' '));
-			return current;
-		}
+    Token next()
+    {
+        if (count < tokens.size())
+        {
+            current = tokens[count];
+            count++;
+            fprintf(log_file, "Returning %d %c\n", current.type,
+                    (char)(current.value.size() > 0 ? current.value[0] : ' '));
+            return current;
+        }
 
-		current = Token();
-		current.type = DONE;
-		fprintf(log_file, "Out of tokens\n");
-		return current;
-	}
+        current = Token();
+        current.type = DONE;
+        fprintf(log_file, "Out of tokens\n");
+        return current;
+    }
 
-	void push()
-	{
-		count -= 2;
-		next();
-	}
+    void push()
+    {
+        count -= 2;
+        next();
+    }
 
-	void expectedEol();
+    void expectedEol();
 
-	Lexer * lexer;
-	std::vector<Token> tokens;
-	unsigned int count;
-	Token current;
-	Expr * root;
-	SymbolScope * current_scope;
+    Lexer *lexer;
+    std::vector<Token> tokens;
+    unsigned int count;
+    Token current;
+    Expr *root;
+    SymbolScope *current_scope;
     int generic_counter;
     bool parsing_imports;
     std::string module;
-
 };
 
 extern std::list<Codegen *> macros;

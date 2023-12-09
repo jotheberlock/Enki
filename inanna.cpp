@@ -1,12 +1,12 @@
 #include "inanna.h"
-#include "platform.h"
-#include "symbols.h"
 #include "imports.h"
 #include "inanna_structures.h"
+#include "platform.h"
+#include "symbols.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #if defined(POSIX_HOST)
 #include <sys/stat.h>
@@ -47,15 +47,15 @@ void InannaImage::materialiseSection(int s)
     materialised[s] = true;
 }
 
-int InannaImage::stringOffset(const char * c)
+int InannaImage::stringOffset(const char *c)
 {
-	int ret = 0;
-	int tmpid = stringtable.getID(c);
-	if (tmpid > 0)
-	{
-		ret = stringtable.offsetOf(tmpid);
-	}
-	return ret;
+    int ret = 0;
+    int tmpid = stringtable.getID(c);
+    if (tmpid > 0)
+    {
+        ret = stringtable.offsetOf(tmpid);
+    }
+    return ret;
 }
 
 void InannaImage::finalise()
@@ -90,7 +90,7 @@ void InannaImage::finalise()
         }
     }
 
-    FILE * f = fopen(fname.c_str(), "wb+");
+    FILE *f = fopen(fname.c_str(), "wb+");
     if (!f)
     {
         printf("Can't open %s\n", fname.c_str());
@@ -105,18 +105,17 @@ void InannaImage::finalise()
 
     int no_subrelocs = 0;
 
-    for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
+    for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
     {
-        BaseRelocation * br = relocs[loopc];
+        BaseRelocation *br = relocs[loopc];
         if (br->isAbsolute())
         {
             no_subrelocs += (int)br->relocs.size();
         }
     }
 
-    int headersize = (int)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
-        stablesize + imports->size() + (seccount * InannaSection::size()) +
-        (no_subrelocs * InannaReloc::size()));
+    int headersize = (int)(INANNA_PREAMBLE + InannaHeader::size() + InannaArchHeader::size() + stablesize +
+                           imports->size() + (seccount * InannaSection::size()) + (no_subrelocs * InannaReloc::size()));
 
     uint32_t next_offset = headersize;
     while (next_offset % 4096)
@@ -173,22 +172,22 @@ void InannaImage::finalise()
         }
     }
 
-    unsigned char * header = new unsigned char[headersize];
+    unsigned char *header = new unsigned char[headersize];
     memset(header, 0, headersize);
     strcpy((char *)header, "#!/usr/bin/env enkiloader\n");
 
-    unsigned char * ptr = header+INANNA_PREAMBLE;
+    unsigned char *ptr = header + INANNA_PREAMBLE;
     strcpy((char *)ptr, "enki");
     ptr += 4;
     wle32(ptr, 1);
     wle32(ptr, 1);
-    wle32(ptr, INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size());
+    wle32(ptr, INANNA_PREAMBLE + InannaHeader::size() + InannaArchHeader::size());
     wle32(ptr, stablesize);
     wle32(ptr, 0);
 
     size_t relocs_count = 0;
 
-    for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
+    for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
     {
         if (relocs[loopc]->isAbsolute())
         {
@@ -197,8 +196,8 @@ void InannaImage::finalise()
     }
 
     wle32(ptr, arch);
-    wle32(ptr, (uint32_t)(INANNA_PREAMBLE+InannaHeader::size()+InannaArchHeader::size()+
-          stablesize + imports->size()));
+    wle32(ptr,
+          (uint32_t)(INANNA_PREAMBLE + InannaHeader::size() + InannaArchHeader::size() + stablesize + imports->size()));
     wle32(ptr, (uint32_t)isections.size());
     wle32(ptr, (uint32_t)relocs_count);
     wle64(ptr, functionAddress(root_function) - bases[IMAGE_CODE]);
@@ -213,7 +212,7 @@ void InannaImage::finalise()
 
     for (unsigned int loopc = 0; loopc < isections.size(); loopc++)
     {
-        InannaSection & is = isections[loopc];
+        InannaSection &is = isections[loopc];
         wle32(ptr, is.type);
         wle32(ptr, is.offset);
         wle32(ptr, is.length);
@@ -221,14 +220,14 @@ void InannaImage::finalise()
         wle64(ptr, is.vmem);
     }
 
-    for (unsigned int loopc=0; loopc<relocs.size(); loopc++)
+    for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
     {
-        BaseRelocation * br = relocs[loopc];
+        BaseRelocation *br = relocs[loopc];
         if (br->isAbsolute())
         {
             uint64_t v = br->getValue();
-            unsigned char * p = br->getPtr();
-            int secto,secfrom;
+            unsigned char *p = br->getPtr();
+            int secto, secfrom;
             uint64_t offto, offfrom;
             if (!getSectionOffset(v, secto, offto))
             {
@@ -238,16 +237,13 @@ void InannaImage::finalise()
             {
                 continue;
             }
-            printf("\nSection %d %s offset %lx points to section %d %s offset %lx\n",
-                   secfrom, sectionName(secfrom).c_str(), offfrom,
-                   secto, sectionName(secto).c_str(), offto);
-            std::list<Reloc> & relocs = br->relocs;
-            for (std::list<Reloc>::iterator it = relocs.begin();
-                 it != relocs.end(); it++)
+            printf("\nSection %d %s offset %lx points to section %d %s offset %lx\n", secfrom,
+                   sectionName(secfrom).c_str(), offfrom, secto, sectionName(secto).c_str(), offto);
+            std::list<Reloc> &relocs = br->relocs;
+            for (std::list<Reloc>::iterator it = relocs.begin(); it != relocs.end(); it++)
             {
-                printf("  Off %lx rshift %d mask %lx lshift %d bits %d\n",
-                       (*it).offset, (*it).rshift, (*it).mask, (*it).lshift,
-                       (*it).bits);
+                printf("  Off %lx rshift %d mask %lx lshift %d bits %d\n", (*it).offset, (*it).rshift, (*it).mask,
+                       (*it).lshift, (*it).bits);
                 int type = INANNA_RELOC_INVALID;
 
                 uint32_t rshift = 0;
@@ -300,11 +296,10 @@ void InannaImage::finalise()
                     printf("Unknown relocation type! Bits %d mask %lx\n", (*it).bits, (*it).mask);
                 }
 
-                printf("  Writing t %x sf %x st %x rs %x m %lx ls %x b %x o %lx off %lx ot %lx\n",
-                       type, secfrom, secto, rshift, mask, lshift, bits,
-                       offset, offfrom, offto);
+                printf("  Writing t %x sf %x st %x rs %x m %lx ls %x b %x o %lx off %lx ot %lx\n", type, secfrom, secto,
+                       rshift, mask, lshift, bits, offset, offfrom, offto);
 
-                unsigned char * optr = sections[secfrom] + offset+ offfrom;
+                unsigned char *optr = sections[secfrom] + offset + offfrom;
                 if ((*it).bits == 64)
                 {
                     printf("  Currently %lx\n", *((uint64_t *)optr));
@@ -337,7 +332,7 @@ void InannaImage::finalise()
     for (unsigned int loopc = 0; loopc < isections.size(); loopc++)
     {
         fseek(f, isections[loopc].offset, SEEK_SET);
-        unsigned char * ptr = getPtr(isections[loopc].type);
+        unsigned char *ptr = getPtr(isections[loopc].type);
         fwrite(ptr, sizes[isections[loopc].type], 1, f);
     }
 

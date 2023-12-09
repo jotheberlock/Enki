@@ -2,8 +2,8 @@
 #define _ELF_
 
 /*
-	Generates ELF executables; can handle 32 and 64 bit
-	little and big endian.
+    Generates ELF executables; can handle 32 and 64 bit
+    little and big endian.
 */
 
 #include "image.h"
@@ -11,31 +11,31 @@
 
 class ElfImage : public Image
 {
-public:
+  public:
+    ElfImage();
+    ~ElfImage();
+    void finalise();
+    bool configure(std::string, std::string);
 
-	ElfImage();
-	~ElfImage();
-	void finalise();
-	bool configure(std::string, std::string);
+    virtual uint64_t importAddress(std::string)
+    {
+        return 0;
+    }
 
-	virtual uint64_t importAddress(std::string)
-	{
-		return 0;
-	}
+    virtual uint64_t importOffset(std::string)
+    {
+        return 0;
+    }
 
-	virtual uint64_t importOffset(std::string)
-	{
-		return 0;
-	}
+    std::string name()
+    {
+        return "elf";
+    }
 
-	std::string name() { return "elf"; }
-
-protected:
-
-	int stringOffset(const char * c);
-	bool le;
-	StringBox stringtable;
-
+  protected:
+    int stringOffset(const char *c);
+    bool le;
+    StringBox stringtable;
 };
 
 #endif

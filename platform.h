@@ -2,11 +2,11 @@
 #define _PLATFORM_
 
 /*
-	Various host platform specific defines,
-	most of which aren't too important without
-	macro/JIT support. Also functions to write
-	little/big/either-endian 16/32/64-bit quantities
-	portably.
+    Various host platform specific defines,
+    most of which aren't too important without
+    macro/JIT support. Also functions to write
+    little/big/either-endian 16/32/64-bit quantities
+    portably.
 */
 
 #include <stdint.h>
@@ -82,7 +82,7 @@ uint64_t ree64(bool, unsigned char *);
 // Will complain if the input is > 32 bits
 uint32_t checked_32(uint64_t);
 
-extern FILE * log_file;
+extern FILE *log_file;
 
 uint64_t roundup(uint64_t in, uint64_t align);
 

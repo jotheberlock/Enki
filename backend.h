@@ -8,25 +8,22 @@
   can operate in multiple threads generating multiple targets simultaneously.
 */
 
-#include "configfile.h"
 #include "ast.h"
 #include "codegen.h"
+#include "configfile.h"
 
 class Backend
 {
-public:
-
-	Backend(Configuration *, Expr *);
+  public:
+    Backend(Configuration *, Expr *);
     ~Backend();
-    
-	int process();
 
-protected:
+    int process();
 
-	Configuration * config;
-	Expr * root_expr;
-	std::list<Codegen *> codegens;
-
+  protected:
+    Configuration *config;
+    Expr *root_expr;
+    std::list<Codegen *> codegens;
 };
 
 #endif

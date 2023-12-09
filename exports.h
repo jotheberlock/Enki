@@ -1,13 +1,12 @@
 #ifndef _EXPORTS_
 #define _EXPORTS_
 
-#include <unordered_map>
 #include "symbols.h"
+#include <unordered_map>
 
 class Exports
 {
-public:
-
+  public:
     Exports()
     {
         data = 0;
@@ -27,7 +26,7 @@ public:
     void addExport(std::string, FunctionScope *);
     void finalise();
 
-    unsigned char * getData()
+    unsigned char *getData()
     {
         return data;
     }
@@ -37,15 +36,13 @@ public:
         return data_size;
     }
 
-protected:
-
+  protected:
     std::string module_name;
-    unsigned char * data;
+    unsigned char *data;
     uint64_t data_size;
     std::unordered_map<std::string, FunctionScope *> recs;
-
 };
 
-extern Exports * exports;
+extern Exports *exports;
 
 #endif

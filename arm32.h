@@ -10,71 +10,68 @@ Assumes ARMv7 or better because it assumes movw/movt is available.
 
 class Arm32 : public Assembler
 {
-public:
-
-	Arm32()
-	{
-		psize = 32;
-	}
+  public:
+    Arm32()
+    {
+        psize = 32;
+    }
 
     int arch()
     {
         return ARCH_ARM32;
     }
-    
-	int regnum(std::string);
+
+    int regnum(std::string);
     int numRegs()
     {
         return 16;
     }
-    
-	int size(BasicBlock *);
-	bool assemble(BasicBlock *, BasicBlock *, Image *);
-	std::string transReg(uint32_t);
-	ValidRegs validRegs(Insn &);
 
-	int framePointer()
-	{
-		return 12;
-	}
+    int size(BasicBlock *);
+    bool assemble(BasicBlock *, BasicBlock *, Image *);
+    std::string transReg(uint32_t);
+    ValidRegs validRegs(Insn &);
+
+    int framePointer()
+    {
+        return 12;
+    }
 
     int osStackPointer()
     {
         return 13;
     }
 
-	int functionAlignment()
-	{
-		return 8;
-	}
+    int functionAlignment()
+    {
+        return 8;
+    }
 
-	bool validConst(Insn & i, int idx);
+    bool validConst(Insn &i, int idx);
 
-	virtual void newFunction(Codegen *);
-	virtual void align(uint64_t a);
+    virtual void newFunction(Codegen *);
+    virtual void align(uint64_t a);
 
-	virtual bool configure(std::string, std::string);
+    virtual bool configure(std::string, std::string);
 
     virtual bool validRegOffset(Insn &, int);
-    
-protected:
 
-	bool calcImm(uint64_t raw, uint32_t & result);
-
+  protected:
+    bool calcImm(uint64_t raw, uint32_t &result);
 };
 
 class ArmLinuxSyscallCallingConvention : public CallingConvention
 {
-public:
+  public:
+    virtual void generatePrologue(BasicBlock *, FunctionScope *)
+    {
+    }
 
-	virtual void generatePrologue(BasicBlock *, FunctionScope *)
-	{}
+    virtual void generateEpilogue(BasicBlock *, FunctionScope *)
+    {
+    }
 
-	virtual void generateEpilogue(BasicBlock *, FunctionScope *)
-	{}
-
-	virtual Value * generateCall(Codegen *, Value *, std::vector<Value *> &);
-
+    virtual Value *generateCall(Codegen *, Value *, std::vector<Value *> &);
 };
 
 #endif

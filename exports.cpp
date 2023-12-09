@@ -1,11 +1,11 @@
-#include <string.h>
 #include "exports.h"
-#include "platform.h"
-#include "image.h"
-#include "configfile.h"
 #include "asm.h"
+#include "configfile.h"
+#include "image.h"
+#include "platform.h"
+#include <string.h>
 
-void Exports::addExport(std::string n, FunctionScope * f)
+void Exports::addExport(std::string n, FunctionScope *f)
 {
     recs[n] = f;
 }
@@ -23,22 +23,22 @@ static uint64_t round64(uint64_t i)
 void Exports::finalise()
 {
     data_size = 0;
-    data_size += 8;   // Pointer to next export table
-    data_size += 8;   // Module name length
-    data_size += round64(module_name.size()+1);
+    data_size += 8; // Pointer to next export table
+    data_size += 8; // Module name length
+    data_size += round64(module_name.size() + 1);
 
-    data_size += 8;   // Number of entries
+    data_size += 8; // Number of entries
 
     for (auto it = recs.begin(); it != recs.end(); it++)
     {
-        data_size += 8;  // Relocation
-        data_size += 8;  // String size
-        data_size += round64(it->first.size()+1);
+        data_size += 8; // Relocation
+        data_size += 8; // String size
+        data_size += round64(it->first.size() + 1);
     }
 
     delete[] data;
     data = new unsigned char[data_size];
-    unsigned char * ptr = data;
+    unsigned char *ptr = data;
     wle64(ptr, 0x0);
 
     uint64_t len = round64(module_name.size() + 1);
@@ -50,10 +50,8 @@ void Exports::finalise()
     wle64(ptr, recs.size());
     for (auto it = recs.begin(); it != recs.end(); it++)
     {
-        FunctionTableRelocation * ftr = new FunctionTableRelocation(configuration->image,
-                                                                    it->second,
-                                                                    ptr-data,
-                                                                    IMAGE_EXPORTS);
+        FunctionTableRelocation *ftr =
+            new FunctionTableRelocation(configuration->image, it->second, ptr - data, IMAGE_EXPORTS);
         ftr->add64();
 
         wle64(ptr, 0xdeadbeefdeadbeefLL);

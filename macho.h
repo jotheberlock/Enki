@@ -5,38 +5,38 @@
 #include "stringbox.h"
 
 /*
-	Generates Mach-O object files. Currently only fully functional
-	for amd64 because Mach-O wants a LC_UNIXTHREAD section describing
-	how to set the CPU registers for initial thread of the process
-	and this is inherently architecture specific (even though the
-	only register we actually care about is the instruction pointer).
+    Generates Mach-O object files. Currently only fully functional
+    for amd64 because Mach-O wants a LC_UNIXTHREAD section describing
+    how to set the CPU registers for initial thread of the process
+    and this is inherently architecture specific (even though the
+    only register we actually care about is the instruction pointer).
 */
 
 class MachOImage : public Image
 {
-public:
+  public:
+    MachOImage();
+    ~MachOImage();
+    void finalise();
+    bool configure(std::string, std::string);
+    std::string name()
+    {
+        return "macho";
+    }
 
-	MachOImage();
-	~MachOImage();
-	void finalise();
-	bool configure(std::string, std::string);
-	std::string name() { return "macho"; }
+    virtual uint64_t importAddress(std::string)
+    {
+        return 0;
+    }
 
-	virtual uint64_t importAddress(std::string)
-	{
-		return 0;
-	}
+    virtual uint64_t importOffset(std::string)
+    {
+        return 0;
+    }
 
-	virtual uint64_t importOffset(std::string)
-	{
-		return 0;
-	}
-
-protected:
-
-	bool le;
-	int arch_subtype;
-
+  protected:
+    bool le;
+    int arch_subtype;
 };
 
 #endif
