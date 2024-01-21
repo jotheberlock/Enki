@@ -99,9 +99,9 @@ class Token
     std::string toString()
     {
         std::string ret;
-        for (unsigned int loopc = 0; loopc < value.size(); loopc++)
+        for (auto &val : value)
         {
-            char c = value[loopc];
+            char c = val;
             ret += c;
         }
         return ret;

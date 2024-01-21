@@ -35,9 +35,9 @@ class SymbolScope
 
     virtual ~SymbolScope()
     {
-        for (std::list<SymbolScope *>::iterator it = children.begin(); it != children.end(); it++)
+        for (auto & it:children)
         {
-            delete (*it);
+            delete it;
         }
     }
 

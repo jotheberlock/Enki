@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "component.h"
 #include "image.h"
@@ -239,12 +240,9 @@ class BasicBlock
 
     void addChild(BasicBlock *b)
     {
-        for (unsigned int loopc = 0; loopc < children.size(); loopc++)
+	if (std::find(children.begin(), children.end(), b) != children.end())
         {
-            if (children[loopc] == b)
-            {
-                return;
-            }
+	    return;
         }
 
         children.push_back(b);
@@ -265,11 +263,7 @@ class BasicBlock
 
     void append(BasicBlock &b)
     {
-        std::list<Insn>::iterator it;
-        for (it = b.insns.begin(); it != b.insns.end(); it++)
-        {
-            insns.push_back(*it);
-        }
+	insns.insert(insns.end(), b.insns.begin(), b.insns.end());
     }
 
     std::vector<BasicBlock *> &getChildren()

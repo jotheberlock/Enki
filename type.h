@@ -640,9 +640,9 @@ class FunctionType : public Type
     FunctionSignature getSignature()
     {
         std::vector<uint64_t> ret;
-        for (unsigned int loopc = 0; loopc < params.size(); loopc++)
+        for (auto &it : params)
         {
-            ret.push_back(params[loopc].type->classId());
+            ret.push_back(it.type->classId());
         }
         return ret;
     }

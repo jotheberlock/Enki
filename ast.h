@@ -420,9 +420,9 @@ class If : public Expr
 
     ~If()
     {
-        for (std::list<IfClause *>::iterator it = clauses.begin(); it != clauses.end(); it++)
+        for (auto &it:clauses)
         {
-            delete *it;
+            delete it;
         }
         delete elseblock;
     }
@@ -439,7 +439,7 @@ class If : public Expr
 
     virtual void print(int i)
     {
-        for (std::list<IfClause *>::iterator it = clauses.begin(); it != clauses.end(); it++)
+        for (auto it = clauses.begin(); it != clauses.end(); it++)
         {
             indent(i);
             fprintf(log_file, (it == clauses.begin()) ? "if " : "elif ");
@@ -755,9 +755,9 @@ class VarRefExpr : public Expr
 
     ~VarRefExpr()
     {
-        for (std::vector<VarRefElement>::iterator it = elements.begin(); it != elements.end(); it++)
+        for (auto &it:elements)
         {
-            delete (*it).subs;
+            delete it.subs;
         }
     }
 
@@ -900,9 +900,9 @@ class Funcall : public Expr
     ~Funcall()
     {
         delete ident;
-        for (unsigned int loopc = 0; loopc < args.size(); loopc++)
+        for (auto &it:args)
         {
-            delete args[loopc];
+            delete it;
         }
     }
 

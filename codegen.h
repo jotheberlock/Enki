@@ -269,15 +269,10 @@ class Codegen
 
     BasicBlock *getUnplacedBlock(std::string name)
     {
-        for (unsigned int loopc = 0; loopc < blocks.size(); loopc++)
-        {
-            if (unplaced_blocks[loopc]->name() == name)
-            {
-                return unplaced_blocks[loopc];
-            }
-        }
-
-        return 0;
+	auto it = std::find_if(unplaced_blocks.begin(), unplaced_blocks.end(),
+			       [&name]
+			       (BasicBlock * b) -> bool { return b->name() == name; });
+        return (it == unplaced_blocks.end() ? 0 : *it);
     }
 
     std::string display(unsigned char *);
