@@ -70,9 +70,8 @@ int Thumb::size(BasicBlock *b)
     int ret = 0;
     std::list<Insn> &code = b->getCode();
 
-    for (std::list<Insn>::iterator it = code.begin(); it != code.end(); it++)
+    for (auto &i : code)
     {
-        Insn &i = *it;
         i.addr = address + len();
 
         switch (i.ins)
@@ -147,9 +146,8 @@ bool Thumb::assemble(BasicBlock *b, BasicBlock *next, Image *image)
 
     unsigned char *block_base = current;
 
-    for (std::list<Insn>::iterator it = code.begin(); it != code.end(); it++)
+    for (auto &i : code)
     {
-        Insn &i = *it;
         i.addr = address + flen();
 
         uint16_t mc = 0x46c0; // nop

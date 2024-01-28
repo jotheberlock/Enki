@@ -193,9 +193,8 @@ int Amd64::size(BasicBlock *b)
     int ret = 0;
     std::list<Insn> &code = b->getCode();
 
-    for (std::list<Insn>::iterator it = code.begin(); it != code.end(); it++)
+    for (auto &i : code)
     {
-        Insn &i = *it;
         i.addr = address + len();
 
         int oldret = ret;
@@ -414,9 +413,8 @@ bool Amd64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
 
     b->setAddr(address + flen());
 
-    for (std::list<Insn>::iterator it = code.begin(); it != code.end(); it++)
+    for (auto &i : code)
     {
-        Insn &i = *it;
         i.addr = address + flen();
 
         unsigned char *oldcurrent = current;

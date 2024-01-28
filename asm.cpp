@@ -477,18 +477,16 @@ std::string Insn::insToString()
 
 void BasicBlock::calcRelationships(std::vector<BasicBlock *> &blocks)
 {
-    for (unsigned int loopc = 0; loopc < blocks.size(); loopc++)
+    for (auto &b: blocks)
     {
-        blocks[loopc]->children.clear();
-        blocks[loopc]->parents.clear();
+        b->children.clear();
+        b->parents.clear();
     }
 
-    for (unsigned int loopc = 0; loopc < blocks.size(); loopc++)
+    for (auto &b : blocks)
     {
-        BasicBlock *b = blocks[loopc];
-        for (std::list<Insn>::iterator it = b->getCode().begin(); it != b->getCode().end(); it++)
+        for (auto &i : b->getCode())
         {
-            Insn &i = *it;
             for (int loopc2 = 0; loopc2 < i.oc; loopc2++)
             {
                 if (i.ops[loopc2].isBlock())
@@ -509,9 +507,9 @@ std::string BasicBlock::toString()
     ret += ":\n";
 
     unsigned int loopc = 0;
-    for (std::list<Insn>::iterator it = insns.begin(); it != insns.end(); it++)
+    for (auto &it : insns)
     {
-        std::string i = (*it).toString();
+        std::string i = it.toString();
         char buf[4096];
         sprintf(buf, "%u: %s\n", loopc++, i.c_str());
         ret += buf;

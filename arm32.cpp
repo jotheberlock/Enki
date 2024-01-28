@@ -50,9 +50,8 @@ int Arm32::size(BasicBlock *b)
     int ret = 0;
     std::list<Insn> &code = b->getCode();
 
-    for (std::list<Insn>::iterator it = code.begin(); it != code.end(); it++)
+    for (auto &i :code)
     {
-        Insn &i = *it;
         i.addr = address + len();
 
         switch (i.ins)
@@ -124,9 +123,8 @@ bool Arm32::assemble(BasicBlock *b, BasicBlock *next, Image *image)
     uint64_t current_addr = (uint64_t)current;
     assert((current_addr & 0x3) == 0);
 
-    for (std::list<Insn>::iterator it = code.begin(); it != code.end(); it++)
+    for (auto &i : code)
     {
-        Insn &i = *it;
         i.addr = address + flen();
 
         uint32_t mc = 0;
