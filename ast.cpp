@@ -92,7 +92,7 @@ StringLiteralExpr::StringLiteralExpr(Token *t)
     {
         buf[loopc] = (char)t->value[loopc];
     }
-    buf[loopc] = 0;
+    buf[t->value.size()] = 0;
 
     val = buf;
     idx = constants->addConstant(buf, loopc + 1, 1);
@@ -617,9 +617,9 @@ Expr *Parser::parseImport(Token t)
     if (errors.size() != 0)
     {
         printf("Lexer errors reading interface %s:\n\n", name.c_str());
-        for (std::list<Error>::iterator it = errors.begin(); it != errors.end(); it++)
+        for (auto &it: errors)
         {
-            (*it).print();
+            it.print();
             printf("\n");
         }
     }
@@ -629,9 +629,9 @@ Expr *Parser::parseImport(Token t)
     if (errors.size() != 0)
     {
         printf("Parser errors reading interface %s:\n\n", name.c_str());
-        for (std::list<Error>::iterator it = errors.begin(); it != errors.end(); it++)
+        for (auto &it: errors)
         {
-            (*it).print();
+            it.print();
             printf("\n");
         }
     }
@@ -1837,10 +1837,9 @@ Type *VarRefExpr::checkType(Codegen *c)
         return 0;
     }
 
-    for (unsigned int loopc = 0; loopc < elements.size(); loopc++)
+    for (auto &i: elements)
     {
-        VarRefElement &vre = elements[loopc];
-        switch (vre.type)
+        switch (i.type)
         {
         case VARREF_DEREF: {
             if (ret->canDeref())
@@ -1869,7 +1868,7 @@ Type *VarRefExpr::checkType(Codegen *c)
         case VARREF_MEMBER: {
             if (ret->canField())
             {
-                ret = ret->fieldType(((IdentifierExpr *)vre.subs)->getString());
+                ret = ret->fieldType(((IdentifierExpr *)i.subs)->getString());
             }
             else
             {
@@ -1892,10 +1891,9 @@ void VarRefExpr::print(int i)
 {
     indent(i);
     fputs(value->name.c_str(), log_file);
-    for (unsigned int loopc = 0; loopc < elements.size(); loopc++)
+    for (auto &i: elements)
     {
-        VarRefElement &vre = elements[loopc];
-        switch (vre.type)
+        switch (i.type)
         {
         case VARREF_DEREF: {
             fprintf(log_file, "^");
@@ -1903,17 +1901,17 @@ void VarRefExpr::print(int i)
         }
         case VARREF_ARRAY: {
             fprintf(log_file, "[");
-            vre.subs->print(0);
+            i.subs->print(0);
             fprintf(log_file, "]");
             break;
         }
         case VARREF_MEMBER: {
             fprintf(log_file, ".");
-            vre.subs->print(0);
+            i.subs->print(0);
             break;
         }
         default: {
-            fprintf(log_file, "??? <%d>", vre.type);
+            fprintf(log_file, "??? <%d>", i.type);
             break;
         }
         }
@@ -2675,27 +2673,24 @@ Value *If::codegen(Codegen *c)
 {
     if (constif)
     {
-        std::list<IfClause *>::iterator it;
-
-        for (it = clauses.begin(); it != clauses.end(); it++)
+        for (auto &i: clauses)
         {
             bool evaled;
             uint64_t ret;
-            IfClause *ic = *it;
-            evaled = ic->condition->constEval(ret);
+            evaled = i->condition->constEval(ret);
             if (!evaled)
             {
                 printf("Failed to evaluate constant if!\n");
                 FILE *f = log_file;
                 log_file = stdout;
-                ic->condition->print(0);
+                i->condition->print(0);
                 log_file = f;
                 return 0;
             }
 
             if (ret != 0)
             {
-                return ic->body->codegen(c);
+                return i->body->codegen(c);
             }
         }
 
@@ -2731,17 +2726,16 @@ Value *If::codegen(Codegen *c)
     ifcs[count] = ifs[count];
 
     count = 0;
-    for (std::list<IfClause *>::iterator it = clauses.begin(); it != clauses.end(); it++)
+    for (auto &i: clauses)
     {
         c->setBlock(ifcs[count]);
 
-        IfClause *ic = *it;
-        Value *v = ic->condition->codegen(c);
+        Value *v = i->condition->codegen(c);
         c->block()->add(Insn(CMP, v, Operand::usigc(0)));
 
         c->block()->add(Insn(BNE, ifs[count], ifcs[count + 1]));
         c->setBlock(ifs[count]);
-        ic->body->codegen(c);
+        i->body->codegen(c);
         c->block()->add(Insn(BRA, endb));
         count++;
     }
@@ -2772,12 +2766,11 @@ Value *VarRefExpr::codegen(Codegen *c)
 
         c->block()->add(Insn(GETADDR, r, value, Operand::usigc(depth)));
 
-        for (unsigned int loopc = 0; loopc < elements.size(); loopc++)
+        for (auto &i: elements)
         {
-            VarRefElement &vre = elements[loopc];
-            etype->calcAddress(c, r, vre.subs);
+            etype->calcAddress(c, r, i.subs);
 
-            switch (vre.type)
+            switch (i.type)
             {
             case VARREF_DEREF: {
                 etype = etype->derefType();
@@ -2799,7 +2792,7 @@ Value *VarRefExpr::codegen(Codegen *c)
                 break;
             }
             case VARREF_MEMBER: {
-                std::string fname = ((IdentifierExpr *)vre.subs)->getString();
+                std::string fname = ((IdentifierExpr *)i.subs)->getString();
                 etype = etype->fieldType(fname);
 
                 if (!etype)
@@ -2868,11 +2861,10 @@ void VarRefExpr::store(Codegen *c, Value *v)
     c->block()->add(Insn(GETADDR, r, i, Operand::usigc(depth)));
     Type *etype = i->type;
 
-    for (unsigned int loopc = 0; loopc < elements.size(); loopc++)
+    for (auto &i: elements)
     {
-        VarRefElement &vre = elements[loopc];
-        etype->calcAddress(c, r, vre.subs);
-        switch (vre.type)
+        etype->calcAddress(c, r, i.subs);
+        switch (i.type)
         {
         case VARREF_DEREF: {
             etype = etype->derefType();
@@ -2883,7 +2875,7 @@ void VarRefExpr::store(Codegen *c, Value *v)
             break;
         }
         case VARREF_MEMBER: {
-            etype = etype->fieldType(((IdentifierExpr *)vre.subs)->getString());
+            etype = etype->fieldType(((IdentifierExpr *)i.subs)->getString());
             break;
         }
         default: {

@@ -21,9 +21,9 @@ Codegen::Codegen(Expr *e, FunctionScope *fs)
 Codegen *Codegen::copy()
 {
     Codegen *ret = new Codegen(base, scope);
-    for (std::vector<BasicBlock *>::iterator it = blocks.begin(); it != blocks.end(); it++)
+    for (auto  &it: blocks)
     {
-        BasicBlock *bb = *it;
+        BasicBlock *bb = it;
         BasicBlock *nb = new BasicBlock(bb->name());
         nb->setCode(bb->getCode());
         ret->blocks.push_back(nb);
@@ -32,36 +32,36 @@ Codegen *Codegen::copy()
             ret->current_block = nb;
         }
 
-        for (std::list<BasicBlock *>::iterator it2 = break_targets.begin(); it2 != break_targets.end(); it2++)
+        for (auto &it2: break_targets)
         {
-            if (*it2 == bb)
+            if (it2 == bb)
             {
                 ret->break_targets.push_back(nb);
             }
         }
 
-        for (std::list<BasicBlock *>::iterator it2 = continue_targets.begin(); it2 != continue_targets.end(); it2++)
+        for (auto &it2: continue_targets)
         {
-            if (*it2 == bb)
+            if (it2 == bb)
             {
                 ret->continue_targets.push_back(nb);
             }
         }
     }
 
-    for (std::vector<Value *>::iterator it = locals.begin(); it != locals.end(); it++)
+    for (auto &it: locals)
     {
-        Value *v = new Value(*it);
+        Value *v = new Value(it);
         ret->locals.push_back(v);
-        if (*it == retvar)
+        if (it == retvar)
         {
             ret->retvar = v;
         }
-        else if (*it == ipvar)
+        else if (it == ipvar)
         {
             ret->ipvar = v;
         }
-        else if (*it == staticlink)
+        else if (it == staticlink)
         {
             ret->staticlink = v;
         }
@@ -115,19 +115,19 @@ void Codegen::generate()
 {
     scope->getValues(locals);
 
-    for (unsigned int loopc = 0; loopc < locals.size(); loopc++)
+    for (auto &local: locals)
     {
-        if (locals[loopc]->name == "__ret")
+        if (local->name == "__ret")
         {
-            retvar = locals[loopc];
+            retvar = local;
         }
-        else if (locals[loopc]->name == "__ip")
+        else if (local->name == "__ip")
         {
-            ipvar = locals[loopc];
+            ipvar = local;
         }
-        else if (locals[loopc]->name == "__staticlink")
+        else if (local->name == "__staticlink")
         {
-            staticlink = locals[loopc];
+            staticlink = local;
         }
     }
 
@@ -196,9 +196,8 @@ uint64_t Constants::addConstant(const char *data, int len, int align)
 void Codegen::allocateStackSlots()
 {
     stack_size = 0;
-    for (unsigned int loopc = 0; loopc < locals.size(); loopc++)
+    for (auto &v: locals)
     {
-        Value *v = locals[loopc];
         if (v->onStack() && (v->type != void_type))
         {
             assert(v->type->size() != 0);

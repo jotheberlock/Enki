@@ -29,9 +29,9 @@ Backend::Backend(Configuration *c, Expr *r)
 
 Backend::~Backend()
 {
-    for (std::list<Codegen *>::iterator it = codegens.begin(); it != codegens.end(); it++)
+    for (auto &it: codegens)
     {
-        delete *it;
+        delete it;
     }
 }
 
@@ -100,10 +100,10 @@ int Backend::process()
     if (errors.size() != 0)
     {
         printf("Codegen errors:\n\n");
-        for (std::list<Error>::iterator it = errors.begin(); it != errors.end(); it++)
+        for (auto &it: errors)
         {
             printf("\n");
-            (*it).print();
+            it.print();
         }
         return 1;
     }
@@ -131,17 +131,15 @@ int Backend::process()
 
     std::vector<OptimisationPass *> passes = config->passes;
 
-    for (std::list<Codegen *>::iterator cit = codegens.begin(); cit != codegens.end(); cit++)
+    for (auto &cg: codegens)
     {
-        Codegen *cg = *cit;
         cg->allocateStackSlots();
 
         BasicBlock::calcRelationships(cg->getBlocks());
 
         int count = 0;
-        for (std::vector<OptimisationPass *>::iterator it = passes.begin(); it != passes.end(); it++)
+        for (auto &op : passes)
         {
-            OptimisationPass *op = *it;
             FILE *keep_log = log_file;
             char buf[4096];
             sprintf(buf, "%s_%s_%d_%s.txt", config->name.c_str(), cg->getScope()->name().c_str(), count,
@@ -161,12 +159,12 @@ int Backend::process()
 
     int code_size = 0;
 
-    for (std::list<Codegen *>::iterator cit = codegens.begin(); cit != codegens.end(); cit++)
+    for (auto &cit: codegens)
     {
-        bool is_macro = (*cit)->getScope()->getType()->isMacro();
+        bool is_macro = cit->getScope()->getType()->isMacro();
         if (is_macro)
         {
-            printf("Skipping macro %s\n", (*cit)->getScope()->name().c_str());
+            printf("Skipping macro %s\n", cit->getScope()->name().c_str());
             continue;
         }
 
@@ -175,13 +173,13 @@ int Backend::process()
             code_size++;
         }
 
-        std::vector<BasicBlock *> &bbs = (*cit)->getBlocks();
+        std::vector<BasicBlock *> &bbs = cit->getBlocks();
 
         int func_size = 0;
-        for (unsigned int loopc = 0; loopc < bbs.size(); loopc++)
+        for (auto &bb: bbs)
         {
-            bbs[loopc]->setEstimatedAddr(code_size);
-            int siz = config->assembler->size(bbs[loopc]);
+            bb->setEstimatedAddr(code_size);
+            int siz = config->assembler->size(bb);
             code_size += siz;
             func_size += siz;
         }
@@ -189,7 +187,7 @@ int Backend::process()
         code_size += 8; // stack size marker at start of normal function
         func_size += 8;
 
-        FunctionScope *fs = (*cit)->getScope();
+        FunctionScope *fs = cit->getScope();
         config->image->addFunction(fs, func_size);
     }
 
@@ -206,9 +204,9 @@ int Backend::process()
 
     imports->finalise();
 
-    for (std::list<Codegen *>::iterator cit = codegens.begin(); cit != codegens.end(); cit++)
+    for (auto &codegen : codegens)
     {
-        std::vector<BasicBlock *> &ubbs = (*cit)->getUnplacedBlocks();
+        std::vector<BasicBlock *> &ubbs = codegen->getUnplacedBlocks();
         if (ubbs.size() != 0)
         {
             printf("WARNING unplaced blocks:\n");
@@ -219,22 +217,22 @@ int Backend::process()
             return 1;
         }
 
-        FunctionScope *fs = (*cit)->getScope();
+        FunctionScope *fs = codegen->getScope();
         config->assembler->setAddr(config->image->functionAddress(fs));
         config->assembler->setPtr(config->image->functionPtr(fs));
-        (*cit)->getScope()->setAddr(config->assembler->currentAddr());
-        config->assembler->newFunction(*cit);
-        std::vector<BasicBlock *> &bbs = (*cit)->getBlocks();
-        for (unsigned int loopc = 0; loopc < bbs.size(); loopc++)
+        codegen->getScope()->setAddr(config->assembler->currentAddr());
+        config->assembler->newFunction(codegen);
+        std::vector<BasicBlock *> &bbs = (codegen)->getBlocks();
+        for (auto &bb : bbs)
         {
-            config->assembler->assemble(bbs[loopc], 0, config->image);
+            config->assembler->assemble(bb, 0, config->image);
         }
 
         FILE *keep_log = log_file;
         char buf[4096];
-        sprintf(buf, "%s_%s_codegen.txt", config->name.c_str(), (*cit)->getScope()->name().c_str());
+        sprintf(buf, "%s_%s_codegen.txt", config->name.c_str(), codegen->getScope()->name().c_str());
         log_file = fopen(buf, "w");
-        dump_codegen(*cit);
+        dump_codegen(codegen);
         fclose(log_file);
         log_file = keep_log;
     }
@@ -258,25 +256,24 @@ int Backend::process()
     fputs(buf, debug);
 
     auto &typelist = types->get();
-    for (auto it = typelist.begin(); it != typelist.end(); it++)
+    for (auto &type : typelist)
     {
         char buf[4096];
-        sprintf(buf, "type %u %s %u\n", (unsigned int)(*it).second->classId(), (*it).first.c_str(),
-                (unsigned int)(*it).second->size());
+        sprintf(buf, "type %u %s %u\n", (unsigned int)type.second->classId(), type.first.c_str(),
+                (unsigned int)type.second->size());
         fputs(buf, debug);
     }
 
-    for (std::list<Codegen *>::iterator cit = codegens.begin(); cit != codegens.end(); cit++)
+    for (auto &codegen: codegens)
     {
-        FunctionScope *fs = (*cit)->getScope();
+        FunctionScope *fs = codegen->getScope();
         char buf[4096];
         sprintf(buf, "function %s %u %u\n", fs->name().c_str(), (unsigned int)config->image->functionAddress(fs),
                 (unsigned int)config->image->functionSize(fs));
         fputs(buf, debug);
-        std::vector<Value *> locals = (*cit)->getLocals();
-        for (unsigned int loopc = 0; loopc < locals.size(); loopc++)
+        std::vector<Value *> locals = codegen->getLocals();
+        for (auto &v: locals)
         {
-            Value *v = locals[loopc];
             sprintf(buf, "local %s %u %u\n", v->name.c_str(), (unsigned int)(v->type ? v->type->classId() : 0),
                     (unsigned int)v->stackOffset());
             fputs(buf, debug);
