@@ -53,20 +53,19 @@ void Imports::finalise()
     // Clean out all the functions that never actually got
     // imported
 
-    ImportModuleMap::iterator it;
     ImportFunctionMap::iterator it2;
     ImportFunctionMap::iterator next_it2;
 
-    for (it = modules.begin(); it != modules.end(); it++)
+    for (auto &it : modules)
     {
-        printf("Module %s\n", it->first.c_str());
-        ImportFunctionMap &ifm = it->second;
+        printf("Module %s\n", it.first.c_str());
+        auto &ifm = it.second;
         for (it2 = ifm.begin(); it2 != ifm.end(); it2 = next_it2)
         {
             next_it2 = it2;
             ++next_it2;
 
-            ImportRec &ir = it2->second;
+            ImportRec &ir = (*it2).second;
             if (ir.value == 0)
             {
                 ifm.erase(it2);
@@ -76,15 +75,15 @@ void Imports::finalise()
 
     data_size = 8;
 
-    for (it = modules.begin(); it != modules.end(); it++)
+    for (auto &it : modules)
     {
-        uint64_t mcount = round64(it->first.size()) + 24;
+        uint64_t mcount = round64(it.first.size()) + 24;
 
         data_size += mcount;
-        ImportFunctionMap &ifm = it->second;
-        for (it2 = ifm.begin(); it2 != ifm.end(); it2++)
+        ImportFunctionMap &ifm = it.second;
+        for (auto &it2 : ifm)
         {
-            uint64_t icount = round64(it2->first.size()) + 24;
+            uint64_t icount = round64(it2.first.size()) + 24;
             data_size += icount;
         }
     }
@@ -93,23 +92,23 @@ void Imports::finalise()
     unsigned char *ptr = data;
 
     wle64(ptr, modules.size());
-    for (it = modules.begin(); it != modules.end(); it++)
+    for (auto &it : modules)
     {
-        ImportFunctionMap &ifm = it->second;
-        wle64(ptr, round64(it->first.size() + 1));
+        ImportFunctionMap &ifm = it.second;
+        wle64(ptr, round64(it.first.size() + 1));
         wle64(ptr, ifm.size());
-        wle64(ptr, it->first.size() + 1);
-        strcpy((char *)ptr, it->first.c_str());
-        ptr += round64(it->first.size() + 1);
+        wle64(ptr, it.first.size() + 1);
+        strcpy((char *)ptr, it.first.c_str());
+        ptr += round64(it.first.size() + 1);
 
-        for (it2 = ifm.begin(); it2 != ifm.end(); it2++)
+        for (auto &it2 : ifm)
         {
-            wle64(ptr, round64(it2->first.size()));
-            printf(">> %s %ld\n", it2->first.c_str(), it2->second.value->stackOffset());
-            wle64(ptr, it2->second.value->stackOffset());
-            wle64(ptr, it2->first.size());
-            strcpy((char *)ptr, it2->first.c_str());
-            ptr += round64(it2->first.size());
+            wle64(ptr, round64(it2.first.size()));
+            printf(">> %s %ld\n", it2.first.c_str(), it2.second.value->stackOffset());
+            wle64(ptr, it2.second.value->stackOffset());
+            wle64(ptr, it2.first.size());
+            strcpy((char *)ptr, it2.first.c_str());
+            ptr += round64(it2.first.size());
         }
     }
 }

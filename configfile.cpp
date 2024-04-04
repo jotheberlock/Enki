@@ -9,14 +9,14 @@
 
 Configuration::~Configuration()
 {
-    for (auto it = components.begin(); it != components.end(); it++)
+    for (auto &it : components)
     {
-        delete (*it).second;
+        delete it.second;
     }
 
-    for (std::vector<OptimisationPass *>::iterator it2 = passes.begin(); it2 != passes.end(); it2++)
+    for (auto &it : passes)
     {
-        delete (*it2);
+        delete it;
     }
 }
 
@@ -274,9 +274,9 @@ FILE *Configuration::open(std::string n)
         return f;
     }
 
-    for (std::list<std::string>::iterator it = paths.begin(); it != paths.end(); it++)
+    for (auto &it: paths)
     {
-        std::string path = *it + n;
+        std::string path = it + n;
         FILE *f = fopen(path.c_str(), "rb");
         if (f)
         {

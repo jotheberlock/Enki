@@ -120,13 +120,13 @@ void BaseRelocation::apply()
     uint64_t written = val;
 
     int bits = 0;
-    for (std::list<Reloc>::iterator it = relocs.begin(); it != relocs.end(); it++)
+    for (auto &it : relocs)
     {
-        uint64_t mask = (*it).mask << (*it).rshift;
+        uint64_t mask = it.mask << it.rshift;
 
         if (mask == 0)
         {
-            for (int loopc = 0; loopc < (*it).bits; loopc++)
+            for (int loopc = 0; loopc < it.bits; loopc++)
             {
                 mask |= (uint64_t)0x1 << loopc;
             }
@@ -135,12 +135,12 @@ void BaseRelocation::apply()
         written = written & ~mask;
 
         // this should really be a BaseRelocation thing...
-        if (bits < (*it).bits)
+        if (bits < it.bits)
         {
-            bits = (*it).bits;
+            bits = it.bits;
         }
 
-        (*it).apply(image->littleEndian(), patch_site, val);
+        it.apply(image->littleEndian(), patch_site, val);
     }
 
     if (written)
@@ -184,9 +184,9 @@ Image::Image()
 
 Image::~Image()
 {
-    for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
+    for (auto &it : relocs)
     {
-        delete relocs[loopc];
+        delete it;
     }
 }
 
@@ -254,11 +254,11 @@ void Image::setRootFunction(FunctionScope *f)
 
 void Image::relocate(bool relative_only)
 {
-    for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
+    for (auto &it : relocs)
     {
-        if ((!relative_only) || (!relocs[loopc]->isAbsolute()))
+        if ((!relative_only) || (!it->isAbsolute()))
         {
-            relocs[loopc]->apply();
+            it->apply();
         }
     }
 }
@@ -279,7 +279,7 @@ void Image::addFunction(FunctionScope *ptr, uint64_t size)
 
 unsigned char *Image::functionPtr(FunctionScope *ptr)
 {
-    for (unsigned int loopc = 0; loopc < fptrs.size(); loopc++)
+    for (int loopc = 0; loopc < fptrs.size(); loopc++)
     {
         if (fptrs[loopc] == ptr)
         {
@@ -321,22 +321,19 @@ uint64_t Image::functionSize(FunctionScope *ptr)
 
 void Image::addImport(std::string lib, std::string name)
 {
-    for (unsigned int loopc = 0; loopc < ext_imports.size(); loopc++)
+    auto it = std::find_if(ext_imports.begin(), ext_imports.end(),
+			   [&name](LibImport& import) -> bool { return name == import.name; });
+    if (it != std::end(ext_imports))
     {
-        if (ext_imports[loopc].name == lib)
-        {
-            LibImport &l = ext_imports[loopc];
-            for (unsigned int loopc2 = 0; loopc2 < l.imports.size(); loopc2++)
-            {
-                if (l.imports[loopc2] == name)
-                {
-                    return;
-                }
-            }
-            l.imports.push_back(name);
-            total_imports++;
-            return;
-        }
+	LibImport &l = *it;
+	auto it2 = std::find(l.imports.begin(), l.imports.end(), name);
+	if (it2 != std::end(l.imports))
+	{
+	    return;
+	}
+	l.imports.push_back(name);
+	total_imports++;
+	return;
     }
 
     LibImport l;

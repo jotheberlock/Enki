@@ -83,9 +83,9 @@ void ElfImage::finalise()
     stringtable.add(".mtables");
     stringtable.add(".exports");
 
-    for (unsigned int loopc = 0; loopc < fptrs.size(); loopc++)
+    for (auto &fptr : fptrs)
     {
-        stringtable.add(fptrs[loopc]->name().c_str());
+        stringtable.add(fptr->name().c_str());
     }
 
     FILE *f = fopen(fname.c_str(), "wb+");

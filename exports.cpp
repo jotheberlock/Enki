@@ -29,11 +29,11 @@ void Exports::finalise()
 
     data_size += 8; // Number of entries
 
-    for (auto it = recs.begin(); it != recs.end(); it++)
+    for (auto &it : recs)
     {
         data_size += 8; // Relocation
         data_size += 8; // String size
-        data_size += round64(it->first.size() + 1);
+        data_size += round64(it.first.size() + 1);
     }
 
     delete[] data;
@@ -48,16 +48,16 @@ void Exports::finalise()
     ptr += len;
 
     wle64(ptr, recs.size());
-    for (auto it = recs.begin(); it != recs.end(); it++)
+    for (auto &it : recs)
     {
         FunctionTableRelocation *ftr =
-            new FunctionTableRelocation(configuration->image, it->second, ptr - data, IMAGE_EXPORTS);
+            new FunctionTableRelocation(configuration->image, it.second, ptr - data, IMAGE_EXPORTS);
         ftr->add64();
 
         wle64(ptr, 0xdeadbeefdeadbeefLL);
-        len = round64(it->first.size() + 1);
+        len = round64(it.first.size() + 1);
         wle64(ptr, len);
-        strcpy((char *)ptr, it->first.c_str());
+        strcpy((char *)ptr, it.first.c_str());
         ptr += len;
     }
 }
