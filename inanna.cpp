@@ -105,9 +105,8 @@ void InannaImage::finalise()
 
     int no_subrelocs = 0;
 
-    for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
+    for (auto &br: relocs)
     {
-        BaseRelocation *br = relocs[loopc];
         if (br->isAbsolute())
         {
             no_subrelocs += (int)br->relocs.size();
@@ -187,11 +186,11 @@ void InannaImage::finalise()
 
     size_t relocs_count = 0;
 
-    for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
+    for (auto &reloc : relocs)
     {
-        if (relocs[loopc]->isAbsolute())
+        if (reloc->isAbsolute())
         {
-            relocs_count += relocs[loopc]->relocs.size();
+            relocs_count += reloc->relocs.size();
         }
     }
 
@@ -210,9 +209,8 @@ void InannaImage::finalise()
     memcpy(ptr, imports->getData(), imports->size());
     ptr += imports->size();
 
-    for (unsigned int loopc = 0; loopc < isections.size(); loopc++)
+    for (auto &is : isections)
     {
-        InannaSection &is = isections[loopc];
         wle32(ptr, is.type);
         wle32(ptr, is.offset);
         wle32(ptr, is.length);
@@ -220,9 +218,8 @@ void InannaImage::finalise()
         wle64(ptr, is.vmem);
     }
 
-    for (unsigned int loopc = 0; loopc < relocs.size(); loopc++)
+    for (auto &br : relocs)
     {
-        BaseRelocation *br = relocs[loopc];
         if (br->isAbsolute())
         {
             uint64_t v = br->getValue();
@@ -239,11 +236,10 @@ void InannaImage::finalise()
             }
             printf("\nSection %d %s offset %lx points to section %d %s offset %lx\n", secfrom,
                    sectionName(secfrom).c_str(), offfrom, secto, sectionName(secto).c_str(), offto);
-            std::list<Reloc> &relocs = br->relocs;
-            for (std::list<Reloc>::iterator it = relocs.begin(); it != relocs.end(); it++)
+            for (auto &it : br->relocs)
             {
-                printf("  Off %lx rshift %d mask %lx lshift %d bits %d\n", (*it).offset, (*it).rshift, (*it).mask,
-                       (*it).lshift, (*it).bits);
+                printf("  Off %lx rshift %d mask %lx lshift %d bits %d\n", it.offset, it.rshift, it.mask,
+                       it.lshift, it.bits);
                 int type = INANNA_RELOC_INVALID;
 
                 uint32_t rshift = 0;
@@ -252,59 +248,59 @@ void InannaImage::finalise()
                 uint32_t bits = 0;
                 uint64_t offset = 0;
 
-                if ((*it).bits == 64 && (*it).mask == 0)
+                if (it.bits == 64 && it.mask == 0)
                 {
                     type = INANNA_RELOC_64;
                 }
-                else if ((*it).bits == 32 && (*it).mask == 0)
+                else if (it.bits == 32 && it.mask == 0)
                 {
                     type = INANNA_RELOC_32;
                 }
-                else if ((*it).bits == 16 && (*it).mask == 0)
+                else if (it.bits == 16 && it.mask == 0)
                 {
                     type = INANNA_RELOC_16;
                 }
-                else if ((*it).bits == 64)
+                else if (it.bits == 64)
                 {
                     type = INANNA_RELOC_MASKED_64;
-                    rshift = (*it).rshift;
-                    mask = (*it).mask;
-                    lshift = (*it).lshift;
-                    bits = (*it).bits;
-                    offset = (*it).offset;
+                    rshift = it.rshift;
+                    mask = it.mask;
+                    lshift = it.lshift;
+                    bits = it.bits;
+                    offset = it.offset;
                 }
-                else if ((*it).bits == 32)
+                else if (it.bits == 32)
                 {
                     type = INANNA_RELOC_MASKED_32;
-                    rshift = (*it).rshift;
-                    mask = (*it).mask;
-                    lshift = (*it).lshift;
-                    bits = (*it).bits;
-                    offset = (*it).offset;
+                    rshift = it.rshift;
+                    mask = it.mask;
+                    lshift = it.lshift;
+                    bits = it.bits;
+                    offset = it.offset;
                 }
-                else if ((*it).bits == 16)
+                else if (it.bits == 16)
                 {
                     type = INANNA_RELOC_MASKED_16;
-                    rshift = (*it).rshift;
-                    mask = (*it).mask;
-                    lshift = (*it).lshift;
-                    bits = (*it).bits;
-                    offset = (*it).offset;
+                    rshift = it.rshift;
+                    mask = it.mask;
+                    lshift = it.lshift;
+                    bits = it.bits;
+                    offset = it.offset;
                 }
                 else
                 {
-                    printf("Unknown relocation type! Bits %d mask %lx\n", (*it).bits, (*it).mask);
+                    printf("Unknown relocation type! Bits %d mask %lx\n", it.bits, it.mask);
                 }
 
                 printf("  Writing t %x sf %x st %x rs %x m %lx ls %x b %x o %lx off %lx ot %lx\n", type, secfrom, secto,
                        rshift, mask, lshift, bits, offset, offfrom, offto);
 
                 unsigned char *optr = sections[secfrom] + offset + offfrom;
-                if ((*it).bits == 64)
+                if (it.bits == 64)
                 {
                     printf("  Currently %lx\n", *((uint64_t *)optr));
                 }
-                else if ((*it).bits == 32)
+                else if (it.bits == 32)
                 {
                     printf("  Currently %x\n", *((uint32_t *)optr));
                 }

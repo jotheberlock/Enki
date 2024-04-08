@@ -166,11 +166,11 @@ void StructType::calcAddress(Codegen *c, Value *a, Expr *i)
     StructType *st = this;
     do
     {
-        for (unsigned int loopc = 0; loopc < st->members.size(); loopc++)
+        for (auto &member : st->members)
         {
-            if (st->members[loopc].name == ie->getString())
+            if (member.name == ie->getString())
             {
-                c->block()->add(Insn(ADD, a, a, Operand::usigc(st->members[loopc].offset / 8)));
+                c->block()->add(Insn(ADD, a, a, Operand::usigc(member.offset / 8)));
                 return;
             }
         }
@@ -193,16 +193,16 @@ void StructType::calc()
         siz = parent->size();
     }
 
-    for (unsigned int loopc = 0; loopc < members.size(); loopc++)
+    for (auto &member : members)
     {
-        members[loopc].offset = siz;
+        member.offset = siz;
         if (is_union)
         {
-            siz = (siz < members[loopc].type->size()) ? members[loopc].type->size() : siz;
+            siz = (siz < member.type->size()) ? member.type->size() : siz;
         }
         else
         {
-            siz += members[loopc].type->size();
+            siz += member.type->size();
         }
     }
 
@@ -214,11 +214,13 @@ void StructType::calc()
 
 Type *StructType::fieldType(std::string n)
 {
-    for (unsigned int loopc = 0; loopc < members.size(); loopc++)
+    for (auto &member : members)
     {
-        if (members[loopc].name == n)
+	// TODO: can probably define equality operator on member
+	// then this can just be a std::find
+        if (member.name == n)
         {
-            return members[loopc].type;
+            return member.type;
         }
     }
 
@@ -319,11 +321,11 @@ void Types::add(Type *t, std::string n)
 
 Type *Types::lookup(uint64_t id)
 {
-    for (auto it = types.begin(); it != types.end(); it++)
+    for (auto &it : types)
     {
-        if ((*it).second->classId() == id)
+        if (it.second->classId() == id)
         {
-            return (*it).second;
+            return it.second;
         }
     }
 
@@ -400,9 +402,9 @@ Types::~Types()
     types.erase("Uint");
     types.erase("Int");
 
-    for (auto it = types.begin(); it != types.end(); it++)
+    for (auto &it : types)
     {
-        delete (*it).second;
+        delete it.second;
     }
 }
 
@@ -560,7 +562,7 @@ Value *FunctionType::generateFuncall(Codegen *c, Funcall *f, Value *sl, Value *f
         Value *arg = args[loopc];
         Type *intype = arg->type;
         Type *expectedtype = params.size() > loopc ? params[loopc].type : 0;
-        int align = (expectedtype) ? expectedtype->align() / 8 : args[loopc]->type->align() / 8;
+        int align = (expectedtype) ? expectedtype->align() / 8 : arg->type->align() / 8;
         while (current_offset % align)
         {
             current_offset++;
@@ -898,17 +900,17 @@ void MtableEntry::print()
 
 void Mtables::generateTables()
 {
-    for (std::list<FunctionScope *>::iterator it = entries.begin(); it != entries.end(); it++)
+    for (auto &it: entries)
     {
-        GenericFunctionType *gft = (GenericFunctionType *)(*it)->getType();
-        offsets[(*it)] = offset;
+        GenericFunctionType *gft = (GenericFunctionType *)it->getType();
+        offsets[it] = offset;
 #ifdef DEBUG_MTABLES
         printf("Stored offset %llx for %s\n", offset, gft ? gft->name().c_str() : "<null!>");
 #endif
         std::vector<FunctionScope *> specialisations = gft->getSpecialisations();
-        for (std::vector<FunctionScope *>::iterator it2 = specialisations.begin(); it2 != specialisations.end(); it2++)
+        for (auto &it2: specialisations)
         {
-            processFunction(*it2);
+            processFunction(it2);
         }
         MtableEntry term(0); // Empty table endicates end of entry
         data.push_back(term);
@@ -924,9 +926,8 @@ void Mtables::createSection(Image *i, Assembler *a)
     unsigned char *ptr = i->getPtr(IMAGE_MTABLES);
     unsigned char *orig = ptr;
 
-    for (unsigned int loopc = 0; loopc < data.size(); loopc++)
+    for (auto &me: data)
     {
-        MtableEntry &me = data[loopc];
         size_t len = me.table.size() == 0 ? 0 : me.table.size() + 2;
         len *= sf_bit ? 8 : 4;
 

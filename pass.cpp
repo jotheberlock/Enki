@@ -65,11 +65,11 @@ void OptimisationPass::run()
 {
     assert(cg);
 
-    std::vector<BasicBlock *> &b = cg->getBlocks();
+    auto &b = cg->getBlocks();
     for (bit = b.begin(); bit != b.end(); bit++)
     {
         block = *bit;
-        std::vector<BasicBlock *>::iterator nextbit = bit;
+        auto nextbit = bit;
         nextbit++;
         if (nextbit == b.end())
         {
@@ -84,7 +84,7 @@ void OptimisationPass::run()
 
         for (iit = block->getCode().begin(); iit != block->getCode().end(); iit++)
         {
-            for (std::list<Insn>::iterator ait = to_append.begin(); ait != to_append.end(); ait++)
+            for (auto ait = to_append.begin(); ait != to_append.end(); ait++)
             {
                 prepend(*ait);
             }
@@ -99,9 +99,9 @@ void OptimisationPass::run()
             }
         }
 
-        for (std::list<Insn>::iterator ait = to_append.begin(); ait != to_append.end(); ait++)
+        for (auto &ait : to_append)
         {
-            block->getCode().push_back(*ait);
+            block->getCode().push_back(ait);
         }
         to_append.clear();
 
@@ -542,16 +542,14 @@ void ConditionalBranchExtender::processInsn()
             bool found_insn = false;
             bool found_block = false;
 
-            std::vector<BasicBlock *>::iterator it;
-            for (it = cg->getBlocks().begin(); it != cg->getBlocks().end(); it++)
+            for (auto it = cg->getBlocks().begin(); it != cg->getBlocks().end(); it++)
             {
                 BasicBlock *bb = *it;
                 if (bb == insn.ops[0].getBlock())
                 {
                     found_block = true;
                 }
-                std::list<Insn>::iterator it2;
-                for (it2 = bb->getCode().begin(); it2 != bb->getCode().end(); it2++)
+                for (auto it2 = bb->getCode().begin(); it2 != bb->getCode().end(); it2++)
                 {
                     if (it == bit && it2 == iit)
                     {

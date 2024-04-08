@@ -67,17 +67,17 @@ void SymbolScope::getValues(std::vector<Value *> &values)
 {
     values_gotten = true;
 
-    for (std::vector<Value *>::iterator it = sorted_contents.begin(); it != sorted_contents.end(); it++)
+    for (auto &it: sorted_contents)
     {
-        (*it)->setOnStack(true);
-        values.push_back(*it);
+        it->setOnStack(true);
+        values.push_back(it);
     }
 
-    for (std::list<SymbolScope *>::iterator it = children.begin(); it != children.end(); it++)
+    for (auto &it: children)
     {
-        if (!(*it)->isFunction())
+        if (!it->isFunction())
         {
-            (*it)->getValues(values);
+            it->getValues(values);
         }
     }
 }

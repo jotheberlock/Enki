@@ -83,9 +83,9 @@ void dump_codegen(Codegen *cg)
 {
     fprintf(log_file, "\n\nCode for %s:\n", cg->getScope()->name().c_str());
     std::vector<BasicBlock *> &bbs = cg->getBlocks();
-    for (unsigned int loopc = 0; loopc < bbs.size(); loopc++)
+    for (auto &bb : bbs)
     {
-        std::string bp = bbs[loopc]->toString();
+        std::string bp = bb->toString();
         fprintf(log_file, "\n%s\n", bp.c_str());
     }
 }
@@ -386,19 +386,19 @@ int main(int argc, char **argv)
 
     if (!no_stdlib)
     {
-        for (unsigned int loopc = 0; loopc < config.preloads.size(); loopc++)
+        for (auto &preload : config.preloads)
         {
-            FILE *f = config.open(config.preloads[loopc].c_str());
+            FILE *f = config.open(preload.c_str());
 
             if (!f)
             {
-                printf("Preload input file %s not found!\n", config.preloads[loopc].c_str());
+                printf("Preload input file %s not found!\n", preload.c_str());
                 return 1;
             }
 
             Chars input;
             readFile(f, input);
-            lex.setFile(config.preloads[loopc]);
+            lex.setFile(preload);
             lex.lex(input);
         }
     }
@@ -455,10 +455,10 @@ int main(int argc, char **argv)
     if (errors.size() != 0)
     {
         printf("Lexer errors:\n\n");
-        for (std::list<Error>::iterator it = errors.begin(); it != errors.end(); it++)
+        for (auto &it: errors)
         {
             printf("\n");
-            (*it).print();
+            it.print();
         }
         return 2;
     }
@@ -496,9 +496,9 @@ int main(int argc, char **argv)
     if (errors.size() != 0)
     {
         printf("Parse errors:\n\n");
-        for (std::list<Error>::iterator it = errors.begin(); it != errors.end(); it++)
+        for (auto &it : errors)
         {
-            (*it).print();
+            it.print();
             printf("\n");
         }
         return 3;
