@@ -18,7 +18,7 @@ class MachOImage : public Image
     MachOImage();
     ~MachOImage();
     void finalise();
-    bool configure(std::string, std::string);
+    bool configure(std::string, std::string) override;
     std::string name()
     {
         return "macho";

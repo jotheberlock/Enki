@@ -69,7 +69,7 @@ class IntegerExpr : public Expr
         return val;
     }
 
-    virtual Value *codegen(Codegen *);
+    virtual Value *codegen(Codegen *) override;
 
     bool constEval(uint64_t &ret)
     {
@@ -100,7 +100,7 @@ class ConfigConstantExpr : public Expr
         fprintf(log_file, "ConfigConstant %s", constant_name.c_str());
     }
 
-    virtual Value *codegen(Codegen *);
+    virtual Value *codegen(Codegen *) override;
 
     virtual bool constEval(uint64_t &);
 
@@ -117,7 +117,7 @@ class BreakpointExpr : public Expr
         fprintf(log_file, "Breakpoint");
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
 };
 
 class SizeofExpr : public Expr
@@ -134,7 +134,7 @@ class SizeofExpr : public Expr
         fprintf(log_file, "sizeof(%s)", to_sizeof->name().c_str());
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
 
   protected:
     Type *to_sizeof;
@@ -155,7 +155,7 @@ class CastExpr : public Expr
         fprintf(log_file, "cast(%s, %s)", "<fixme>", cast_type->name().c_str());
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
 
   protected:
     Expr *to_cast;
@@ -178,7 +178,7 @@ class IdentifierExpr : public Expr
         return val;
     }
 
-    virtual Value *codegen(Codegen *);
+    virtual Value *codegen(Codegen *) override;
 
     void setValue(Value *v, int s)
     {
@@ -208,7 +208,7 @@ class ImportExpr : public Expr
         return val;
     }
 
-    virtual Value *codegen(Codegen *)
+    virtual Value *codegen(Codegen *) override
     {
         return 0;
     }
@@ -238,7 +238,7 @@ class StringLiteralExpr : public Expr
         return idx;
     }
 
-    virtual Value *codegen(Codegen *);
+    virtual Value *codegen(Codegen *) override;
 
   protected:
     std::string val;
@@ -262,7 +262,7 @@ class VarDefExpr : public Expr
 
     virtual void print(int i);
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
 
   protected:
     Type *type;
@@ -331,7 +331,7 @@ class UnaryExpr : public Expr
         expr->print(i + 1);
     }
 
-    virtual Value *codegen(Codegen *);
+    virtual Value *codegen(Codegen *) override;
 
   protected:
     uint64_t op;
@@ -384,7 +384,7 @@ class Block : public Expr
         }
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
 
   protected:
     std::list<Expr *> contents;
@@ -456,7 +456,7 @@ class If : public Expr
         }
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
 
   protected:
     std::list<IfClause *> clauses;
@@ -488,7 +488,7 @@ class While : public Expr
         body->print(i + 1);
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
 
   protected:
     Expr *condition;
@@ -578,7 +578,7 @@ class BinaryExpr : public Expr
         rhs->print(0);
     }
 
-    virtual Value *codegen(Codegen *);
+    virtual Value *codegen(Codegen *) override;
 
     virtual bool constEval(uint64_t &);
 
@@ -611,7 +611,7 @@ class Square : public Expr
         fprintf(log_file, "]");
     }
 
-    virtual Value *codegen(Codegen *c)
+    virtual Value *codegen(Codegen * c) override
     {
         return subscript->codegen(c);
     }
@@ -646,7 +646,7 @@ class Break : public Expr
         fprintf(log_file, "break");
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
     Token token;
 };
 
@@ -664,7 +664,7 @@ class Continue : public Expr
         fprintf(log_file, "continue");
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
     Token token;
 };
 
@@ -689,7 +689,7 @@ class Return : public Expr
             ret->print(0);
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
 
   protected:
     Expr *ret;
@@ -715,7 +715,7 @@ class Yield : public Expr
             ret->print(0);
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
 
   protected:
     Expr *ret;
@@ -770,7 +770,7 @@ class VarRefExpr : public Expr
         elements.push_back(vre);
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
     void store(Codegen *c, Value *v);
 
     Value *value;
@@ -874,7 +874,7 @@ class DefExpr : public Expr
         }
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
 
   protected:
     FunctionType *type;
@@ -952,7 +952,7 @@ class Funcall : public Expr
         return args;
     }
 
-    virtual Value *codegen(Codegen *c);
+    virtual Value *codegen(Codegen *) override;
 
     Token token;
 

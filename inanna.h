@@ -38,7 +38,7 @@ class InannaImage : public Image
     InannaImage();
     ~InannaImage();
     void finalise();
-    bool configure(std::string, std::string);
+    bool configure(std::string, std::string) override;
 
     virtual uint64_t importAddress(std::string)
     {

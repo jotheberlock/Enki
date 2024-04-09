@@ -46,7 +46,7 @@ class Image : public Component
     Image();
     virtual ~Image();
 
-    virtual bool configure(std::string, std::string);
+    virtual bool configure(std::string, std::string) override;
     void setSectionSize(int, uint64_t);
     uint64_t sectionSize(int);
 

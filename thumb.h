@@ -55,7 +55,7 @@ class Thumb : public Assembler
     virtual void newFunction(Codegen *);
     virtual void align(uint64_t a);
 
-    virtual bool configure(std::string, std::string);
+    virtual bool configure(std::string, std::string) override;
 
     virtual bool validRegOffset(Insn &, int);
 

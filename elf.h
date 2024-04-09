@@ -15,7 +15,7 @@ class ElfImage : public Image
     ElfImage();
     ~ElfImage();
     void finalise();
-    bool configure(std::string, std::string);
+    bool configure(std::string, std::string) override;
 
     virtual uint64_t importAddress(std::string)
     {

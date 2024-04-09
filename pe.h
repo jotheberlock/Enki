@@ -18,7 +18,7 @@ class PEImage : public Image
     {
         return "pe";
     }
-    bool configure(std::string, std::string);
+    bool configure(std::string, std::string) override;
     void finalise();
 
     virtual uint64_t importAddress(std::string);

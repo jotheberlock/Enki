@@ -81,7 +81,7 @@ class ThreeToTwoPass : public OptimisationPass
         return "ThreeToTwo";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 #define MAXREGS 256
@@ -103,7 +103,7 @@ class SillyRegalloc : public OptimisationPass
         delete[] output;
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
     virtual void init(Codegen *, Configuration *);
 
     virtual std::string name()
@@ -134,7 +134,7 @@ class ConditionalBranchSplitter : public OptimisationPass
         return "ConditionalBranchSplitter";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 class BranchRemover : public OptimisationPass
@@ -149,7 +149,7 @@ class BranchRemover : public OptimisationPass
         return "BranchRemover";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 class AddressOfPass : public OptimisationPass
@@ -164,7 +164,7 @@ class AddressOfPass : public OptimisationPass
         return "AddressOf";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 class ConstMover : public OptimisationPass
@@ -188,7 +188,7 @@ class ConstMover : public OptimisationPass
         return "ConstMover";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 
     virtual void init(Codegen *cg, Configuration *cf)
     {
@@ -214,7 +214,7 @@ class ResolveConstAddr : public OptimisationPass
         return "ResolveConstAddr";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 class StackSizePass : public OptimisationPass
@@ -229,7 +229,7 @@ class StackSizePass : public OptimisationPass
         return "StackSizePass";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 class BitSizePass : public OptimisationPass
@@ -244,7 +244,7 @@ class BitSizePass : public OptimisationPass
         return "BitSizePass";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 class RemWithDivPass : public OptimisationPass
@@ -259,7 +259,7 @@ class RemWithDivPass : public OptimisationPass
         return "RemWithDivPass";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 // turn mov <hi>, something into mov <lo>, something ; mov <hi> <lo>
@@ -275,7 +275,7 @@ class ThumbMoveConstantPass : public OptimisationPass
         return "ThumbMoveConstantPass";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 // load r0, sp+256 -> mov foo, sp; add foo, foo, 256; load r0, foo
@@ -291,7 +291,7 @@ class StackRegisterOffsetPass : public OptimisationPass
         return "StackRegisterOffsetPass";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 // load r8, r8 -> move r7, r8 ; load r7, r7  ; move r8, r7
@@ -308,7 +308,7 @@ class ThumbHighRegisterPass : public OptimisationPass
         return "ThumbHighRegisterPass";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 // make sure cmp immediately precedes conditional branch/select
@@ -324,7 +324,7 @@ class CmpMover : public OptimisationPass
         return "CmpMover";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 // fix up conditional branches that might exceed the maximum encodable displacement
@@ -340,7 +340,7 @@ class ConditionalBranchExtender : public OptimisationPass
         return "ConditionalBranchExtender";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 // as a hack, rewrite 64-bit load/stores to 32-bit. Only works for little
@@ -359,7 +359,7 @@ class Convert64to32 : public OptimisationPass
         return "Convert64to32";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 class AddSplitter : public OptimisationPass
@@ -375,7 +375,7 @@ class AddSplitter : public OptimisationPass
         return "AddSplitter";
     }
 
-    virtual void processInsn();
+    virtual void processInsn() override;
 };
 
 #endif

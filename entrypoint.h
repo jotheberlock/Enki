@@ -44,7 +44,7 @@ class WindowsEntrypoint : public Entrypoint
     {
         return "windowsentrypoint";
     }
-    virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *);
+    virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *) override;
 };
 
 // Ends with an exit() syscall as appropriate for the platform
@@ -56,12 +56,12 @@ class UnixEntrypoint : public Entrypoint
         syscall_number = -1;
         exitcode_reg = -1;
     }
-    virtual bool configure(std::string, std::string);
+    virtual bool configure(std::string, std::string) override;
     virtual std::string name()
     {
         return "unixentrypoint";
     }
-    virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *);
+    virtual void generateEpilogue(BasicBlock *, FunctionScope *, Image *) override;
 
   protected:
     int syscall_number;
@@ -78,8 +78,8 @@ class ThumbEntrypoint : public UnixEntrypoint
     {
         jump_to_thumb = false;
     }
-    virtual bool configure(std::string, std::string);
-    virtual void generatePrologue(BasicBlock *, FunctionScope *, Image *);
+    virtual bool configure(std::string, std::string) override;
+    virtual void generatePrologue(BasicBlock *, FunctionScope *, Image *) override;
 
   protected:
     bool jump_to_thumb;
