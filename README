@@ -23,3 +23,8 @@ Yes, I have heard about LLVM - but LL is indeed a VM, and it Vs the things
 I'm most interested in messing around with, i.e. calling conventions (both
 in the sense of 'what goes in what register' and also it assumes you have
 a conventional C-style stack) and object file formats.
+
+Originally this was written some time ago in C++98 with portability in mind
+- I have compiled and run it succesfully with gcc 3.4 on a Solaris 7 SPARC
+machine for example. However it is now 2024 and I am incrementally updating it
+to C++11, a somewhat slow process given the size of the codebase.
