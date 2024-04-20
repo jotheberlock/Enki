@@ -28,6 +28,7 @@
 #define ARCH_AMD64 1
 #define ARCH_ARM32 2
 #define ARCH_ARMTHUMB 3
+#define ARCH_ARM64 4
 
 class FunctionScope;
 class BasicBlock;

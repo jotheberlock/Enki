@@ -743,7 +743,7 @@ void Arm32::align(uint64_t a)
     }
 }
 
-Value *ArmLinuxSyscallCallingConvention::generateCall(Codegen *c, Value *fptr, std::vector<Value *> &args)
+Value *Arm32LinuxSyscallCallingConvention::generateCall(Codegen *c, Value *fptr, std::vector<Value *> &args)
 {
     BasicBlock *current = c->block();
     RegSet res;

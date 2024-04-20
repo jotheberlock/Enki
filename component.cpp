@@ -9,6 +9,7 @@
 #include "pass.h"
 #include "pe.h"
 #include "thumb.h"
+#include "arm64.h"
 
 Component *make_inannaentrypoint()
 {
@@ -65,6 +66,11 @@ Component *make_arm32()
     return new Arm32();
 }
 
+Component *make_arm64()
+{
+    return new Arm64();
+}
+
 Component *make_thumb()
 {
     return new Thumb();
@@ -85,9 +91,14 @@ Component *make_amd64_windows()
     return new Amd64WindowsCallingConvention();
 }
 
-Component *make_arm_linux_syscall()
+Component *make_arm32_linux_syscall()
 {
-    return new ArmLinuxSyscallCallingConvention();
+    return new Arm32LinuxSyscallCallingConvention();
+}
+
+Component *make_arm64_linux_syscall()
+{
+    return new Arm64LinuxSyscallCallingConvention();
 }
 
 Component *make_thumb_linux_syscall()
@@ -194,11 +205,13 @@ ComponentFactory::ComponentFactory()
     add(make_inanna, "image", "inanna");
     add(make_amd64, "asm", "amd64");
     add(make_arm32, "asm", "arm32");
+    add(make_arm32, "asm", "arm64");
     add(make_thumb, "asm", "thumb");
     add(make_amd64_unix_syscall, "cconv", "amd64_unix_syscall");
     add(make_amd64_unix, "cconv", "amd64_unix");
     add(make_amd64_windows, "cconv", "amd64_windows");
-    add(make_arm_linux_syscall, "cconv", "arm_linux_syscall");
+    add(make_arm32_linux_syscall, "cconv", "arm32_linux_syscall");
+    add(make_arm64_linux_syscall, "cconv", "arm64_linux_syscall");
     add(make_thumb_linux_syscall, "cconv", "thumb_linux_syscall");
     add(make_illegal_call, "cconv", "illegal_call");
     add(make_threetotwo, "pass", "threetotwo");

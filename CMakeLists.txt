@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 add_executable(enki
 	amd64.cpp
 	arm32.cpp
+	arm64.cpp
 	asm.cpp
 	ast.cpp
 	backend.cpp

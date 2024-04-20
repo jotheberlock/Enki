@@ -1,30 +1,29 @@
-#ifndef _ARM_
-#define _ARM_
+#ifndef _ARM64_
+#define _ARM64_
 
 /*
-Converts intermediate code into 32-bit ARM machinecode.
-Assumes ARMv7 or better because it assumes movw/movt is available.
+Converts intermediate code into 64-bit ARM machinecode.
 */
 
 #include "asm.h"
 
-class Arm32 : public Assembler
+class Arm64 : public Assembler
 {
   public:
-    Arm32()
+    Arm64()
     {
-        psize = 32;
+        psize = 64;
     }
 
     int arch()
     {
-        return ARCH_ARM32;
+        return ARCH_ARM64;
     }
 
     int regnum(std::string);
     int numRegs()
     {
-        return 16;
+        return 32;
     }
 
     int size(BasicBlock *);
@@ -34,12 +33,12 @@ class Arm32 : public Assembler
 
     int framePointer()
     {
-        return 12;
+        return 29;
     }
 
     int osStackPointer()
     {
-        return 13;
+        return 31;
     }
 
     int functionAlignment()
@@ -60,7 +59,7 @@ class Arm32 : public Assembler
     bool calcImm(uint64_t raw, uint32_t &result);
 };
 
-class Arm32LinuxSyscallCallingConvention : public CallingConvention
+class Arm64LinuxSyscallCallingConvention : public CallingConvention
 {
   public:
     virtual void generatePrologue(BasicBlock *, FunctionScope *)
