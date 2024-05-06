@@ -205,7 +205,7 @@ ComponentFactory::ComponentFactory()
     add(make_inanna, "image", "inanna");
     add(make_amd64, "asm", "amd64");
     add(make_arm32, "asm", "arm32");
-    add(make_arm32, "asm", "arm64");
+    add(make_arm64, "asm", "arm64");
     add(make_thumb, "asm", "thumb");
     add(make_amd64_unix_syscall, "cconv", "amd64_unix_syscall");
     add(make_amd64_unix, "cconv", "amd64_unix");

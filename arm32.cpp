@@ -127,7 +127,7 @@ bool Arm32::assemble(BasicBlock *b, BasicBlock *next, Image *image)
     {
         i.addr = address + flen();
 
-        uint32_t mc = 0;
+        uint32_t mc = 0xe1a00000;   // NOP
 
         unsigned char *oldcurrent = current;
 
@@ -604,7 +604,6 @@ bool Arm32::assemble(BasicBlock *b, BasicBlock *next, Image *image)
         default: {
             fprintf(log_file, "Don't know how to turn %ld [%s] into arm!\n", i.ins, i.toString().c_str());
             assert(false);
-            mc = 0xe1a00000; // NOP
         }
 
             unsigned int siz = (unsigned int)(current - oldcurrent);

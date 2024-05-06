@@ -126,6 +126,10 @@ void ElfImage::finalise()
     {
         elf_arch = 0x28;
     }
+    else if (arch == ARCH_ARM64)
+    {
+	elf_arch = 0xb7;
+    }
     else
     {
         printf("Unknown arch for ELF! %d\n", arch);
