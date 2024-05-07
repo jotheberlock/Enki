@@ -232,6 +232,69 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
         case AND:
         case OR:
         case XOR: {
+            assert(i.oc == 3);
+            assert(i.ops[0].isReg());
+            assert(i.ops[1].isReg());
+            assert(i.ops[2].isReg() || i.ops[2].isUsigc() || i.ops[2].isSigc());
+
+            uint32_t op = 0;
+	    bool is_immediate = i.ops[2].isUsigc() || i.ops[2].isSigc();
+            if (i.ins == ADD)
+            {
+                op = is_immediate ? 0x91 : 0x8b;
+            }
+            else if (i.ins == SUB)
+            {
+                op = is_immediate ? 0xd1 : 0xcb;
+            }
+            else if (i.ins == AND)
+            {
+                op = is_immediate ? 0x92 : 0x8a;
+            }
+            else if (i.ins == OR)
+            {
+                op = is_immediate ? 0xb2 : 0xaa;
+            }
+            else if (i.ins == XOR)
+            {
+                op = is_immediate ? 0xd2 : 0xca;
+            }
+
+            if (is_immediate)
+            {
+                uint32_t val = 0;
+                if (i.ops[2].isUsigc())
+                {
+                    val = (uint32_t)i.ops[2].getUsigc();
+                }
+                else
+                {
+                    int32_t tmp = (int32_t)i.ops[2].getSigc();
+                    val = *((uint32_t *)&tmp);
+                }
+
+		bool shifted = false;
+		if (((val & 0x1) == 0 && val < 0x2000))
+		{
+		    val >>= 1;
+		    shifted = true;
+		}
+		else
+		{
+		    assert(val < 0x1000);
+		}
+
+                mc = (op << 24) | i.ops[0].getReg() | (i.ops[1].getReg() << 5) | (val << 10);
+		if (shifted)
+		{
+		    val |= 0x1 << 11;
+		}
+            }
+            else
+            {
+		mc = (op << 24) | i.ops[0].getReg() | (i.ops[1].getReg() << 5) | (i.ops[2].getReg() << 16);
+            }
+
             break;
         }
         case SHL:
