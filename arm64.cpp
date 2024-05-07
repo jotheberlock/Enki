@@ -169,6 +169,14 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
 
 		if (br)
 		{
+                    br->addReloc(0, 48, 0xffff, 5, 32);
+                    br->addReloc(4, 32, 0xffff, 5, 32);
+                    br->addReloc(8, 16, 0xffff, 5, 32);
+                    br->addReloc(12, 0, 0xffff, 5, 32);
+		    wee32(le, current, 0xf2e00000 | (((val >> 48) & 0xffff) << 5));
+		    wee32(le, current, 0xf2c00000 | (((val >> 32) & 0xffff) << 5));
+		    wee32(le, current, 0xf2a00000 | (((val >> 16) & 0xffff) << 5));
+		    mc = 0xd2800000 | ((val & 0xffff) << 5);
 		}
 		else
 		{
