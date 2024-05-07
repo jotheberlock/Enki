@@ -37,8 +37,17 @@ int Arm64::size(BasicBlock *b)
         switch (i.ins)
         {
         case MOVE: {
-	    ret += 4;
-	    i.size = 4;
+	    if (i.ops[1].isReg())
+	    {
+		ret += 4;
+		i.size = 4;
+	    }
+	    else
+	    {
+		// Worst case, a 64 bit immediate
+		ret += 16;
+		i.size = 16;
+	    }
             break;
         }
         default: {
@@ -123,7 +132,7 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
             if (i.ops[1].isUsigc() || i.ops[1].isSigc() || i.ops[1].isFunction() || i.ops[1].isBlock() ||
                 i.ops[1].isSection() || i.ops[1].isExtFunction())
             {
-                uint32_t val = 0x0;
+                uint64_t val = 0x0;
                 BaseRelocation *br = 0;
 
                 if (i.ops[1].isFunction())
@@ -149,26 +158,63 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
                 {
                     if (i.ops[1].isUsigc())
                     {
-                        val = (uint32_t)i.ops[1].getUsigc();
+                        val = (uint64_t)i.ops[1].getUsigc();
                     }
                     else
                     {
-                        int32_t tmp = (int32_t)i.ops[1].getSigc();
-                        val = *((uint32_t *)&tmp);
+                        int64_t tmp = (int64_t)i.ops[1].getSigc();
+                        val = *((uint64_t *)&tmp);
                     }
                 }
 
 		if (br)
 		{
 		}
-
-		// Note - these values are being truncated right now
-		mc = 0xd2800000 | ((val & 0xff) << 5) | i.ops[0].getReg();
+		else
+		{
+		    // If this is a known value we can be a bit cleverer about emitting it
+		    mc = 0xd2800000 | ((val & 0xffff) << 5) | i.ops[0].getReg();
+		    val >>= 16;
+		    if (val != 0)
+		    {
+			wee32(le, current, mc);
+			mc = 0xf2a00000 | ((val & 0xffff) << 5) | i.ops[0].getReg();
+		    }
+		    val >>= 16;
+		    if (val != 0)
+		    {
+			wee32(le, current, mc);
+			mc = 0xf2c00000 | ((val & 0xffff) << 5) | i.ops[0].getReg();
+		    }
+		    val >>= 16;
+		    if (val != 0)
+		    {
+			wee32(le, current, mc);
+			mc = 0xf2e00000 | ((val & 0xffff) << 5) | i.ops[0].getReg();
+		    }
+	        }
             }
             else
             {
-		// FIXME: SP is zero register right now
-		mc = 0xaa0003e0 | i.ops[1].getReg() << 16 | i.ops[0].getReg();
+		// MOV to/from SP is actually an add
+		if (i.ops[0].getReg() == osStackPointer())
+		{
+		    if (i.ops[1].getReg() == osStackPointer())
+		    {
+			// This is just a NOP
+			break;
+		    }
+
+		    mc = 0x9100001f | i.ops[1].getReg() << 5;
+		}
+		else if (i.ops[1].getReg() == osStackPointer())
+		{
+		    mc = 0x910003e0 | i.ops[0].getReg();
+		}
+		else
+		{
+		    mc = 0xaa0003e0 | i.ops[1].getReg() << 16 | i.ops[0].getReg();
+		}
             }
 
             break;
@@ -287,7 +333,7 @@ bool Arm64::configure(std::string param, std::string val)
 ValidRegs Arm64::validRegs(Insn &i)
 {
     ValidRegs ret;
-    for (int loopc = 0; loopc < 16; loopc++)
+    for (int loopc = 0; loopc < 31; loopc++)
     {
 	ret.ops[0].set(loopc);
 	ret.ops[1].set(loopc);
