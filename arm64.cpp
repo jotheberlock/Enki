@@ -5,6 +5,11 @@
 
 bool Arm64::validRegOffset(Insn &i, int off)
 {
+    // For now
+    if (off < 0x1000)
+    {
+	return true;
+    }
     return false;
 }
 
@@ -109,17 +114,65 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
         case LOADS16:
         case LOADS32:
         case LOAD:
-        case LOAD32: {
+        case LOAD32:
+	case LOAD64: {
+            assert(i.oc == 2 || i.oc == 3);
+
+            int32_t val = 0;
+            uint32_t uval = 0;
+            bool negative_offset = false;
+
+            if (i.oc == 3)
+            {
+                val = (int32_t)i.ops[2].getSigc();
+                assert(validRegOffset(i, val));
+                if (val < 0)
+                {
+                    negative_offset = true;
+                    uval = -val;
+                }
+                else
+                {
+                    uval = val;
+                }
+            }
+
+            if ((i.ins == LOAD || i.ins == LOAD64 || i.ins == LOAD32) && !negative_offset)
+            {
+		mc = 0xb8400000 | ((i.ins != LOAD32 ? 0x1 : 0x0) << 30) | uval << 12 | i.ops[0].getReg() | i.ops[1].getReg() << 5;
+	    }
             break;
         }
         case STORE8:
         case STORE16:
         case STORE:
-        case STORE32: {
-            break;
-        }
-        case LOAD64:
-        case STORE64: {
+        case STORE32:
+	case STORE64: {
+            assert(i.oc == 2 || i.oc == 3);
+
+            int32_t val = 0;
+            uint32_t uval = 0;
+            bool negative_offset = false;
+
+            if (i.oc == 3)
+            {
+                val = (int32_t)i.ops[1].getSigc();
+                assert(validRegOffset(i, val));
+                if (val < 0)
+                {
+                    negative_offset = true;
+                    uval = -val;
+                }
+                else
+                {
+                    uval = val;
+                }
+            }
+
+            if ((i.ins == STORE || i.ins == STORE64 || i.ins == STORE32) && !negative_offset)
+            {
+		mc = 0xb8000000 | ((i.ins != STORE32 ? 0x1 : 0x0) << 30) | uval << 12 | i.ops[2].getReg() | i.ops[0].getReg() << 5;
+	    }
             break;
         }
         case MOVE: {
@@ -169,14 +222,14 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
 
 		if (br)
 		{
-                    br->addReloc(0, 48, 0xffff, 5, 32);
-                    br->addReloc(4, 32, 0xffff, 5, 32);
-                    br->addReloc(8, 16, 0xffff, 5, 32);
-                    br->addReloc(12, 0, 0xffff, 5, 32);
-		    wee32(le, current, 0xf2e00000 | (((val >> 48) & 0xffff) << 5));
-		    wee32(le, current, 0xf2c00000 | (((val >> 32) & 0xffff) << 5));
-		    wee32(le, current, 0xf2a00000 | (((val >> 16) & 0xffff) << 5));
-		    mc = 0xd2800000 | ((val & 0xffff) << 5);
+                    br->addReloc(0, 0, 0xffff, 5, 32);
+                    br->addReloc(4, 48, 0xffff, 5, 32);
+                    br->addReloc(8, 32, 0xffff, 5, 32);
+                    br->addReloc(12, 16, 0xffff, 5, 32);
+		    wee32(le, current, 0xd2800000 | ((val & 0xffff) << 5) | i.ops[0].getReg());
+		    wee32(le, current, 0xf2e00000 | (((val >> 48) & 0xffff) << 5) | i.ops[0].getReg());
+		    wee32(le, current, 0xf2c00000 | (((val >> 32) & 0xffff) << 5) | i.ops[0].getReg());
+		    mc = 0xf2a00000 | (((val >> 16) & 0xffff) << 5) | i.ops[0].getReg();
 		}
 		else
 		{
@@ -232,6 +285,7 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
         case AND:
         case OR:
         case XOR: {
+	    // FIXME: looks like the logical ops have a different encoding
             assert(i.oc == 3);
             assert(i.ops[0].isReg());
             assert(i.ops[1].isReg());
@@ -273,21 +327,18 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
                     val = *((uint32_t *)&tmp);
                 }
 
-		bool shifted = false;
-		if (((val & 0x1) == 0 && val < 0x2000))
+		assert(val < 0x1000);
+
+		if (i.ins == AND || i.ins == OR || i.ins == XOR)
 		{
-		    val >>= 1;
-		    shifted = true;
+		    // This is a) hacky and b) probably not right
+		    assert (val < 0x10);
+		    // N is 1 (64 bit element)
+		    mc = (op << 24) | i.ops[0].getReg() | 0x1 << 22 | (i.ops[1].getReg() << 5) | (val << 10);
 		}
 		else
 		{
-		    assert(val < 0x1000);
-		}
-
-                mc = (op << 24) | i.ops[0].getReg() | (i.ops[1].getReg() << 5) | (val << 10);
-		if (shifted)
-		{
-		    val |= 0x1 << 11;
+		    mc = (op << 24) | i.ops[0].getReg() | (i.ops[1].getReg() << 5) | (val << 10);
 		}
             }
             else
@@ -415,6 +466,38 @@ ValidRegs Arm64::validRegs(Insn &i)
 
 bool Arm64::validConst(Insn &i, int idx)
 {
+    // Assume same as ARM32 until proved different
+    if (i.ins == DIV || i.ins == DIVS || i.ins == REM || i.ins == REMS || i.ins == SELEQ || i.ins == SELGT ||
+        i.ins == SELGE || i.ins == SELGTS || i.ins == SELGES || i.ins == MUL || i.ins == MULS || i.ins == NOT)
+    {
+        return false;
+    }
+
+    if (i.ins == ADD || i.ins == SUB || i.ins == MUL || i.ins == MULS || i.ins == AND || i.ins == OR || i.ins == XOR ||
+        i.ins == SHL || i.ins == SHR || i.ins == SAR)
+    {
+        if (idx != 2)
+        {
+            return false;
+        }
+    }
+
+    if (i.ins == STORE || i.ins == STORE8 || i.ins == STORE16 || i.ins == STORE32 || i.ins == STORE64)
+    {
+        if (idx == 2)
+        {
+            return false;
+        }
+    }
+
+    if (i.ins == CMP)
+    {
+        if (idx == 0)
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -430,11 +513,28 @@ void Arm64::newFunction(Codegen *c)
 
 void Arm64::align(uint64_t a)
 {
+    uint32_t nop = 0xd503201f;
+    while (currentAddr() % a)
+    {
+        *((uint32_t *)current) = nop;
+        current += 4;
+    }
 }
 
 Value *Arm64LinuxSyscallCallingConvention::generateCall(Codegen *c, Value *fptr, std::vector<Value *> &args)
 {
     BasicBlock *current = c->block();
+    RegSet res;
+    res.set(assembler->regnum("r0"));
+    res.set(assembler->regnum("r1"));
+    res.set(assembler->regnum("r2"));
+    res.set(assembler->regnum("r3"));
+    res.set(assembler->regnum("r4"));
+    res.set(assembler->regnum("r5"));
+
+    res.set(assembler->regnum("r8"));
+
+    current->setReservedRegs(res);
 
     if (args.size() > 6)
     {

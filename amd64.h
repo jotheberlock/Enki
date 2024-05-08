@@ -83,23 +83,23 @@ class Amd64WindowsCallingConvention : public CallingConvention
 class Amd64UnixSyscallCallingConvention : public CallingConvention
 {
   public:
-    virtual void generatePrologue(BasicBlock *, FunctionScope *)
+    virtual void generatePrologue(BasicBlock *, FunctionScope *) override
     {
     }
 
-    virtual void generateEpilogue(BasicBlock *, FunctionScope *)
+    virtual void generateEpilogue(BasicBlock *, FunctionScope *) override
     {
     }
 
-    virtual Value *generateCall(Codegen *, Value *, std::vector<Value *> &);
+    virtual Value *generateCall(Codegen *, Value *, std::vector<Value *> &) override;
 };
 
 class Amd64UnixCallingConvention : public CallingConvention
 {
   public:
-    virtual void generatePrologue(BasicBlock *, FunctionScope *);
-    virtual void generateEpilogue(BasicBlock *, FunctionScope *);
-    virtual Value *generateCall(Codegen *, Value *, std::vector<Value *> &);
+    virtual void generatePrologue(BasicBlock *, FunctionScope *) override;
+    virtual void generateEpilogue(BasicBlock *, FunctionScope *) override;
+    virtual Value *generateCall(Codegen *, Value *, std::vector<Value *> &) override;
 
   protected:
     Value *addRegStore(const char *rname, BasicBlock *b, FunctionScope *f);

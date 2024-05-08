@@ -62,15 +62,15 @@ class Arm64 : public Assembler
 class Arm64LinuxSyscallCallingConvention : public CallingConvention
 {
   public:
-    virtual void generatePrologue(BasicBlock *, FunctionScope *)
+    virtual void generatePrologue(BasicBlock *, FunctionScope *) override
     {
     }
 
-    virtual void generateEpilogue(BasicBlock *, FunctionScope *)
+    virtual void generateEpilogue(BasicBlock *, FunctionScope *) override
     {
     }
 
-    virtual Value *generateCall(Codegen *, Value *, std::vector<Value *> &);
+    virtual Value *generateCall(Codegen *, Value *, std::vector<Value *> &) override;
 };
 
 #endif
