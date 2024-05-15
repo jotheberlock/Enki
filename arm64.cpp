@@ -6,9 +6,25 @@
 bool Arm64::validRegOffset(Insn &i, int off)
 {
     // For now
-    if (off < 0x1000)
+    if (i.ins == LOAD64 || i.ins == STORE64 || i.ins == LOAD || i.ins == STORE)
     {
-	return true;
+	if (!(off & 0x7))
+	{
+	    if (off < 0x400)
+	    {
+		return true;
+	    }
+	}
+    }
+    else
+    {
+	if (!(off & 0x3))
+	{
+	    if (off < 0x200)
+	    {
+		return true;
+	    }
+	}
     }
     return false;
 }
@@ -139,7 +155,8 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
 
             if ((i.ins == LOAD || i.ins == LOAD64 || i.ins == LOAD32) && !negative_offset)
             {
-		mc = 0xb8400000 | ((i.ins != LOAD32 ? 0x1 : 0x0) << 30) | uval << 12 | i.ops[0].getReg() | i.ops[1].getReg() << 5;
+		mc = 0xb9400000 | ((i.ins != LOAD32 ? 0x1 : 0x0) << 30) |
+		    (i.ins == LOAD32 ? uval >> 2 : uval >> 3) << 10 | i.ops[0].getReg() | i.ops[1].getReg() << 5;
 	    }
             break;
         }
@@ -171,7 +188,7 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
 
             if ((i.ins == STORE || i.ins == STORE64 || i.ins == STORE32) && !negative_offset)
             {
-		mc = 0xb8000000 | ((i.ins != STORE32 ? 0x1 : 0x0) << 30) | uval << 12 | i.ops[2].getReg() | i.ops[0].getReg() << 5;
+		mc = 0xb9000000 | ((i.ins != STORE32 ? 0x1 : 0x0) << 30) | (i.ins == STORE32 ? uval >> 2 : uval >> 3) << 10 | i.ops[2].getReg() | i.ops[0].getReg() << 5;
 	    }
             break;
         }
