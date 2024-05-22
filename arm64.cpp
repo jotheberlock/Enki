@@ -171,6 +171,7 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
             uint32_t uval = 0;
             bool negative_offset = false;
 
+	    int dest = 1;
             if (i.oc == 3)
             {
                 val = (int32_t)i.ops[1].getSigc();
@@ -184,11 +185,12 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
                 {
                     uval = val;
                 }
+		dest = 2;
             }
 
-            if ((i.ins == STORE || i.ins == STORE64 || i.ins == STORE32) && !negative_offset)
+            if ((i.ins == STORE || i.ins == STORE64 || i.ins == STORE32) && !negative_offset && i.oc==3)
             {
-		mc = 0xb9000000 | ((i.ins != STORE32 ? 0x1 : 0x0) << 30) | (i.ins == STORE32 ? uval >> 2 : uval >> 3) << 10 | i.ops[2].getReg() | i.ops[0].getReg() << 5;
+		mc = 0xb9000000 | ((i.ins != STORE32 ? 0x1 : 0x0) << 30) | (i.ins == STORE32 ? uval >> 2 : uval >> 3) << 10 | i.ops[dest].getReg() | i.ops[0].getReg() << 5;
 	    }
             break;
         }
@@ -497,6 +499,25 @@ bool Arm64::validConst(Insn &i, int idx)
         {
             return false;
         }
+
+	if (i.ins == AND || i.ins == OR || i.ins == XOR)
+	{
+	    uint32_t val = 0;
+	    if (i.ops[2].isUsigc())
+	    {
+		val = (uint32_t)i.ops[2].getUsigc();
+	    }
+	    else
+	    {
+		int32_t tmp = (int32_t)i.ops[2].getSigc();
+		val = *((uint32_t *)&tmp);
+	    }
+
+	    if (val > 0x10)
+	    {
+		return false;
+	    }
+	}
     }
 
     if (i.ins == STORE || i.ins == STORE8 || i.ins == STORE16 || i.ins == STORE32 || i.ins == STORE64)

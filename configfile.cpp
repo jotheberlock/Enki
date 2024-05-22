@@ -64,7 +64,7 @@ std::string ConfigFile::nativeTargetConfig()
 #ifdef __arm__
     return "linux_arm32_target.ini";
 #elif __aarch64__
-    return "linux_arm32_target.ini";
+    return "linux_arm64_target.ini";
 #else
     return "linux_amd64_target.ini";
 #endif
