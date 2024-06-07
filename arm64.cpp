@@ -502,6 +502,9 @@ bool Arm64::validConst(Insn &i, int idx)
 
 	if (i.ins == AND || i.ins == OR || i.ins == XOR)
 	{
+	    return false;
+
+	    /*
 	    uint32_t val = 0;
 	    if (i.ops[2].isUsigc())
 	    {
@@ -517,6 +520,7 @@ bool Arm64::validConst(Insn &i, int idx)
 	    {
 		return false;
 	    }
+	    */
 	}
     }
 
