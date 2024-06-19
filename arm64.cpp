@@ -379,7 +379,11 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
         case CMP: {
 	    break;
         }
-        case NOT: {
+        case NOT:{
+            assert(i.oc == 2);
+            assert(i.ops[0].isReg());
+            assert(i.ops[1].isReg());
+	    mc = 0xaa2003e0 | i.ops[0].getReg() | i.ops[1].getReg() << 16;
             break;
         }
         case SELEQ:

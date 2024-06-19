@@ -9,8 +9,6 @@
 
 bool Amd64::validRegOffset(Insn &i, int off)
 {
-    return true;
-
     if (off < 0)
     {
         return false;
