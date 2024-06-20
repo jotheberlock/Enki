@@ -1061,6 +1061,7 @@ bool Amd64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
             else
             {
                 assert(i.ins == BRA);
+	        assert(i.ops[0].isBlock());
                 *current++ = 0xe9;
                 BasicBlockRelocation *bbr =
                     new BasicBlockRelocation(image, current_function, flen(), flen() + 4, i.ops[0].getBlock());

@@ -188,7 +188,7 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
 		dest = 2;
             }
 
-            if ((i.ins == STORE || i.ins == STORE64 || i.ins == STORE32) && !negative_offset && i.oc==3)
+            if ((i.ins == STORE || i.ins == STORE64 || i.ins == STORE32) && !negative_offset)
             {
 		mc = 0xb9000000 | ((i.ins != STORE32 ? 0x1 : 0x0) << 30) | (i.ins == STORE32 ? uval >> 2 : uval >> 3) << 10 | i.ops[dest].getReg() | i.ops[0].getReg() << 5;
 	    }
@@ -394,6 +394,20 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
             break;
         }
         case BRA: {
+            assert(i.oc == 1);
+            assert(i.ops[0].isReg() || i.ops[0].isBlock());
+            if (i.ops[0].isReg())
+            {
+                mc = 0xd61f0000 | i.ops[0].getReg() << 5;
+            }
+            else
+            {
+                mc = 0x14000000;
+                // Branch offset is stored >> 2
+                BasicBlockRelocation *bbr =
+                    new BasicBlockRelocation(image, current_function, flen(), flen(), i.ops[0].getBlock());
+                bbr->addReloc(0, 2, 0x03ffffff, 0, 32);
+            }
             break;
         }
         case BNE:
@@ -553,7 +567,7 @@ void Arm64::newFunction(Codegen *c)
     if (c->callConvention() == CCONV_STANDARD)
     {
         uint64_t addr = c->stackSize();
-        wle32(current, checked_32(addr));
+        wle64(current, addr);
     }
 }
 
