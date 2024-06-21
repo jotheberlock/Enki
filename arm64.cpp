@@ -5,12 +5,31 @@
 
 bool Arm64::validRegOffset(Insn &i, int off)
 {
-    // For now
     if (i.ins == LOAD64 || i.ins == STORE64 || i.ins == LOAD || i.ins == STORE)
     {
 	if (!(off & 0x7))
 	{
-	    if (off < 0x400)
+	    if ((off << 8) < 0x200)
+	    {
+		return true;
+	    }
+	}
+    }
+    else if (i.ins == LOAD32 || i.ins == LOADS32 || i.ins == STORE32)
+    {
+	if (!(off & 0x3))
+	{
+	    if ((off << 4) < 0x200)
+	    {
+		return true;
+	    }
+	}
+    }
+    else if (i.ins == LOAD16 || i.ins == LOADS16 || i.ins == STORE16)
+    {
+	if (!(off & 0x1))
+	{
+	    if ((off << 2) < 0x200)
 	    {
 		return true;
 	    }
@@ -18,12 +37,9 @@ bool Arm64::validRegOffset(Insn &i, int off)
     }
     else
     {
-	if (!(off & 0x3))
+	if (off < 0x200)
 	{
-	    if (off < 0x200)
-	    {
-		return true;
-	    }
+	    return true;
 	}
     }
     return false;
@@ -158,6 +174,22 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
 		mc = 0xb9400000 | ((i.ins != LOAD32 ? 0x1 : 0x0) << 30) |
 		    (i.ins == LOAD32 ? uval >> 2 : uval >> 3) << 10 | i.ops[0].getReg() | i.ops[1].getReg() << 5;
 	    }
+	    else if (i.ins == LOAD8)
+	    {
+		mc = 0x39400000 | uval << 10 | i.ops[0].getReg() | i.ops[1].getReg() << 5;
+	    }
+	    else if (i.ins == LOADS8)
+	    {
+		mc = 0x39c00000 | uval << 10 | i.ops[0].getReg() | i.ops[1].getReg() << 5;
+	    }
+	    else if (i.ins == LOAD16)
+	    {
+		mc = 0x79400000 | (uval >> 1) << 10 | i.ops[0].getReg() | i.ops[1].getReg() << 5;
+	    }
+	    else if (i.ins == LOADS16)
+	    {
+		mc = 0x79c00000 | (uval >> 1) << 10 | i.ops[0].getReg() | i.ops[1].getReg() << 5;
+	    }
             break;
         }
         case STORE8:
@@ -191,6 +223,14 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
             if ((i.ins == STORE || i.ins == STORE64 || i.ins == STORE32) && !negative_offset)
             {
 		mc = 0xb9000000 | ((i.ins != STORE32 ? 0x1 : 0x0) << 30) | (i.ins == STORE32 ? uval >> 2 : uval >> 3) << 10 | i.ops[dest].getReg() | i.ops[0].getReg() << 5;
+	    }
+	    else if (i.ins == STORE16)
+	    {
+		mc = 0x79000000 | (uval >> 1) << 10 | i.ops[dest].getReg() | i.ops[0].getReg() << 5;
+	    }
+	    else if (i.ins == STORE8)
+	    {
+		mc = 0x39000000 | uval << 10 | i.ops[dest].getReg() | i.ops[0].getReg() << 5;
 	    }
             break;
         }
