@@ -87,6 +87,11 @@ int Arm64::size(BasicBlock *b)
 	    }
             break;
         }
+	case REM:
+	case REMS: {
+	    ret += 8;
+	    i.size = 8;
+	}
         default: {
             ret += 4;
             i.size = 4;
@@ -450,7 +455,6 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
             assert(i.ops[1].isReg());
             assert(i.ops[2].isReg());
 	    uint32_t cond = 0;
-	    bool invert_condition = false;
             if (i.ins == SELEQ)
             {
                 cond = 0x0;
@@ -458,6 +462,7 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
             else if (i.ins == SELGE)
             {
 		// This is the /signed/ one, need to figure this one out
+		// Probably do the GT select and then a CMOV if EQ after
                 cond = 0xa;
             }
             else if (i.ins == SELGT)
@@ -526,23 +531,39 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
                 cond = 0xa;
             }
 	    mc = 0x54000000 | cond;
+                // Branch offset is stored >> 2
             BasicBlockRelocation *bbr =
                 new BasicBlockRelocation(image, current_function, flen(), flen(), i.ops[0].getBlock());
             bbr->addReloc(0, 2, 0x007ffff, 5, 32);
             break;
         }
         case DIV:
-        case DIVS: {
-            break;
-        }
+	case DIVS: {
+            assert(i.ops[0].isReg());
+            assert(i.ops[1].isReg());
+            assert(i.ops[2].isReg());
+	    mc = (i.ins == DIV ? 0x9ac00800 : 0x9ac00c00) | i.ops[0].getReg() | i.ops[1].getReg() << 5 | i.ops[2].getReg() << 16;
+	    break;
+	}
         case REM:
         case REMS: {
+            assert(i.ops[0].isReg());
+            assert(i.ops[1].isReg());
+            assert(i.ops[2].isReg());
+	    uint32_t div = (i.ins == REM ? 0x9ac00800 : 0x9ac00c00);
+	    div |= i.ops[0].getReg();
+	    div |= i.ops[1].getReg() << 5;
+	    div |= i.ops[2].getReg() << 16;
+	    wee32(le, current, div);
+	    mc = 0x9b008000 | i.ops[0].getReg() | i.ops[0].getReg() << 5 | i.ops[1].getReg() << 10 | i.ops[2].getReg() << 16;
             break;
         }
-        case MUL: {
-            break;
-        }
-        case MULS: {
+        case MUL:
+	case MULS: {
+            assert(i.ops[0].isReg());
+            assert(i.ops[1].isReg());
+            assert(i.ops[2].isReg());
+	    mc = 0x9b007c00 | i.ops[0].getReg() | i.ops[1].getReg() << 5 | i.ops[2].getReg() << 16;
             break;
         }
         default: {
