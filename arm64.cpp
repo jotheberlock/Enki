@@ -450,29 +450,27 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
             assert(i.ops[1].isReg());
             assert(i.ops[2].isReg());
 	    uint32_t cond = 0;
-            if (i.ins == BNE)
-            {
-                cond = 0x1;
-            }
-            else if (i.ins == BEQ)
+	    bool invert_condition = false;
+            if (i.ins == SELEQ)
             {
                 cond = 0x0;
             }
-            else if (i.ins == BG)
+            else if (i.ins == SELGE)
             {
-                cond = 0xc;
+		// This is the /signed/ one, need to figure this one out
+                cond = 0xa;
             }
-            else if (i.ins == BLE)
-            {
-                cond = 0xd;
+            else if (i.ins == SELGT)
+	    {
+                cond = 0x8;
             }
-            else if (i.ins == BL)
-            {
-                cond = 0xb;
-            }
-            else if (i.ins == BGE)
+            else if (i.ins == SELGES)
             {
                 cond = 0xa;
+            }
+            else if (i.ins == SELGTS)
+            {
+                cond = 0xc;
             }
 	    mc = 0x9a800000 | cond << 12 | i.ops[0].getReg() | i.ops[1].getReg() << 5 | i.ops[2].getReg() << 16;
             break;
