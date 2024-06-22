@@ -417,6 +417,20 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
             break;
         }
         case CMP: {
+            assert(i.oc == 2);
+            assert(i.ops[0].isReg());
+            assert(i.ops[1].isReg() || i.ops[1].isUsigc());
+
+            if (i.ops[1].isReg())
+            {
+		mc = 0xeb00001f | i.ops[0].getReg() << 5 | i.ops[1].getReg() << 16;
+	    }
+	    else
+	    {
+		assert(i.ops[1].getUsigc() < 4096);
+		mc = 0xf100001f | i.ops[1].getUsigc() << 10 | i.ops[0].getReg() << 5;
+	    }
+
 	    break;
         }
         case NOT:{
@@ -431,6 +445,36 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
         case SELGT:
         case SELGES:
         case SELGTS: {
+            assert(i.oc == 3);
+            assert(i.ops[0].isReg());
+            assert(i.ops[1].isReg());
+            assert(i.ops[2].isReg());
+	    uint32_t cond = 0;
+            if (i.ins == BNE)
+            {
+                cond = 0x1;
+            }
+            else if (i.ins == BEQ)
+            {
+                cond = 0x0;
+            }
+            else if (i.ins == BG)
+            {
+                cond = 0xc;
+            }
+            else if (i.ins == BLE)
+            {
+                cond = 0xd;
+            }
+            else if (i.ins == BL)
+            {
+                cond = 0xb;
+            }
+            else if (i.ins == BGE)
+            {
+                cond = 0xa;
+            }
+	    mc = 0x9a800000 | cond << 12 | i.ops[0].getReg() | i.ops[1].getReg() << 5 | i.ops[2].getReg() << 16;
             break;
         }
         case BRA: {
@@ -456,6 +500,37 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
         case BLE:
         case BL:
         case BGE: {
+            assert(i.oc == 1);
+            assert(i.ops[0].isBlock());
+	    uint32_t cond = 0;
+            if (i.ins == BNE)
+            {
+                cond = 0x1;
+            }
+            else if (i.ins == BEQ)
+            {
+                cond = 0x0;
+            }
+            else if (i.ins == BG)
+            {
+                cond = 0xc;
+            }
+            else if (i.ins == BLE)
+            {
+                cond = 0xd;
+            }
+            else if (i.ins == BL)
+            {
+                cond = 0xb;
+            }
+            else if (i.ins == BGE)
+            {
+                cond = 0xa;
+            }
+	    mc = 0x54000000 | cond;
+            BasicBlockRelocation *bbr =
+                new BasicBlockRelocation(image, current_function, flen(), flen(), i.ops[0].getBlock());
+            bbr->addReloc(0, 2, 0x007ffff, 5, 32);
             break;
         }
         case DIV:
