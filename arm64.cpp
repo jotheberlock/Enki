@@ -419,6 +419,35 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
         case RCR:
         case ROL:
         case ROR: {
+            assert(i.oc == 3);
+            assert(i.ops[0].isReg());
+            assert(i.ops[1].isReg());
+            assert(i.ops[2].isReg());
+
+	    uint32_t op = 0;
+	    if (i.ins == SHL)
+	    {
+		op = 0x9ac02000;
+	    }
+	    else if (i.ins == SHR)
+	    {
+		op = 0x9ac02400;
+	    }
+	    else if (i.ins == SAR)
+	    {
+		op = 0x9ac02800;
+	    }
+	    else if (i.ins == ROR)
+	    {
+		op = 0x9ac02c00;
+	    }
+	    else
+	    {
+		printf("Do not support shift operation %lu!\n", i.ins);
+		break;
+	    }
+
+	    mc = op | i.ops[0].getReg() | i.ops[1].getReg() << 5 | i.ops[2].getReg() << 16;
             break;
         }
         case CMP: {
@@ -550,6 +579,7 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
             assert(i.ops[0].isReg());
             assert(i.ops[1].isReg());
             assert(i.ops[2].isReg());
+	    // (u|s)div followed by msub
 	    uint32_t div = (i.ins == REM ? 0x9ac00800 : 0x9ac00c00);
 	    div |= i.ops[0].getReg();
 	    div |= i.ops[1].getReg() << 5;
@@ -639,41 +669,18 @@ bool Arm64::validConst(Insn &i, int idx)
 {
     // Assume same as ARM32 until proved different
     if (i.ins == DIV || i.ins == DIVS || i.ins == REM || i.ins == REMS || i.ins == SELEQ || i.ins == SELGT ||
-        i.ins == SELGE || i.ins == SELGTS || i.ins == SELGES || i.ins == MUL || i.ins == MULS || i.ins == NOT)
+        i.ins == SELGE || i.ins == SELGTS || i.ins == SELGES || i.ins == MUL || i.ins == MULS || i.ins == NOT ||
+	i.ins == SHL || i.ins == SHR || i.ins == SAR || i.ins == AND || i.ins == OR || i.ins == XOR)
     {
         return false;
     }
 
-    if (i.ins == ADD || i.ins == SUB || i.ins == MUL || i.ins == MULS || i.ins == AND || i.ins == OR || i.ins == XOR ||
-        i.ins == SHL || i.ins == SHR || i.ins == SAR)
+    if (i.ins == ADD || i.ins == SUB)
     {
         if (idx != 2)
         {
             return false;
         }
-
-	if (i.ins == AND || i.ins == OR || i.ins == XOR)
-	{
-	    return false;
-
-	    /*
-	    uint32_t val = 0;
-	    if (i.ops[2].isUsigc())
-	    {
-		val = (uint32_t)i.ops[2].getUsigc();
-	    }
-	    else
-	    {
-		int32_t tmp = (int32_t)i.ops[2].getSigc();
-		val = *((uint32_t *)&tmp);
-	    }
-
-	    if (val > 0x10)
-	    {
-		return false;
-	    }
-	    */
-	}
     }
 
     if (i.ins == STORE || i.ins == STORE8 || i.ins == STORE16 || i.ins == STORE32 || i.ins == STORE64)
