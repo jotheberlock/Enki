@@ -15,7 +15,7 @@ generic readline(stream, param, count) Uint
 
 # O_CREAT|O_RDWR, 0777
 def init_stream(FileStream^ stream, Byte^ path) Uint
-    Uint fd = __syscall(SYSCALL_OPEN, path, 66, 0x1ff)
+    Uint fd = __syscall(SYSCALL_OPENAT, AT_FDCWD, path, 66, 0x1ff)
     stream^.in = fd
     stream^.out = fd
 

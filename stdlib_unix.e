@@ -1,5 +1,5 @@
 def write(Byte^ ptr) Uint
-    Uint count 
+    Uint count
     count = len(ptr)
     Uint written
     written = __syscall(SYSCALL_WRITE, STDOUT, ptr, count)
@@ -19,7 +19,7 @@ def read(Byte^ ptr, Uint len) Uint
 
 def open_file(Byte^ filename) Uint
     Uint handle
-    handle = __syscall(SYSCALL_OPEN, filename, 2, 0)
+    handle = __syscall(SYSCALL_OPENAT, AT_FDCWD, filename, 2, 0)
     return handle
 
 def close_file(Uint fd) Uint
@@ -36,7 +36,7 @@ def get_file_size(Uint fd) Uint
 
 def map_file(Uint fd, Uint offset, Uint size, Uint permissions) Byte^
     Uint32 protect
-    
+
     if permissions == READ_PERMISSION
         protect = PROT_READ
     elif permissions == RW_PERMISSION
@@ -50,7 +50,7 @@ def map_file(Uint fd, Uint offset, Uint size, Uint permissions) Byte^
     Byte^ ret
     ret = __syscall(SYSCALL_MMAP, 0, size, protect, flags, fd, offset)
     return ret
-    
+
 def remap(Byte^ ptr, Uint size, Uint permissions) Uint
     Uint32 protect
     if permissions == READ_PERMISSION
