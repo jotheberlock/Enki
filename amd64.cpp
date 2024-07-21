@@ -24,7 +24,6 @@ bool Amd64::validRegOffset(Insn &i, int off)
     }
     else
     {
-
         return (off < 128) && ((off & 0x3) == 0);
     }
     return false;

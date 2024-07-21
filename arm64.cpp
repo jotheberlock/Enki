@@ -9,7 +9,7 @@ bool Arm64::validRegOffset(Insn &i, int off)
     {
 	if (!(off & 0x7))
 	{
-	    if ((off << 8) < 0x200)
+	    if ((off >> 8) < 0x200)
 	    {
 		return true;
 	    }
@@ -19,7 +19,7 @@ bool Arm64::validRegOffset(Insn &i, int off)
     {
 	if (!(off & 0x3))
 	{
-	    if ((off << 4) < 0x200)
+	    if ((off >> 4) < 0x200)
 	    {
 		return true;
 	    }
@@ -29,7 +29,7 @@ bool Arm64::validRegOffset(Insn &i, int off)
     {
 	if (!(off & 0x1))
 	{
-	    if ((off << 2) < 0x200)
+	    if ((off >> 2) < 0x200)
 	    {
 		return true;
 	    }
