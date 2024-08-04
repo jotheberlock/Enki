@@ -146,7 +146,8 @@ void BaseRelocation::apply()
     if (written)
     {
         // this is not ideal
-        if (written != 0xfffffffffffff000 && written != 0xfffffffffc000000 && written != 0xffffffff00000000)
+        if (written != 0xfffffffffffff000 && written != 0xfffffffffc000000 && written != 0xfffffffff &&
+	    written != 0xffffffff00000000 && written != 0xfffffffff0000000)
         {
             printf("Unwritten bits in %d bit relocation of %lx! %lx\n", bits, val, written);
             display_failure();
