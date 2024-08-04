@@ -35,7 +35,7 @@ Lexer::Lexer()
 
     addOp(OpRec(BINOP, true, 4), '&');
     addOp(OpRec(BINOP, true, 4), '|');
-    // addOp(OpRec(BINOP, true, 4), '^');
+    addOp(OpRec(BINOP, true, 4), '^');
 
     addOp(OpRec(UNARYOP, true, 4), '!');
     addOp(OpRec(UNARYOP, true, 4), '@');
@@ -88,6 +88,8 @@ Lexer::Lexer()
 
     ReadChar b;
     simpleToken(b, BEGIN); // Implicit block
+
+    whitespace_before_token = false;
 }
 
 void Lexer::addOp(OpRec op, uint32_t first, uint32_t second)
@@ -153,11 +155,13 @@ bool Lexer::isOp(uint32_t first, uint32_t second, bool &two_char, OpRec &op, std
 ReadChar Lexer::eatWhitespace()
 {
     ReadChar ch;
+    whitespace_before_token = false;
     do
     {
         ch = next();
         if (ch.val != ' ' && ch.val != '\t')
             break;
+	whitespace_before_token = true;
     } while (true);
     return ch;
 }
@@ -683,7 +687,7 @@ void Lexer::lex(Chars &input)
                 readNumber();
                 continue;
             }
-            else if (isOp(begin.val, second.val, twochar, orc, ""))
+            else if (isOp(begin.val, second.val, twochar, orc, "") && (begin.val != '^' || whitespace_before_token))
             {
                 beginToken(begin, orc.type);
                 current_token.value.push_back(begin.val);

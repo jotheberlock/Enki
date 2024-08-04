@@ -293,6 +293,9 @@ class Lexer
     std::unordered_map<std::string, int> keywords;
     std::stack<int> indentations;
     std::string file;
+
+    bool whitespace_before_token;
+
 };
 
 #endif
