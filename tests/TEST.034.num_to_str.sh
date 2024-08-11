@@ -9,5 +9,5 @@ if [[ `uname -m` == "armv7l" ]]; then
 else
     compile TEST.034.num_to_str.e
     STDOUT=`$OUTPUT`
-    expectResult 16 "$STDOUT" "$STDOUT"
+    expectResult 16 "$STDOUT" "deadbeefdeadbeef"
 fi
