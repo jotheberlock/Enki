@@ -72,4 +72,6 @@ add_executable(objtool
 	tools/md5.cpp
 	tools/objtool.cpp)
 
-add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)  # Don't complain about6 e.g. fopen() and strcpy() in Visual Studio
+add_definitions(-D_CRT_SECURE_NO_WARNINGS=1)  # Don't complain about e.g. fopen() and strcpy() in Visual Studio
+
+add_custom_target(test COMMAND bash runTests.sh WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/tests/ VERBATIM) # Depends on Cygwin for VS
