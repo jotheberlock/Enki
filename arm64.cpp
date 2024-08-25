@@ -300,19 +300,19 @@ bool Arm64::assemble(BasicBlock *b, BasicBlock *next, Image *image)
 		    // If this is a known value we can be a bit cleverer about emitting it
 		    mc = 0xd2800000 | ((val & 0xffff) << 5) | i.ops[0].getReg();
 		    val >>= 16;
-		    if (val != 0)
+		    if ((val & 0xffff) != 0)
 		    {
 			wee32(le, current, mc);
 			mc = 0xf2a00000 | ((val & 0xffff) << 5) | i.ops[0].getReg();
 		    }
 		    val >>= 16;
-		    if (val != 0)
+		    if ((val & 0xffff) != 0)
 		    {
 			wee32(le, current, mc);
 			mc = 0xf2c00000 | ((val & 0xffff) << 5) | i.ops[0].getReg();
 		    }
 		    val >>= 16;
-		    if (val != 0)
+		    if ((val & 0xffff) != 0)
 		    {
 			wee32(le, current, mc);
 			mc = 0xf2e00000 | ((val & 0xffff) << 5) | i.ops[0].getReg();
