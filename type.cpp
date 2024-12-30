@@ -214,14 +214,11 @@ void StructType::calc()
 
 Type *StructType::fieldType(std::string n)
 {
-    for (auto &member : members)
+    auto i = std::find_if(members.begin(), members.end(),
+			  [n](const StructElement& x) { return n == x.name; });
+    if (i != members.end())
     {
-	// TODO: can probably define equality operator on member
-	// then this can just be a std::find
-        if (member.name == n)
-        {
-            return member.type;
-        }
+	return (*i).type;
     }
 
     if (parent)
